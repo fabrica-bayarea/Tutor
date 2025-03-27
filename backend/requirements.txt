@@ -1,0 +1,5 @@
+python-dotenv
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+docling
