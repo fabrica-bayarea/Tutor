@@ -2,6 +2,7 @@ from app.config import db
 import uuid
 
 class AlunoMateria(db.Model):
+    """Entidade intermediária, responsável por lidar com relacionamentos entre Alunos e Matérias."""
     __tablename__ = 'alunos_materias'
 
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
