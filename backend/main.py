@@ -4,8 +4,6 @@ from app.config import *
 from app.models import *
 
 app = Flask(__name__)
-app.config.from_object(Config)
-
 init_db(app)
 migrate = Migrate(app, db)
 

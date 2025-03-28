@@ -1,2 +1,2 @@
 from .config import Config
-from .database import db
+from .database import init_db, db
