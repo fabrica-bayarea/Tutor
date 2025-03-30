@@ -23,7 +23,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-_Se tiver problemas com a instalação do **Docling**, consulte a solução mais abaixo na seção 'Dependências'._
+_Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **'Dependências do backend'**._
 
 4. Crie um arquivo `.env` na pasta `backend` e configure as variáveis de ambiente necessárias:
 ```bash
@@ -68,10 +68,7 @@ Flask-Migrate é uma extensão para Flask que fornece migrações de banco de da
 ### chromadb
 ChromaDB é um banco de dados vetorial open-source projetado para aplicações de IA.
 
-### docling
-Docling é uma poderosa biblioteca que unifica o processamento de vários tipos de documentos, como PDF, DOCX, PPTX, XLSX, HTML, imagens e mais.
-
-_Se tiver problemas com a instalação do **Docling**, talvez você precise instalar o **Microsoft C++ Build Tools** no seu computador. Para isso, siga os passos abaixo:_
+_Se tiver problemas com a instalação do **ChromaDB**, talvez você precise instalar o **Microsoft C++ Build Tools** no seu computador. Para isso, siga os passos abaixo:_
 
 1. Baixe e instale o [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
 
@@ -89,3 +86,6 @@ _Se tiver problemas com a instalação do **Docling**, talvez você precise inst
     ```bash
     pip install -r requirements.txt
     ```
+
+### docling
+Docling é uma poderosa biblioteca que unifica o processamento de vários tipos de documentos, como PDF, DOCX, PPTX, XLSX, HTML, imagens e mais.
