@@ -78,9 +78,9 @@ _Se tiver problemas com a instalação do **ChromaDB**, talvez você precise ins
         * _Qualquer versão deve funcionar, mas selecione a mais recente disponível_
     * MSVC v142 ou superior
 
-3. Após instalar, reinicie o terminal e tente novamente instalar o Docling **no ambiente virtual** com:
+3. Após instalar, reinicie o terminal e tente novamente instalar o ChromaDB **no ambiente virtual** com:
     ```bash
-    pip install docling
+    pip install chromadb
     ```
     ou
     ```bash
