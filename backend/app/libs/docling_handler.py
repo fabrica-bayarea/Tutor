@@ -1,6 +1,6 @@
 from docling.document_converter import DocumentConverter
 
-def extrair_texto_markdown(caminho_arquivo):
+def extrair_texto_markdown(caminho_arquivo: str) -> str:
     """
     Usa o Docling para extrair o texto do arquivo e retorná-lo em markdown.
     """
