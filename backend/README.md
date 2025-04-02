@@ -25,7 +25,12 @@ pip install -r requirements.txt
 
 _Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **'Dependências do backend'**._
 
-4. Crie um arquivo `.env` na pasta `backend` e configure as variáveis de ambiente necessárias:
+4. Aplique as migrações do banco de dados PostgreSQL:
+```bash
+flask db upgrade
+```
+
+5. Crie um arquivo `.env` também na pasta `backend` e configure as variáveis de ambiente necessárias:
 ```bash
 DATABASE_URL=url_do_postgresql
 ```
