@@ -1,4 +1,4 @@
-from app.config import db
+from config import db
 import uuid
 
 class DocumentoMateria(db.Model):
