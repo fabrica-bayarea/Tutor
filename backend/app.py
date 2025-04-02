@@ -1,7 +1,10 @@
 from flask import Flask
 from flask_migrate import Migrate
-from app.config import *
-from app.models import *
+from application.config import *
+from application.libs import *
+from application.models import *
+from application.routes import *
+from application.services import *
 
 app = Flask(__name__)
 init_db(app)
