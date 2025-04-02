@@ -1,4 +1,4 @@
-from config import db
+from application.config import db
 import uuid
 
 class ProfessorMateria(db.Model):

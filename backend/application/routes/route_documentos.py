@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.service_documento import *
+from application.services.service_documento import *
 
 documentos_bp = Blueprint('documentos', __name__)
 

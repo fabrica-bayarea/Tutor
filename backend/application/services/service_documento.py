@@ -2,9 +2,9 @@ import os
 import uuid
 from datetime import datetime
 from typing import List
-from config import db, chroma_client
-from models import Documento
-from libs.docling_handler import *
+from application.config import db, chroma_client
+from application.models import Documento
+from application.libs.docling_handler import *
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
