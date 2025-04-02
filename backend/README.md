@@ -65,6 +65,9 @@ Flask-SQLAlchemy é uma extensão para Flask que fornece uma interface ORM (Obje
 ### Flask-Migrate
 Flask-Migrate é uma extensão para Flask que fornece migrações de banco de dados para o SQLAlchemy.
 
+### psycopg2
+psycopg2 é um driver de banco de dados para PostgreSQL.
+
 ### chromadb
 ChromaDB é um banco de dados vetorial open-source projetado para aplicações de IA.
 
