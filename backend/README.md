@@ -1,5 +1,11 @@
 # Tutor/backend
 
+## IMPORTANTE
+Para conseguir executar corretamente o backend da aplicação, você deve, **no mínimo**:
+* Utilizar uma versão do **Python** entre as versões **3.8** e **3.11**
+* Ter o **PostgreSQL** instalado no seu computador
+    * Ter o **database** devidamente criado, assim como suas **tabelas** (consulte o líder da equipe de backend para mais informações)
+
 ## Instalação
 Supondo que você já tenha clonado o repositório, **certifique-se de que você está na pasta `backend`**, e então:
 
@@ -25,14 +31,16 @@ pip install -r requirements.txt
 
 _Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **[Dependências do backend](#dependências-do-backend)**._
 
-4. Aplique as migrações do banco de dados PostgreSQL:
-```bash
-flask db upgrade
-```
-
-5. Crie um arquivo `.env` também na pasta `backend` e configure as variáveis de ambiente necessárias:
+4. Crie um arquivo `.env` também na pasta `backend` e configure as variáveis de ambiente necessárias:
 ```bash
 DATABASE_URL=url_do_postgresql
+```
+
+_Consulte o líder da equipe de backend para auxiliá-lo na configuração do arquivo `.env`._
+
+5. Aplique as migrações do banco de dados PostgreSQL:
+```bash
+flask db upgrade
 ```
 
 ## Estrutura do backend do projeto
@@ -57,7 +65,7 @@ tutor/
     └── requirements.txt    # Arquivo de dependências do backend
 ```
 
-**Por questões de segurança, o arquivo `.env` e a pasta `data` não devem ser enviados para o repositório.**
+**Por questões de segurança, o arquivo `.env` e a pasta `data` não são (e nem devem) ser enviados para o repositório.**
 
 ## Dependências do backend
 ### python-dotenv
