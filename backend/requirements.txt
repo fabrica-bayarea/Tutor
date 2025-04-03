@@ -5,3 +5,4 @@ Flask-Migrate
 psycopg2
 chromadb
 docling
+openai-whisper
