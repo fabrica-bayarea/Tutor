@@ -13,6 +13,7 @@ migrate = Migrate(app, db)
 collection = chroma_client.get_or_create_collection(name="documentos")
 
 app.register_blueprint(documentos_bp, url_prefix="/documentos")
+app.register_blueprint(links_bp, url_prefix="/links")
 
 if __name__ == "__main__":
     app.run(debug=True)
