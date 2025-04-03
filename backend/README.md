@@ -2,46 +2,59 @@
 
 ## IMPORTANTE
 Para conseguir executar corretamente o backend da aplicação, você deve, **no mínimo**:
-* Utilizar uma versão do **Python** entre as versões **3.8** e **3.11**
+* Utilizar uma versão do **Python** entre **3.8** e **3.11**
+    * Sugerimos utilizar a _major version_ **3.11**. Qualquer _minor version_ (3.11.0, 3.11.9, etc) deve funcionar bem
 * Ter o **PostgreSQL** instalado no seu computador
-    * Ter o **database** devidamente criado, assim como suas **tabelas** (consulte o líder da equipe de backend para mais informações)
+    * Utilizamos a versão **[17.4](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)**
+    * [Veja este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
+* Ter o **database** do PostgreSQL devidamente criado, assim como suas **tabelas**
+    * Consulte o líder da equipe de backend para mais informações
 
 ## Instalação
 Supondo que você já tenha clonado o repositório, **certifique-se de que você está na pasta `backend`**, e então:
 
 1. Crie seu ambiente virtual:
-```bash
-python -m venv venv
-```
+    ```bash
+    python -m venv venv
+    ```
+    Ou, se quiser garantir que ele seja criado com uma versão específica (como a **3.11**):
+    * No **Windows**:
+        ```bash
+        py -3.11 -m venv venv
+        ```
+    * No **Linux/MacOS**:
+        ```bash
+        python3.11 -m venv venv
+        ```
 
 2. Ative o ambiente virtual:
     * No **Windows**:
-    ```bash
-    .\venv\Scripts\activate
-    ```
+        ```bash
+        .\venv\Scripts\activate
+        ```
     * No **Linux/Mac**:
-    ```bash
-    source venv/bin/activate
-    ```
+        ```bash
+        source venv/bin/activate
+        ```
 
 3. **Com o ambiente virtual ativado**, instale as dependências do backend:
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-_Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **[Dependências do backend](#dependências-do-backend)**._
+    _Se a instalação do **ChromaDB** apresentar problemas, consulte a solução mais abaixo na seção **[Dependências do backend](#dependências-do-backend)**._
 
 4. Crie um arquivo `.env` também na pasta `backend` e configure as variáveis de ambiente necessárias:
-```bash
-DATABASE_URL=url_do_postgresql
-```
+    ```bash
+    DATABASE_URL=url_do_postgresql
+    ```
 
-_Consulte o líder da equipe de backend para auxiliá-lo na configuração do arquivo `.env`._
+    _Consulte o líder da equipe de backend para auxiliá-lo na configuração do arquivo `.env`._
 
 5. Aplique as migrações do banco de dados PostgreSQL:
-```bash
-flask db upgrade
-```
+    ```bash
+    flask db upgrade
+    ```
 
 ## Estrutura do backend do projeto
 Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada tem um propósito específico.
@@ -95,6 +108,7 @@ _Se tiver problemas com a instalação do **ChromaDB**, talvez você precise ins
     * Windows 10 SDK
         * _Qualquer versão deve funcionar, mas selecione a mais recente disponível_
     * MSVC v142 ou superior
+        * Provavelmente ao selecionar a primeira opção (**C++ CMake Tools for Windows**) o **MSVC v143** já será selecionado automaticamente, facilitando a busca
 
 3. Após instalar, reinicie o terminal e tente novamente instalar o ChromaDB **no ambiente virtual** com:
     ```bash
@@ -113,7 +127,6 @@ OpenAI Whisper é uma biblioteca que permite transcrever áudio em texto.
 
 ### selenium
 Ferramenta para automação de navegadores, usada para testes e interação com páginas web.
-
 
 ### webdriver-manager
 Facilita o uso do Selenium, baixando e configurando automaticamente os drivers dos navegadores.
