@@ -49,15 +49,15 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
     """
     collection = chroma_client.get_or_create_collection("documentos")
     collection.add(
-        id=[str(documento_id)],
+        ids=[str(documento_id)],
         metadatas=[{
             "titulo": titulo,
             "professor_id": str(professor_id),
-            "materia_ids": [str(materia_id) for materia_id in materia_ids],
+            "materia_ids": ",".join([str(materia_id) for materia_id in materia_ids]), # Concatena os IDs das matérias numa única string, separando-os com vírgulas
             "tipo": "pdf",
             "data_upload": timestamp.isoformat(),
         }],
-        conteudo=[texto]
+        documents=[texto]
     )
 
 def processar_documento(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]):
