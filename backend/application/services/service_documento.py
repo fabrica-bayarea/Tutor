@@ -60,6 +60,8 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         documents=[texto]
     )
 
+    print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
+
 def processar_documento(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]):
     """
     Processa um documento:
@@ -71,19 +73,29 @@ def processar_documento(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid
 
     Retorna um dicionário com informações do documento.
     """
+    print(f'\n\nIniciando processamento do arquivo: {arquivo.filename}')
+
     # 1. Salva metadados no PostgreSQL e retorna a estrutura completa do documento
+    print(f'\n\n(1/4). Salvando metadados do documento no PostgreSQL')
     nome_arquivo = arquivo.filename
     documento = salvar_metadados_documento(nome_arquivo, professor_id)
+    print(f'\nDADOS SALVOS NO POSTGRESQL COM SUCESSO!')
 
     # 2. Salva o arquivo no diretório do professor e retorna o caminho para ele
     # Usa o ID retornado na etapa anterior
+    print(f'\n\n(2/4). Salvando arquivo no diretório do professor')
     caminho_arquivo = salvar_arquivo(arquivo, documento.id, professor_id)
+    print(f'\nARQUIVO SALVO NO DIRETÓRIO DO PROFESSOR COM SUCESSO!')
     
     # 3. Extrai o texto em Markdown usando Docling
     # Usa o caminho retornado na etapa anterior
+    print(f'\n\n(3/4). Extraindo o texto do arquivo recebido em Markdown usando Docling')
     texto_extraido = extrair_texto_markdown(caminho_arquivo)
+    print(f'\nTEXTO EXTRAÍDO COM SUCESSO!')
     
     # 4. Salva o documento no ChromaDB
+    print(f'\n\n(4/4). Salvando dados do documento no ChromaDB')
     salvar_documento_vetor(documento.id, documento.titulo, professor_id, materia_ids, documento.timestamp, texto_extraido)
+    print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
     return {"documento_id": documento.id, "titulo": nome_arquivo}
