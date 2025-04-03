@@ -21,10 +21,12 @@ def upload_documento():
 
     if not professor_id or not materia_ids:
         return jsonify({"error": "Parâmetros 'professor_id' e 'materia_ids' são obrigatórios"}), 400
+
+    formatted_materia_ids = [uuid.UUID(materia_id) for materia_id in materia_ids.split(',')]
     
     resultados = []
     for arquivo in arquivos:
-        resultado = processar_documento(arquivo, professor_id, materia_ids)
+        resultado = processar_documento(arquivo, professor_id, formatted_materia_ids)
         resultados.append(resultado)
     
     return jsonify({"message": "Upload e processamento de documentos concluído.", "resultados": resultados}), 201
