@@ -23,7 +23,7 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-_Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **'Dependências do backend'**._
+_Se tiver problemas com a instalação do **ChromaDB**, consulte a solução mais abaixo na seção **[Dependências do backend](#dependências-do-backend)**._
 
 4. Aplique as migrações do banco de dados PostgreSQL:
 ```bash
@@ -41,25 +41,27 @@ Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada 
 ```
 tutor/
 └── backend/
-    ├── app/
-    │   ├── config/          # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
-    │   ├── models/          # Define as entidades do banco de dados PostgreSQL
-    │   ├── services/        # Contém regras de negócio, operações complexas e interações com os bancos de dados
-    │   ├── libs/            # Contém códigos de bibliotecas auxiliares
-    │   ├── routes/          # Define os endpoints da API Flask
-    │   ├── utils/           # Contém funções genéricas que podem ser usadas em todo o projeto, como tratamento de datas, etc
-    ├── data/                # Dados locais do ChromaDB e outros arquivos persistentes
-    ├── migrations/          # Arquivos de controle de migração do Flask-Migrate
-    ├── tests/               # Testes unitários e de integração
-    ├── .env                 # Arquivo de variáveis de ambiente
-    ├── main.py              # Inicialização da aplicação Flask
-    ├── README.md            # Documentação do projeto
-    └── requirements.txt     # Arquivo de dependências do backend
+    ├── application/
+    │   ├── config/         # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
+    │   ├── models/         # Define as entidades do banco de dados PostgreSQL
+    │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
+    │   ├── libs/           # Contém códigos de bibliotecas auxiliares
+    │   ├── routes/         # Define os endpoints da API Flask
+    │   ├── utils/          # Contém funções genéricas que podem ser usadas em todo o projeto, como tratamento de datas, etc
+    ├── data/               # Dados locais do ChromaDB e outros arquivos persistentes
+    ├── migrations/         # Arquivos de controle de migração do Flask-Migrate
+    ├── tests/              # Testes unitários e de integração
+    ├── .env                # Arquivo de variáveis de ambiente
+    ├── app.py              # Inicialização da aplicação Flask
+    ├── README.md           # Documentação do projeto
+    └── requirements.txt    # Arquivo de dependências do backend
 ```
+
+**Por questões de segurança, o arquivo `.env` e a pasta `data` não devem ser enviados para o repositório.**
 
 ## Dependências do backend
 ### python-dotenv
-python-dotenv é uma biblioteca que permite carregar variáveis de ambiente de um arquivo .env.
+python-dotenv é uma biblioteca que permite carregar variáveis de ambiente de um arquivo `.env`.
 
 ### Flask
 Flask é um micro-framework web leve e flexível que permite criar APIs e aplicativos web.
@@ -97,3 +99,6 @@ _Se tiver problemas com a instalação do **ChromaDB**, talvez você precise ins
 
 ### docling
 Docling é uma poderosa biblioteca que unifica o processamento de vários tipos de documentos, como PDF, DOCX, PPTX, XLSX, HTML, imagens e mais.
+
+### openai-whisper
+OpenAI Whisper é uma biblioteca que permite transcrever áudio em texto.
