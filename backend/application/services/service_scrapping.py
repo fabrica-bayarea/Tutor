@@ -93,38 +93,3 @@ def data_extraction(driver, url):
         print(f'Ocorreu um erro: {str(e)}')
         return None
     
-def main():
-    
-    # Atualmente o scrapping funciona apenas com uma url sendo passada como argumento, mas isso pode ser modificado futuramente
-    url = 'https://www.selenium.dev/documentation/webdriver/drivers/'
-    
-    driver = configure_browser()
-    
-    try: 
-        data = data_extraction(driver, url)
-        if data:
-            print('\nDadosExtraidos:')
-            print(f'\nurl: {data["url"]}\n \nTitulo da pagina: {data["page_title"]}')
-            
-            print(f'\nTitulos encontrados: ')
-            for i, title in enumerate(data['titles']):
-                print(f'{i}. {title}')
-                
-            print(f'\nParagrafos encontrados: ')
-            for i, paragraph in enumerate(data['paragraphs']):
-                print(f'{i}. {paragraph}')
-                
-            print(f'\nLinks encontrados: ')
-            for i, link in enumerate(data['links']):
-                print(f'{i}. {link}')
-        else: 
-            print('Nao foi possivel extrair os dados')
-            
-    except Exception as e:
-        print(f'Ocorreu um erro: {str(e)}')
-        
-    finally:
-        driver.quit()
-        
-if __name__ == '__main__':
-    main()
