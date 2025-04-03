@@ -102,3 +102,10 @@ Docling é uma poderosa biblioteca que unifica o processamento de vários tipos 
 
 ### openai-whisper
 OpenAI Whisper é uma biblioteca que permite transcrever áudio em texto.
+
+### selenium
+Ferramenta para automação de navegadores, usada para testes e interação com páginas web.
+
+
+### webdriver-manager
+Facilita o uso do Selenium, baixando e configurando automaticamente os drivers dos navegadores.
