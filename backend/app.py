@@ -7,8 +7,8 @@ from application.routes import *
 from application.services import *
 
 app = Flask(__name__)
-# init_db(app)
-# migrate = Migrate(app, db)
+init_db(app)
+migrate = Migrate(app, db)
 
 collection = chroma_client.get_or_create_collection(name="documentos")
 
