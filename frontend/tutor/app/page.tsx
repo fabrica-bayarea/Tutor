@@ -1,7 +1,7 @@
 import Image from "next/image";
-import styles from "./page.module.css";
 import PaginaExtracao from "./Extracao/paginaExtracao";
 import PaginaChat from "./Chat/paginaChat";
+import React from "react";
 
 export default function Home() {
   return (

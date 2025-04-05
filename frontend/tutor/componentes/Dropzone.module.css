@@ -1,0 +1,68 @@
+.dropzone {
+    border: 2px dashed #ccc;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .dropzone-active {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+  }
+  
+  .file-input-label {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block;
+  }
+  
+  .file-input-label:hover {
+    background-color: #0056b3;
+  }
+  
+  .file-list {
+    margin-top: 20px;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .file-list h3 {
+    margin-top: 0;
+  }
+  
+  .file-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .file-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .file-list button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  
+  .file-list button:hover {
+    background-color: #c82333;
+  }
