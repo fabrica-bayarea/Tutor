@@ -1,16 +1,21 @@
+"""
+Rotas para lidar com arquivos.
+"""
+
 from flask import Blueprint, request, jsonify
 from application.services.service_documento import *
 
-documentos_bp = Blueprint('documentos', __name__)
+arquivos_bp = Blueprint('arquivos', __name__)
 
-@documentos_bp.route('/upload', methods=['POST'])
-def upload_documento():
+@arquivos_bp.route('/upload', methods=['POST'])
+def upload_arquivos():
     """
-    Endpoint para upload de documentos que serão processados.
+    Endpoint para upload de arquivos que serão processados.
     
-    Espera um ou mais documentos na chave 'documentos', e parâmetros 'professor_id' e 'materia_ids'.
+    Espera um ou mais arquivos na chave 'arquivos', e parâmetros 'professor_id' e 'materia_ids'.
     """
     print(f'\n\nRequisição recebida!')
+    print(request.files)
 
     if 'arquivos' not in request.files:
         return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
@@ -30,7 +35,7 @@ def upload_documento():
     resultados = []
     for arquivo in arquivos:
         print(f'\n\nEnviando arquivo para iniciar o processamento: {arquivo.filename}')
-        resultado = processar_documento(arquivo, professor_id, formatted_materia_ids)
+        resultado = processar_arquivo(arquivo, professor_id, formatted_materia_ids)
         resultados.append(resultado)
     
     return jsonify({"message": "Upload e processamento de documentos concluído.", "resultados": resultados}), 201
