@@ -3,7 +3,7 @@ Rotas para lidar com arquivos.
 """
 
 from flask import Blueprint, request, jsonify
-from application.services.service_documento import *
+from application.services.service_arquivo import *
 
 arquivos_bp = Blueprint('arquivos', __name__)
 
