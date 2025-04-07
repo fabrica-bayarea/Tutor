@@ -1,57 +1,74 @@
 import os
+import tempfile
 import whisper
 
-def extrair_caminho_arquivo(caminho_arquivo):
-    """
-    Lê o arquivo e retorna seu conteúdo como uma string (assumindo que seja um caminho de arquivo de vídeo).
-    """
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        return f.read().strip()
-
-def processar_video(input_video, output_audio):
+def extrair_audio(input_video: str, caminho_audio: str):
     """
     Usa FFmpeg para extrair e normalizar o áudio de um vídeo.
-    """
-    ffmpeg_command = f"ffmpeg -i {input_video} -vn -acodec pcm_s16le -ar 16000 -ac 1 {output_audio}"
-    os.system(ffmpeg_command)
 
-def transcrever_audio(audio_file):
+    Espera receber:
+    - `input_video`: str - o caminho do arquivo de vídeo desejado
+    - `caminho_audio`: str - o caminho onde será salvo o arquivo de áudio temporário
+
+    Cria um arquivo de áudio temporário e retorna seu caminho.
+    """
+    print(f'\nIniciando extração de áudio do vídeo: {input_video}')
+    ffmpeg_command = f"ffmpeg -i \"{input_video}\" -vn -acodec pcm_s16le -ar 16000 -ac 1 \"{caminho_audio}\" -y"
+    os.system(ffmpeg_command)
+    print(f'Áudio extraído em: {caminho_audio}')
+
+def transcrever_audio(audio_file: str) -> str:
     """
     Usa Whisper para transcrever o áudio extraído.
+
+    Espera receber:
+    - `audio_file`: str - o caminho para o arquivo de áudio temporário
+    
+    Retorna a transcrição como texto.
     """
-    model = whisper.load_model("medium")  # Pode ser "tiny", "base", "small", "medium" ou "large"
+    print(f'Transcrevendo áudio com Whisper...')
+    model = whisper.load_model("medium") # Ajustar conforme performance desejada
     result = model.transcribe(audio_file)
     return result["text"]
 
-def salvar_transcricao(transcricao, output_file):
+def processar_video(caminho_arquivo: str) -> str:
     """
-    Salva a transcrição em um arquivo de texto.
-    """
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(transcricao)
+    Processa um vídeo.
 
-def main():
-    caminho_txt = "caminho_do_arquivo.txt"  # Substitua pelo caminho do arquivo que contém o caminho do vídeo
-    input_video = extrair_caminho_arquivo(caminho_txt)
-    output_audio = "normalized_audio.wav"  
-    output_text = "outputs/transcription.txt"
+    Espera receber:
+    - `caminho_arquivo`: str - o caminho do arquivo de vídeo
     
-    if not os.path.exists(input_video):
-        print(f"Erro: O arquivo de vídeo '{input_video}' não foi encontrado.")
-        return
+    1. Extrai o áudio do arquivo
+    2. Transcreve o áudio com Whisper
     
-    print("Processando vídeo com FFmpeg...")
-    processar_video(input_video, output_audio)
+    Retorna a transcrição como texto.
+    """
+    if not os.path.exists(caminho_arquivo):
+        print(f"Erro: O arquivo de vídeo '{caminho_arquivo}' não foi encontrado.")
+        return ""
     
-    if not os.path.exists(output_audio):
-        print(f"Erro: O arquivo de áudio '{output_audio}' não foi gerado.")
-        return
+    # Cria um arquivo temporário para o áudio extraído
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
+        caminho_audio = temp_audio.name
     
-    print("Transcrevendo áudio com Whisper...")
-    transcricao = transcrever_audio(output_audio)
+    try:
+        # 1. Extrai o áudio do arquivo
+        print(f'\n(1/2). Extraindo o áudio do arquivo')
+        extrair_audio(caminho_arquivo, caminho_audio)
+        print(f'ÁUDIO EXTRAÍDO COM SUCESSO!')
+
+        if not os.path.exists(caminho_audio):
+            print(f"Erro: O arquivo de áudio '{caminho_audio}' não foi gerado.")
+            return ""
+
+        # 2. Transcreve o áudio com Whisper
+        print(f'\n(2/2). Transcrevendo o áudio com Whisper')
+        transcricao = transcrever_audio(caminho_audio)
+        print(f'TRANSCRIÇÃO CONCLUÍDA COM SUCESSO!')
+
+        return transcricao
     
-    print("Salvando transcrição...")
-    salvar_transcricao(transcricao, output_text)
-    
-    print(f"Transcrição salva em '{output_text}'")
+    finally:
+        # Exclui o arquivo de áudio temporário
+        if os.path.exists(caminho_audio):
+            os.remove(caminho_audio)

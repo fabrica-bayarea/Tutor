@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List
 from application.config import db, chroma_client
 from application.models import Documento
-from application.libs.docling_handler import *
+from application.libs import *
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
@@ -68,7 +68,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
 
 def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]):
     """
-    Processa um arquivo:
+    Processa um arquivo.
     
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
@@ -78,7 +78,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.U
     1. Salva metadados no PostgreSQL
     2. Salva o arquivo recebido no diretório do professor
     3. Extrai o conteúdo do arquivo utilizando a biblioteca correta de acordo com a sua extensão (PDF, DOCX, MP4, etc)
-    4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL.
+    4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
 
     Retorna um dicionário com informações do documento.
     """
@@ -100,10 +100,11 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.U
     # Usa o caminho retornado na etapa anterior
     print(f'\n(3/4). Extraindo o conteúdo do arquivo recebido')
     if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
+        print(f'Biblioteca a ser utilizada: Docling')
         texto_extraido = extrair_texto_markdown(caminho_arquivo)
-    # else:
-    #     print(f'IMPLEMENTAR')
-    #     #texto_extraido = extrair_texto_markdown(caminho_arquivo)
+    elif nome_arquivo.endswith('.mp4'):
+        print(f'Biblioteca a ser utilizada: Whisper')
+        texto_extraido = processar_video(caminho_arquivo)
     
     print(f'TEXTO EXTRAÍDO COM SUCESSO!')
     
