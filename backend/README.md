@@ -10,6 +10,8 @@ Para conseguir executar corretamente o backend da aplicação, você deve, **no 
 * Ter o **database** do PostgreSQL devidamente criado, assim como suas **tabelas**
     * Consulte o líder da equipe de backend para mais informações
 
+**Algumas dependências do backend _exigem_ que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações.**
+
 ## Instalação
 Supondo que você já tenha clonado o repositório, **certifique-se de que você está na pasta `backend`**, e então:
 
@@ -64,10 +66,10 @@ tutor/
 └── backend/
     ├── application/
     │   ├── config/         # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
-    │   ├── models/         # Define as entidades do banco de dados PostgreSQL
-    │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
     │   ├── libs/           # Contém códigos de bibliotecas auxiliares
+    │   ├── models/         # Define as entidades do banco de dados PostgreSQL
     │   ├── routes/         # Define os endpoints da API Flask
+    │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
     │   ├── utils/          # Contém funções genéricas que podem ser usadas em todo o projeto, como tratamento de datas, etc
     ├── data/               # Dados locais do ChromaDB e outros arquivos persistentes
     ├── migrations/         # Arquivos de controle de migração do Flask-Migrate
@@ -123,7 +125,29 @@ _Se tiver problemas com a instalação do **ChromaDB**, talvez você precise ins
 Docling é uma poderosa biblioteca que unifica o processamento de vários tipos de documentos, como PDF, DOCX, PPTX, XLSX, HTML, imagens e mais.
 
 ### openai-whisper
-OpenAI Whisper é uma biblioteca que permite transcrever áudio em texto.
+Whisper é uma biblioteca da OpenAI que permite transcrever áudio em texto.
+
+### ffmpeg
+FFmpeg é um software de codificação de áudio e vídeo, usada para extrair áudio de vídeos. **Ele é necessário para que o Whisper funcione corretamente.**
+> Diferentemente das outras dependências, o FFmpeg não é uma biblioteca instalada pelo **gerenciador de pacotes do Python (`pip`)**. Ele é um software de linha de comando que precisa estar instalado **no seu sistema** através de algum **gerenciador de pacotes _de sistema_** para funcionar corretamente. Para isso, siga os passos abaixo:
+
+1. Instale um **gerenciador de pacotes de sistema** no seu computador:
+    * Para **Windows**:
+        * A melhor opção é o [Chocolatey](https://chocolatey.org/install)
+    * Para **MacOS**:
+        * A melhor opção é o [Brew](https://brew.sh/)
+
+2. Instale o FFmpeg no seu computador utilizando o gerenciador de pacotes de sistema:
+    * No **Windows**:
+        * Abra o prompt de comando **como administrador** e execute:
+            ```bash
+            choco install ffmpeg
+            ```
+    * No **Linux/MacOS**:
+        * Abra o terminal e execute:
+            ```bash
+            brew install ffmpeg
+            ```
 
 ### selenium
 Ferramenta para automação de navegadores, usada para testes e interação com páginas web.
