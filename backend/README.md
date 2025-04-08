@@ -128,15 +128,13 @@ Docling é uma poderosa biblioteca que unifica o processamento de vários tipos 
 Whisper é uma biblioteca da OpenAI que permite transcrever áudio em texto.
 
 ### ffmpeg
-FFmpeg é um software de codificação de áudio e vídeo, usada para extrair áudio de vídeos. **Ele é necessário para que o Whisper funcione corretamente.**
+FFmpeg é um software de codificação de áudio e vídeo, usado para extrair áudio de vídeos. **Ele é necessário para que o Whisper funcione corretamente.**
 
 _Diferentemente das outras dependências, o FFmpeg não é uma biblioteca instalada pelo **gerenciador de pacotes do Python (`pip`)**. Ele é um software de linha de comando que precisa estar instalado **no seu sistema** através de algum **gerenciador de pacotes de sistema** para funcionar corretamente. Para isso, siga os passos abaixo:_
 
 1. Instale um **gerenciador de pacotes de sistema** no seu computador:
-    * Para **Windows**:
-        * A melhor opção é o [Chocolatey](https://chocolatey.org/install)
-    * Para **MacOS**:
-        * A melhor opção é o [Brew](https://brew.sh/)
+    * Para **Windows**, a melhor opção é o [Chocolatey](https://chocolatey.org/install)
+    * Para **MacOS**, a melhor opção é o [Brew](https://brew.sh/)
 
 2. Instale o FFmpeg no seu computador utilizando o gerenciador de pacotes de sistema:
     * No **Windows**:
