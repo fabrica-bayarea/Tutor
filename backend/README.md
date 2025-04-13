@@ -1,16 +1,16 @@
 # Tutor/backend
 
 ## IMPORTANTE
-Para conseguir executar corretamente o backend da aplicação, você deve, **no mínimo**:
+Para conseguir executar corretamente o backend da aplicação, **você precisa, no mínimo**:
 * Utilizar uma versão do **Python** entre **3.8** e **3.11**
     * Sugerimos utilizar a _major version_ **3.11**. Qualquer _minor version_ (3.11.0, 3.11.9, etc) deve funcionar bem
 * Ter o **PostgreSQL** instalado no seu computador
     * Utilizamos a versão **[17.4](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)**
-    * [Veja este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
-* Ter o **database** do PostgreSQL devidamente criado, assim como suas **tabelas**
+    * Recomendamos [assistir a este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
+* Ter o **database** do PostgreSQL devidamente criado
     * Consulte o líder da equipe de backend para mais informações
-
-**Algumas dependências do backend _exigem_ que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações.**
+* Ter um **gerenciador de pacotes do seu sistema operacional** instalado
+    * Algumas dependências do backend **exigem** que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações.
 
 ## Instalação
 Supondo que você já tenha clonado o repositório, **certifique-se de que você está na pasta `backend`**, e então:
@@ -62,7 +62,7 @@ Supondo que você já tenha clonado o repositório, **certifique-se de que você
 Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada tem um propósito específico.
 
 ```
-tutor/
+Tutor/
 └── backend/
     ├── application/
     │   ├── config/         # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
@@ -110,7 +110,7 @@ _Se tiver problemas com a instalação do **ChromaDB**, talvez você precise ins
     * Windows 10 SDK
         * _Qualquer versão deve funcionar, mas selecione a mais recente disponível_
     * MSVC v142 ou superior
-        * Provavelmente ao selecionar a primeira opção (**C++ CMake Tools for Windows**) o **MSVC v143** já será selecionado automaticamente, facilitando a busca
+        * Provavelmente ao selecionar a primeira opção (**C++ CMake Tools for Windows**) o **MSVC v143** já será selecionado automaticamente
 
 3. Após instalar, reinicie o terminal e tente novamente instalar o ChromaDB **no ambiente virtual** com:
     ```bash
