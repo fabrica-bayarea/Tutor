@@ -9,4 +9,8 @@ class Professor(db.Model):
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False)
     senha = db.Column(db.String(32), nullable=False)
+    cpf = db.Column(db.String(11), nullable=False, unique=True)
     data_nascimento = db.Column(db.Date, nullable=False)
+
+    materias_lecionadas = db.relationship('ProfessorMateria', back_populates='professor', cascade='all, delete-orphan')
+    turmas_lecionadas = db.relationship('ProfessorTurma', back_populates='professor', cascade='all, delete-orphan')

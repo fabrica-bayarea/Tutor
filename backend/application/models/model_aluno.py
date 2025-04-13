@@ -9,4 +9,7 @@ class Aluno(db.Model):
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False)
     senha = db.Column(db.String(32), nullable=False)
+    cpf = db.Column(db.String(11), nullable=False, unique=True)
     data_nascimento = db.Column(db.Date, nullable=False)
+
+    turmas_matriculadas = db.relationship('AlunoTurma', back_populates='aluno', cascade='all, delete-orphan')
