@@ -9,5 +9,5 @@ class TurmaMateria(db.Model):
     turma_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('turmas.id'), nullable=False, primary_key=True)
     materia_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('materias.id'), nullable=False, primary_key=True)
 
-    turma = db.relationship('Turma', backref='materias', foreign_keys=[turma_id])
-    materia = db.relationship('Materia', backref='turmas', foreign_keys=[materia_id])
+    turma = db.relationship('Turma', back_populates='materias')
+    materia = db.relationship('Materia', back_populates='turmas')

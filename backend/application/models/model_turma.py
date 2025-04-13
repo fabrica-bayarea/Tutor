@@ -8,3 +8,8 @@ class Turma(db.Model):
     codigo = db.Column(db.String(8), nullable=False)
     semestre = db.Column(db.String(8), nullable=False)
     turno = db.Column(db.String(6), nullable=False)
+
+    alunos_matriculados = db.relationship('AlunoTurma', back_populates='turma', cascade='all, delete-orphan')
+    professores_regentes = db.relationship('ProfessorTurma', back_populates='turma', cascade='all, delete-orphan')
+    materias = db.relationship('TurmaMateria', back_populates='turma', cascade='all, delete-orphan')
+    documentos = db.relationship('DocumentoTurmaMateria', back_populates='turma')

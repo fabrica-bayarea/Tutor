@@ -7,3 +7,7 @@ class Materia(db.Model):
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     codigo = db.Column(db.String(10), nullable=False, unique=True)
     nome = db.Column(db.String(64), nullable=False)
+
+    professores_responsaveis = db.relationship('ProfessorMateria', back_populates='materia', cascade='all, delete-orphan')
+    turmas = db.relationship('TurmaMateria', back_populates='materia', cascade='all, delete-orphan')
+    documentos = db.relationship('DocumentoTurmaMateria', back_populates='materia')

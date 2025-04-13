@@ -9,5 +9,5 @@ class ProfessorMateria(db.Model):
     professor_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('professores.id'), nullable=False, primary_key=True)
     materia_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('materias.id'), nullable=False, primary_key=True)
 
-    professor = db.relationship('Professor', backref='materias', foreign_keys=[professor_id])
-    materia = db.relationship('Materia', backref='professores', foreign_keys=[materia_id])
+    professor = db.relationship('Professor', back_populates='materias_lecionadas')
+    materia = db.relationship('Materia', back_populates='professores_responsaveis')
