@@ -12,4 +12,4 @@ class Turma(db.Model):
     alunos_matriculados = db.relationship('AlunoTurma', back_populates='turma', cascade='all, delete-orphan')
     professores_regentes = db.relationship('ProfessorTurma', back_populates='turma', cascade='all, delete-orphan')
     materias = db.relationship('TurmaMateria', back_populates='turma', cascade='all, delete-orphan')
-    documentos = db.relationship('DocumentoTurmaMateria', back_populates='turma')
+    arquivos = db.relationship('ArquivoTurmaMateria', back_populates='turma')

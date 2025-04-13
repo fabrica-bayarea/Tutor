@@ -10,4 +10,4 @@ class Materia(db.Model):
 
     professores_responsaveis = db.relationship('ProfessorMateria', back_populates='materia', cascade='all, delete-orphan')
     turmas = db.relationship('TurmaMateria', back_populates='materia', cascade='all, delete-orphan')
-    documentos = db.relationship('DocumentoTurmaMateria', back_populates='materia')
+    arquivos = db.relationship('ArquivoTurmaMateria', back_populates='materia')
