@@ -3,13 +3,13 @@ import uuid
 from datetime import datetime
 from typing import List
 from application.config import db, chroma_client
-from application.models import Documento
+from application.models import Arquivo
 from application.libs import *
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
 
-def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Documento:
+def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
     Salva metadados do documento no PostgreSQL.
 
@@ -19,7 +19,7 @@ def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Documento:
 
     Retorna a estrutura completa do documento gerado para uso posterior.
     """
-    novo_documento = Documento(
+    novo_documento = Arquivo(
         titulo=titulo,
         professor_id=professor_id
     )
@@ -27,9 +27,16 @@ def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Documento:
     db.session.commit()
     return novo_documento
 
-def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID):
+def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) -> str:
     """
     Salva o arquivo recebido no diretório do professor e retorna seu caminho.
+
+    Espera receber:
+    - `arquivo`: File - o arquivo a ser salvo
+    - `documento_id`: uuid.UUID - o ID do documento
+    - `professor_id`: uuid.UUID - o ID do professor
+
+    Retorna o caminho do arquivo salvo.
     """
     if not os.path.exists(DOCUMENTOS_DIR):
         os.makedirs(DOCUMENTOS_DIR)
@@ -47,9 +54,17 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID):
     
     return caminho_arquivo
 
-def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, materia_ids: List[uuid.UUID], timestamp: datetime, texto: str):
+def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, materia_ids: List[uuid.UUID], timestamp: datetime, texto: str) -> None:
     """
     Salva dados do documento no ChromaDB.
+
+    Espera receber:
+    - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
+    - `titulo`: str - o nome do arquivo
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `materia_ids`: List[uuid.UUID] - os IDs das matérias
+    - `timestamp`: datetime - a data de upload
+    - `texto`: str - o texto extraído do arquivo
     """
     collection = chroma_client.get_or_create_collection("documentos")
     collection.add(
@@ -66,10 +81,10 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
 
     print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
 
-def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]):
+def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]) -> dict:
     """
     Processa um arquivo.
-    
+
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
     - `professor_id`: uuid.UUID - o ID do professor
