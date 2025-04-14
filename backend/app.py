@@ -14,7 +14,6 @@ collection = chroma_client.get_or_create_collection(name="documentos")
 
 app.register_blueprint(arquivos_bp, url_prefix="/arquivos")
 app.register_blueprint(links_bp, url_prefix="/links")
-app.register_blueprint(videos_bp, url_prefix="/videos")
 
 if __name__ == "__main__":
     app.run(debug=True)
