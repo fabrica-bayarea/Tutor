@@ -23,10 +23,11 @@ def upload_arquivos():
     arquivos = request.files.getlist('arquivos')
 
     professor_id = request.form.get('professor_id')
+    turma_ids = request.form.get('turma_ids')
     materia_ids = request.form.get('materia_ids')
 
-    if not professor_id or not materia_ids:
-        return jsonify({"error": "Parâmetros 'professor_id' e 'materia_ids' são obrigatórios"}), 400
+    if not professor_id or not turma_ids or not materia_ids:
+        return jsonify({"error": "Parâmetros 'professor_id', 'turma_ids' e 'materia_ids' são obrigatórios"}), 400
     print(f'\n\nNomes dos arquivos recebidos: {[arquivo.filename for arquivo in arquivos]}\nID de professor recebido: {professor_id}\nIDs de matérias recebidos: {materia_ids}')
 
     formatted_materia_ids = [uuid.UUID(materia_id) for materia_id in materia_ids.split(',')]

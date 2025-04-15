@@ -11,21 +11,21 @@ DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
 
 def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
-    Salva metadados do documento no PostgreSQL.
+    Salva metadados do arquivo no PostgreSQL.
 
     Espera receber:
     - `titulo`: str - o nome do arquivo
     - `professor_id`: uuid.UUID - o ID do professor
 
-    Retorna a estrutura completa do documento gerado para uso posterior.
+    Retorna a estrutura completa do arquivo gerado para uso posterior.
     """
-    novo_documento = Arquivo(
+    novo_arquivo = Arquivo(
         titulo=titulo,
         professor_id=professor_id
     )
-    db.session.add(novo_documento)
+    db.session.add(novo_arquivo)
     db.session.commit()
-    return novo_documento
+    return novo_arquivo
 
 def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) -> str:
     """
@@ -54,16 +54,17 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
     
     return caminho_arquivo
 
-def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, materia_ids: List[uuid.UUID], timestamp: datetime, texto: str) -> None:
+def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, turma_ids: List[uuid.UUID], materia_ids: List[uuid.UUID], data_upload: datetime, texto: str) -> None:
     """
-    Salva dados do documento no ChromaDB.
+    Salva dados do arquivo no ChromaDB.
 
     Espera receber:
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
     - `titulo`: str - o nome do arquivo
     - `professor_id`: uuid.UUID - o ID do professor
+    - `turma_ids`: List[uuid.UUID] - os IDs das turmas
     - `materia_ids`: List[uuid.UUID] - os IDs das matérias
-    - `timestamp`: datetime - a data de upload
+    - `data_upload`: datetime - a data de upload
     - `texto`: str - o texto extraído do arquivo
     """
     collection = chroma_client.get_or_create_collection("documentos")
@@ -72,22 +73,24 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         metadatas=[{
             "titulo": titulo,
             "professor_id": str(professor_id),
+            "turma_ids": ",".join([str(turma_id) for turma_id in turma_ids]), # Concatena os IDs das turmas numa única string, separando-os com vírgulas
             "materia_ids": ",".join([str(materia_id) for materia_id in materia_ids]), # Concatena os IDs das matérias numa única string, separando-os com vírgulas
             "tipo": "pdf",
-            "data_upload": timestamp.isoformat(),
+            "data_upload": data_upload.isoformat(),
         }],
         documents=[texto]
     )
 
     print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
 
-def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.UUID]) -> dict:
+def processar_arquivo(arquivo, professor_id: uuid.UUID, turma_ids: List[uuid.UUID], materia_ids: List[uuid.UUID]) -> dict:
     """
     Processa um arquivo.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
     - `professor_id`: uuid.UUID - o ID do professor
+    - `turma_ids`: List[uuid.UUID] - os IDs das turmas
     - `materia_ids`: List[uuid.UUID] - os IDs das matérias
 
     1. Salva metadados no PostgreSQL
@@ -100,7 +103,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.U
     print(f'\n\nIniciando processamento do arquivo: {arquivo.filename}')
 
     # 1. Salva metadados no PostgreSQL e retorna a estrutura completa do documento
-    print(f'\n(1/4). Salvando metadados do documento no PostgreSQL')
+    print(f'\n(1/4). Salvando metadados do arquivo no PostgreSQL')
     nome_arquivo = arquivo.filename
     documento = salvar_metadados_arquivo(nome_arquivo, professor_id)
     print(f'DADOS SALVOS NO POSTGRESQL COM SUCESSO!')
@@ -125,7 +128,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, materia_ids: List[uuid.U
     
     # 4. Salva o documento no ChromaDB
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
-    salvar_documento_vetor(documento.id, documento.titulo, professor_id, materia_ids, documento.timestamp, texto_extraido)
+    salvar_documento_vetor(documento.id, documento.titulo, professor_id, turma_ids, materia_ids, documento.data_upload, texto_extraido)
     print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
     return {"documento_id": documento.id, "titulo": nome_arquivo}
