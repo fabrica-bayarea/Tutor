@@ -1,7 +1,6 @@
 import os
 import uuid
 from datetime import datetime
-from typing import List
 from application.config import db, chroma_client
 from application.models import Arquivo
 from application.libs import *
@@ -54,7 +53,7 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
     
     return caminho_arquivo
 
-def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, turma_ids: List[uuid.UUID], materia_ids: List[uuid.UUID], data_upload: datetime, texto: str) -> None:
+def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]], data_upload: datetime, texto: str) -> None:
     """
     Salva dados do arquivo no ChromaDB.
 
@@ -62,8 +61,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
     - `titulo`: str - o nome do arquivo
     - `professor_id`: uuid.UUID - o ID do professor
-    - `turma_ids`: List[uuid.UUID] - os IDs das turmas
-    - `materia_ids`: List[uuid.UUID] - os IDs das matérias
+    - `vinculos`: str - os vínculos entre turmas e matérias, no formato 'turma1-materia1,turma2-materia1,turma3materia2'
     - `data_upload`: datetime - a data de upload
     - `texto`: str - o texto extraído do arquivo
     """
@@ -73,8 +71,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         metadatas=[{
             "titulo": titulo,
             "professor_id": str(professor_id),
-            "turma_ids": ",".join([str(turma_id) for turma_id in turma_ids]), # Concatena os IDs das turmas numa única string, separando-os com vírgulas
-            "materia_ids": ",".join([str(materia_id) for materia_id in materia_ids]), # Concatena os IDs das matérias numa única string, separando-os com vírgulas
+            "vinculos": vinculos,
             "tipo": "pdf",
             "data_upload": data_upload.isoformat(),
         }],
@@ -83,15 +80,14 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
 
     print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
 
-def processar_arquivo(arquivo, professor_id: uuid.UUID, turma_ids: List[uuid.UUID], materia_ids: List[uuid.UUID]) -> dict:
+def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
     Processa um arquivo.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
     - `professor_id`: uuid.UUID - o ID do professor
-    - `turma_ids`: List[uuid.UUID] - os IDs das turmas
-    - `materia_ids`: List[uuid.UUID] - os IDs das matérias
+    - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
 
     1. Salva metadados no PostgreSQL
     2. Salva o arquivo recebido no diretório do professor
@@ -114,21 +110,24 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, turma_ids: List[uuid.UUI
     caminho_arquivo = salvar_arquivo(arquivo, documento.id, professor_id)
     print(f'ARQUIVO SALVO NO DIRETÓRIO DO PROFESSOR COM SUCESSO!')
     
-    # 3. Extrai o texto em Markdown usando Docling
+    # 3. Extrai o texto do arquivo recebido
     # Usa o caminho retornado na etapa anterior
     print(f'\n(3/4). Extraindo o conteúdo do arquivo recebido')
     if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
         print(f'Biblioteca a ser utilizada: Docling')
-        texto_extraido = extrair_texto_markdown(caminho_arquivo)
+        texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
     elif nome_arquivo.endswith('.mp4'):
         print(f'Biblioteca a ser utilizada: Whisper')
-        texto_extraido = processar_video(caminho_arquivo)
+        texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do video usando Whisper e FFmpeg
     
     print(f'TEXTO EXTRAÍDO COM SUCESSO!')
     
     # 4. Salva o documento no ChromaDB
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
-    salvar_documento_vetor(documento.id, documento.titulo, professor_id, turma_ids, materia_ids, documento.data_upload, texto_extraido)
+
+    # Junta todas as relações em uma string, separando-as por vírgulas. Cada relação possui um UUID de turma e um UUID de matéria, separados por hífen
+    formatted_vinculos = ','.join([f'{v["turma_id"]}-{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, texto_extraido)
     print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
     return {"documento_id": documento.id, "titulo": nome_arquivo}
