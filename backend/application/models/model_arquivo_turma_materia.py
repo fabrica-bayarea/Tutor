@@ -1,6 +1,5 @@
 from application.config import db
 
-
 class ArquivoTurmaMateria(db.Model):
     """
     Relaciona Arquivos com Matérias dentro de Turmas específicas.

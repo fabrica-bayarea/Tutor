@@ -78,8 +78,6 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         documents=[texto]
     )
 
-    print(f'\nDOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
-
 def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
     Processa um arquivo.
