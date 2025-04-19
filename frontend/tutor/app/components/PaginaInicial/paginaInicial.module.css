@@ -1,0 +1,177 @@
+.containerGlobal {
+    background-color: #555656;
+    align-items: flex-start;
+    width: 100vw; 
+    height: 100vh;
+    overflow: hidden;  
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container do chat e turma */
+.containerUser {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%; 
+    height: calc(100vh - 80px); 
+    overflow: auto; 
+}
+
+.containerChatMessage {
+    width: 90%;
+    height: 83%; 
+    position: relative;
+    background-image: url(../../assets/bayImage.png);
+    background-repeat: no-repeat;
+    background-position:center;
+    background-size: 200px;
+}
+
+.containerChatSend {
+    width: 90%;
+    height: 12%; 
+    position: relative;
+}
+
+.containerChatBox {
+    display: flex;
+    justify-content: center; 
+}
+
+.containerChatBox textarea{
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 25px;
+    margin-top: 20px;
+    margin-left: 10px;
+    width: 45%;
+    height: 30%;
+    border-radius: 30px;
+    outline: none;
+    resize: none;
+    font-size: 15px;
+}
+
+.containerChatBox textarea::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+/* Barra de informações e título */
+.infoBar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 97%;
+    height: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px; 
+    padding: 0 10px;
+}
+
+.title {
+    display: flex;
+    justify-content: space-evenly;
+    width: 10%;
+    align-items: center;
+    height: 100%; 
+}
+
+.titulo{
+    font-size: 35px;
+    font-weight: 45px;
+    color: white;
+    letter-spacing: 5px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    width: 10%;
+    height: 100%; 
+}
+
+.profileItem{
+    background-color: transparent;
+    padding: 10px;
+    margin-left: 10px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+}
+.profileItem:hover{
+    background-color: #41414175;
+}
+
+.profileMenu{
+    padding: 5px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+.profileMenu:hover{
+    background-color: #41414175;
+}
+
+.profileMenuItens{
+    display: flex;
+    position: fixed;
+    top: 7.4%;
+}
+
+.optionMenu{
+    background-color: #414141;
+    display: flex;
+    flex-direction: row;
+    border-radius: 25px;
+    padding: 15px;
+    width: 100px;
+    height: 30px;
+    position: fixed;
+    right: 28%;
+    top: 6%;
+}
+
+.containerExtrator{
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.materia{
+    width: 15%;
+    height: 100%;
+}
+
+.materiaButton{
+    padding: 10px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.materiaButton:hover{
+    background-color: #414141;
+}
+
+.materiaButton h1{
+    margin: 0;
+    font-size: 20px;
+    color: white;
+    letter-spacing: 5px;
+}
+
+.materiaButton p{
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 3px;
+    margin: 0;
+}
