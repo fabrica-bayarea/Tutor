@@ -1,32 +1,63 @@
-import React, { useCallback, useContext, useState, useRef } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useContext, useRef, useState } from 'react';
 import styles from './ExtratorMenu.module.css';
-import addImage from "../../assets/add.png"
 import { ModalContext } from "../../contexts/contextModal"
 import Select from 'react-select';
-import { div, s } from 'framer-motion/client';
-
 
 const ExtratorWindow = () => {
+    /*Link-Text*/
+    const [text, setText] = useState('');
+    const [linkText, setLinkText] = useState('');
+    const linkInputRef = useRef<HTMLInputElement>(null);
+
+    const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setText(event.target.value);
+    };
+
+    const addTextAsFileToDrag = () => {
+        if (text.trim() !== '') {
+            const blob = new Blob([text], { type: 'text/plain' });
+            const fileName = `texto${arqDragEvent.length + 1}.txt`;
+            const newFile = new File([blob], fileName, { type: 'text/plain' });
+            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
+            setText('');
+        }
+    };
+
+    const addLink = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setLinkText(event.target.value);
+    };
+
+    const addLinkAsFileToDrag = () => {
+        if (linkText.trim() !== '') {
+            const blob = new Blob([linkText], { type: 'text/plain' });
+            const fileName = `link${arqDragEvent.length + 1}.txt`;
+            const newFile = new File([blob], fileName, { type: 'text/plain' });
+            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
+            setLinkText('');
+            if (linkInputRef.current) {
+                linkInputRef.current.value = '';
+            }
+        }
+    };
 
     /*Drag and Drop*/
     const [arqDragEvent, setArqDragEvent] = useState<File[]>([]);
-    const [dragUsado, setDragUsado] = useState(false)
+    const [dragUsado, setDragUsado] = useState(false); //Fazer uma função para escurecer a tela do drag and drop.
     const dragEvent = {
         onDragEnter: (e: React.DragEvent) => {
             e.preventDefault();
-            setDragUsado(true)
+            setDragUsado(true);
+        },
+        onDragOver: (e: React.DragEvent) => { 
+            e.preventDefault();
         },
         onDragLeave: (e: React.DragEvent) => {
             e.preventDefault();
-            setDragUsado(false)
-        },
-        onDragOver: (e: React.DragEvent) => {
-            e.preventDefault();
+            setDragUsado(false);
         },
         onDrop: (e: React.DragEvent) => {
             e.preventDefault();
-            setDragUsado(false)
+            setDragUsado(false);
             const novosArquivos = Array.from(e.dataTransfer.files);
             setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
         },
@@ -82,15 +113,11 @@ const ExtratorWindow = () => {
                         </div>
                     </div>
                 </div>
-
-                {dragUsado && (
-                        <div className={styles.dragUsadoDiv}><h1>Solte os arquivos Aqui.</h1></div>
-                    )}
                 <div {...dragEvent} className={styles.dragdropContainer}>
                     <div className={styles.arqList}>
-                    {arqDragEvent.map((file: File) => (
-                        <li  key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
-                    ))}
+                        {arqDragEvent.map((file: File) => (
+                            <li key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
+                        ))}
                     </div>
                     <div>
                         <input
@@ -111,7 +138,10 @@ const ExtratorWindow = () => {
                                 type="text"
                                 placeholder="Digite aqui."
                                 className="textInput"
+                                onChange={addLink}
+                                ref={linkInputRef}
                             />
+                            <button onClick={addLinkAsFileToDrag} className={styles.buttonLinkTextInput}>Enviar</button>
                         </div>
                     </div>
                     <div className={styles.textoContainer}>
@@ -119,7 +149,11 @@ const ExtratorWindow = () => {
                             <h1>Texto:</h1>
                             <textarea
                                 placeholder="Digite aqui."
+                                onChange={addText}
+                                id="textareInput"
+                                value={text}
                             />
+                            <button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Enviar</button>
                         </div>
                     </div>
                 </div>

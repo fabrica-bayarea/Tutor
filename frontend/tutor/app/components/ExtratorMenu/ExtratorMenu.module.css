@@ -1,8 +1,9 @@
-/*CSS de janela*/
+/* Estilos gerais do container da janela */
 .container {
     animation: fadeInScale 0.3s ease-in-out forwards;
     background-color: #555656;
     position: absolute;
+    z-index: 101;
     margin: 0;
     padding: 15px;
     border-radius: 45px;
@@ -11,16 +12,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 101;
 }
 
-/*KeyFrame*/
+/* Keyframes para animações */
 @keyframes fadeInScale {
     0% {
         opacity: 0;
         transform: scale(0.9);
     }
-
     100% {
         opacity: 1;
         transform: scale(1);
@@ -32,45 +31,47 @@
         transform: scale(1);
         opacity: 0.9;
     }
-
     100% {
         transform: scale(1);
         opacity: 0.7;
     }
 }
 
-/*Conteúdo da janela*/
+/* Estilos do container interno */
 .extratorContainer {
     flex: 1;
+    display: flex;
     flex-direction: column;
     padding: 16px;
 }
 
+/* Barra de informações (título e botão de fechar) */
 .infoBar {
-    padding: 12px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding: 12px;
 }
 
 .title {
     color: white;
 }
 
+/* Botão para fechar o modal */
 .closeModalButton {
     color: white;
-    padding: 10px 30px;
+    background-color: transparent;
     border: none;
     border-radius: 100px;
-    background-color: transparent;
-    cursor: pointer;
+    padding: 10px 30px;
     font-size: 30px;
     font-weight: bolder;
+    cursor: pointer;
 }
 
 .closeModalButton:hover {
     animation: pulsar 1s infinite alternate;
-    background-color: #41414175;
+    background-color: rgba(65, 65, 65, 0.466);
 }
 
 .openModalButton {
@@ -79,10 +80,11 @@
     cursor: pointer;
 }
 
+/* Container para a seleção de matéria */
 .materiaChooseContainer {
+    position: relative;
     display: flex;
     flex-direction: column;
-    position: relative;
     width: 100%;
     height: 120px;
     background-color: transparent;
@@ -93,17 +95,9 @@
     flex-direction: column;
 }
 
-.dropDown {
-    background-color: aliceblue;
-    width: 100%;
-    margin-top: 24px;
-    margin-bottom: 24px;
-    border-radius: 30px;
-}
-
 .materiaChooseContainer h1 {
-    color: white;
     margin: 0;
+    color: white;
 }
 
 .materiasEscolhidas {
@@ -112,99 +106,122 @@
     font-size: 30px;
     font-weight: lighter;
 }
+
+/* Estilos do dropdown de seleção */
+.dropDown {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    width: 100%;
+    background-color: aliceblue;
+    border-radius: 30px;
+}
+
+/* Container para drag and drop de arquivos */
 .dragdropContainer {
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: auto;
+    height: 400px;
+    width: 100%;
     border-style: dashed;
     border-color: aliceblue;
     border-radius: 30px;
-    width: 100%;
-    margin-top: auto; 
-    height: 400px;
-}
-
-.dragUsadoDiv{
-    position: absolute;
     margin-top: 10px;
-    border-radius: 30px;
-    width: 100%;
-    height: 400px;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 101;
-}
-.dragUsadoDiv h1{
-    color: white;
-    font-size: 25px;
 }
 
-.arqList{
+.dragUsadoDiv {
+    position: absolute;
+    z-index: 101;
+    margin-top: 10px;
+    width: 100%;
+    height: 400px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 30px;
+}
+
+.dragUsadoDiv h1 {
+    font-size: 25px;
+    color: white;
+}
+
+/* Lista de arquivos arrastados */
+.arqList {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: space-around;
-    margin-top: auto; 
+    max-height: 70%;
+    max-width: 100%;
     margin: 20px;
     padding: 14px;
-    max-width: 100%;
-    max-height: 70%;
     color: white;
     border-radius: 25px;
     overflow: auto;
+    margin-top: auto;
 }
-.arqList li{
+
+.arqList li {
     display: flex;
-    padding: 10px;
-    font-weight: bolder;
-    background-color: rgba(0,0,0,0.5);
-    border-radius: 25px;
-    margin: 10px;
     justify-content: space-between;
     align-items: center;
     max-width: 100%;
+    margin: 10px;
+    padding: 10px;
+    font-weight: bolder;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 25px;
     list-style: none;
 }
-.arqList button{
-    font-weight: bolder;
-    font-size: 20px;
-    border: none;
+
+.arqList button {
     padding: 14px;
-    border-radius: 25px;
     margin: 10px;
+    font-size: 20px;
+    font-weight: bolder;
     color: white;
     background-color: transparent;
-}
-.arqList button:hover{
-    animation: pulsar 1s infinite alternate;
-    background-color: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
 }
 
-.buttonAddArq{
+.arqList button:hover {
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Botão para adicionar arquivos */
+.buttonAddArq {
+    margin-top: auto;
     padding: 15px;
     margin: 12px;
-    margin-right: 40%;
-    font-weight: bolder;
     margin-left: 40%;
+    margin-right: 40%;
     font-size: 15px;
-    border: none;
-    background-color: #555656;
+    font-weight: bolder;
     color: white;
+    background-color: #555656;
+    border: none;
     border-radius: 25px;
-    margin-top: auto; 
-}
-.buttonAddArq:hover{
-    animation: pulsar 1s infinite alternate;
-    background-color: rgba(0,0,0,0.5);
+    cursor: pointer;
 }
 
+.buttonAddArq:hover {
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Container para input de link e texto */
 .linkTextoContainer {
     display: flex;
-    margin-top: 20px;
-    border-radius: 30px;
     width: 100%;
     height: 90px;
+    margin-top: 20px;
+    border-radius: 30px;
 }
 
+/* Container para input de link */
 .linkContainer {
     display: flex;
     flex-direction: column;
@@ -214,8 +231,8 @@
 
 .linkContainerDiv {
     display: flex;
-    justify-content: center;
     flex-direction: row;
+    justify-content: center;
 }
 
 .linkContainer h1 {
@@ -231,12 +248,12 @@
     margin-left: 10px;
     width: 500px;
     height: 30px;
+    border: none;
     border-radius: 10px;
     resize: none;
-    border-color: transparent;
 }
 
-
+/* Container para textarea de texto */
 .textoContainer {
     display: flex;
     flex-direction: column;
@@ -246,8 +263,8 @@
 
 .textoContainerDiv {
     display: flex;
-    justify-content: center;
     flex-direction: row;
+    justify-content: center;
 }
 
 .textoContainer h1 {
@@ -258,43 +275,68 @@
 .textoContainer textarea {
     line-height: 2;
     outline: none;
+    font-size: 15px;
+    font-family: Arial, Helvetica, sans-serif;
     margin-top: 20px;
     margin-left: 10px;
-    font-size: 15px;
     width: 500px;
     height: 30px;
+    border: none;
     border-radius: 10px;
     resize: none;
     text-decoration: none;
-    font-family: Arial, Helvetica, sans-serif;
-
 }
 
+/* Botões para enviar link e texto */
+.buttonLinkTextInput {
+    padding: 10px;
+    margin: 10px;
+    font-size: 15px;
+    font-weight: bolder;
+    color: white;
+    background-color: transparent;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.buttonLinkTextInput:hover {
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Container para a barra de status e botão de enviar */
 .arqEnviarContainer {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 50px;
     margin-top: 20px;
     padding: 1px;
     border-radius: 30px;
-    width: 100%;
-    height: 50px;
 }
 
+/* Div da barra de status */
 .statusBarDiv {
     display: flex;
     align-items: center;
-    padding: 1px;
     width: 80%;
     height: 100%;
-    margin-right: 10px;
-    padding-right: 12px;
-    padding-left: 12px;
+    padding: 0 12px;
+}
+
+.statusBarDiv p {
+    margin-left: 30px;
+    font-size: 15px;
+    font-weight: bolder;
+    color: white;
 }
 
 .statusBarDiv progress {
     appearance: none;
-    margin-left: 10px;
     width: 70%;
+    margin-left: 10px;
 }
 
 .statusBarDiv progress::-webkit-progress-value {
@@ -307,28 +349,22 @@
     border-radius: 5px;
 }
 
-.statusBarDiv p {
-    font-size: 15px;
-    font-weight: bolder;
-    color: white;
-    margin-left: 30px;
-}
-
+/* Botão de enviar */
 .enviar {
-    color: white;
-    background-color: transparent;
-    border-radius: 30px;
-    border: none;
-    font-size: 25px;
-    font-weight: bolder;
-    padding: 10px 30px;
     width: 20%;
     height: 100%;
     margin-left: 10px;
+    padding: 10px 30px;
+    font-size: 25px;
+    font-weight: bolder;
+    color: white;
+    background-color: transparent;
+    border: none;
+    border-radius: 30px;
     cursor: pointer;
 }
 
 .enviar:hover {
     animation: pulsar 1s infinite alternate;
-    background-color: #41414175;
+    background-color: rgba(65, 65, 65, 0.466);
 }
