@@ -1,14 +1,61 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useState, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import styles from './ExtratorMenu.module.css';
 import addImage from "../../assets/add.png"
-import { ModalContext} from "../../contexts/contextModal"
+import { ModalContext } from "../../contexts/contextModal"
 import Select from 'react-select';
+import { div, s } from 'framer-motion/client';
+
 
 const ExtratorWindow = () => {
-    const onDrop = useCallback((acceptedFiles: any) => { }, []);
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-    const {fecharMenuExtracao} = useContext(ModalContext)!;
+
+    /*Drag and Drop*/
+    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]);
+    const [dragUsado, setDragUsado] = useState(false)
+    const dragEvent = {
+        onDragEnter: (e: React.DragEvent) => {
+            e.preventDefault();
+            setDragUsado(true)
+        },
+        onDragLeave: (e: React.DragEvent) => {
+            e.preventDefault();
+            setDragUsado(false)
+        },
+        onDragOver: (e: React.DragEvent) => {
+            e.preventDefault();
+        },
+        onDrop: (e: React.DragEvent) => {
+            e.preventDefault();
+            setDragUsado(false)
+            const novosArquivos = Array.from(e.dataTransfer.files);
+            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
+        },
+    };
+    const deleteArq = (arquivoParaDeletar: File) => {
+        setArqDragEvent(arquivosAnteriores =>
+            arquivosAnteriores.filter(arquivo => arquivo.name !== arquivoParaDeletar.name)
+        );
+    };
+    const addButtonClick = () => {
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement | null;
+        if (fileInput) {
+            fileInput.click();
+        }
+    };
+
+    const addArqEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const novosArquivos = Array.from(event.target.files);
+            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
+        }
+    };
+
+    /*Matérias*/
+    const { fecharMenuExtracao, materias } = useContext(ModalContext)!;
+    const options = materias ? materias.map((materia: any) => ({
+        value: materia.id,
+        label: materia.nome
+    })) : [];
 
     return (
         <div className={styles.container}>
@@ -17,7 +64,7 @@ const ExtratorWindow = () => {
                     <div className={styles.title}>
                         <h1>Adicionar arquivos à LLM</h1>
                     </div>
-                    <button  onClick={fecharMenuExtracao}  className={styles.closeModalButton}>X</button>
+                    <button onClick={fecharMenuExtracao} className={styles.closeModalButton}>X</button>
                 </div>
 
                 <div className={styles.materiaChooseContainer}>
@@ -25,36 +72,43 @@ const ExtratorWindow = () => {
                         <h1>Matéria</h1>
                         <div className={styles.dropDown}>
                             <Select
-                                /*defaultValue={["Colocar link para matérias do back aq"]}*/
                                 isMulti
                                 name="colors"
-                                /*options={["Colocar link para matérias do back aq"]} */
                                 className="basic-multi-select"
                                 placeholder="Selecione a Matéria"
                                 classNamePrefix="Selecione a Matéria"
+                                options={options}
                             />
                         </div>
                     </div>
-                    <div className={styles.materiasEscolhidas}>
-                        <script>materiasEscolhidas.map()</script>
-                    </div>
                 </div>
 
-                <div {...getRootProps()} className={`${styles.dragdropContainer} ${isDragActive ? styles.dragActive : ''}`}>
-                    <input {...getInputProps()} />
-                    {isDragActive ? (
-                        <p>Solte os arquivos aqui ...</p>
-                    ) : (
-                        <p><img src={addImage.src} width={100} height={100} style={{ opacity: 0.5 }} /><br />clique ou arraste arquivos aqui</p>
+                {dragUsado && (
+                        <div className={styles.dragUsadoDiv}><h1>Solte os arquivos Aqui.</h1></div>
                     )}
+                <div {...dragEvent} className={styles.dragdropContainer}>
+                    <div className={styles.arqList}>
+                    {arqDragEvent.map((file: File) => (
+                        <li  key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
+                    ))}
+                    </div>
+                    <div>
+                        <input
+                            type="file"
+                            id="fileInput"
+                            style={{ display: 'none' }}
+                            onChange={addArqEvent}
+                            multiple
+                        />
+                    </div>
+                    <button className={styles.buttonAddArq} onClick={addButtonClick}>Selecione ou Arraste um Arquivo</button>
                 </div>
-
                 <div className={styles.linkTextoContainer}>
                     <div className={styles.linkContainer}>
                         <div className={styles.linkContainerDiv}>
                             <h1>Link:</h1>
                             <input
-                                type="link"
+                                type="text"
                                 placeholder="Digite aqui."
                                 className="textInput"
                             />
@@ -72,9 +126,9 @@ const ExtratorWindow = () => {
 
                 <div className={styles.arqEnviarContainer}>
                     <div className={styles.statusBarDiv}>
-                        <p>Arquivos Selecionados</p>
-                        <progress value={100} />
-                        <p>0/10</p>
+                        <p>Arquivos Selecionados:</p>
+                        <progress max={10} value={arqDragEvent.length} />
+                        <p>{arqDragEvent.length}/10</p>
                     </div>
                     <button className={styles.enviar}>Enviar</button>
                 </div>

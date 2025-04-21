@@ -1,5 +1,6 @@
 /*CSS de janela*/
 .container {
+    animation: fadeInScale 0.3s ease-in-out forwards;
     background-color: #555656;
     position: absolute;
     margin: 0;
@@ -13,21 +14,47 @@
     z-index: 101;
 }
 
+/*KeyFrame*/
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulsar {
+    0% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
+
 /*Conteúdo da janela*/
-.extratorContainer{
-    flex:1;
+.extratorContainer {
+    flex: 1;
     flex-direction: column;
     padding: 16px;
 }
 
-.infoBar{
+.infoBar {
     padding: 12px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
-.title{
-    color:white;
+
+.title {
+    color: white;
 }
 
 .closeModalButton {
@@ -40,7 +67,9 @@
     font-size: 30px;
     font-weight: bolder;
 }
-.closeModalButton:hover{
+
+.closeModalButton:hover {
+    animation: pulsar 1s infinite alternate;
     background-color: #41414175;
 }
 
@@ -50,7 +79,7 @@
     cursor: pointer;
 }
 
-.materiaChooseContainer{
+.materiaChooseContainer {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -59,12 +88,12 @@
     background-color: transparent;
 }
 
-.materiaChoose{
+.materiaChoose {
     display: flex;
     flex-direction: column;
 }
 
-.dropDown{
+.dropDown {
     background-color: aliceblue;
     width: 100%;
     margin-top: 24px;
@@ -72,44 +101,103 @@
     border-radius: 30px;
 }
 
-.materiaChooseContainer h1{
-    color:white;
+.materiaChooseContainer h1 {
+    color: white;
     margin: 0;
 }
 
-.materiasEscolhidas{
+.materiasEscolhidas {
     position: absolute;
     top: 40px;
     font-size: 30px;
     font-weight: lighter;
 }
-
 .dragdropContainer {
+    display: flex;
+    flex-direction: column;
     margin-top: 10px;
-    border-style:dashed;
+    border-style: dashed;
     border-color: aliceblue;
     border-radius: 30px;
     width: 100%;
+    margin-top: auto; 
     height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
 }
 
-.dragdropContainer p{
+.dragUsadoDiv{
+    position: absolute;
+    margin-top: 10px;
+    border-radius: 30px;
+    width: 100%;
+    height: 400px;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 101;
+}
+.dragUsadoDiv h1{
+    color: white;
     font-size: 25px;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.5);
 }
 
-.dragActive {
-  border-color: #414141;
-  background-color: rgba(65, 65, 65, 0.5)
+.arqList{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: auto; 
+    margin: 20px;
+    padding: 14px;
+    max-width: 100%;
+    max-height: 70%;
+    color: white;
+    border-radius: 25px;
+    overflow: auto;
+}
+.arqList li{
+    display: flex;
+    padding: 10px;
+    font-weight: bolder;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 25px;
+    margin: 10px;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    list-style: none;
+}
+.arqList button{
+    font-weight: bolder;
+    font-size: 20px;
+    border: none;
+    padding: 14px;
+    border-radius: 25px;
+    margin: 10px;
+    color: white;
+    background-color: transparent;
+}
+.arqList button:hover{
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(0,0,0,0.5);
 }
 
-.linkTextoContainer{
+.buttonAddArq{
+    padding: 15px;
+    margin: 12px;
+    margin-right: 40%;
+    font-weight: bolder;
+    margin-left: 40%;
+    font-size: 15px;
+    border: none;
+    background-color: #555656;
+    color: white;
+    border-radius: 25px;
+    margin-top: auto; 
+}
+.buttonAddArq:hover{
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.linkTextoContainer {
     display: flex;
     margin-top: 20px;
     border-radius: 30px;
@@ -117,22 +205,23 @@
     height: 90px;
 }
 
-.linkContainer{
+.linkContainer {
     display: flex;
     flex-direction: column;
     width: 50%;
     height: 100%;
 }
-.linkContainerDiv{
+
+.linkContainerDiv {
     display: flex;
     justify-content: center;
     flex-direction: row;
 }
 
-.linkContainer h1{
+.linkContainer h1 {
     margin-top: 20px;
     margin-left: 20px;
-    color:white;
+    color: white;
 }
 
 .linkContainer input {
@@ -148,25 +237,25 @@
 }
 
 
-.textoContainer{
+.textoContainer {
     display: flex;
     flex-direction: column;
     width: 50%;
     height: 100%;
 }
 
-.textoContainerDiv{
+.textoContainerDiv {
     display: flex;
     justify-content: center;
     flex-direction: row;
 }
 
-.textoContainer h1{
+.textoContainer h1 {
     margin-top: 20px;
-    color:white;
+    color: white;
 }
 
-.textoContainer textarea{
+.textoContainer textarea {
     line-height: 2;
     outline: none;
     margin-top: 20px;
@@ -177,11 +266,11 @@
     border-radius: 10px;
     resize: none;
     text-decoration: none;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 
 }
 
-.arqEnviarContainer{
+.arqEnviarContainer {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
@@ -191,7 +280,7 @@
     height: 50px;
 }
 
-.statusBarDiv{
+.statusBarDiv {
     display: flex;
     align-items: center;
     padding: 1px;
@@ -202,7 +291,7 @@
     padding-left: 12px;
 }
 
-.statusBarDiv progress{
+.statusBarDiv progress {
     appearance: none;
     margin-left: 10px;
     width: 70%;
@@ -218,14 +307,14 @@
     border-radius: 5px;
 }
 
-.statusBarDiv p{
+.statusBarDiv p {
     font-size: 15px;
     font-weight: bolder;
-    color:white;
+    color: white;
     margin-left: 30px;
 }
 
-.enviar{
+.enviar {
     color: white;
     background-color: transparent;
     border-radius: 30px;
@@ -238,6 +327,8 @@
     margin-left: 10px;
     cursor: pointer;
 }
-.enviar:hover{
+
+.enviar:hover {
+    animation: pulsar 1s infinite alternate;
     background-color: #41414175;
 }

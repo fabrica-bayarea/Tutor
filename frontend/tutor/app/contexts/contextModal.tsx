@@ -2,8 +2,17 @@
 
 import React, { createContext, useState, ReactNode } from 'react';
 
-// Define a estrutura do contexto
+interface MateriasDisponiveis {
+  id: number;
+  nome: string;
+}
+type arrayMaterias = MateriasDisponiveis[]
+interface MateriasDisponiveisContext {
+  itens: arrayMaterias;
+}
+
 interface ModalContextType {
+  materias: arrayMaterias;
   menuEstaAberto: boolean;
   abrirMenu: () => void;
   fecharMenu: () => void;
@@ -15,15 +24,18 @@ interface ModalContextType {
   fecharMenuMateria: () => void;
 }
 
-// Cria o contexto com um valor padrão (pode ser null ou um objeto com valores iniciais)
 export const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
-// Define as props do Provider
 interface ModalProviderProps {
   children: ReactNode;
 }
 
 export function ModalProvider({ children }: ModalProviderProps) {
+  const [materias, setMaterias] = useState<arrayMaterias>([
+    { id: 1, nome: 'Matéria A'},
+    { id: 2, nome: 'Matéria B'},
+  ]);
+
   const [menuEstaAberto, setmenuEstaAberto] = useState(false);
   const abrirMenu = () => {
     setmenuEstaAberto(true);
@@ -53,6 +65,7 @@ export function ModalProvider({ children }: ModalProviderProps) {
   return (
     <ModalContext.Provider
       value={{
+        materias,
         menuEstaAberto,
         abrirMenu,
         fecharMenu,

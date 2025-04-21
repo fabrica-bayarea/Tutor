@@ -5,12 +5,15 @@ import userImage from "../../assets/user.png"
 import menuImage from "../../assets/menu.png"
 import sairImage from "../../assets/sair.png"
 import addImage from "../../assets/add.png"
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { ModalContext } from "../../contexts/contextModal"
 import ExtratorWindow from "../../components/ExtratorMenu/ExtratorMenu";
 
 export default function PaginaInicial() {
-    const { menuEstaAberto, abrirMenu, fecharMenu, extracaoEstaAberto, abrirMenuExtracao, fecharMenuExtracao, materiaEstaAberto, abrirMenuMateria, fecharMenuMateria } = useContext(ModalContext)!;
+    const { menuEstaAberto, abrirMenu, fecharMenu, 
+            extracaoEstaAberto, abrirMenuExtracao, fecharMenuExtracao, 
+            materiaEstaAberto, abrirMenuMateria, fecharMenuMateria, 
+            materias } = useContext(ModalContext)!;
     return (
         <div className={styles.containerGlobal}>
 
@@ -46,7 +49,15 @@ export default function PaginaInicial() {
 
 
             {materiaEstaAberto && (
-                <div className={styles.materiadDiv}></div>
+                <div className={styles.materiadDiv}>
+                    <div className={styles.materiaContainer}>
+                        {materias.map((item) => (
+                            <div key={item.id} className={styles.materiaItem}>
+                                <button className={styles.materiaItemButton} onClick={fecharMenuMateria}><h1>{item.nome}</h1></button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
 
             <div className={styles.containerUser}>

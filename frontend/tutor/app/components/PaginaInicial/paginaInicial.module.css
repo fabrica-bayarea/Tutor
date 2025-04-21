@@ -8,6 +8,16 @@
     flex-direction: column;
 }
 
+/*KeyFrame*/
+@keyframes fadeInScale {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes pulsar {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
 /* Container do chat e turma */
 .containerUser {
     display: flex;
@@ -100,6 +110,7 @@
     cursor: pointer;
 }
 .profileItem:hover{
+    animation: pulsar 1s infinite alternate;
     background-color: #41414175;
 }
 
@@ -110,6 +121,7 @@
     cursor: pointer;
 }
 .profileMenu:hover{
+    animation: pulsar 1s infinite alternate;
     background-color: #41414175;
 }
 
@@ -126,10 +138,11 @@
     border-radius: 25px;
     padding: 15px;
     width: 100px;
-    height: 30px;
+    height: 13px;
     position: fixed;
     right: 28%;
     top: 6%;
+    animation: fadeInScale 0.3s ease-in-out forwards;
 }
 
 .containerExtrator{
@@ -151,15 +164,16 @@
 }
 
 .materiaButton{
-    padding: 10px;
+    padding: 15px;
     width: 100%;
     background-color: transparent;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 25px;
 }
 .materiaButton:hover{
     background-color: #414141;
+    animation: pulsar 1s infinite alternate;
 }
 
 .materiaButton h1{
@@ -174,4 +188,47 @@
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 3px;
     margin: 0;
+}
+
+.materiaContainer{
+    border-radius: 25px;
+    padding: 15px;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: fixed;
+    top: 12%;
+    animation: fadeInScale 0.3s ease-in-out forwards;
+    right: 50%;
+    z-index: 1001;
+}
+.materiaItem{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-radius: 25px;
+    padding: 10px;
+    gap: 10px;
+}
+
+.materiaItemButton{
+    display: flex;
+    flex-direction: column;
+    background-color: #414141;
+    border: none;
+    border-radius: 25px;
+    padding: 25px;
+    cursor: pointer;
+}
+.materiaItemButton:hover{
+    animation: fadeInScale 0.3s ease-in-out forwards;
+    background-color: #41414175;
+}
+
+.materiaItemButton h1{
+    margin: 0;
+    font-size: 13;
+    color: white;
+    letter-spacing: 3px;
 }
