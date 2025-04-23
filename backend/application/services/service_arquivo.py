@@ -114,9 +114,9 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
         print(f'Biblioteca a ser utilizada: Docling')
         texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
-    elif nome_arquivo.endswith('.mp4'):
+    elif nome_arquivo.endswith(('.mp4', '.mov', '.mkv', '.avi', '.mp3', '.wav', '.m4a', '.flac', '.ogg')):
         print(f'Biblioteca a ser utilizada: Whisper')
-        texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do video usando Whisper e FFmpeg
+        texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do vídeo/áudio usando Whisper e FFmpeg
     
     print(f'TEXTO EXTRAÍDO COM SUCESSO!')
     
