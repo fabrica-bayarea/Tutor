@@ -1,6 +1,8 @@
 # Tutor/backend/application/services
 Os serviços são responsáveis por implementar a lógica de negócio e coordenar operações complexas envolvendo diferentes componentes do sistema.
 
+A ideia é que haja **um serviço para cada entidade do nosso banco de dados relacional (PostgreSQL)**, mas **não** precisamos nos prender a isso. Se uma determinada operação for complexa, um serviço pode ser uma ótima forma abstrai-la (como o serviço de scraping que temos).
+
 ## service_arquivo.py
 Este serviço é responsável por processar todos os arquivos recebidos para upload, passando por um pipeline minucioso de validações e processamentos.
 
@@ -31,7 +33,9 @@ A função **`salvar_metadados_arquivo`** cria uma instância do modelo de `Arqu
 #### 2. Salvar o arquivo no diretório do professor
 Chamamos a função **`salvar_arquivo`** passando como parâmetros o **arquivo**, o **ID do documento _(gerado na etapa anterior)_** e o **ID do professor**.
 
-A função **`salvar_arquivo`** cria o diretório do professor utilizando seu ID como nome, se necessário, salva o arquivo no diretório do professor com o nome **`<ID do documento>_<nome original do arquivo>`**, e então retorna o caminho do arquivo salvo para uso posterior no pipeline de processamento.
+A função **`salvar_arquivo`** cria um diretório para armazenar os arquivos do professor utilizando seu ID como nome (se ainda não houver um), altera o nome do arquivo a ser salvo para torná-lo único, salva o arquivo nesse diretório, e então retorna o caminho do arquivo salvo para uso posterior no pipeline de processamento.
+
+* Ao alterar o nome de um arquivo antes de salvá-lo, apenas inserimos o ID de documento gerado pelo PostgreSQL antes do nome original. Dessa forma, se um arquivo antes se chamava `arquivo.pdf`, ele será salvo como no nosso sistema de arquivos local como **`<ID_do_documento>_arquivo.pdf`**.
 
 #### 3. Extrair o conteúdo do arquivo utilizando a biblioteca correta de acordo com a sua extensão (PDF, DOCX, MP4, etc)
 Esta etapa usa diferentes bibliotecas dependendo do tipo de arquivo a ser processado. Se for um arquivo de **documento textual**, como PDF, DOCX, PPTX, XLSX, CSV, HTML, XHTML, TXT, MD ou MARKDOWN, ele será processado com o **Docling**. Se for um arquivo de **vídeo**, como MP4, ele será processado com o **Whisper**.
