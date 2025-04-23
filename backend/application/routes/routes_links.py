@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from application.services.service_scrapping import *
+from application.services.service_scraping import *
 from urllib.parse import urlparse
 import time
 

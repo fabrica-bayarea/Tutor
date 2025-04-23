@@ -25,7 +25,7 @@ def configure_browser():
      
      
 """
-Devido aos erros de sintaxe gerados pelo scrapping, a funcao text_normalization foi criada para normalizar os textos
+Devido aos erros de sintaxe gerados pelo scraping, a funcao text_normalization foi criada para normalizar os textos
 """    
 def text_normalization(text):
     return text.encode('utf-8', errors='ignore').decode('utf-8').strip() if text else ""
