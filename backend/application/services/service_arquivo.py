@@ -111,14 +111,30 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     # 3. Extrai o texto do arquivo recebido
     # Usa o caminho retornado na etapa anterior
     print(f'\n(3/4). Extraindo o conteúdo do arquivo recebido')
-    if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
-        print(f'Biblioteca a ser utilizada: Docling')
-        texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
-    elif nome_arquivo.endswith(('.mp4', '.mov', '.mkv', '.avi', '.mp3', '.wav', '.m4a', '.flac', '.ogg')):
-        print(f'Biblioteca a ser utilizada: Whisper')
-        texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do vídeo/áudio usando Whisper e FFmpeg
+    try:
+        if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
+            print(f'Biblioteca a ser utilizada: Docling')
+            texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
+        elif nome_arquivo.endswith(('.mp4', '.mov', '.mkv', '.avi', '.mp3', '.wav', '.m4a', '.flac', '.ogg')):
+            print(f'Biblioteca a ser utilizada: Whisper')
+            texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do vídeo/áudio usando Whisper e FFmpeg
+        else:
+            print(f'Tipo de arquivo não suportado: {nome_arquivo}')
+            return {
+                "filename": nome_arquivo,
+                "status": 400,
+                "message": "Tipo de arquivo não suportado"
+            }
+    except Exception as e:
+        print(f"Erro ao extrair o conteúdo do arquivo: {str(e)}")
+        return {
+            "filename": nome_arquivo,
+            "status": 500,
+            "message": "Erro ao extrair o conteúdo do arquivo"
+        }
     
-    print(f'TEXTO EXTRAÍDO COM SUCESSO!')
+    if texto_extraido is not None:
+        print(f'TEXTO EXTRAÍDO COM SUCESSO!')
     
     # 4. Salva o documento no ChromaDB
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
@@ -128,4 +144,13 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, texto_extraido)
     print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
-    return {"documento_id": documento.id, "titulo": nome_arquivo}
+    return {
+        "filename": nome_arquivo,
+        "status": 201,
+        "message": "Arquivo processado com sucesso",
+        "data": {
+            "documento_id": documento.id,
+            "titulo": documento.titulo,
+            "data_upload": documento.data_upload
+        }
+    }

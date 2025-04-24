@@ -80,4 +80,15 @@ def upload_arquivos():
         resultado = processar_arquivo(arquivo, professor_id, vinculos_processados)
         resultados.append(resultado)
     
-    return jsonify({"message": "Upload e processamento de documentos concluído.", "resultados": resultados}), 201
+    # Retornamos mensagens e códigos HTTP diferentes de acordo com os códigos recebidos nos resultados
+    if all(resultado.get('status') == 201 for resultado in resultados):
+        message = "Todos os arquivos foram processados com sucesso"
+        status_code = 201
+    elif all(resultado.get('status') in [400, 500] for resultado in resultados):
+        message = "Erro ao processar todos os arquivos"
+        status_code = 400
+    else:
+        message = "Alguns arquivos foram processados com sucesso, mas outros falharam"
+        status_code = 207
+    
+    return jsonify({"message": message, "results": resultados}), status_code
