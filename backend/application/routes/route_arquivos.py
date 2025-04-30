@@ -17,7 +17,7 @@ def upload_arquivos():
     Endpoint para upload de arquivos que serão processados.
 
     Espera receber:
-    - `arquivos`: ImmutableMultiDict - um ou mais arquivos
+    - `arquivos`: list - um ou mais arquivos
     - `matricula_professor`: str - o número de matrícula do professor
     - `vinculos`: str - um ou mais códigos de turma e matéria, separados por vírgula
     """
