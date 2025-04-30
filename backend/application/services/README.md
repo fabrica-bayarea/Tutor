@@ -1,5 +1,5 @@
 # Tutor/backend/application/services
-Os serviços são responsáveis por implementar a lógica de negócio e coordenar operações complexas envolvendo diferentes componentes do sistema.
+Os serviços são responsáveis por implementar a lógica de negócio e coordenar operações complexas envolvendo diferentes componentes do sistema, como CRUD, extração de conteúdo de arquivos, raspagem de dados, etc.
 
 A ideia é que haja **um serviço para cada entidade do nosso banco de dados relacional (PostgreSQL)**, mas **não** precisamos nos prender a isso. Se uma determinada operação for complexa, um serviço pode ser uma ótima forma abstrai-la (como o serviço de scraping que temos).
 
