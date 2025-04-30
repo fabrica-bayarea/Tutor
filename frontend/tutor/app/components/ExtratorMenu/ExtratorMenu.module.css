@@ -109,8 +109,8 @@
 
 /* Estilos do dropdown de seleção */
 .dragAtivo {
-    background-color: rgba(0, 0, 0, 0.1);
-    transition: background-color 0.2s ease;
+    background-color: rgba(0, 0, 0, 0.40);
+    transition: background-color 0.2s ease-in-out;
 }
 
 /* Container para drag and drop de arquivos */

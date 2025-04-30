@@ -43,24 +43,29 @@ const ExtratorWindow = () => {
     /*Drag and Drop*/
     const [arqDragEvent, setArqDragEvent] = useState<File[]>([]);
     const [dragUsado, setDragUsado] = useState(false); //Fazer uma função para escurecer a tela do drag and drop.
+    const dropRef = useRef<HTMLDivElement>(null);
+
     const dragEvent = {
         onDragEnter: (e: React.DragEvent) => {
             e.preventDefault();
             setDragUsado(true);
         },
-        onDragOver: (e: React.DragEvent) => { 
+        onDragOver: (e: React.DragEvent) => {
             e.preventDefault();
+            setDragUsado(true);
         },
         onDragLeave: (e: React.DragEvent) => {
             e.preventDefault();
-            setDragUsado(false);
+            if (dropRef.current && !dropRef.current.contains(e.relatedTarget as Node)) {
+                setDragUsado(false);
+            }
         },
         onDrop: (e: React.DragEvent) => {
             e.preventDefault();
             setDragUsado(false);
             const novosArquivos = Array.from(e.dataTransfer.files);
-            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
-        },
+            setArqDragEvent(prev => [...prev, ...novosArquivos]);
+        }
     };
     const deleteArq = (arquivoParaDeletar: File) => {
         setArqDragEvent(arquivosAnteriores =>
@@ -113,7 +118,9 @@ const ExtratorWindow = () => {
                         </div>
                     </div>
                 </div>
-                <div {...dragEvent} className={`${styles.dragdropContainer} ${dragUsado ? styles.dragAtivo : ''}`} >
+                <div {...dragEvent} 
+                ref = {dropRef}
+                className={`${styles.dragdropContainer} ${dragUsado ? styles.dragAtivo : ''}`} >
                     <div className={styles.arqList}>
                         {arqDragEvent.map((file: File) => (
                             <li key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
@@ -141,7 +148,7 @@ const ExtratorWindow = () => {
                                 onChange={addLink}
                                 ref={linkInputRef}
                             />
-                            <button onClick={addLinkAsFileToDrag} className={styles.buttonLinkTextInput}>Enviar</button>
+                            <button onClick={addLinkAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>
                         </div>
                     </div>
                     <div className={styles.textoContainer}>
@@ -153,7 +160,7 @@ const ExtratorWindow = () => {
                                 id="textareInput"
                                 value={text}
                             />
-                            <button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Enviar</button>
+                            <button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>
                         </div>
                     </div>
                 </div>
