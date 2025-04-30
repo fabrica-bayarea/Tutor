@@ -108,12 +108,9 @@
 }
 
 /* Estilos do dropdown de seleção */
-.dropDown {
-    margin-top: 24px;
-    margin-bottom: 24px;
-    width: 100%;
-    background-color: aliceblue;
-    border-radius: 30px;
+.dragAtivo {
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
 }
 
 /* Container para drag and drop de arquivos */

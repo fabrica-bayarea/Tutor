@@ -113,7 +113,7 @@ const ExtratorWindow = () => {
                         </div>
                     </div>
                 </div>
-                <div {...dragEvent} className={styles.dragdropContainer}>
+                <div {...dragEvent} className={`${styles.dragdropContainer} ${dragUsado ? styles.dragAtivo : ''}`} >
                     <div className={styles.arqList}>
                         {arqDragEvent.map((file: File) => (
                             <li key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
