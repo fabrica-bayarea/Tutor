@@ -78,7 +78,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         documents=[texto]
     )
 
-def processar_arquivo(arquivo: File, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
+def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
     Processa um arquivo.
 
