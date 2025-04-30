@@ -1,8 +1,8 @@
 """
 Rotas para lidar com arquivos.
 """
-
 from flask import Blueprint, request, jsonify
+import uuid
 import json
 from application.services.service_arquivo import *
 from application.services.service_professor import *
@@ -17,7 +17,7 @@ def upload_arquivos():
     Endpoint para upload de arquivos que serão processados.
 
     Espera receber:
-    - `arquivos`: list - um ou mais arquivos
+    - `arquivos`: ImmutableMultiDict - um ou mais arquivos
     - `matricula_professor`: str - o número de matrícula do professor
     - `vinculos`: str - um ou mais códigos de turma e matéria, separados por vírgula
     """
@@ -34,7 +34,7 @@ def upload_arquivos():
 
     if not matricula_professor or not vinculos_raw:
         return jsonify({"error": "Parâmetros 'matricula_professor' e 'vinculos' são obrigatórios"}), 400
-    print(f'\n\nNomes dos arquivos recebidos: {[arquivo.filename for arquivo in arquivos]}\r\nMatrícula de professor recebida: {matricula_professor}\r\nVínculos recebidos:\n{vinculos_raw}')
+    print(f'\n\nNomes dos arquivos recebidos: {[arquivo.filename for arquivo in arquivos]}\nMatrícula de professor recebida: {matricula_professor}\nVínculos recebidos:\n{vinculos_raw}')
 
     # Deserializa os dados de vínculos
     try:
