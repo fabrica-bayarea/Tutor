@@ -10,6 +10,6 @@ class Turma(db.Model):
     turno = db.Column(db.String(10), nullable=False)
 
     alunos_matriculados = db.relationship('AlunoTurma', back_populates='turma', cascade='all, delete-orphan')
-    professores_regentes = db.relationship('ProfessorTurma', back_populates='turma', cascade='all, delete-orphan')
+    professores_materias = db.relationship('ProfessorTurmaMateria', back_populates='turma', cascade='all, delete-orphan')
     materias = db.relationship('TurmaMateria', back_populates='turma', cascade='all, delete-orphan')
     arquivos = db.relationship('ArquivoTurmaMateria', back_populates='turma')

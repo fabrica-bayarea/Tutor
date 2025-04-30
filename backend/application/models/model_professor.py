@@ -12,5 +12,4 @@ class Professor(db.Model):
     cpf = db.Column(db.String(11), nullable=False, unique=True, index=True)
     data_nascimento = db.Column(db.Date, nullable=False)
 
-    materias_lecionadas = db.relationship('ProfessorMateria', back_populates='professor', cascade='all, delete-orphan')
-    turmas_lecionadas = db.relationship('ProfessorTurma', back_populates='professor', cascade='all, delete-orphan')
+    turmas_materias = db.relationship('ProfessorTurmaMateria', back_populates='professor', cascade='all, delete-orphan')

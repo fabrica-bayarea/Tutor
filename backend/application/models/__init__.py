@@ -5,6 +5,5 @@ from .model_materia import Materia
 from .model_arquivo import Arquivo
 from .model_aluno_turma import AlunoTurma
 from .model_turma_materia import TurmaMateria
-from .model_professor_turma import ProfessorTurma
-from .model_professor_materia import ProfessorMateria
+from .model_professor_turma_materia import ProfessorTurmaMateria
 from .model_arquivo_turma_materia import ArquivoTurmaMateria
