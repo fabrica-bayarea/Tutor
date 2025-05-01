@@ -6,7 +6,8 @@ import Select from 'react-select';
 const ExtratorWindow = () => {
     /*Link-Text*/
     const [text, setText] = useState('');
-    const [linkText, setLinkText] = useState('');
+    const [links, setLinks] = useState<string[]>([]);
+    const [linkInput, setLinkInput] = useState('');
     const linkInputRef = useRef<HTMLInputElement>(null);
 
     const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -24,20 +25,21 @@ const ExtratorWindow = () => {
     };
 
     const addLink = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setLinkText(event.target.value);
+        setLinkInput(event.target.value);
     };
 
-    const addLinkAsFileToDrag = () => {
-        if (linkText.trim() !== '') {
-            const blob = new Blob([linkText], { type: 'text/plain' });
-            const fileName = `link${arqDragEvent.length + 1}.txt`;
-            const newFile = new File([blob], fileName, { type: 'text/plain' });
-            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
-            setLinkText('');
+    const addLinkToArray = () => {
+        if (linkInput.trim() !== '') {
+            setLinks(prevLinks => [...prevLinks, linkInput]);
+            setLinkInput('');
             if (linkInputRef.current) {
                 linkInputRef.current.value = '';
             }
         }
+    };
+
+    const deleteLink = (index: number) => {
+        setLinks(prev => prev.filter((_, i) => i !== index));
     };
 
     /*Drag and Drop*/
@@ -125,6 +127,9 @@ const ExtratorWindow = () => {
                         {arqDragEvent.map((file: File) => (
                             <li key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
                         ))}
+                        {links.map((link, index) => (
+                            <li key={index}>{link}<button className={styles.delArqButton} onClick={() => deleteLink(index)}>X</button></li>
+                        ))}
                     </div>
                     <div>
                         <input
@@ -148,7 +153,7 @@ const ExtratorWindow = () => {
                                 onChange={addLink}
                                 ref={linkInputRef}
                             />
-                            <button onClick={addLinkAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>
+                            <button onClick={addLinkToArray} className={styles.buttonLinkTextInput}>Adicionar</button>
                         </div>
                     </div>
                     <div className={styles.textoContainer}>
