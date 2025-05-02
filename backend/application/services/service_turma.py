@@ -12,3 +12,15 @@ def buscar_id_turma_por_codigo(codigo_turma: str) -> uuid.UUID | None:
     """
     turma = Turma.query.filter_by(codigo=codigo_turma).first()
     return turma.id if turma else None
+
+def buscar_codigo_turma_por_id(id_turma: uuid.UUID) -> str | None:
+    """
+    Busca uma turma no banco de dados usando o ID fornecido.
+
+    Espera receber:
+    - `id_turma`: uuid.UUID - o ID da turma
+    
+    Retorna o código da turma se ela existir, e None caso contrário.
+    """
+    turma = Turma.query.filter_by(id=id_turma).first()
+    return turma.codigo if turma else None
