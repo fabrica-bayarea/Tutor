@@ -9,8 +9,8 @@ from application.services.service_vinculos import *
 
 professores_bp = Blueprint('professores', __name__)
 
-@professores_bp.route('/turmas_materias', methods=['GET'])
-def obter_vinculos_professor_turma_materia():
+@professores_bp.route('/turmas_materias/<string:matricula_professor>', methods=['GET'])
+def obter_vinculos_professor_turma_materia(matricula_professor: str):
     """
     Endpoint para obter os vínculos entre um professor e suas turmas e matérias.
 
@@ -32,11 +32,6 @@ def obter_vinculos_professor_turma_materia():
     ]
     ```
     """
-    matricula_professor = request.json.get('matricula_professor')
-
-    if not matricula_professor:
-        return jsonify({"error": "Parâmetro 'matricula_professor' é obrigatório"}), 400
-    
     # Valida o professor
     professor_id = buscar_id_professor_por_matricula(matricula_professor)
     if not professor_id:
