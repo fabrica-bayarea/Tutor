@@ -30,7 +30,7 @@ def upload_arquivos():
     vinculos_raw = request.form.get('vinculos') # Mesmo recebendo numa estrutura JSON, ele virá como string
 
     if not arquivos or all(arquivo.filename == '' for arquivo in arquivos):
-        return jsonify({"error": "Nenhum arquivo foi enviado mane"}), 400
+        return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
 
     if not matricula_professor or not vinculos_raw:
         return jsonify({"error": "Parâmetros 'matricula_professor' e 'vinculos' são obrigatórios"}), 400
