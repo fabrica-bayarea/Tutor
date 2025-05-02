@@ -20,7 +20,17 @@ def obter_vinculos_professor_turma_materia():
     1. Busca o ID do professor no banco de dados
     2. Usa o ID do professor para buscar os vínculos entre ele e suas turmas e matérias
     3. Usa os IDs de cada turma e matéria encontrados para buscar os códigos de cada uma
-    4. Retorna os códigos de cada turma e matéria encontrados
+    
+    Retorna uma lista de dicionários, onde cada dicionário contém os códigos de turma e matéria de um vínculo.
+    ```json
+    [
+        {
+            "codigo_turma": "codigo_turma",
+            "codigo_materia": "codigo_materia"
+        },
+        ...
+    ]
+    ```
     """
     matricula_professor = request.json.get('matricula_professor')
 
@@ -42,4 +52,4 @@ def obter_vinculos_professor_turma_materia():
     # Junta corretamente os códigos de cada relação entre turma e matéria em dicionários, dentro de uma lista
     vinculos_processados = [{"codigo_turma": codigo_turma, "codigo_materia": codigo_materia} for codigo_turma, codigo_materia in zip(codigos_turmas, codigos_materias)]
     
-    return jsonify({"vinculos": vinculos_processados}), 200
+    return jsonify(vinculos_processados), 200
