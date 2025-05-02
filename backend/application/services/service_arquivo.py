@@ -8,6 +8,11 @@ from application.libs import *
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
 
+EXTENSOES_SUPORTADAS = {
+    "texto": (".pdf", ".docx", ".pptx", ".xlsx", ".csv", ".html", ".xhtml", ".md", ".markdown"),
+    "video-audio": (".mp4", ".mov", ".mkv", ".avi", ".mp3", ".wav", ".m4a", ".flac", ".ogg")
+}
+
 def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
     Salva metadados do arquivo no PostgreSQL.
@@ -96,9 +101,20 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     """
     print(f'\n\nIniciando processamento do arquivo: {arquivo.filename}')
 
+    # Verifica se o arquivo é suportado
+    nome_arquivo = arquivo.filename
+    extensao_arquivo = str(os.path.splitext(nome_arquivo)[1])
+
+    if not any(extensao_arquivo in extensao for extensao in EXTENSOES_SUPORTADAS.values()):
+        print(f'Não é possível processar o arquivo {nome_arquivo} devido à sua extensão ({extensao_arquivo})')
+        return {
+            "filename": nome_arquivo,
+            "status": 400,
+            "message": "Tipo de arquivo não suportado"
+        }
+
     # 1. Salva metadados no PostgreSQL e retorna a estrutura completa do documento
     print(f'\n(1/4). Salvando metadados do arquivo no PostgreSQL')
-    nome_arquivo = arquivo.filename
     documento = salvar_metadados_arquivo(nome_arquivo, professor_id)
     print(f'DADOS SALVOS NO POSTGRESQL COM SUCESSO!')
 
@@ -112,19 +128,12 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     # Usa o caminho retornado na etapa anterior
     print(f'\n(3/4). Extraindo o conteúdo do arquivo recebido')
     try:
-        if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
+        if extensao_arquivo in EXTENSOES_SUPORTADAS['texto']:
             print(f'Biblioteca a ser utilizada: Docling')
             texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
-        elif nome_arquivo.endswith(('.mp4', '.mov', '.mkv', '.avi', '.mp3', '.wav', '.m4a', '.flac', '.ogg')):
+        elif extensao_arquivo in EXTENSOES_SUPORTADAS['video-audio']:
             print(f'Biblioteca a ser utilizada: Whisper')
             texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do vídeo/áudio usando Whisper e FFmpeg
-        else:
-            print(f'Tipo de arquivo não suportado: {nome_arquivo}')
-            return {
-                "filename": nome_arquivo,
-                "status": 400,
-                "message": "Tipo de arquivo não suportado"
-            }
     except Exception as e:
         print(f"Erro ao extrair o conteúdo do arquivo: {str(e)}")
         return {
