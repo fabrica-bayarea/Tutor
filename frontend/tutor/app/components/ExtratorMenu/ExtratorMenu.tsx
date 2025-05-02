@@ -2,6 +2,8 @@ import React, { useContext, useRef, useState } from 'react';
 import styles from './ExtratorMenu.module.css';
 import { ModalContext } from "../../contexts/contextModal"
 import Select from 'react-select';
+import { postLinks } from '@/app/services/link';
+import { postUpload } from '@/app/services/upload';
 
 const ExtratorWindow = () => {
     /*Link-Text*/
@@ -95,6 +97,29 @@ const ExtratorWindow = () => {
         label: materia.nome
     })) : [];
 
+    const handleEnviar = async () => {
+        try {
+            console.log('Enviando links:', links);
+            if (links.length > 0) {
+                const response = await postLinks(links);
+                console.log('Resposta do backend:', response);
+            }
+
+            if (arqDragEvent.length > 0) {
+                await postUpload(arqDragEvent);
+            }
+            
+            setArqDragEvent([]);
+            setLinks([]);
+
+            alert('Arquivos enviados com sucesso!');
+        } catch (error) {
+            console.error('Erro ao enviar os links:', error);
+            console.error('Detalhes completo do erro:', error);
+            alert('Erro ao enviar os links.');
+        }
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.extratorContainer}>
@@ -176,7 +201,7 @@ const ExtratorWindow = () => {
                         <progress max={10} value={arqDragEvent.length} />
                         <p>{arqDragEvent.length}/10</p>
                     </div>
-                    <button className={styles.enviar}>Enviar</button>
+                    <button className={styles.enviar} onClick={handleEnviar}>Enviar</button>
                 </div>
             </div>
         </div>
