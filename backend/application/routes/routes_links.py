@@ -13,8 +13,16 @@ def is_valid_url(url):
     except ValueError:
         return False
 
-@links_bp.route('/upload', methods=['POST'])
+@links_bp.route('/upload', methods=['POST', 'OPTIONS'])
 def scrap_links():
+    
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'preflight'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response
+    
     if not request.json:
         return jsonify({"error": "URL não fornecida", "status": "error"}), 400
     
@@ -42,12 +50,13 @@ def scrap_links():
             print(f'Processando URL: {url}')
             result = data_extraction(driver, url)
             results.append(result)
+            print(f'URL processada com sucesso: {result}')
             time.sleep(2)
             
         return jsonify({
             "status": "success",
             'processed_url': len(valid_urls),
-            "results": results   
+            "results": results
         })
     except Exception as e:
         return jsonify({

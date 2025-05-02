@@ -66,8 +66,9 @@ def extract_images(driver):
 def data_extraction(driver, url):
     try :
         print(f'Extraindo dados da URL: {url}')
+        driver.set_page_load_timeout(30)
         driver.get(url)
-        time.sleep(2)
+        # time.sleep(30)
         
         # forçar a codificação para utf-8, Verifica e adiciona meta tag charset se não existir
         driver.execute_script("""
@@ -95,6 +96,6 @@ def data_extraction(driver, url):
         return {
             'url': url,
             'status': 'error',
-            'error_message': str(e)
+            'error_message': f'Falha ao carregar a URL: {str(e)}'
         }
     
