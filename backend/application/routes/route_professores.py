@@ -39,7 +39,7 @@ def obter_vinculos_professor_turma_materia():
     codigos_turmas = [buscar_codigo_turma_por_id(vinculo.turma_id) for vinculo in vinculos]
     codigos_materias = [buscar_codigo_materia_por_id(vinculo.materia_id) for vinculo in vinculos]
     
-    # Junta corretamente os códigos de cada relação entre turma e matéria
-    vinculos_processados = list(zip(codigos_turmas, codigos_materias))
+    # Junta corretamente os códigos de cada relação entre turma e matéria em dicionários, dentro de uma lista
+    vinculos_processados = [{"codigo_turma": codigo_turma, "codigo_materia": codigo_materia} for codigo_turma, codigo_materia in zip(codigos_turmas, codigos_materias)]
     
     return jsonify({"vinculos": vinculos_processados}), 200
