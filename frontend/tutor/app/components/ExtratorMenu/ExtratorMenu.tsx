@@ -1,9 +1,10 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import styles from './ExtratorMenu.module.css';
 import { ModalContext } from "../../contexts/contextModal"
 import Select from 'react-select';
 import { postLinks } from '@/app/services/link';
 import { postUpload } from '@/app/services/upload';
+import { getVinculosProfessorTurmaMateria } from '@/app/services/professor_turma_materia';
 
 const ExtratorWindow = () => {
     /*Link-Text*/
@@ -11,7 +12,8 @@ const ExtratorWindow = () => {
     const [links, setLinks] = useState<string[]>([]);
     const [linkInput, setLinkInput] = useState('');
     const linkInputRef = useRef<HTMLInputElement>(null);
-
+    const [matricula_professor, setMatricula_professor] = useState('1');
+    const [vinculos, setVinculos] = useState([]);
     const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(event.target.value);
     };
@@ -92,10 +94,10 @@ const ExtratorWindow = () => {
 
     /*Matérias*/
     const { fecharMenuExtracao, materias } = useContext(ModalContext)!;
-    const options = materias ? materias.map((materia: any) => ({
-        value: materia.id,
-        label: materia.nome
-    })) : [];
+    const options = vinculos.map((vinculo: any, index: number) => ({
+        value: index,
+        label: `${vinculo.codigo_turma} - ${vinculo.codigo_materia}`
+    }));    
 
     const handleEnviar = async () => {
         try {
@@ -119,6 +121,21 @@ const ExtratorWindow = () => {
             alert('Erro ao enviar os links.');
         }
     }
+
+    const handleGetTurmasMaterias = async () => {
+        try {
+            const response = await getVinculosProfessorTurmaMateria(matricula_professor);
+            console.log('Resposta do backend:', response);
+            setVinculos(response);
+        } catch (error) {
+            console.error('Erro ao buscar os vínculos do professor:', error);
+            alert('Erro ao buscar os vínculos do professor.');
+        }
+    }    
+
+    useEffect(() => {
+        handleGetTurmasMaterias();
+    }, []);
 
     return (
         <div className={styles.container}>
