@@ -86,7 +86,7 @@ def upload_arquivos():
         status_code = 201
     elif all(resultado.get('status') in [400, 500] for resultado in resultados):
         message = "Erro ao processar todos os arquivos"
-        status_code = 400
+        status_code = resultados[0].get('status')
     else:
         message = "Alguns arquivos foram processados com sucesso, mas outros falharam"
         status_code = 207
