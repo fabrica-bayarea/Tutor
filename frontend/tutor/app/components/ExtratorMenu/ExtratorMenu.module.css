@@ -229,7 +229,8 @@
 .linkContainerDiv {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .linkContainer h1 {
@@ -241,8 +242,6 @@
 .linkContainer input {
     outline: none;
     font-size: 15px;
-    margin-top: 20px;
-    margin-left: 10px;
     width: 500px;
     height: 30px;
     border: none;
@@ -261,7 +260,8 @@
 .textoContainerDiv {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .textoContainer h1 {
@@ -274,10 +274,8 @@
     outline: none;
     font-size: 15px;
     font-family: Arial, Helvetica, sans-serif;
-    margin-top: 20px;
-    margin-left: 10px;
     width: 500px;
-    height: 30px;
+    height: 60px;
     border: none;
     border-radius: 10px;
     resize: none;
@@ -286,14 +284,14 @@
 
 /* Botões para enviar link e texto */
 .buttonLinkTextInput {
-    padding: 10px;
-    margin: 10px;
-    font-size: 15px;
+    height: fit-content;
+    padding: 0.5rem;
+    font-size: 1rem;
     font-weight: bolder;
     color: white;
     background-color: transparent;
     border: none;
-    border-radius: 25px;
+    border-radius: 999px;
     cursor: pointer;
 }
 

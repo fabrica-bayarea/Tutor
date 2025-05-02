@@ -185,6 +185,18 @@ const ExtratorWindow = () => {
                     <button className={styles.buttonAddArq} onClick={addButtonClick}>Selecione ou Arraste um Arquivo</button>
                 </div>
                 <div className={styles.linkTextoContainer}>
+                    <div className={styles.textoContainer}>
+                        <div className={styles.textoContainerDiv}>
+                            <h1>Texto:</h1>
+                            <textarea
+                                placeholder="Digite aqui."
+                                onChange={addText}
+                                id="textareInput"
+                                value={text}
+                            />
+                            <button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>
+                        </div>
+                    </div>
                     <div className={styles.linkContainer}>
                         <div className={styles.linkContainerDiv}>
                             <h1>Link:</h1>
@@ -196,18 +208,6 @@ const ExtratorWindow = () => {
                                 ref={linkInputRef}
                             />
                             <button onClick={addLinkToArray} className={styles.buttonLinkTextInput}>Adicionar</button>
-                        </div>
-                    </div>
-                    <div className={styles.textoContainer}>
-                        <div className={styles.textoContainerDiv}>
-                            <h1>Texto:</h1>
-                            <textarea
-                                placeholder="Digite aqui."
-                                onChange={addText}
-                                id="textareInput"
-                                value={text}
-                            />
-                            <button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>
                         </div>
                     </div>
                 </div>
