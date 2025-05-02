@@ -8,10 +8,7 @@ from application.services import *
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/links/*": {"origins": "*"},
-    r"/arquivos/*": {"origins": "*"}
-})
+CORS(app, resources={r"/*": {"origins": "*"}})
 init_db(app)
 migrate = Migrate(app, db)
 
