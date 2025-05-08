@@ -2,8 +2,9 @@ import os
 import uuid
 from datetime import datetime
 from application.config import db, chroma_client
-from application.models import Arquivo
 from application.libs import *
+from application.models import Arquivo
+from application.services.service_vinculos import criar_vinculo_arquivo_turma_materia
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
@@ -15,7 +16,7 @@ EXTENSOES_SUPORTADAS = {
 
 def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
-    Salva metadados do arquivo no PostgreSQL.
+    Função atômica, responsável por salvar metadados do arquivo no PostgreSQL.
 
     Espera receber:
     - `titulo`: str - o nome do arquivo
@@ -33,7 +34,7 @@ def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
 
 def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) -> str:
     """
-    Salva o arquivo recebido no diretório do professor e retorna seu caminho.
+    Função atômica, responsável por salvar o arquivo recebido no diretório do professor e retornar seu caminho.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser salvo
@@ -60,7 +61,7 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
 
 def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]], data_upload: datetime, texto: str) -> None:
     """
-    Salva dados do arquivo no ChromaDB.
+    Função atômica, responsável por salvar dados do arquivo no ChromaDB.
 
     Espera receber:
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
@@ -85,7 +86,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
 
 def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
-    Processa um arquivo.
+    Função principal, responsável por processar um arquivo.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
@@ -93,6 +94,8 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
 
     1. Salva metadados no PostgreSQL
+        1.1. Cria um novo registro de Arquivo
+        1.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
     2. Salva o arquivo recebido no diretório do professor
     3. Extrai o conteúdo do arquivo utilizando a biblioteca correta de acordo com a sua extensão (PDF, DOCX, MP4, etc)
     4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
@@ -113,10 +116,22 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
             "message": "Tipo de arquivo não suportado"
         }
 
-    # 1. Salva metadados no PostgreSQL e retorna a estrutura completa do documento
-    print(f'\n(1/4). Salvando metadados do arquivo no PostgreSQL')
+    # 1. Salva metadados no PostgreSQL
+    print(f'\n(1/4). Salvando metadados no PostgreSQL')
+    # 1.1. Salva os metadados do arquivo no PostgreSQL e retorna a estrutura completa do documento
+    print(f'\n(1.1/4). Salvando metadados do Arquivo no PostgreSQL')
     documento = salvar_metadados_arquivo(nome_arquivo, professor_id)
-    print(f'DADOS SALVOS NO POSTGRESQL COM SUCESSO!')
+    print(f'ARQUIVO SALVO NO POSTGRESQL COM SUCESSO!')
+
+    # 1.2. Salva os vínculos no PostgreSQL
+    print(f'\n(1.2/4). Salvando vínculos ArquivoTurmaMateria no PostgreSQL')
+    vinculos_arquivo_turma_materia = []
+    for vinculo in vinculos:
+        vinculo_arquivo_turma_materia = criar_vinculo_arquivo_turma_materia(documento.id, vinculo['turma_id'], vinculo['materia_id'])
+        vinculos_arquivo_turma_materia.append(vinculo_arquivo_turma_materia)
+        print(f'Vínculo salvo: {vinculo_arquivo_turma_materia}')
+    
+    print(f'VÍNCULOS ARQUIVO-TURMA-MATERIA SALVOS NO POSTGRESQL COM SUCESSO!')
 
     # 2. Salva o arquivo no diretório do professor e retorna o caminho para ele
     # Usa o ID retornado na etapa anterior
@@ -163,3 +178,23 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
             "data_upload": documento.data_upload
         }
     }
+
+def processar_link(link: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
+    """
+    Função principal, responsável por processar um link.
+
+    Espera receber:
+    - `link`: str - o link a ser processado
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
+
+    1. Extrai o conteúdo do link recebido
+    2. Salva metadados no PostgreSQL
+        2.1. Cria um novo registro de Arquivo
+        2.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
+    3. Salva o conteúdo extraído do link num arquivo `.txt` no diretório do professor
+    4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+
+    Retorna um dicionário com informações do documento.
+    """
+    pass
