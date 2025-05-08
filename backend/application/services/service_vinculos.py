@@ -19,10 +19,13 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
     Retorna uma lista de vínculos AlunoTurma que correspondem aos filtros.
     Se nenhum parâmetro for fornecido, retorna None.
     """
-    if not aluno_id and not turma_id:
-        raise ValueError("É obrigatório fornecer, no mínimo, um ID de aluno ou um ID de turma.")
+    query = AlunoTurma.query
     
-    query = AlunoTurma.query.filter_by(aluno_id=aluno_id, turma_id=turma_id)
+    if aluno_id is not None:
+        query = query.filter_by(aluno_id=aluno_id)
+    
+    if turma_id is not None:
+        query = query.filter_by(turma_id=turma_id)
     
     return query.all()
 
@@ -61,10 +64,16 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     Retorna uma lista de vínculos ProfessorTurmaMateria que correspondem aos filtros.
     Se nenhum parâmetro for fornecido, retorna None.
     """
-    if not professor_id and not turma_id and not materia_id:
-        raise ValueError("É obrigatório fornecer, no mínimo, um ID de professor, um ID de turma ou um ID de matéria.")
+    query = ProfessorTurmaMateria.query
     
-    query = ProfessorTurmaMateria.query.filter_by(professor_id=professor_id, turma_id=turma_id, materia_id=materia_id)
+    if professor_id is not None:
+        query = query.filter_by(professor_id=professor_id)
+    
+    if turma_id is not None:
+        query = query.filter_by(turma_id=turma_id)
+    
+    if materia_id is not None:
+        query = query.filter_by(materia_id=materia_id)
     
     return query.all()
 
@@ -105,10 +114,16 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
     Retorna uma lista de vínculos ArquivoTurmaMateria que correspondem aos filtros.
     Se nenhum parâmetro for fornecido, retorna None.
     """
-    if not arquivo_id and not turma_id and not materia_id:
-        raise ValueError("É obrigatório fornecer, no mínimo, um ID de arquivo, um ID de turma ou um ID de matéria.")
+    query = ArquivoTurmaMateria.query
     
-    query = ArquivoTurmaMateria.query.filter_by(arquivo_id=arquivo_id, turma_id=turma_id, materia_id=materia_id)
+    if arquivo_id is not None:
+        query = query.filter_by(arquivo_id=arquivo_id)
+    
+    if turma_id is not None:
+        query = query.filter_by(turma_id=turma_id)
+    
+    if materia_id is not None:
+        query = query.filter_by(materia_id=materia_id)
     
     return query.all()
 
