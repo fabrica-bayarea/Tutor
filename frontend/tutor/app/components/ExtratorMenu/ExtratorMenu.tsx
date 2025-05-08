@@ -108,17 +108,16 @@ const ExtratorWindow = () => {
             }
 
             if (arqDragEvent.length > 0) {
-                await postUpload(arqDragEvent);
+                await handleUpload();
             }
             
-            setArqDragEvent([]);
             setLinks([]);
 
             alert('Arquivos enviados com sucesso!');
         } catch (error) {
-            console.error('Erro ao enviar os links:', error);
+            console.error('Erro ao enviar os dados:', error);
             console.error('Detalhes completo do erro:', error);
-            alert('Erro ao enviar os links.');
+            alert('Erro ao enviar os dados.');
         }
     }
 
@@ -132,6 +131,32 @@ const ExtratorWindow = () => {
             alert('Erro ao buscar os vínculos do professor.');
         }
     }    
+
+    const handleUpload = async () => {
+        try {
+            if (arqDragEvent.length === 0) {
+                alert('Por favor, selecione arquivos para upload');
+                return;
+            }
+            if (vinculos.length === 0) {
+                alert('Por favor, selecione os vínculos de turma e matéria');
+                return;
+            }
+
+            const response = await postUpload(
+                arqDragEvent, 
+                matricula_professor, 
+                vinculos
+            );
+
+            console.log('Upload successful:', response);
+            fecharMenuExtracao();
+            setArqDragEvent([]);
+        } catch (error) {
+            console.error('Erro no upload:', error);
+            alert('Erro no upload. Por favor, tente novamente.');
+        }
+    };
 
     useEffect(() => {
         handleGetTurmasMaterias();
