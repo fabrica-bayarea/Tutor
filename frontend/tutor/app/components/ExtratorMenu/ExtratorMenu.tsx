@@ -6,18 +6,22 @@ import { postLinks } from '@/app/services/link';
 import { postUpload } from '@/app/services/upload';
 import { getVinculosProfessorTurmaMateria } from '@/app/services/professor_turma_materia';
 
+// Componente principal da janela de extração
 const ExtratorWindow = () => {
-    /*Link-Text*/
-    const [text, setText] = useState('');
-    const [links, setLinks] = useState<string[]>([]);
-    const [linkInput, setLinkInput] = useState('');
-    const linkInputRef = useRef<HTMLInputElement>(null);
-    const [matricula_professor, setMatricula_professor] = useState('1');
-    const [vinculos, setVinculos] = useState([]);
+    /* Estados relacionados a links e texto */
+    const [text, setText] = useState(''); // Armazena o texto digitado
+    const [links, setLinks] = useState<string[]>([]); // Lista de links adicionados
+    const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link 
+    const linkInputRef = useRef<HTMLInputElement>(null); // Referência ao input de link
+    const [matricula_professor, setMatricula_professor] = useState('1');// Matrícula fixa do professor
+    const [vinculos, setVinculos] = useState([]); // Lista de vínculos do professor (turma/matéria)
+
+    // Atualiza o estado do texto digitado
     const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(event.target.value);
     };
 
+    // Converte o texto em arquivo e adiciona à lista de arquivos
     const addTextAsFileToDrag = () => {
         if (text.trim() !== '') {
             const blob = new Blob([text], { type: 'text/plain' });
@@ -28,10 +32,12 @@ const ExtratorWindow = () => {
         }
     };
 
+    // Atualiza o valor do input de link
     const addLink = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLinkInput(event.target.value);
     };
 
+    // Adiciona o link digitado à lista de links
     const addLinkToArray = () => {
         if (linkInput.trim() !== '') {
             setLinks(prevLinks => [...prevLinks, linkInput]);
@@ -42,15 +48,17 @@ const ExtratorWindow = () => {
         }
     };
 
+    // Remove link pelo índice
     const deleteLink = (index: number) => {
         setLinks(prev => prev.filter((_, i) => i !== index));
     };
 
-    /*Drag and Drop*/
-    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]);
+    /* Estados e funções para drag and drop */
+    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]); // Lista de arquivos carregados
     const [dragUsado, setDragUsado] = useState(false); //Fazer uma função para escurecer a tela do drag and drop.
-    const dropRef = useRef<HTMLDivElement>(null);
+    const dropRef = useRef<HTMLDivElement>(null); // Referência para área de drop
 
+    // Eventos do drag and drop
     const dragEvent = {
         onDragEnter: (e: React.DragEvent) => {
             e.preventDefault();
@@ -73,11 +81,15 @@ const ExtratorWindow = () => {
             setArqDragEvent(prev => [...prev, ...novosArquivos]);
         }
     };
+
+    // Remove arquivo da lista
     const deleteArq = (arquivoParaDeletar: File) => {
         setArqDragEvent(arquivosAnteriores =>
             arquivosAnteriores.filter(arquivo => arquivo.name !== arquivoParaDeletar.name)
         );
     };
+
+    // Abre seletor de arquivos ao clicar no botão
     const addButtonClick = () => {
         const fileInput = document.getElementById('fileInput') as HTMLInputElement | null;
         if (fileInput) {
@@ -85,6 +97,7 @@ const ExtratorWindow = () => {
         }
     };
 
+    // Adiciona arquivos selecionados via input à lista
     const addArqEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const novosArquivos = Array.from(event.target.files);
@@ -94,24 +107,27 @@ const ExtratorWindow = () => {
 
     /*Matérias*/
     const { fecharMenuExtracao, materias } = useContext(ModalContext)!;
+
+    // Opções para o componente Select com base nos vínculos do professor
     const options = vinculos.map((vinculo: any, index: number) => ({
         value: index,
         label: `${vinculo.codigo_turma} - ${vinculo.codigo_materia}`
     }));    
 
+    // Função chamada ao clicar em "Enviar"
     const handleEnviar = async () => {
         try {
             console.log('Enviando links:', links);
             if (links.length > 0) {
-                const response = await postLinks(links);
+                const response = await postLinks(links); // Envia os links para o backend
                 console.log('Resposta do backend:', response);
             }
 
             if (arqDragEvent.length > 0) {
-                await handleUpload();
+                await handleUpload(); // Envia os arquivos para o backend
             }
             
-            setLinks([]);
+            setLinks([]); // Limpa os links após envio
 
             alert('Arquivos enviados com sucesso!');
         } catch (error) {
@@ -121,6 +137,7 @@ const ExtratorWindow = () => {
         }
     }
 
+    // Busca os vínculos do professor com turmas e matérias
     const handleGetTurmasMaterias = async () => {
         try {
             const response = await getVinculosProfessorTurmaMateria(matricula_professor);
@@ -132,6 +149,7 @@ const ExtratorWindow = () => {
         }
     }    
 
+    // Realiza o upload dos arquivos
     const handleUpload = async () => {
         try {
             if (arqDragEvent.length === 0) {
@@ -150,21 +168,24 @@ const ExtratorWindow = () => {
             );
 
             console.log('Upload successful:', response);
-            fecharMenuExtracao();
-            setArqDragEvent([]);
+            fecharMenuExtracao(); // Fecha o menu após upload
+            setArqDragEvent([]); // Limpa os arquivos
         } catch (error) {
             console.error('Erro no upload:', error);
             alert('Erro no upload. Por favor, tente novamente.');
         }
     };
 
+    // Executa busca dos vínculos ao montar o componente
     useEffect(() => {
         handleGetTurmasMaterias();
     }, []);
 
     return (
         <div className={styles.container}>
+            {/* Container principal */}
             <div className={styles.extratorContainer}>
+                {/* Barra de título */}
                 <div className={styles.infoBar}>
                     <div className={styles.title}>
                         <h1>Adicionar arquivos à LLM</h1>
@@ -172,6 +193,7 @@ const ExtratorWindow = () => {
                     <button onClick={fecharMenuExtracao} className={styles.closeModalButton}>X</button>
                 </div>
 
+                {/* Seletor de matéria */}
                 <div className={styles.materiaChooseContainer}>
                     <div className={styles.materiaChoose}>
                         <h1>Matéria</h1>
@@ -187,10 +209,13 @@ const ExtratorWindow = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Área de drag and drop de arquivos */}
                 <div {...dragEvent} 
                 ref = {dropRef}
                 className={`${styles.dragdropContainer} ${dragUsado ? styles.dragAtivo : ''}`} >
                     <div className={styles.arqList}>
+                        {/* Lista de arquivos e links */}
                         {arqDragEvent.map((file: File) => (
                             <li key={file.name}>{file.name}<button className={styles.delArqButton} onClick={() => deleteArq(file)}>X</button></li>
                         ))}
@@ -199,6 +224,7 @@ const ExtratorWindow = () => {
                         ))}
                     </div>
                     <div>
+                         {/* Input oculto para arquivos */}
                         <input
                             type="file"
                             id="fileInput"
@@ -209,6 +235,7 @@ const ExtratorWindow = () => {
                     </div>
                     <button className={styles.buttonAddArq} onClick={addButtonClick}>Selecione ou Arraste um Arquivo</button>
                 </div>
+                {/* Seção de entrada de texto e links */}
                 <div className={styles.linkTextoContainer}>
                     <div className={styles.textoContainer}>
                         <div className={styles.textoContainerDiv}>
@@ -237,6 +264,7 @@ const ExtratorWindow = () => {
                     </div>
                 </div>
 
+                {/* Seção de envio */}
                 <div className={styles.arqEnviarContainer}>
                     <div className={styles.statusBarDiv}>
                         <p>Arquivos Selecionados:</p>
