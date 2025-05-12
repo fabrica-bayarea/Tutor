@@ -2,9 +2,13 @@ import axios from "axios";
 
 const linkAPI = axios.create({baseURL: 'http://127.0.0.1:5000/links', timeout: 30000})
 
-async function postLinks(links: string[]) {
+async function postLinks(links: string[], matricula_professor: string, viculos: any[]) {
     try {
-        const payload = links.length === 1 ? { "url": links[0] } : { "urls": links };
+        const payload = {
+            "urls": links,
+            "matricula_professor": matricula_professor,
+            "vinculos": vinculos
+        };
         const response = await linkAPI.post('/upload', payload, {
             headers: {
                 "Content-Type": "application/json",

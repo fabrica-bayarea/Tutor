@@ -13,7 +13,7 @@ const ExtratorWindow = () => {
     const [links, setLinks] = useState<string[]>([]); // Lista de links adicionados
     const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link 
     const linkInputRef = useRef<HTMLInputElement>(null); // Referência ao input de link
-    const [matricula_professor, setMatricula_professor] = useState('1');// Matrícula fixa do professor
+    const [matricula_professor, setMatricula_professor] = useState<string>('1');// Matrícula fixa do professor
     const [vinculos, setVinculos] = useState([]); // Lista de vínculos do professor (turma/matéria)
 
     // Atualiza o estado do texto digitado
@@ -119,7 +119,7 @@ const ExtratorWindow = () => {
         try {
             console.log('Enviando links:', links);
             if (links.length > 0) {
-                const response = await postLinks(links); // Envia os links para o backend
+                const response = await postLinks(links, matricula_professor, vinculos); // Envia os links para o backend
                 console.log('Resposta do backend:', response);
             }
 
