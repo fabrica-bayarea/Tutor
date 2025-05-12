@@ -14,6 +14,8 @@ EXTENSOES_SUPORTADAS = {
     "video-audio": (".mp4", ".mov", ".mkv", ".avi", ".mp3", ".wav", ".m4a", ".flac", ".ogg")
 }
 
+CARACTERES_NAO_PERMITIDOS = '|<>:"/\\?*'
+
 def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
     Função atômica, responsável por salvar metadados do arquivo no PostgreSQL.
@@ -179,7 +181,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
         }
     }
 
-def processar_link(link: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
+def processar_link(link: str, driver: webdriver, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
     Função principal, responsável por processar um link.
 
@@ -197,4 +199,49 @@ def processar_link(link: str, professor_id: uuid.UUID, vinculos: list[dict[str, 
 
     Retorna um dicionário com informações do documento.
     """
-    pass
+    
+    print(f'\nProcessando link: {link}')
+    
+    # 1. Extrai o conteúdo do link recebido
+    print(f'\n(1/4). Extraindo o conteúdo do link recebido')
+    dados_extrair_link = data_extraction(driver, link)
+    
+    # 2. Salva metadados no PostgreSQL        
+    print(f'\n(2/4). Salvando metadados no PostgreSQL')
+    print(f'\n(2.1/4). Criando um novo registro de Arquivo')
+    documento = salvar_metadados_arquivo(dados_extrair_link['page_title'], professor_id)
+    print(f'\n(2.2/4). Criando um novo registro de ArquivoTurmaMateria para cada vínculo recebido')
+    vinculos_arquivos_turmas_materias = []
+    for vinculo in vinculos:
+        vinculo_arquivo_turma_materia = criar_vinculo_arquivo_turma_materia(documento.id, vinculo['turma_id'], vinculo['materia_id'])
+        vinculos_arquivos_turmas_materias.append(vinculo_arquivo_turma_materia)
+          
+    # salvando o conteudo do link recebido no arquivo .txt
+    print(f'\n(3/4). Salvando o conteúdo extraído do link num arquivo `.txt` no diretório do professor')
+    nome_arquivo = f"{documento.id}_{documento.titulo.replace(' ', '_')}"
+    for caractere in CARACTERES_NAO_PERMITIDOS:
+        nome_arquivo = nome_arquivo.replace(caractere, '_')
+    nome_arquivo += '.txt'
+    caminho_arquivo = os.path.join(
+        DOCUMENTOS_DIR,
+        str(professor_id),
+        str(nome_arquivo)
+    )
+    print(f'Caminho do arquivo: {caminho_arquivo}')
+    with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+        f.write(dados_extrair_link['content'])
+    
+    # 4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+    print(f'\n(4/4). Salvando dados do documento no ChromaDB')
+    formatted_vinculos = ','.join([f'{v["turma_id"]}-{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, dados_extrair_link['content'])
+    
+    return {
+        "status": 201,
+        "message": "Link processado com sucesso",
+        "data": {
+            "documento_id": documento.id,
+            "titulo": documento.titulo,
+            "data_upload": documento.data_upload
+        }
+    }
