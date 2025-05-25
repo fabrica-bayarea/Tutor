@@ -1,0 +1,335 @@
+@font-face {
+    font-family: 'fontePadrao';
+    src: url('../assets/fonte.ttf') format('ttf');
+    font-weight: normal; 
+    font-style: normal; 
+  }
+
+/* Estilos gerais do container da janela */
+.container {
+    background-color: white;
+    position: fixed;
+    z-index: 1;
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+/* Keyframes para animações */
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulsar {
+    0% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
+
+/* Estilos do container interno */
+.extratorContainer {
+    height: 100%;
+    width: 100%;
+    margin-right: 15%;
+    margin-left: 15%;
+    margin-top: 3%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Barra de informações (título e botão de fechar) */
+.infoBar {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.title {
+    width: 100%;
+}
+
+
+.title h1 p {
+    margin-top: 0;
+    font-family: "fontePadrao",sans-serif;
+    margin-bottom: 0;
+}
+
+.title h1 {
+    font-weight: bold;
+    font-family: "fontePadrao",sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+/* Container para a seleção de matéria */
+.materiaChooseContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.materiaChoose {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.materiaChoose h1 p {
+    font-family: "fontePadrao",sans-serif;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.materiaChoose h1 {
+    font-family: "fontePadrao",sans-serif;
+    font-weight: bold;
+    font-size: 23px;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.dropDown {
+    width: 100%;
+}
+
+.materiasEscolhidas {
+    font-family: "fontePadrao",sans-serif;
+    position: absolute;
+    top: 40px;
+    font-size: 30px;
+    font-weight: lighter;
+}
+
+/* Container para seleção de tipo de extração*/
+.modeArqDiv {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 10%;
+    margin: 10px;
+}
+
+.modeArqDiv button {
+    font-family: "fontePadrao",sans-serif;
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    border-style: solid;
+    border: 2px;
+    border-color: rgba(0, 0, 0, 0.2);
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.modeArqDiv button:hover{
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos do dropdown de seleção */
+.dragAtivo {
+    background-color: rgba(0, 0, 0, 0.40);
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Container para drag and drop de arquivos */
+.dragdropContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    width: 100%;
+    border-style: dashed;
+    border-color: rgba(0, 0, 0, 0.5);
+    border-radius: 30px;
+}
+
+/* Lista de arquivos arrastados */
+.arqList {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    height: 11%;
+    width: 100%;
+    font-family: "fontePadrao",sans-serif;
+    color: black;
+    overflow: auto;
+}
+
+.arqList li {
+    font-family: "fontePadrao",sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1px;
+    width:20%;
+    height: 50%;
+    font-size: 16px;
+    padding: 10px;
+    font-weight: bold;
+    color: gray;
+    border: 2px;
+    border-radius: 12px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.2);
+    list-style: none;
+}
+
+.arqImage{
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.arqList button {
+    font-family: "fontePadrao",sans-serif;
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+/* Botão para adicionar arquivos */
+.buttonAddArq {
+    font-family: "fontePadrao",sans-serif;
+    margin-top: auto;
+    padding: 15px;
+    margin: 12px;
+    margin-left: 40%;
+    margin-right: 40%;
+    font-size: 15px;
+    font-weight: bolder;
+    color: black;
+    border: none;
+    background-color: transparent;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+/* Container para input de link e texto */
+
+/* Container para input de link */
+.linkContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top;
+    height: 300px;
+    width: 100%;
+    border-style: solid;
+    border-color: white;
+}
+
+.linkContainer h1 {
+    font-family: "fontePadrao",sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    width: 90%;
+    text-align: left;
+    color: black;
+    margin-top: 0;
+    margin-bottom: 5;
+}
+
+.linkContainer input {
+    font-family: "fontePadrao",sans-serif;
+    outline: none;
+    font-size: 15px;
+    width: 90%;
+    height: 30px;
+    border: 2px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: solid;
+    border-radius: 10px;
+    resize: none;
+}
+
+/* Container para textarea de texto */
+.textoContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: top;
+    height: 300px;
+    width: 100%;
+    border-style: solid;
+    border-color: white;
+}
+
+.textoContainer h1 {
+    font-family: "fontePadrao",sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    width: 90%;
+    text-align: left;
+    color: black;
+    margin-top: 0;
+    margin-bottom: 5;
+}
+
+.textoContainer textarea {
+    line-height: 2;
+    outline: none;
+    font-size: 15px;
+    font-family: "fontePadrao",sans-serif;
+    width: 90%;
+    height: 60px;
+    overflow: hidden;
+    border: 2px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-style: solid;
+    border-radius: 10px;
+    resize: none;
+    text-decoration: none;
+}
+
+/* Botão de enviar */
+.enviar {
+    position: absolute;
+    font-family: "fontePadrao",sans-serif;
+    bottom: 4%;
+    right: 15%;
+    width: 7%;
+    height: 5%;
+    font-size: 25px;
+    font-weight: bolder;
+    color: black;
+    background-color: rgba(65, 65, 65, 0.1);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.enviar:hover {
+    animation: pulsar 1s infinite alternate;
+    background-color: rgba(65, 65, 65, 0.466);
+}
+
+.addArqh1 {
+    font-family: "fontePadrao",sans-serif;
+    width: 100%;
+    text-align: left;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}

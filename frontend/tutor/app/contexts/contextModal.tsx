@@ -29,9 +29,6 @@ interface ModalContextType {
   menuEstaAberto: boolean;
   abrirMenu: () => void;
   fecharMenu: () => void;
-  extracaoEstaAberto: boolean;
-  abrirMenuExtracao: () => void;
-  fecharMenuExtracao: () => void;
   materiaEstaAberto: boolean;
   abrirMenuMateria: () => void;
   fecharMenuMateria: () => void;
@@ -68,17 +65,7 @@ export function ModalProvider({ children }: ModalProviderProps) {
   const fecharMenu = () => {
     setmenuEstaAberto(false);
   };
-
-  // Controle da janela de extração
-  const [extracaoEstaAberto, setextracaoEstaAberto] = useState(false);
-  const abrirMenuExtracao = () => {
-    setextracaoEstaAberto(true);
-  };
-  const fecharMenuExtracao = () => {
-    setextracaoEstaAberto(false);
-    setmenuEstaAberto(false) // Fecha o menu junto
-  };
-
+  
   // Controle da lista de matérias
   const [materiaEstaAberto, setMateriaEstaAberto] = useState(false);
   const abrirMenuMateria = () => {
@@ -105,9 +92,6 @@ export function ModalProvider({ children }: ModalProviderProps) {
         menuEstaAberto,
         abrirMenu,
         fecharMenu,
-        extracaoEstaAberto,
-        abrirMenuExtracao,
-        fecharMenuExtracao,
         materiaEstaAberto,
         abrirMenuMateria,
         fecharMenuMateria

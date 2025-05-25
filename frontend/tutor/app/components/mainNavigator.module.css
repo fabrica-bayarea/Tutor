@@ -1,0 +1,100 @@
+@font-face {
+    font-family: 'fontePadrao';
+    src: url('../assets/fonte.ttf') format('ttf');
+    font-weight: normal; 
+    font-style: normal; 
+  }
+
+.buttonMenu{
+    background-color: transparent;
+    padding: 6px;
+    border: none;
+    border-radius: 25px;
+    position: absolute;
+    top: 2%;
+    left: 1%;
+    z-index: 5001;
+    cursor: pointer;
+}
+.buttonMenu:hover{
+    background-color: rgb(0, 0, 0,0.07);
+}
+
+.navbar {
+    transition: 2s ease-in-out;
+    background-color: rgb(212, 64, 64);
+    position: absolute;
+    width: 12%;
+    height: 100%;
+    z-index: 5000;
+}
+
+.navbar ul{
+    list-style: none;
+}
+
+.linkPagIni{
+    display: flex;
+    font-family: "fontePadrao",sans-serif;
+    position: absolute;
+    text-decoration: none;
+    color: white;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    font-size: 20px;
+    letter-spacing: 1px;
+    width: 60%;
+    height: 4%;
+    top: 10%;
+    font-weight: bold;
+}
+
+.linkPagIni:hover{
+    background-color: rgb(0, 0, 0,0.03);
+}
+
+.linkPagExt{
+    display: flex;
+    font-family: "fontePadrao",sans-serif;
+    position: absolute;
+    text-decoration: none;
+    color: white;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    font-size: 20px;
+    letter-spacing: 1px;
+    width: 60%;
+    height: 4%;
+    top: 15%;
+    font-weight: bold;
+}
+
+.linkPagExt:hover{
+    background-color: rgb(0, 0, 0,0.03);
+}
+
+.buttonMenuSair{
+    background-color: transparent;    
+    font-family: "fontePadrao",sans-serif;
+    border: none;
+    display: flex;
+    position: absolute;
+    text-decoration: none;
+    color: white;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    font-size: 20px;
+    letter-spacing: 1px;
+    width: 60%;
+    height: 4%;
+    top: 90%;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.buttonMenuSair:hover{
+    background-color: rgb(0, 0, 0,0.03);
+}

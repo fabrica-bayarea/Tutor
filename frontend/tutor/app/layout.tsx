@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 // Importa estilos globais da aplicação
 import "./globals.css";
 import React from "react";
+import MainNavigator from './components/mainNavigator';
+import { ModalProvider } from "./contexts/contextModal";
 
 /**
  * Metadados básicos da aplicação definidos para o HTML <head>.
@@ -25,7 +27,10 @@ export default function RootLayout({
   return (
     <html lang="pt-br"> {/* Define o idioma da página como português do Brasil */}
       <body>
-        {children} {/* Renderiza o conteúdo da página */}
+        <ModalProvider>
+          <MainNavigator />
+          <main>{children}</main>
+        </ModalProvider>
       </body>
     </html>
   );
