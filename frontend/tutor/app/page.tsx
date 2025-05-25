@@ -14,6 +14,7 @@ export default function Home() {
           <MainNavigator />
           <div className="content">
             <Routes>
+              <Route path="/" element={<PaginaInicial />} />
               <Route path="pagina inicial" element={<PaginaInicial />} />
               <Route path="pagina de extracao" element={<ExtratorWindow />} />
             </Routes>
