@@ -7,3 +7,5 @@ from .model_aluno_turma import AlunoTurma
 from .model_turma_materia import TurmaMateria
 from .model_professor_turma_materia import ProfessorTurmaMateria
 from .model_arquivo_turma_materia import ArquivoTurmaMateria
+from .model_chat import Chat
+from .model_mensagem import Mensagem
