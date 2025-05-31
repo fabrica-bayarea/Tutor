@@ -6,6 +6,27 @@ A ideia é que haja **um serviço para cada entidade do nosso banco de dados rel
 ## service_arquivo.py
 Este serviço é responsável por processar todos os arquivos recebidos para upload, passando por um pipeline minucioso de validações e processamentos.
 
+### Arquivos X Links
+Apesar de terem origens diferentes, arquivos e links têm seus conteúdos extraídos e passam a ser tratados da mesma forma. Portanto, eles passam pelo mesmo pipeline de processamento, só que em ordens diferentes.
+
+Para **arquivos**, o fluxo é:
+1. Salvar metadados no PostgreSQL
+    - 1.1. Salvar os metadados do **Arquivo** no PostgreSQL
+    - 1.2. Salvar os vínculos **ArquivoTurmaMateria** no PostgreSQL
+2. Salvar o arquivo no diretório do professor
+3. Extrair o conteúdo do arquivo utilizando a biblioteca correta de acordo com a sua extensão (PDF, DOCX, MP4, etc)
+4. Indexar no ChromaDB utilizando o mesmo ID do PostgreSQL
+
+E para **links**, o fluxo é:
+1. Extrair o conteúdo do link utilizando Selenium + WebDriver
+2. Salvar metadados no PostgreSQL
+    - 2.1. Salvar os metadados do **Arquivo** no PostgreSQL
+    - 2.2. Salvar os vínculos **ArquivoTurmaMateria** no PostgreSQL
+3. Salvar o conteúdo extraído num arquivo `.txt` no diretório do professor
+4. Indexar no ChromaDB utilizando o mesmo ID do PostgreSQL
+
+A grande diferença está na ordem das etapas. Para arquivos convencionais, a extração de conteúdo vem **depois** de salvar os dados necessários no PostgreSQL, enquanto para links, a extração de conteúdo vem **antes** de salvar os dados necessários no PostgreSQL, tornando-se a primeira etapa do processo.
+
 ### def `processar_arquivo`
 É a função principal, responsável por orquestrar o passo-a-passo completo para processar um arquivo. Ela chama funções menores para realizar cada uma das etapas.
 
