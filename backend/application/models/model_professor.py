@@ -13,3 +13,19 @@ class Professor(db.Model):
     data_nascimento = db.Column(db.Date, nullable=False)
 
     turmas_materias = db.relationship('ProfessorTurmaMateria', back_populates='professor', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        """
+        Função atômica, responsável por converter um objeto Professor em um dicionário serializável.
+
+        Retorna um dicionário contendo as informações do professor.
+        """
+        return {
+            'id': str(self.id),
+            'matricula': self.matricula,
+            'nome': self.nome,
+            'email': self.email,
+            'senha': self.senha,
+            'cpf': self.cpf,
+            'data_nascimento': self.data_nascimento.strftime('%d/%m/%Y')
+        }
