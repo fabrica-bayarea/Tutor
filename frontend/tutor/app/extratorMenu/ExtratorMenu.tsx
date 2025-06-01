@@ -4,20 +4,18 @@ import Select from 'react-select';
 import { postLinks } from '@/app/services/link';
 import { postUpload } from '@/app/services/upload';
 import { getVinculosProfessorTurmaMateria } from '@/app/services/professor_turma_materia';
-import exportImage from "../assets/exportImage.png";
-import arqImage from "../assets/arqImage.png";
-import delImage from "../assets/delImage.png";
-import linkImage from "../assets/linkImage.png";
+import { Trash, Link2, FileText, FileVideo, Download, ImageIcon } from "lucide-react";
 
 // Componente principal da janela de extração
-export default function ExtratorWindow() {
+function ExtratorWindow() {
     /* Estados relacionados a links e texto */
     const [text, setText] = useState(''); // Armazena o texto digitado
     const [links, setLinks] = useState<string[]>([]); // Lista de links adicionados
-    const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link 
+    const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link
     const linkInputRef = useRef<HTMLInputElement>(null); // Referência ao input de link
     const [matricula_professor, setMatricula_professor] = useState<string>('1');// Matrícula fixa do professor
     const [vinculos, setVinculos] = useState([]); // Lista de vínculos do professor (turma/matéria)
+    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]); // Lista de arquivos carregados
 
     // Atualiza o estado do texto digitado
     const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -30,7 +28,8 @@ export default function ExtratorWindow() {
             if (text.trim() !== '') {
                 const blob = new Blob([text], { type: 'text/plain' });
                 const fileName = `texto${arqDragEvent.length + 1}.txt`;
-                const newFile = new File([blob], fileName, { type: 'text/plain' });
+                // Explicitly type the Blob array for File constructor
+                const newFile = new File([blob as BlobPart], fileName, { type: 'text/plain' });
                 setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
                 setText('');
             }
@@ -61,7 +60,6 @@ export default function ExtratorWindow() {
     };
 
     /* Estados e funções para drag and drop */
-    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]); // Lista de arquivos carregados
     const [dragUsado, setDragUsado] = useState(false); //Fazer uma função para escurecer a tela do drag and drop.
     const dropRef = useRef<HTMLDivElement>(null); // Referência para área de drop
 
@@ -107,7 +105,7 @@ export default function ExtratorWindow() {
     // Adiciona arquivos selecionados via input à lista
     const addArqEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
-            const novosArquivos = Array.from(event.target.files);
+            const novosArquivos = Array.from(event.target.files) as File[]; // Explicitly type as File[]
             setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
         }
     };
@@ -241,6 +239,33 @@ export default function ExtratorWindow() {
         trocaTipo();
     }, [linkopen, textoopen, arquivosopen]);
 
+    // Função para formatar o tamanho do arquivo
+    const formatFileSize = (size: number): string => {
+        if (size < 1024) {
+            return `${size} bytes`;
+        } else if (size < 1024 * 1024) {
+            return `${(size / 1024).toFixed(2)} KB`;
+        } else {
+            return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+        }
+    };
+
+    // Função para obter o ícone do arquivo com base no tipo
+    const getFileIcon = (file: File) => {
+        const fileType = file.type.toLowerCase();
+        if (fileType.startsWith('image/')) {
+            return <ImageIcon />;
+        } else if (fileType === 'application/pdf') {
+            return <FileText />;
+        } else if (fileType.startsWith('video/')) {
+            return <FileVideo />;
+        } else if (fileType.startsWith('text/')) {
+            return <FileText />;
+        } else {
+            return <FileText />; // Ícone genérico para outros tipos
+        }
+    };
+
     return (
         <div className={styles.container}>
             {/* Container principal */}
@@ -272,9 +297,9 @@ export default function ExtratorWindow() {
 
 
                 <div className={styles.modeArqDiv}>
-                    <button onClick={() => { setArquivosopen(true); setTextoopen(false); setLinkopen(false);}}>Arquivos</button>
-                    <button onClick={() => { setArquivosopen(false); setTextoopen(false); setLinkopen(true);}}>Links</button>
-                    <button onClick={() => { setArquivosopen(false); setTextoopen(true); setLinkopen(false);}}>Textos</button>
+                    <button onClick={() => { setArquivosopen(true); setTextoopen(false); setLinkopen(false); }}>Arquivos</button>
+                    <button onClick={() => { setArquivosopen(false); setTextoopen(false); setLinkopen(true); }}>Links</button>
+                    <button onClick={() => { setArquivosopen(false); setTextoopen(true); setLinkopen(false); }}>Textos</button>
                 </div>
 
                 {/* Área Ativa */}
@@ -296,7 +321,7 @@ export default function ExtratorWindow() {
                                 multiple
                             />
                         </div>
-                        <img src={exportImage.src} width={50} height={50} />
+                        <Download width={45} height={45} />
                         <p style={{ textAlign: 'center', color: "gray" }}>Arraste e solte aqui arquivos para fazer o upload<br /> ou <a onClick={addButtonClick} style={{ fontWeight: "bold", cursor: "pointer", color: "black" }}>clique aqui</a> para selecioná-los</p>
                         <br /><br /><br /><br />
                         <p style={{ textAlign: 'center', color: "gray" }}>Tipos de arquivos compatíveis: PDF, docx, Planilha(ex: xlxs), Vídeo(ex:mp4), Áudio(ex:mp3)<br />Tamanho máximo por arquivo: 50MB</p>
@@ -332,10 +357,20 @@ export default function ExtratorWindow() {
                 <div className={styles.arqList}>
                     {/* Lista de arquivos e links */}
                     {arqDragEvent.map((file: File) => (
-                        <li key={file.name}><img className={styles.arqImage} src={arqImage.src} width={30} height={30} />{file.name}<br />{file.size}<button className={styles.delArqButton} onClick={() => deleteArq(file)}><img src={delImage.src} width={30} height={30} /></button></li>
+                        <li key={file.name}>
+                            {getFileIcon(file)}
+                            {file.name}
+                            <br />
+                            {formatFileSize(file.size)}
+                            <button className={styles.delArqButton} onClick={() => deleteArq(file)}><Trash /></button>
+                        </li>
                     ))}
                     {links.map((link, index) => (
-                        <li key={index}><img className={styles.arqImage} src={linkImage.src} width={30} height={30} />{link}<button className={styles.delArqButton} onClick={() => deleteLink(index)}><img src={delImage.src} width={30} height={30} /></button></li>
+                        <li key={index}>
+                            <Link2 />
+                            {link}
+                            <button className={styles.delArqButton} onClick={() => deleteLink(index)}><Trash /></button>
+                        </li>
                     ))}
                 </div>
                 <button className={styles.enviar} onClick={handleEnviar}>Enviar</button>
@@ -343,3 +378,5 @@ export default function ExtratorWindow() {
         </div>
     );
 };
+
+export default ExtratorWindow;

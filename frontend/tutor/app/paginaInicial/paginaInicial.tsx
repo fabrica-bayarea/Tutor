@@ -1,8 +1,8 @@
 "use client" // Componente de renderização
 
 import styles from "./paginaInicial.module.css";
-import sendImage from "../assets/send.png"
 import React, { useState, KeyboardEventHandler, MouseEventHandler, useRef, useEffect } from 'react';
+import { SendHorizontal } from "lucide-react";
 
 interface Message {
   text: string;
@@ -64,7 +64,7 @@ export default function PaginaInicial() {
             value={text}
           />
           <button className={styles.buttonSend} onClick={enviarMensagem}>
-            <img src={sendImage.src} width={30} height={30} alt="Enviar" />
+            <SendHorizontal />
           </button>
         </div>
       </div>
