@@ -1,24 +1,31 @@
 import styles from './CardTurma.module.css';
 
 export default function CardTurma({
-    codigo_turma,
-    semestre_turma,
-    turno_turma
+    turma: {
+        id,
+        codigo,
+        semestre,
+        turno
+    }
 }: {
-    codigo_turma: string;
-    semestre_turma: string;
-    turno_turma: string;
+    turma: {
+        id: string;
+        codigo: string;
+        semestre: string;
+        turno: string;
+    }
 }) {
     const turma = {
-        codigo: codigo_turma,
-        semestre: semestre_turma,
-        turno: turno_turma
+        id,
+        codigo,
+        semestre,
+        turno
     }
     return (
         <div className={styles.cardTurma}>
             <div className={styles.cardTurmaStateLayer}>
-                <h2>{turma.codigo}</h2>
-                <h3>{turma.semestre} - {turma.turno}</h3>
+                <h3 className={styles.cardTurmaCodigo}>{turma.codigo}</h3>
+                <h4 className={styles.cardTurmaSemestreTurno}>{turma.semestre} - {turma.turno}</h4>
             </div>
         </div>
     )

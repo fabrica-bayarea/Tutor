@@ -13,6 +13,7 @@
     width: 100%;
     height: 100%;
     padding: 5rem 10rem;
+    gap: 2rem;
     margin-left: auto;
     margin-right: auto;
     background-color: #f2f2f2;
@@ -29,4 +30,12 @@
 }
 .header > * {
     margin: 0;
+}
+
+.listTurmas {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 1rem;
 }
