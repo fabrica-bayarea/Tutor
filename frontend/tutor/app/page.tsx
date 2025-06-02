@@ -1,6 +1,6 @@
 "use client";
 import PaginaInicial from "./paginaInicial/paginaInicial";
-import ExtratorWindow from "./extratorMenu/ExtratorMenu";
+import ExtratorWindow from "./professor/extratorMenu/ExtratorMenu";
 import React from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import MainNavigator from "./components/mainNavigator"

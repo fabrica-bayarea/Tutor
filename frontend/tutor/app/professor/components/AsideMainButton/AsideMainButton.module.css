@@ -1,0 +1,36 @@
+.asideMainButton {
+    width: 100%;
+    height: fit-content;
+    border-radius: 8px;
+    background-color: transparent;
+    overflow: hidden;
+}
+.asideMainButton svg {
+    min-width: 1rem;
+    min-height: 1rem;
+}
+
+.asideMainButtonStateLayer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    transition: background-color ease-out 0.15s;
+}
+.asideMainButtonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.expanded {
+    width: 100%;
+}
+.collapsed {
+    display: block;
+    width: fit-content;
+}
+.selected {
+    background-color: rgba(0, 0, 0, 0.1);
+}

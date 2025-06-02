@@ -1,0 +1,49 @@
+.asideContainer {
+    display: flex;
+    flex-direction: column;
+    width: 25rem;
+    height: 100%;
+    padding: 1rem;
+    background-color: #ededed;
+}
+.expanded {
+    width: 320px;
+
+    transition: width ease-out 0.15s;
+}
+.collapsed {
+    width: fit-content;
+    
+    transition: width ease-out 0.15s;
+}
+
+/* .asideContainer > div {
+    display: flex;
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+} */
+
+.widthButton {
+    display: flex;
+    width: 100%;
+    padding: 1rem 0;
+    justify-content: flex-end;
+    color: gray;
+}
+
+.asideMainButtons {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.25rem;
+    padding: 1rem 0;
+}
+
+/* .chatList {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    gap: 1rem;
+    padding: 1rem 0 0 0;
+} */
