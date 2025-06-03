@@ -39,6 +39,12 @@ Supondo que você já tenha clonado o repositório, **certifique-se de que você
         source venv/bin/activate
         ```
 
+Certifique-se de estar com o **interpretador do ambiente virtual** ativado antes de prosseguir com as etapas restantes. Para isso:
+* Abra algum arquivo Python deste projeto (como o `app.py`)
+* Verifique no canto inferior direito do VS Code o interpretador selecionado (algo como `3.11.9 ('venv': venv)`), e clique nele
+* Se o caminho para o interpretador ativo não for algo como `./backend/venv/Scripts/python.exe`, procure por um que seja dessa forma
+    * Se não encontrar, procure manualmente pelo arquivo `python.exe` no caminho especificado acima
+
 3. **Com o ambiente virtual ativado**, instale as dependências do backend:
     ```bash
     pip install -r requirements.txt
@@ -56,6 +62,10 @@ Supondo que você já tenha clonado o repositório, **certifique-se de que você
 5. Aplique as migrações do banco de dados PostgreSQL:
     ```bash
     flask db upgrade
+    ```
+    Se houver problemas com o comando acima, tente fazer com que o Python chame diretamente o módulo Flask:
+    ```bash
+    python -m flask db upgrade
     ```
 
 ## Estrutura do backend do projeto
@@ -88,6 +98,9 @@ python-dotenv é uma biblioteca que permite carregar variáveis de ambiente de u
 
 ### Flask
 Flask é um micro-framework web leve e flexível que permite criar APIs e aplicativos web.
+
+### Flask-CORS
+Flask-CORS é uma extensão para Flask que permite que você controle quais origens (domínios) podem acessar sua API.
 
 ### Flask-SQLAlchemy
 Flask-SQLAlchemy é uma extensão para Flask que fornece uma interface ORM (Object-Relational Mapping) para o SQLAlchemy, um framework de ORM para Python.
