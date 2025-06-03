@@ -245,3 +245,16 @@ def processar_link(link: str, driver: webdriver, professor_id: uuid.UUID, vincul
             "data_upload": documento.data_upload
         }
     }
+
+def obter_arquivos_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> list[Arquivo]:
+    """
+    Função atômica, responsável por obter todos os arquivos de uma turma associada a uma matéria no PostgreSQL.
+
+    Espera receber:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna uma lista de arquivos.
+    """
+    arquivos = Arquivo.query.filter_by(turma_id=turma_id, materia_id=materia_id).all()
+    return [arquivo.to_dict() for arquivo in arquivos]
