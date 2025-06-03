@@ -8,7 +8,7 @@ class Aluno(db.Model):
     matricula = db.Column(db.String(10), nullable=False, unique=True, index=True)
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    senha = db.Column(db.String(32), nullable=False)
+    senha = db.Column(db.String(128), nullable=False)
     cpf = db.Column(db.String(11), nullable=False, unique=True, index=True)
     data_nascimento = db.Column(db.Date, nullable=False)
 
@@ -25,7 +25,6 @@ class Aluno(db.Model):
             'matricula': self.matricula,
             'nome': self.nome,
             'email': self.email,
-            'senha': self.senha,
             'cpf': self.cpf,
             'data_nascimento': self.data_nascimento.strftime('%d/%m/%Y')
         }
