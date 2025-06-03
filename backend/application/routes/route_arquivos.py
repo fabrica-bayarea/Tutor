@@ -99,3 +99,22 @@ def upload_arquivos():
         status_code = 207
     
     return jsonify({"message": message, "results": resultados}), status_code
+
+@arquivos_bp.route('/<string:turma_id>_<string:materia_id>', methods=['GET'])
+def obter_arquivos_por_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID):
+    """
+    Endpoint para obter TODOS os arquivos de uma matéria associada a uma turma.
+    
+    Espera receber:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+    
+    Retorna uma lista de arquivos.
+    """
+    try:
+        arquivos = obter_arquivos_turma_materia(turma_id, materia_id)
+    except ValueError as e:
+        print(f'Erro ao buscar arquivos: {str(e)}')
+        return jsonify({"error": str(e)}), 400
+    
+    return jsonify(arquivos), 200
