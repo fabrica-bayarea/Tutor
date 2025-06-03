@@ -3,3 +3,4 @@ from .service_professor import *
 from .service_turma import *
 from .service_arquivo import *
 from .service_vinculos import *
+from .service_aluno import *
