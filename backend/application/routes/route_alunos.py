@@ -7,7 +7,7 @@ from application.services.service_aluno import *
 alunos_bp = Blueprint('alunos', __name__)
 
 @alunos_bp.route('/criar', methods=['POST'])
-def criar_aluno():
+def gerar_aluno():
     """
     Endpoint para criar um aluno.
 
