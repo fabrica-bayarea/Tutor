@@ -117,13 +117,12 @@
 .dragdropContainer {
     display: flex;
     flex-direction: column;
-    margin-top: auto;
+    margin-top: 10px;
     height: 400px;
     width: 100%;
     border-style: dashed;
     border-color: aliceblue;
     border-radius: 30px;
-    margin-top: 10px;
 }
 
 .dragUsadoDiv {
@@ -213,81 +212,48 @@
 .linkTextoContainer {
     display: flex;
     width: 100%;
-    height: 90px;
     margin-top: 20px;
     border-radius: 30px;
+    gap: 20px;
 }
 
-/* Container para input de link */
-.linkContainer {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    height: 100%;
-}
-
-.linkContainerDiv {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-.linkContainer h1 {
-    margin-top: 20px;
-    margin-left: 20px;
-    color: white;
-}
-
-.linkContainer input {
-    outline: none;
-    font-size: 15px;
-    margin-top: 20px;
-    margin-left: 10px;
-    width: 500px;
-    height: 30px;
-    border: none;
-    border-radius: 10px;
-    resize: none;
-}
-
-/* Container para textarea de texto */
+/* Link e Texto Containers */
+.linkContainer,
 .textoContainer {
     display: flex;
     flex-direction: column;
     width: 50%;
-    height: 100%;
 }
 
-.textoContainerDiv {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
+/* Títulos Link e Texto alinhados à esquerda */
+.linkContainer h1,
 .textoContainer h1 {
-    margin-top: 20px;
+    margin: 0 0 10px 10px;
     color: white;
+    text-align: left;
 }
 
+/* Input e Textarea */
+.linkContainer input,
 .textoContainer textarea {
-    line-height: 2;
     outline: none;
-    font-size: 15px;
-    font-family: Arial, Helvetica, sans-serif;
-    margin-top: 20px;
+    font-size: 18px;
     margin-left: 10px;
-    width: 500px;
-    height: 30px;
+    width: 95%;
+    height: 50px;
+    padding: 10px;
     border: none;
     border-radius: 10px;
     resize: none;
-    text-decoration: none;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Botões para enviar link e texto */
+/* Botões “Adicionar” alinhados à esquerda */
 .buttonLinkTextInput {
-    padding: 10px;
-    margin: 10px;
+    width: fit-content;
+    margin: 10px 0 0 10px;
+    padding: 10px 20px;
     font-size: 15px;
     font-weight: bolder;
     color: white;
