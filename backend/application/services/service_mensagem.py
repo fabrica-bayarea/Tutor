@@ -23,7 +23,7 @@ def criar_mensagem(chat_id: uuid.UUID, sender_id: uuid.UUID, conteudo: str) -> M
     db.session.add(mensagem)
     db.session.commit()
 
-    return mensagem
+    return mensagem.to_dict()
 
 def buscar_mensagens(chat_id: uuid.UUID) -> list[Mensagem]:
     """
