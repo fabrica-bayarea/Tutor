@@ -2,15 +2,23 @@ import os
 import uuid
 from datetime import datetime
 from application.config import db, chroma_client
-from application.models import Arquivo
 from application.libs import *
+from application.models import Arquivo
+from application.services.service_vinculos import criar_vinculo_arquivo_turma_materia
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 DOCUMENTOS_DIR = os.path.join(BASE_DIR, "data/documentos")
 
+EXTENSOES_SUPORTADAS = {
+    "texto": (".pdf", ".docx", ".pptx", ".xlsx", ".csv", ".html", ".xhtml", ".md", ".markdown"),
+    "video-audio": (".mp4", ".mov", ".mkv", ".avi", ".mp3", ".wav", ".m4a", ".flac", ".ogg")
+}
+
+CARACTERES_NAO_PERMITIDOS = '|<>:"/\\?*'
+
 def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
     """
-    Salva metadados do arquivo no PostgreSQL.
+    Função atômica, responsável por salvar metadados do arquivo no PostgreSQL.
 
     Espera receber:
     - `titulo`: str - o nome do arquivo
@@ -28,7 +36,7 @@ def salvar_metadados_arquivo(titulo: str, professor_id: uuid.UUID) -> Arquivo:
 
 def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) -> str:
     """
-    Salva o arquivo recebido no diretório do professor e retorna seu caminho.
+    Função atômica, responsável por salvar o arquivo recebido no diretório do professor e retornar seu caminho.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser salvo
@@ -55,7 +63,7 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
 
 def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]], data_upload: datetime, texto: str) -> None:
     """
-    Salva dados do arquivo no ChromaDB.
+    Função atômica, responsável por salvar dados do arquivo no ChromaDB.
 
     Espera receber:
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
@@ -80,7 +88,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
 
 def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
-    Processa um arquivo.
+    Função principal, responsável por processar um arquivo.
 
     Espera receber:
     - `arquivo`: File - o arquivo a ser processado
@@ -88,6 +96,8 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
 
     1. Salva metadados no PostgreSQL
+        1.1. Cria um novo registro de Arquivo
+        1.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
     2. Salva o arquivo recebido no diretório do professor
     3. Extrai o conteúdo do arquivo utilizando a biblioteca correta de acordo com a sua extensão (PDF, DOCX, MP4, etc)
     4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
@@ -96,11 +106,34 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     """
     print(f'\n\nIniciando processamento do arquivo: {arquivo.filename}')
 
-    # 1. Salva metadados no PostgreSQL e retorna a estrutura completa do documento
-    print(f'\n(1/4). Salvando metadados do arquivo no PostgreSQL')
+    # Verifica se o arquivo é suportado
     nome_arquivo = arquivo.filename
+    extensao_arquivo = str(os.path.splitext(nome_arquivo)[1])
+
+    if not any(extensao_arquivo in extensao for extensao in EXTENSOES_SUPORTADAS.values()):
+        print(f'Não é possível processar o arquivo {nome_arquivo} devido à sua extensão ({extensao_arquivo})')
+        return {
+            "filename": nome_arquivo,
+            "status": 400,
+            "message": "Tipo de arquivo não suportado"
+        }
+
+    # 1. Salva metadados no PostgreSQL
+    print(f'\n(1/4). Salvando metadados no PostgreSQL')
+    # 1.1. Salva os metadados do arquivo no PostgreSQL e retorna a estrutura completa do documento
+    print(f'\n(1.1/4). Salvando metadados do Arquivo no PostgreSQL')
     documento = salvar_metadados_arquivo(nome_arquivo, professor_id)
-    print(f'DADOS SALVOS NO POSTGRESQL COM SUCESSO!')
+    print(f'ARQUIVO SALVO NO POSTGRESQL COM SUCESSO!')
+
+    # 1.2. Salva os vínculos no PostgreSQL
+    print(f'\n(1.2/4). Salvando vínculos ArquivoTurmaMateria no PostgreSQL')
+    vinculos_arquivo_turma_materia = []
+    for vinculo in vinculos:
+        vinculo_arquivo_turma_materia = criar_vinculo_arquivo_turma_materia(documento.id, vinculo['turma_id'], vinculo['materia_id'])
+        vinculos_arquivo_turma_materia.append(vinculo_arquivo_turma_materia)
+        print(f'Vínculo salvo: {vinculo_arquivo_turma_materia}')
+    
+    print(f'VÍNCULOS ARQUIVO-TURMA-MATERIA SALVOS NO POSTGRESQL COM SUCESSO!')
 
     # 2. Salva o arquivo no diretório do professor e retorna o caminho para ele
     # Usa o ID retornado na etapa anterior
@@ -112,19 +145,12 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     # Usa o caminho retornado na etapa anterior
     print(f'\n(3/4). Extraindo o conteúdo do arquivo recebido')
     try:
-        if nome_arquivo.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.csv', '.html', '.xhtml', '.txt', '.md', '.markdown')):
+        if extensao_arquivo in EXTENSOES_SUPORTADAS['texto']:
             print(f'Biblioteca a ser utilizada: Docling')
             texto_extraido = extrair_texto_markdown(caminho_arquivo) # Extrai o texto em Markdown usando Docling
-        elif nome_arquivo.endswith(('.mp4', '.mov', '.mkv', '.avi', '.mp3', '.wav', '.m4a', '.flac', '.ogg')):
+        elif extensao_arquivo in EXTENSOES_SUPORTADAS['video-audio']:
             print(f'Biblioteca a ser utilizada: Whisper')
             texto_extraido = processar_video(caminho_arquivo) # Extrai o texto do vídeo/áudio usando Whisper e FFmpeg
-        else:
-            print(f'Tipo de arquivo não suportado: {nome_arquivo}')
-            return {
-                "filename": nome_arquivo,
-                "status": 400,
-                "message": "Tipo de arquivo não suportado"
-            }
     except Exception as e:
         print(f"Erro ao extrair o conteúdo do arquivo: {str(e)}")
         return {
@@ -140,7 +166,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
 
     # Junta todas as relações em uma string, separando-as por vírgulas. Cada relação possui um UUID de turma e um UUID de matéria, separados por hífen
-    formatted_vinculos = ','.join([f'{v["turma_id"]}-{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
     salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, texto_extraido)
     print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
@@ -154,3 +180,81 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
             "data_upload": documento.data_upload
         }
     }
+
+def processar_link(link: str, driver: webdriver, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
+    """
+    Função principal, responsável por processar um link.
+
+    Espera receber:
+    - `link`: str - o link a ser processado
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
+
+    1. Extrai o conteúdo do link recebido
+    2. Salva metadados no PostgreSQL
+        2.1. Cria um novo registro de Arquivo
+        2.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
+    3. Salva o conteúdo extraído do link num arquivo `.txt` no diretório do professor
+    4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+
+    Retorna um dicionário com informações do documento.
+    """
+    
+    print(f'\nProcessando link: {link}')
+    
+    # 1. Extrai o conteúdo do link recebido
+    print(f'\n(1/4). Extraindo o conteúdo do link recebido')
+    dados_extrair_link = data_extraction(driver, link)
+    
+    # 2. Salva metadados no PostgreSQL        
+    print(f'\n(2/4). Salvando metadados no PostgreSQL')
+    print(f'\n(2.1/4). Criando um novo registro de Arquivo')
+    documento = salvar_metadados_arquivo(dados_extrair_link['page_title'], professor_id)
+    print(f'\n(2.2/4). Criando um novo registro de ArquivoTurmaMateria para cada vínculo recebido')
+    vinculos_arquivos_turmas_materias = []
+    for vinculo in vinculos:
+        vinculo_arquivo_turma_materia = criar_vinculo_arquivo_turma_materia(documento.id, vinculo['turma_id'], vinculo['materia_id'])
+        vinculos_arquivos_turmas_materias.append(vinculo_arquivo_turma_materia)
+          
+    # salvando o conteudo do link recebido no arquivo .txt
+    print(f'\n(3/4). Salvando o conteúdo extraído do link num arquivo `.txt` no diretório do professor')
+    nome_arquivo = f"{documento.id}_{documento.titulo.replace(' ', '_')}"
+    for caractere in CARACTERES_NAO_PERMITIDOS:
+        nome_arquivo = nome_arquivo.replace(caractere, '_')
+    nome_arquivo += '.txt'
+    caminho_arquivo = os.path.join(
+        DOCUMENTOS_DIR,
+        str(professor_id),
+        str(nome_arquivo)
+    )
+    print(f'Caminho do arquivo: {caminho_arquivo}')
+    with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+        f.write(dados_extrair_link['content'])
+    
+    # 4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+    print(f'\n(4/4). Salvando dados do documento no ChromaDB')
+    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, dados_extrair_link['content'])
+    
+    return {
+        "status": 201,
+        "message": "Link processado com sucesso",
+        "data": {
+            "documento_id": documento.id,
+            "titulo": documento.titulo,
+            "data_upload": documento.data_upload
+        }
+    }
+
+def obter_arquivos_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> list[Arquivo]:
+    """
+    Função atômica, responsável por obter todos os arquivos de uma turma associada a uma matéria no PostgreSQL.
+
+    Espera receber:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna uma lista de arquivos.
+    """
+    arquivos = Arquivo.query.filter_by(turma_id=turma_id, materia_id=materia_id).all()
+    return [arquivo.to_dict() for arquivo in arquivos]

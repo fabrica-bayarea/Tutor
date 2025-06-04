@@ -11,3 +11,15 @@ class Materia(db.Model):
     professores_turmas = db.relationship('ProfessorTurmaMateria', back_populates='materia', cascade='all, delete-orphan')
     turmas = db.relationship('TurmaMateria', back_populates='materia', cascade='all, delete-orphan')
     arquivos = db.relationship('ArquivoTurmaMateria', back_populates='materia')
+
+    def to_dict(self):
+        """
+        Função atômica, responsável por converter um objeto Materia em um dicionário serializável.
+
+        Retorna um dicionário contendo as informações da matéria.
+        """
+        return {
+            'id': str(self.id),
+            'codigo': self.codigo,
+            'nome': self.nome
+        }

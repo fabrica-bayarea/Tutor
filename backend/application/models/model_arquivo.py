@@ -11,3 +11,16 @@ class Arquivo(db.Model):
     data_upload = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     turmas_materias = db.relationship('ArquivoTurmaMateria', back_populates='arquivo')
+
+    def to_dict(self):
+        """
+        Função atômica, responsável por converter um objeto Arquivo em um dicionário serializável.
+
+        Retorna um dicionário contendo as informações do arquivo.
+        """
+        return {
+            'id': str(self.id),
+            'titulo': self.titulo,
+            'professor_id': str(self.professor_id),
+            'data_upload': self.data_upload.strftime('%d/%m/%Y %H:%M:%S')
+        }

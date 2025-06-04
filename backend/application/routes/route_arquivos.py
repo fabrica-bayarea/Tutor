@@ -8,6 +8,7 @@ from application.services.service_arquivo import *
 from application.services.service_professor import *
 from application.services.service_turma import *
 from application.services.service_materia import *
+from application.utils.validacoes import validar_professor, validar_turma, validar_materia, validar_professor_turma_materia
 
 arquivos_bp = Blueprint('arquivos', __name__)
 
@@ -18,23 +19,23 @@ def upload_arquivos():
 
     Espera receber:
     - `arquivos`: list - um ou mais arquivos
-    - `matricula_professor`: str - o número de matrícula do professor
-    - `vinculos`: str - um ou mais códigos de turma e matéria, separados por vírgula
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `vinculos`: list[dict[str, uuid.UUID]] - um ou mais vínculos entre turmas e matérias
     """
     print(f'\n\nRequisição recebida!')
     print(request.files)
 
-    if 'arquivos' not in request.files:
-        return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
-
     # Verifica se os dados necessários estão presentes
     arquivos = request.files.getlist('arquivos')
-    matricula_professor = request.form.get('matricula_professor')
+    professor_id = uuid.UUID(request.form.get('professor_id'))
     vinculos_raw = request.form.get('vinculos') # Mesmo recebendo numa estrutura JSON, ele virá como string
 
-    if not matricula_professor or not vinculos_raw:
-        return jsonify({"error": "Parâmetros 'matricula_professor' e 'vinculos' são obrigatórios"}), 400
-    print(f'\n\nNomes dos arquivos recebidos: {[arquivo.filename for arquivo in arquivos]}\nMatrícula de professor recebida: {matricula_professor}\nVínculos recebidos:\n{vinculos_raw}')
+    if not arquivos or all(arquivo.filename == '' for arquivo in arquivos):
+        return jsonify({"error": "Nenhum arquivo foi enviado"}), 400
+
+    if not professor_id or not vinculos_raw:
+        return jsonify({"error": "Parâmetros 'professor_id' e 'vinculos' são obrigatórios"}), 400
+    print(f'\n\nNomes dos arquivos recebidos: {[arquivo.filename for arquivo in arquivos]}\nID do professor recebido: {professor_id}\nVínculos recebidos:\n{vinculos_raw}')
 
     # Deserializa os dados de vínculos
     try:
@@ -45,31 +46,37 @@ def upload_arquivos():
         return jsonify({"error": "Parâmetro 'vinculos' deve ser um JSON válido"}), 400
     
     # Valida o professor
-    professor_id = buscar_id_professor_por_matricula(matricula_professor)
-    if not professor_id:
-        print(f"Professor com matrícula '{matricula_professor}' não encontrado")
-        return jsonify({"error": f"Professor com matrícula '{matricula_professor}' não encontrado"}), 404
-    
+    professor_existe = validar_professor(professor_id)
+    if not professor_existe:
+        print(f"Professor com ID '{professor_id}' não encontrado")
+        return jsonify({"error": f"Professor com ID '{professor_id}' não encontrado"}), 404
+
     # Valida os vínculos
     vinculos_processados: list[dict[str, uuid.UUID]] = []
     for vinculo in vinculos:
-        codigo_turma = vinculo.get('codigo_turma')
-        codigo_materia = vinculo.get('codigo_materia')
+        turma_id = uuid.UUID(vinculo.get('turma_id'))
+        materia_id = uuid.UUID(vinculo.get('materia_id'))
 
-        if not codigo_turma or not codigo_materia:
-            return jsonify({"error": "Cada vínculo deve conter 'codigo_turma' e 'codigo_materia'"}), 400
+        if not turma_id or not materia_id:
+            return jsonify({"error": "Cada vínculo deve conter 'turma_id' e 'materia_id'"}), 400
         
-        # Busca o UUID da turma
-        turma_id = buscar_id_turma_por_codigo(codigo_turma)
-        if not turma_id:
-            print(f"Código de turma '{codigo_turma}' não encontrado")
-            return jsonify({"error": f"Código de turma '{codigo_turma}' não encontrado"}), 404
+        # Valida a existência da turma
+        turma_existe = validar_turma(turma_id)
+        if not turma_existe:
+            print(f"Turma com ID '{turma_id}' não encontrada")
+            return jsonify({"error": f"Turma com ID '{turma_id}' não encontrada"}), 404
+
+        # Valida a existência da matéria
+        materia_existe = validar_materia(materia_id)
+        if not materia_existe:
+            print(f"Matéria com ID '{materia_id}' não encontrada")
+            return jsonify({"error": f"Matéria com ID '{materia_id}' não encontrada"}), 404
         
-        # Busca o UUID da matéria
-        materia_id = buscar_id_materia_por_codigo(codigo_materia)
-        if not materia_id:
-            print(f"Código de matéria '{codigo_materia}' não encontrado")
-            return jsonify({"error": f"Código de matéria '{codigo_materia}' não encontrado"}), 404
+        # Valida a existência do vínculo entre o professor, a turma e a matéria
+        vinculo_existe = validar_professor_turma_materia(professor_id, turma_id, materia_id)
+        if not vinculo_existe:
+            print(f"Vínculo entre professor '{professor_id}', turma '{turma_id}' e matéria '{materia_id}' não encontrado")
+            return jsonify({"error": f"Vínculo entre professor '{professor_id}', turma '{turma_id}' e matéria '{materia_id}' não encontrado"}), 404
         
         # Adiciona o vínculo processado
         vinculos_processados.append({"turma_id": turma_id, "materia_id": materia_id})
@@ -86,9 +93,28 @@ def upload_arquivos():
         status_code = 201
     elif all(resultado.get('status') in [400, 500] for resultado in resultados):
         message = "Erro ao processar todos os arquivos"
-        status_code = 400
+        status_code = resultados[0].get('status')
     else:
         message = "Alguns arquivos foram processados com sucesso, mas outros falharam"
         status_code = 207
     
     return jsonify({"message": message, "results": resultados}), status_code
+
+@arquivos_bp.route('/<string:turma_id>_<string:materia_id>', methods=['GET'])
+def obter_arquivos_por_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID):
+    """
+    Endpoint para obter TODOS os arquivos de uma matéria associada a uma turma.
+    
+    Espera receber:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+    
+    Retorna uma lista de arquivos.
+    """
+    try:
+        arquivos = obter_arquivos_turma_materia(turma_id, materia_id)
+    except ValueError as e:
+        print(f'Erro ao buscar arquivos: {str(e)}')
+        return jsonify({"error": str(e)}), 400
+    
+    return jsonify(arquivos), 200

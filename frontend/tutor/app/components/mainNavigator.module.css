@@ -1,0 +1,66 @@
+@font-face {
+    font-family: 'fontePadrao';
+    src: url('../assets/fonte.ttf') format('ttf');
+    font-weight: normal; 
+    font-style: normal; 
+}
+
+.buttonMenu{
+    background-color: transparent;
+    border: none;
+    border-radius: 25px;
+    position: absolute;
+    top: 2%;
+    left: 1%;
+    cursor: pointer;
+    z-index: 5001;
+}
+
+.navbar {
+    transition: 2s ease-in-out;
+    background-color:#EDEDED;
+    position: absolute;
+    width: 14%;
+    height: 100%;
+    z-index: 5002;
+}
+
+.navbar ul{
+    list-style: none;
+    font-family: 'fontePadrao', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cabecalhoNavbar{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cabecalhoNavbar button{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding-right: 15px;
+}
+
+.navbarItem{
+    display: flex;
+    width: 100%;
+    justify-content: left;
+    align-items: center;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.linkNavbar{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: black;
+    gap: 10px;
+}

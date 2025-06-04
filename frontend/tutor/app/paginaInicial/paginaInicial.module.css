@@ -1,0 +1,144 @@
+@font-face {
+    font-family: 'fontePadrao';
+    src: url('../assets/fonte.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.containerGlobal {
+    background-color: #ffffff;
+    align-items: flex-start;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container do chat e turma */
+.containerUser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    overflow: auto;
+}
+
+.containerChatMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    width: 55%;
+    height: auto;
+    margin-bottom: 10px;
+    margin-top: 50px;
+}
+
+.mensagemUsuario {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    width: fit-content;
+    max-width: 47%;
+    height: auto;
+    word-wrap: break-word;
+}
+
+.mensagemUsuario h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-family: "fontePadrao", sans-serif;
+}
+
+.mensagemUsuario p {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-family: "fontePadrao", sans-serif;
+}
+
+.mensagemUsuarioEnviada {
+    align-self: flex-end;
+}
+
+.mensagemUsuarioEnviada h1 {
+    text-align: right;
+}
+
+.mensagemUsuarioEnviada p {
+    text-align: right   ; 
+}
+
+.mensagemSistema {
+    align-self: flex-start;
+}
+
+.mensagemSistema h1 {
+    text-align: left;
+}
+
+.mensagemSistema p {
+    text-align: left;
+}
+
+.containerChatBox {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 35%;
+    height: auto;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.containerChatBox textarea {
+    font-family: "fontePadrao", sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    width: 90%;
+    height: auto;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    border: none;
+}
+
+.buttonSend {
+    font-family: "fontePadrao", sans-serif;
+    background-color: transparent;
+    border-style: none;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.titulo {
+    transition: background-color 0.2s ease-in-out;
+    font-family: "fontePadrao", sans-serif;
+    position: absolute;
+    font-size: 30px;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.titulo p {
+    transition: background-color 0.2s ease-in-out;
+    font-family: "fontePadrao", sans-serif;
+    font-size: 18px;
+    color: rgba(0, 0, 0, 0.5);
+    margin-top: 5px;
+}
