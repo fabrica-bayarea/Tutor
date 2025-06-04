@@ -26,14 +26,14 @@ def criar_aluno(matricula: str, nome: str, email: str, cpf: str, data_nascimento
     db.session.commit()
     return aluno.to_dict()
 
-def buscar_aluno_por_id(id: uuid.UUID) -> dict[str, str] | None:
+def buscar_aluno_por_id(aluno_id: uuid.UUID) -> dict[str, str] | None:
     """
     Busca um aluno no banco de dados usando o ID fornecido.
 
     Espera receber:
-    - `id`: uuid.UUID - o ID do aluno
+    - `aluno_id`: uuid.UUID - o ID do aluno
 
     Retorna o aluno se ele existir, e None caso contrário.
     """
-    aluno = Aluno.query.get(id)
+    aluno = Aluno.query.get(aluno_id)
     return aluno.to_dict() if aluno else None
