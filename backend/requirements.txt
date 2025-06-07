@@ -3,6 +3,7 @@ Flask
 flask-cors
 Flask-SQLAlchemy
 Flask-Migrate
+Flask-SocketIO
 psycopg2
 chromadb
 docling
