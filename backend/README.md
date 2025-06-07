@@ -80,7 +80,9 @@ Tutor/
     │   ├── models/         # Define as entidades do banco de dados PostgreSQL
     │   ├── routes/         # Define os endpoints da API Flask
     │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
+    │   ├── socket/         # Contém configurações, eventos e gatilhos do Flask-SocketIO
     │   ├── utils/          # Contém funções genéricas que podem ser usadas em todo o projeto, como tratamento de datas, etc
+    │   └── constants.py    # Contém constantes globais do projeto
     ├── data/               # Dados locais do ChromaDB e outros arquivos persistentes
     ├── migrations/         # Arquivos de controle de migração do Flask-Migrate
     ├── tests/              # Testes unitários e de integração
@@ -107,6 +109,9 @@ Flask-SQLAlchemy é uma extensão para Flask que fornece uma interface ORM (Obje
 
 ### Flask-Migrate
 Flask-Migrate é uma extensão para Flask que fornece migrações de banco de dados para o SQLAlchemy.
+
+### Flask-SocketIO
+Flask-SocketIO é uma extensão para Flask que fornece suporte para Socket.IO, uma biblioteca que permite comunicação em tempo real entre o cliente e o servidor.
 
 ### psycopg2
 psycopg2 é um driver de banco de dados para PostgreSQL.
