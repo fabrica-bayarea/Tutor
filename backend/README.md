@@ -6,20 +6,34 @@ Para conseguir executar corretamente o backend da aplicação, **você precisa, 
     * Sugerimos utilizar a _major version_ **3.11**. Qualquer _minor version_ (3.11.0, 3.11.9, etc) deve funcionar bem
 * Ter o **PostgreSQL** instalado no seu computador
     * Utilizamos a versão **[17.4](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)**
-    * Recomendamos [assistir a este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
+    * [Assista a este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
 * Ter o **database** do PostgreSQL devidamente criado
-    * Consulte o líder da equipe de backend para mais informações
-* Ter um **gerenciador de pacotes do seu sistema operacional** instalado
-    * Algumas dependências do backend **exigem** que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações.
+    * Consulte a seção **[Configuração inicial do PostgreSQL](#configuração-inicial-do-postgresql)** para mais informações
+* Ter um **gerenciador de pacotes de sistema operacional** instalado
+    * Algumas dependências do backend **EXIGEM** que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações
 
-## Instalação
-Supondo que você já tenha clonado o repositório, **certifique-se de que você está na pasta `backend`**, e então:
+## Configuração inicial do PostgreSQL
+Supondo que você já tenha instalado o PostgreSQL corretamente, tendo seguido os passos do vídeo recomendado acima:
 
-1. Crie seu ambiente virtual:
+1. Abra o **pgAdmin**
+2. Na aba **Object Explorer**, expanda os conteúdos de **Servers**
+    * Ao fazer isso, você terá que inserir sua senha, definida no momento da instalação do PostgreSQL. **Lembre-se dela**.
+3. Clique com o botão direito sobre **Databases** e selecione **Create** > **Database**
+4. Crie um novo database chamado `tutor`
+    * Basta nomeá-lo e salvar. Não se preocupe com outras configurações ou com criar tabelas por agora.
+
+## Instalação do projeto
+Supondo que você já tenha clonado o repositório:
+
+1. Abra um terminal e navegue até a pasta `backend/`
+
+    _É **EXTREMAMENTE** importante que você esteja na pasta `backend/` para realizar as etapas seguintes. Fique atento a isso!_
+
+2. Crie seu ambiente virtual:
     ```bash
     python -m venv venv
     ```
-    Ou, se quiser garantir que ele seja criado com uma versão específica (como a **3.11**):
+    Ou, se quiser garantir que ele seja criado com uma versão específica do Python (como a **3.11**):
     * No **Windows**:
         ```bash
         py -3.11 -m venv venv
@@ -29,37 +43,39 @@ Supondo que você já tenha clonado o repositório, **certifique-se de que você
         python3.11 -m venv venv
         ```
 
-2. Ative o ambiente virtual:
+3. Ative o ambiente virtual:
     * No **Windows**:
         ```bash
-        .\venv\Scripts\activate
+        ./venv/Scripts/activate
         ```
     * No **Linux/Mac**:
         ```bash
-        source venv/bin/activate
+        source ./venv/bin/activate
         ```
 
-Certifique-se de estar com o **interpretador do ambiente virtual** ativado antes de prosseguir com as etapas restantes. Para isso:
+Certifique-se de estar com o interpretador **do ambiente virtual** ativado antes de prosseguir com as etapas restantes. Para isso:
 * Abra algum arquivo Python deste projeto (como o `app.py`)
 * Verifique no canto inferior direito do VS Code o interpretador selecionado (algo como `3.11.9 ('venv': venv)`), e clique nele
 * Se o caminho para o interpretador ativo não for algo como `./backend/venv/Scripts/python.exe`, procure por um que seja dessa forma
     * Se não encontrar, procure manualmente pelo arquivo `python.exe` no caminho especificado acima
 
-3. **Com o ambiente virtual ativado**, instale as dependências do backend:
+4. **Com o ambiente virtual ativado**, instale as dependências do backend:
     ```bash
     pip install -r requirements.txt
     ```
 
-    _Se a instalação do **ChromaDB** apresentar problemas, consulte a solução mais abaixo na seção **[Dependências do backend](#dependências-do-backend)**._
+    _É esperado que a instalação do **ChromaDB** apresente problemas. Para solucioná-los, consulte a seção **[Dependências do backend](#dependências-do-backend)**._
 
-4. Crie um arquivo `.env` também na pasta `backend` e configure as variáveis de ambiente necessárias:
+5. Crie um arquivo `.env` também na pasta `backend/` e configure as variáveis de ambiente necessárias:
     ```bash
-    DATABASE_URL=url_do_postgresql
+    DATABASE_URL=postgresql://<usuario>:<senha>@localhost:<porta>/tutor
     ```
+    * Substitua os placeholders pelos valores corretos
+        * `<usuario>` é o superusuário definido no momento da instalação do PostgreSQL. Provavelmente `postgres`
+        * `<senha>` é a senha que **VOCÊ** definiu no momento da instalação do PostgreSQL
+        * `<porta>` é a porta definida no momento da instalação do PostgreSQL. Se você não definiu uma personalizada, provavelmente será `5432`, que é a porta padrão do PostgreSQL
 
-    _Consulte o líder da equipe de backend para auxiliá-lo na configuração do arquivo `.env`._
-
-5. Aplique as migrações do banco de dados PostgreSQL:
+6. **Ainda na pasta `backend/` e com o ambiente virtual ativado**, aplique as migrações do banco de dados PostgreSQL:
     ```bash
     flask db upgrade
     ```
@@ -67,6 +83,8 @@ Certifique-se de estar com o **interpretador do ambiente virtual** ativado antes
     ```bash
     python -m flask db upgrade
     ```
+
+    _As migrações fornecem um "controle de versionamento" para bancos de dados, como se fosse um Git dedicado a isso. É por meio delas que criamos, alteramos e excluímos tabelas do banco de dados, e deixamos tudo registrado num histórico._
 
 ## Estrutura do backend do projeto
 Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada tem um propósito específico.
