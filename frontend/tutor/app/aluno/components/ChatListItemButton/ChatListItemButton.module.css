@@ -1,0 +1,39 @@
+.chatListItemButton {
+    width: 100%;
+    height: fit-content;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.chatListItemButtonStateLayer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 0.25rem;
+
+    transition: background-color ease-out 0.15s;
+}
+.chatListItemButtonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.chatListItemButtonStateLayer.selected {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.chatListItemButtonName {
+    display: flex;
+    width: 100%;
+    padding: 0.5rem 0 0.5rem 0.5rem;
+    justify-content: flex-start;
+    align-items: center;
+    
+    text-align: left;
+    text-decoration: none;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: inherit;
+
+    color: #1a1a1a;
+}

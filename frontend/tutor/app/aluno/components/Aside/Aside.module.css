@@ -1,0 +1,26 @@
+.asideContainer {
+    display: flex;
+    flex-direction: column;
+    width: 25rem;
+    height: 100%;
+    padding: 1rem;
+    background-color: #ededed;
+}
+.expanded {
+    width: 320px;
+
+    transition: width ease-out 0.15s;
+}
+.collapsed {
+    width: fit-content;
+    
+    transition: width ease-out 0.15s;
+}
+
+.asideChatList {
+    display: flex;
+    flex-direction: column;
+    max-width: inherit;
+    gap: 0.25rem;
+    padding: 1rem 0;
+}
