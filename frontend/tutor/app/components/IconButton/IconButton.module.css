@@ -1,0 +1,28 @@
+.iconButton {
+    width: fit-content;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+}
+.iconButton svg {
+    min-width: 1rem;
+    min-height: 1rem;
+}
+
+.iconButtonStateLayer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem;
+
+    transition: background-color ease-out 0.15s;
+}
+.iconButtonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
