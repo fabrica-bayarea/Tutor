@@ -16,18 +16,51 @@
   }
 }
 
+body, span, button {
+  font-family: DM Sans, Arial, Helvetica, sans-serif;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 button {
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
   border: none;
 }
 
 a {
+  color: #1a1a1a;
   text-decoration: none;
+}
+
+svg {
+  color: #1a1a1a;
+}
+
+h1, h2, h3, h4 {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0;
+}
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1rem;
+}
+h4 {
+  font-size: 0.875rem;
+}
+
+p {
+  font-size: 1rem;
+  margin: 0;
 }
