@@ -27,3 +27,7 @@ button {
   cursor: pointer;
   border: none;
 }
+
+a {
+  text-decoration: none;
+}
