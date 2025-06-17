@@ -25,7 +25,6 @@
     width: 100%;
     height: fit-content;
     align-items: flex-start;
-    gap: 0.25rem;
     color: #1a1a1a;
 }
 .header > * {
