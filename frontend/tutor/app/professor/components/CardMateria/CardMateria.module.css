@@ -1,0 +1,36 @@
+.cardMateria {
+    display: flex;
+    flex-direction: column;
+    width: 15rem;
+    height: fit-content;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.cardMateriaStateLayer {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    padding: 1rem;
+    gap: 0.25rem;
+
+    transition: background-color ease-out 0.15s;
+}
+.cardMateriaStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.cardMateriaNome {
+    display: flex;
+    height: 3rem;
+    align-items: flex-end;
+    margin: 0;
+    color: #1a1a1a;
+}
+
+.cardMateriaTurmaCodigo {
+    margin: 0;
+    color: #666666;
+}
