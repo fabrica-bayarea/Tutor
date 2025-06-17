@@ -28,6 +28,8 @@
     align-items: flex-end;
     margin: 0;
     color: #1a1a1a;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .cardMateriaTurmaCodigo {
