@@ -35,3 +35,7 @@
 .selected {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
+.asideMainButtonLabel {
+    font-weight: 400;
+}
