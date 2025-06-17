@@ -6,15 +6,17 @@ import styles from './page.module.css';
 import Aside from '../components/Aside/Aside';
 import CardTurma from '../components/CardTurma/CardTurma';
 
-interface Turma {
-    id: string;
-    codigo: string;
-    semestre: string;
-    turno: string;
-}
+import { InterfaceProfessor, InterfaceTurma } from '../../types';
 
 export default function MinhasTurmas() {
-    const [turmas, setTurmas] = useState<Turma[]>([
+    const [professor, setProfessor] = useState<InterfaceProfessor>({
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        matricula: '1',
+        nome: 'Regiano',
+        email: 'regiano@gmail.com',
+        cpf: '12345678900' // ...senha, data_nascimento
+    });
+    const [turmas, setTurmas] = useState<InterfaceTurma[]>([
         {
             id: 'a4f98f1d-904c-4d8a-861e-df5a14c6e922',
             codigo: 'ADS01234',
