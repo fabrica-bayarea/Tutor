@@ -1,17 +1,19 @@
 export interface InterfaceAluno {
     id: string;
+    matricula: string;
     nome: string;
     email: string;
-    telefone: string;
-    data_nascimento: Date;
+    cpf: string;
+    data_nascimento?: Date;
 }
 
 export interface InterfaceProfessor {
     id: string;
+    matricula: string;
     nome: string;
     email: string;
-    telefone: string;
-    data_nascimento: Date;
+    cpf: string;
+    data_nascimento?: Date;
 }
 
 export interface InterfaceChat {
