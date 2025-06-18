@@ -19,6 +19,7 @@ app.register_blueprint(links_bp, url_prefix="/links")
 app.register_blueprint(professores_bp, url_prefix="/professores")
 app.register_blueprint(alunos_bp, url_prefix="/alunos")
 app.register_blueprint(alunos_turmas_bp, url_prefix="/alunos_turmas")
+app.register_blueprint(rag_bp, url_prefix="/rag")
 
 if __name__ == "__main__":
     app.run(debug=True)
