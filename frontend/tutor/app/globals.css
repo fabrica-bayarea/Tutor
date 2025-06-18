@@ -20,6 +20,10 @@ body, span, button {
   font-family: DM Sans, Arial, Helvetica, sans-serif;
 }
 
+a, p, span, svg {
+  color: #1a1a1a;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -34,12 +38,7 @@ button {
 }
 
 a {
-  color: #1a1a1a;
   text-decoration: none;
-}
-
-svg {
-  color: #1a1a1a;
 }
 
 h1, h2, h3, h4 {
