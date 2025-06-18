@@ -1,0 +1,75 @@
+/* Container principal do botão */
+.buttonContainer {
+    display: flex;
+    width: fit-content;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    overflow: hidden;
+    background-color: transparent; /* valor neutro por padrão */
+}
+
+/* Variantes de estilo */
+.filled {
+    background-color: #e5e5e5;
+}
+.text {
+    background-color: transparent;
+}
+
+/* Perigo: filled */
+.filled.danger {
+    background-color: #BF292F;
+}
+.filled.danger span,
+.filled.danger svg {
+    color: #f2f2f2;
+}
+
+/* Perigo: text */
+.text.danger {
+    background-color: transparent;
+}
+.text.danger span,
+.text.danger svg {
+    color: #D92F35;
+}
+
+/* ------------------------- */
+/* Camada de estado interna */
+/* ------------------------- */
+.buttonStateLayer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    padding: 0.5rem 0.75rem;
+    gap: 0.25rem;
+    transition: background-color ease-out 0.15s;
+}
+
+/* Botões com ícone (ajuste no padding esquerdo) */
+.iconButton {
+    padding-left: 0.5rem;
+}
+
+/* ------------------ */
+/* Efeitos de hover   */
+/* ------------------ */
+
+/* Hover padrão */
+.buttonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Hover - text + danger */
+.text.danger .buttonStateLayer:hover {
+    background-color: rgba(217, 47, 53, 0.05);
+}
+
+/* Hover - filled + danger */
+.filled.danger .buttonStateLayer:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
