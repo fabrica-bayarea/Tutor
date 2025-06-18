@@ -9,19 +9,52 @@
 .midColumn {
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 100%;
     height: 100%;
-    padding: 5rem 10rem;
     margin-left: auto;
     margin-right: auto;
+    gap: 2rem;
+    padding: 5rem 10rem;
+    align-items: center;
     background-color: #f2f2f2;
 }
 
 .header {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
     align-items: flex-start;
     color: #1a1a1a;
+}
+.header h1 {
+    color: #1a1a1a;
+}
+
+.materiaInfo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    gap: 0.5rem;
+}
+.materiaInfo * {
+    color: #666666;
+}
+
+.fontesAdicionadas {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    gap: 0.5rem;
+}
+
+.fontesAdicionadasHeader {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
 }
