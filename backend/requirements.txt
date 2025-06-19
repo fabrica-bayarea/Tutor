@@ -10,3 +10,8 @@ docling
 openai-whisper
 selenium
 webdriver-manager
+ollama
+langchain
+langchain_community
+sentence-transformers
+transformers
