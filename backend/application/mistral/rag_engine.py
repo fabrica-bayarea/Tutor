@@ -1,92 +1,104 @@
-import os
-import torch
+import logging
+from application.config.vector_database import chroma_client
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
-from typing import List
-from sentence_transformers import SentenceTransformer
-from langchain.community.vectorstores import Chroma
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import DirectoryLoader, PyPDFLoader, TextLoader
+# Configuração de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-
-class RAGengine:
-    def __init__(self, embendding_model_name: str = "sentence-tranformers/all-mpnet-base-v2", persist_directory: str = "chromba_db"):       
+class RAGEngine:
+    def __init__(self, collection_name: str = "documentos"):
         """
-        Inicializa o mecanismo de RAG (Retrieval-Augmented Generation).
-
-        Espera receber:
-        - `embedding_model_name`: str - o nome do modelo de embeddings da `sentence-transformers`.
-        - `persist_directory`: str - o diretório onde os vetores serão armazenados pelo ChromaDB.
-
-        Configura o modelo de embeddings e prepara a estrutura para armazenamento vetorial.
-        """
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.embbending_model = SentenceTransformer(embendding_model_name, device = self.device)
-        self.vectorstore = None
-        self.persist_directory = persist_directory
-    
-    def load_documents(self, data_dir: str, chunk_size: int = 512, chunk_overlap: int = 50):
-        """
-        Carrega documentos .pdf e .txt de um diretório, gera embeddings e os armazena no ChromaDB.
-
-        Espera receber:
-        - `data_dir`: str - o caminho do diretório onde os arquivos estão localizados.
-        - `chunk_size`: int - o tamanho máximo de cada pedaço de texto (default: 512).
-        - `chunk_overlap`: int - o número de tokens de sobreposição entre os pedaços (default: 50).
-
-        Cria o vetorstore persistente com os textos embeddados.
-        """
-          
-        loaders = []
+        Inicializa o motor RAG com o banco de vetores ChromaDB existente.
         
-        for root, _, files in os.walk(data_dir):
-            for file in files:
-                path = os.path.join(root, file)
-                if file.lower().endswith('.pdf'):
-                    loaders.append(PyPDFLoader(path))
-                elif file.lower().endswith('.txt'):
-                    loaders.append(TextLoader(path, encoding="utf-8"))
-                    
-        documents = []
-        for loader in loaders:
-            documents.extend(loader.load())
-            
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-        chunks = text_splitter.split_documents(documents)
+        Espera receber:
+            - `collection_name`: Nome da coleção ChromaDB a ser usada
+        """
+        logger.info(f"Inicializando RAGEngine com coleção: '{collection_name}'")
         
-        self.vectorstore = Chroma.from_documents(
-            documents = chunks,
-            embedding = self.embbending_model,
-            persist_directory = self.persist_directory
+        # Usa o mesmo modelo de embeddings que já está sendo usado no projeto
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2"  # Modelo com dimensão 384
         )
-
-        self.vectorstore.persist()
-            
-    def retrive(self, query: str, k: int = 3) -> List[str]:
-        """
-        Recupera os documentos mais relevantes a partir de uma consulta textual.
-
-        Espera receber:
-        - `query`: str - a pergunta ou termo de busca.
-        - `k`: int - a quantidade de documentos a retornar (default: 3).
-
-        Retorna uma lista de strings com os conteúdos mais relevantes. Caso nenhum vetorstore tenha sido carregado, retorna uma mensagem de aviso..
-        """
         
-        if self.vectorstore is None:
-            return ["Nenhum documento foi carregado ainda. Por favor, envie um arquivo primeiro."]
+        try:
+            # Obtém a coleção usando o cliente ChromaDB existente
+            self.collection = chroma_client.get_collection(name=collection_name)
+            logger.info(f"Coleção '{collection_name}' carregada com sucesso")
             
-        docs = self.vectorstore.similarity_search(query, k=k)
-        return [doc.page_content for doc in docs]
-    
-    def build_prompt(self, question: str, context: str) -> str:
-        """
-        Constrói o prompt a ser passado para o modelo de linguagem, com base no contexto e na pergunta.
+            # Verifica se há documentos na coleção
+            count = self.collection.count()
+            logger.info(f"Documentos na coleção: {count}")
+            
+            # Importa o Chroma do LangChain para usar com os embeddings
+            from langchain_community.vectorstores import Chroma
+            
+            # Cria uma instância do Chroma do LangChain usando o cliente existente
+            self.vector_db = Chroma(
+                client=chroma_client,
+                collection_name=collection_name,
+                embedding_function=self.embeddings
+            )
+            
+        except Exception as e:
+            logger.error(f"Erro ao acessar o banco de vetores: {str(e)}")
+            raise RuntimeError(f"Erro ao acessar o banco de vetores: {e}")
 
-        Espera receber:
-        - `question`: str - a pergunta feita pelo usuário.
-        - `context`: str - o conteúdo extraído dos documentos para embasar a resposta.
-
-        Retorna o prompt formatado no estilo: "Contexto...\n\nPergunta...\n\nResposta:"
+    def retrieve(self, query: str, k: int = 4) -> list[str]:
         """
+        Recupera os k documentos mais relevantes para a consulta.
         
-        return f"Contexto: {context}\n\nPergunta: {question}\n\nResposta:"
+        Espera receber:
+            - `query`: Texto da consulta
+            - `k`: Número de documentos a retornar
+            
+        Retorna uma lista de trechos de documentos relevantes
+        """
+        try:
+            logger.info(f"Buscando documentos relevantes para: '{query}'")
+            
+            # Usa o método similarity_search do LangChain
+            docs = self.vector_db.similarity_search(query, k=k)
+            
+            # Log dos documentos encontrados
+            for i, doc in enumerate(docs):
+                logger.info(f"Documento {i+1} - Metadados: {doc.metadata}")
+                logger.info(f"Conteúdo: {doc.page_content[:200]}..." if doc.page_content else "[SEM CONTEÚDO]")
+                
+            return [doc.page_content for doc in docs] if docs else []
+            
+        except Exception as e:
+            logger.error(f"Erro ao recuperar documentos: {str(e)}")
+            return []
+
+    def build_prompt(self, query: str, context: list[str]) -> str:
+        """
+        Constrói o prompt para o LLM com base na consulta e contexto.
+        
+        Espera receber:
+            - `query`: Consulta do usuário
+            - `context`: Lista de trechos relevantes
+            
+        Retorna o prompt formatado
+        """
+        logger.info(f"Construindo prompt para a pergunta: '{query}'")
+        logger.info(f"Número de contextos recebidos: {len(context)}")
+        
+        if not context:
+            logger.warning("Nenhum contexto foi fornecido para construir o prompt")
+            return f"Pergunta: {query}\n\nResposta: Não encontrei informações relevantes nos documentos para responder a esta pergunta."
+            
+        context_text = "\n\n".join([f"Trecho {i+1}: {doc}" for i, doc in enumerate(context)])
+        
+        prompt = f"""Com base APENAS nas informações fornecidas nos trechos abaixo, responda à pergunta do usuário.
+Se a resposta não estiver contida NOS TREXOS FORNECIDOS, responda APENAS "Não sei responder com base nas informações disponíveis".
+
+Trechos de documentos:
+{context_text}
+
+Pergunta: {query}
+
+Resposta:"""
+        
+        logger.debug(f"Prompt gerado:\n{prompt}")
+        return prompt

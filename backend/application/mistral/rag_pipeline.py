@@ -1,34 +1,54 @@
-from rag_engine import RAGEngine
+import logging
 
+# Configuração básica de logging
+logger = logging.getLogger(__name__)
 
 class RAGPipeline:
-    def __init__(self, rag:RAGEngine, LLMWrapper):
+    def __init__(self, rag, llm):
         """
         Inicializa o pipeline RAG com os componentes de recuperação e geração.
 
         Espera receber:
-
-        rag: RAGEngine - mecanismo de recuperação de contexto.
-        llm: LLWrapper - modelo de linguagem para geração de resposta.
+            - `rag`: Instância do RAGEngine para recuperação de contexto
+            - `llm`: Instância do LLMWrapper para geração de respostas
         """
-
         self.rag = rag
-        self.llm = LLMWrapper
+        self.llm = llm
+        logger.info("Pipeline RAG inicializado com sucesso")
         
-    def responder(self, pergunta: str, k: int = 3) -> str:
+    def run(self, query: str, k: int = 4) -> str:
         """
-        Processa uma pergunta realizando recuperação de contexto e geração de resposta.
+        Processa uma pergunta, recupera contexto relevante e gera uma resposta.
 
         Espera receber:
+            - `query`: A pergunta do usuário
+            - `k`: Número de trechos relevantes a recuperar
+            
+        Retorna a resposta gerada pelo modelo
+        """
+        logger.info(f"Processando pergunta: '{query}'")
         
-        pergunta: str - a pergunta feita pelo usuário.
-        k: int - número de documentos relevantes a recuperar (padrão: 3)
-
-        Retorna:
-        
-        str - a resposta gerada pela LLM baseada nos documentos recuperados."""
-        contextos = self.rag.recuperar_contexto(pergunta, k=k)
-        contexto = "\n".join(contextos)
-        prompt = self.rag.build_prompt(pergunta, contexto)
-        resposta = self.llm.generate(prompt)
-        return resposta
+        try:
+            # Recupera os contextos relevantes
+            logger.info("Buscando contextos relevantes...")
+            contextos = self.rag.retrieve(query, k=k)
+            
+            if not contextos:
+                logger.warning("Nenhum contexto relevante encontrado")
+                return "Não foi possível encontrar informações relevantes nos documentos."
+            
+            # Constrói o prompt com a pergunta e os contextos
+            logger.info("Construindo prompt...")
+            prompt = self.rag.build_prompt(query, contextos)
+            
+            # Gera a resposta usando o LLM
+            logger.info("Gerando resposta...")
+            resposta = self.llm.generate(prompt)
+            
+            logger.info("Resposta gerada com sucesso")
+            return resposta
+            
+        except Exception as e:
+            error_msg = f"Erro ao processar a pergunta: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            return error_msg
