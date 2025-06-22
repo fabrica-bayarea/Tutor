@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="pt-br"> 
       <body>
         <ModalProvider>
-          <MainNavigator />
+          {/* <MainNavigator /> */}
           <main>{children}</main>
         </ModalProvider>
       </body>
