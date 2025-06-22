@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import Aside from '../components/Aside/Aside';
 import CardMateria from '../components/CardMateria/CardMateria';
 
 import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria } from '../../types';
@@ -65,26 +64,23 @@ export default function MinhasMaterias() {
             materia_id: '8b14cd22-d2f3-4621-99d9-58764f28db45'
         }
     ]);
-    
+
     useEffect(() => {
-        
+
     }, []);
 
     return (
-        <div className={styles.pageContainer}>
-            <Aside selected="materias" />
-            <div className={styles.midColumn}>
-                <div className={styles.header}>
-                    <h1>Minhas matérias</h1>
-                    <p>Veja todas as matérias que você leciona</p>
-                </div>
-                <div className={styles.listMaterias}>
-                    {materias.map((materia) => (
-                        <a href={`/professor/materias/materia/${turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id}_${materia.id}`} key={materia.id}>
-                            <CardMateria key={materia.id} materia={materia} turma={turmas.find((turma) => turma.id === turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id)!} />
-                        </a>
-                    ))}
-                </div>
+        <div className={styles.midColumn}>
+            <div className={styles.header}>
+                <h1>Minhas matérias</h1>
+                <p>Veja todas as matérias que você leciona</p>
+            </div>
+            <div className={styles.listMaterias}>
+                {materias.map((materia) => (
+                    <a href={`/professor/materias/materia/${turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id}_${materia.id}`} key={materia.id}>
+                        <CardMateria key={materia.id} materia={materia} turma={turmas.find((turma) => turma.id === turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id)!} />
+                    </a>
+                ))}
             </div>
         </div>
     )

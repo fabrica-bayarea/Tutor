@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import Aside from '../components/Aside/Aside';
 import CardTurma from '../components/CardTurma/CardTurma';
 
 import { InterfaceProfessor, InterfaceTurma } from '../../types';
@@ -30,24 +29,21 @@ export default function MinhasTurmas() {
             turno: 'Noturno'
         }
     ]);
-    
+
     useEffect(() => {
-        
+
     }, []);
 
     return (
-        <div className={styles.pageContainer}>
-            <Aside selected="turmas" />
-            <div className={styles.midColumn}>
-                <div className={styles.header}>
-                    <h1>Minhas turmas</h1>
-                    <p>Veja todas as turmas para as quais você leciona alguma matéria</p>
-                </div>
-                <div className={styles.listTurmas}>
-                    {turmas.map((turma) => (
-                        <CardTurma key={turma.id} turma={turma} />
-                    ))}
-                </div>
+        <div className={styles.midColumn}>
+            <div className={styles.header}>
+                <h1>Minhas turmas</h1>
+                <p>Veja todas as turmas para as quais você leciona alguma matéria</p>
+            </div>
+            <div className={styles.listTurmas}>
+                {turmas.map((turma) => (
+                    <CardTurma key={turma.id} turma={turma} />
+                ))}
             </div>
         </div>
     )

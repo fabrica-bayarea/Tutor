@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import Aside from './components/Aside/Aside';
 import { InterfaceProfessor } from '../types';
 
 export default function Home() {
@@ -14,13 +13,15 @@ export default function Home() {
         email: 'regiano@gmail.com',
         cpf: '12345678900', // ...senha, data_nascimento
     });
+    
+    useEffect(() => {
+        
+    }, []);
+    
     return (
-        <div className={styles.pageContainer}>
-            <Aside selected='home' />
-            <div className={styles.midColumn}>
-                <div className={styles.header}>
-                    <h1>Olá, {professor.nome}!</h1>
-                </div>
+        <div className={styles.midColumn}>
+            <div className={styles.header}>
+                <h1>Olá, {professor.nome}!</h1>
             </div>
         </div>
     )

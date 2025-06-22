@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
-import Aside from '../../../components/Aside/Aside';
 import Button from '../../../../components/Button/Button';
 import { InterfaceProfessor, InterfaceMateria, InterfaceTurma } from '../../../../types';
 import { ArrowLeft, Plus } from 'lucide-react';
@@ -31,37 +30,34 @@ export default function Home() {
         codigo: '',
         nome: ''
     });
-    
+
     useEffect(() => {
-        
+
     }, []);
-    
+
     return (
-        <div className={styles.pageContainer}>
-            <Aside selected='materias' />
-            <div className={styles.midColumn}>
-                <div className={styles.header}>
-                    <Button
-                        icon={<ArrowLeft size={24} />}
-                        label="Voltar"
-                        onClick={() => window.history.back()}
-                    />
-                    <h1>{turma.id}<br />{materia.id}</h1>
-                    <div className={styles.materiaInfo}>
-                        <p><b>Turma:</b> {turma.codigo}</p>
-                        <p><b>Código da matéria:</b> {materia.codigo}</p>
-                    </div>
+        <div className={styles.midColumn}>
+            <div className={styles.header}>
+                <Button
+                    icon={<ArrowLeft size={24} />}
+                    label="Voltar"
+                    onClick={() => window.history.back()}
+                />
+                <h1>{turma.id}<br />{materia.id}</h1>
+                <div className={styles.materiaInfo}>
+                    <p><b>Turma:</b> {turma.codigo}</p>
+                    <p><b>Código da matéria:</b> {materia.codigo}</p>
                 </div>
-                <div className={styles.fontesAdicionadas}>
-                    <div className={styles.fontesAdicionadasHeader}>
-                        <h2>Fontes adicionadas</h2>
-                        <Button
-                            style="filled"
-                            icon={<Plus size={24} />}
-                            label="Adicionar fonte"
-                            onClick={() => {}}
-                        />
-                    </div>
+            </div>
+            <div className={styles.fontesAdicionadas}>
+                <div className={styles.fontesAdicionadasHeader}>
+                    <h2>Fontes adicionadas</h2>
+                    <Button
+                        style="filled"
+                        icon={<Plus size={24} />}
+                        label="Adicionar fonte"
+                        onClick={() => { }}
+                    />
                 </div>
             </div>
         </div>
