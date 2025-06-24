@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_migrate import Migrate
+from flask_cors import CORS
 from application.config import *
 from application.libs import *
 from application.models import *
 from application.routes import *
 from application.services import *
-from flask_cors import CORS
+from application.socket import socketio
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -22,4 +23,5 @@ app.register_blueprint(alunos_turmas_bp, url_prefix="/alunos_turmas")
 app.register_blueprint(rag_bp, url_prefix="/rag")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.init_app(app)
+    socketio.run(app, debug=True)
