@@ -6,15 +6,27 @@
     height: 100%;
 }
 
-.headerContainer {
+.topContainer {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     width: 100%;
     height: 100%;
     justify-content: center;
+    align-items: flex-end;
+    color: #1a1a1a;
+    box-sizing: border-box;
+    overflow: hidden;
 }
-.headerContainer h1, .headerContainer h2 {
-    text-align: center;
+
+.messagesContainer {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
+    padding-bottom: 1rem;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .bottomContainer {
@@ -25,6 +37,12 @@
     gap: 0.5rem;
     align-items: center;
     box-sizing: border-box;
+}
+.bottomContainer textarea {
+    width: 100%;
+    height: 5rem;
+    padding: 1rem;
+    border-radius: 16px;
 }
 .bottomContainer span {
     color: #999999;
