@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
 import styles from './page.module.css';
 
 import MessageBox from '../../components/MessageBox/MessageBox';
@@ -9,6 +10,7 @@ import MessageForm from '../../components/MessageForm/MessageForm';
 import { InterfaceAluno, InterfaceMensagem } from '../../../types';
 
 export default function Chat() {
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [aluno, setAluno] = useState<InterfaceAluno>({ id: 'cde982bc-2c4b-43a0-8439-eba9d2149306', matricula: '2314290141', nome: 'Victor', email: 'victor@gmail.com', cpf: '12345678901', data_nascimento: new Date('2000-01-01') }); // ...senha, cpf, data_nascimento
     const [messages, setMessages] = useState<InterfaceMensagem[]>([
         {
@@ -28,7 +30,17 @@ export default function Chat() {
     ]);
     
     useEffect(() => {
-        
+        const socket = io('http://localhost:5000');
+
+        socket.on('connect', () => {
+            console.log('Conectado ao servidor');
+        })
+
+        socket.on('connection-confirmation', (data) => {
+            console.log('Recebido: ', data);
+        })
+
+        setSocket(socket);
     }, []);
     
     function sendMessage(message: string) {
