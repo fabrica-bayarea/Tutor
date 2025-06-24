@@ -1,0 +1,66 @@
+.messageFormContainer {
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    border-radius: 16px;
+    /* padding: 1rem; */
+    background-color: #f7f7f7;
+    outline: 1px solid transparent;
+    box-sizing: border-box;
+
+    transition: outline ease-out 0.15s;
+}
+.messageFormContainer:hover {
+    outline: 1px solid rgba(0, 0, 0, 0.15);
+}
+.messageFormContainer:focus-within {
+    outline: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.messageFormContainer textarea {
+    width: 100%;
+    height: auto;
+    padding: 1rem;
+    min-height: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    letter-spacing: 0.015rem;
+    color: #1a1a1a;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.messageFormContainer textarea::placeholder {
+    color: gray;
+}
+
+.messageFormButtonContainer {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding: 1rem;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.messageFormButtonContainer button[type="submit"] {
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 8px;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+.messageFormButtonContainer button[type="submit"]:not(:disabled):hover {
+    background-color: lightgray;
+}
+.messageFormButtonContainer button[type="submit"]:disabled {
+    opacity: 0.5;
+    background-color: transparent;
+    cursor: not-allowed;
+}

@@ -1,0 +1,37 @@
+.messageBoxContainer {
+    display: flex;
+    width: 100%;
+    height: fit-content;
+}
+.messageBoxContainer.fromUser {
+    justify-content: flex-end;
+}
+
+.messageBox {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    padding: 0.5rem;
+    gap: 0.25rem;
+}
+.messageBox.fromUser {
+    width: fit-content;
+    max-width: 70%;
+    background-color: #ededed;
+    border-radius: 12px;
+}
+.messageBox.fromSystem {
+    width: 100%;
+    max-width: 100%;
+}
+
+.messageAuthor {
+    color: #666666;
+}
+
+.messageContent {
+    width: 100%;
+    text-wrap: wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+}
