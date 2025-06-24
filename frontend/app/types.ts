@@ -20,7 +20,7 @@ export interface InterfaceChat {
     id: string;
     aluno_id: string;
     nome: string;
-    data_ultima_interacao: Date;
+    data_ultima_interacao?: Date;
 }
 
 export interface InterfaceMensagem {
