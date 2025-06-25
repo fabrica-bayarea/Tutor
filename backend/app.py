@@ -9,6 +9,7 @@ from application.services import *
 from application.socket import socketio
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = Config.SECRET_KEY
 CORS(app, resources={r"/*": {"origins": "*"}})
 init_db(app)
 migrate = Migrate(app, db)
