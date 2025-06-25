@@ -1,6 +1,6 @@
-import axios from "axios";
+import api from "./api";
 
-const uploadAPI = axios.create({baseURL: 'http://127.0.0.1:5000/arquivos'});
+const arquivos_url = "arquivos";
 
 async function postUpload(files: File[], matricula_professor: string, vinculos: any[]) {
     try {
@@ -14,7 +14,7 @@ async function postUpload(files: File[], matricula_professor: string, vinculos: 
 
         formData.append('vinculos', JSON.stringify(vinculos));
 
-        const response = await uploadAPI.post('/upload', formData, {
+        const response = await api.post(`/${arquivos_url}/upload`, formData, {
             headers: {"Content-Type": "multipart/form-data"}
         });
         return response.data;
@@ -24,4 +24,10 @@ async function postUpload(files: File[], matricula_professor: string, vinculos: 
     }
 }
 
-export {postUpload};
+async function getArquivos(id_professor){
+    pass
+}
+
+
+
+export {postUpload, getArquivos};

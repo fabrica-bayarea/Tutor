@@ -1,10 +1,10 @@
-import axios from "axios";
+import api from "./api";
 
-const professorTurmaMateriaAPI = axios.create({baseURL: 'http://127.0.0.1:5000/professores', timeout: 30000})
+const professores_turma_materia_url = "professores";
 
 async function getVinculosProfessorTurmaMateria(matricula_professor: string) {
     try {
-        const response = await professorTurmaMateriaAPI.get(`/turmas_materias/${matricula_professor}`);
+        const response = await api.get(`/${professores_turma_materia_url}/turmas_materias/${matricula_professor}`);
         const vinculos = response.data.map((vinculo: any) => ({
             ...vinculo,
             classCode: vinculo.codigo_turma,
