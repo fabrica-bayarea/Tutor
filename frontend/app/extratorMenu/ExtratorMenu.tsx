@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState, KeyboardEventHandler, CSSProperties } from 'react';
 import styles from './ExtratorMenu.module.css';
 import Select from 'react-select';
-import { postLinks } from '@/app/services/link';
-import { postUpload } from '@/app/services/upload';
+import { postLinks } from '@/app/services/service_link';
+import { postUpload } from '@/app/services/service_arquivo';
 import SourceUpload from '../professor/components/SourceUpload/SourceUpload';
-import { getVinculosProfessorTurmaMateria } from '@/app/services/professor_turma_materia';
+import { getVinculosProfessorTurmaMateria } from '@/app/services/service_professor_turma_materia';
 
 // Componente principal da janela de extração
 function ExtratorWindow() {
