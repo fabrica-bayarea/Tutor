@@ -5,6 +5,7 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-SocketIO
 eventlet
+PyJWT
 psycopg2
 chromadb
 docling
