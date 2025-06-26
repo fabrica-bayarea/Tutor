@@ -1,3 +1,4 @@
+from .auth import *
 from .libs import *
 from .models import *
 from .routes import *
