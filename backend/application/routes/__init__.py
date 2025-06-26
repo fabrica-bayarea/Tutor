@@ -1,4 +1,5 @@
 from .route_professores import *
+from .route_professores_turmas_materias import *
 from .route_arquivos import *
 from .routes_links import *
 from .route_alunos import *
