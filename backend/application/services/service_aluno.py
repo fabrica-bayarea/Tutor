@@ -37,3 +37,16 @@ def buscar_aluno_por_id(aluno_id: uuid.UUID) -> dict[str, str] | None:
     """
     aluno = Aluno.query.get(aluno_id)
     return aluno.to_dict() if aluno else None
+
+def logar_aluno(matricula: str, senha: str) -> dict[str, str] | None:
+    """
+    Função atômica, responsável por logar um aluno no PostgreSQL.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `senha`: str - a senha do aluno
+
+    Retorna os dados do aluno se o login for válido, e None caso contrário.
+    """
+    aluno = Aluno.query.filter_by(matricula=matricula, senha=senha).first()
+    return aluno.to_dict() if aluno else None
