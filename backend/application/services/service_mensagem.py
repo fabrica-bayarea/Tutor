@@ -1,6 +1,6 @@
 from application.config import db
 from application.models import Mensagem
-from application.services.service_aluno import buscar_aluno_por_id
+from application.services.service_aluno import buscar_aluno
 from application.constants import LLM_UUID
 import uuid
 
@@ -15,7 +15,7 @@ def criar_mensagem(chat_id: uuid.UUID, sender_id: uuid.UUID, conteudo: str) -> M
 
     Retorna a mensagem criada.
     """
-    aluno = buscar_aluno_por_id(sender_id)
+    aluno = buscar_aluno(sender_id)
     if not aluno and sender_id != LLM_UUID:
         raise ValueError("Aluno não encontrado")
     
