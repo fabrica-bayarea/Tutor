@@ -2,8 +2,10 @@ import os
 import uuid
 from datetime import datetime
 from application.config import db, chroma_client
-from application.libs import *
 from application.models import Arquivo
+from application.libs.docling_handler import extrair_texto_markdown
+from application.libs.scraping_handler import data_extraction
+from application.libs.whisper_handler import processar_video
 from application.services.service_vinculos import criar_vinculo_arquivo_turma_materia
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -181,12 +183,13 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
         }
     }
 
-def processar_link(link: str, driver: webdriver, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
+def processar_link(link: str, driver, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
     Função principal, responsável por processar um link.
 
     Espera receber:
     - `link`: str - o link a ser processado
+    - `driver`: webdriver - o driver do navegador
     - `professor_id`: uuid.UUID - o ID do professor
     - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
 
