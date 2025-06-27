@@ -16,7 +16,7 @@ def gerar_token(user_id: str, role: str, expiracao_min=60) -> str:
     payload = {
         "user_id": user_id,
         "role": role,
-        "exp": datetime.datetime.now() + datetime.timedelta(minutes=expiracao_min)
+        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=expiracao_min)
     }
     token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
     return token
