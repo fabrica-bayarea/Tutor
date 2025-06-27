@@ -2,8 +2,6 @@
 Rotas para lidar com vínculos entre Alunos e Turmas.
 """
 from flask import Blueprint, jsonify
-from application.services.service_aluno import *
-from application.services.service_turma import *
 from application.services.service_vinculos import buscar_vinculos_aluno_turma
 import uuid
 

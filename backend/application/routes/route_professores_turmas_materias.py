@@ -3,10 +3,9 @@ Rotas para lidar com vínculos entre professores, turmas e matérias.
 """
 
 from flask import Blueprint, request, jsonify
-from application.services.service_professor import *
-from application.services.service_turma import *
-from application.services.service_materia import *
-from application.services.service_vinculos import *
+from application.services.service_turma import buscar_codigo_turma_por_id
+from application.services.service_materia import buscar_codigo_materia_por_id
+from application.services.service_vinculos import buscar_vinculos_professor_turma_materia
 from application.utils.validacoes import validar_professor
 import uuid
 

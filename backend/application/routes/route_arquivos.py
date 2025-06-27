@@ -5,10 +5,7 @@ from flask import Blueprint, request, jsonify, g
 import uuid
 import json
 from application.auth import token_obrigatorio
-from application.services.service_arquivo import *
-from application.services.service_professor import *
-from application.services.service_turma import *
-from application.services.service_materia import *
+from application.services.service_arquivo import processar_arquivo, obter_arquivos_turma_materia
 from application.utils.validacoes import validar_professor_turma_materia
 
 arquivos_bp = Blueprint('arquivos', __name__)
