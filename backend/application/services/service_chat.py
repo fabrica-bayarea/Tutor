@@ -1,4 +1,4 @@
-from application.config import db
+from application.config.database import db
 from application.models import Chat
 import uuid
 

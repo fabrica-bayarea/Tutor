@@ -3,7 +3,7 @@ Serviço dedicado a lidar com vínculos nas entidades intermediárias, como 'Alu
 """
 
 import uuid
-from application.config import db
+from application.config.database import db
 from application.models import AlunoTurma, ProfessorTurmaMateria, ArquivoTurmaMateria
 
 # -------------------- ALUNO <-> TURMA --------------------

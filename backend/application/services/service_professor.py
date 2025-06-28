@@ -1,6 +1,6 @@
 import uuid
 from application.models import Professor
-from application.config import db
+from application.config.database import db
 
 def criar_professor(matricula: str, nome: str, email: str, senha: str, cpf: str, data_nascimento: str) -> dict[str, str] | None:
     """

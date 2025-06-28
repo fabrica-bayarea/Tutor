@@ -1,7 +1,8 @@
 import os
 import uuid
 from datetime import datetime
-from application.config import db, chroma_client
+from application.config.database import db
+from application.config.vector_database import chroma_client
 from application.models import Arquivo
 from application.libs.docling_handler import extrair_texto_markdown
 from application.libs.scraping_handler import data_extraction
