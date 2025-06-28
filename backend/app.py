@@ -1,11 +1,10 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_cors import CORS
-from application.config import *
-from application.libs import *
-from application.models import *
-from application.routes import *
-from application.services import *
+from application.config.config import Config
+from application.config.database import init_db, db
+from application.config.vector_database import chroma_client
+from application.routes import arquivos_bp, links_bp, professores_bp, alunos_bp, alunos_turmas_bp, rag_bp
 from application.socket import socketio
 
 app = Flask(__name__)
