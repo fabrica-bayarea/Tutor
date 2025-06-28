@@ -1,4 +1,4 @@
-from application.config import db
+from application.config.database import db
 
 class ProfessorTurmaMateria(db.Model):
     __tablename__ = 'professores_turmas_materias'

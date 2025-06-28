@@ -1,4 +1,4 @@
-from application.config import db
+from application.config.database import db
 import uuid
 
 class Materia(db.Model):
