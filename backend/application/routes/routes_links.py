@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, g
 from urllib.parse import urlparse
 import time
 import uuid
-from application.auth import token_obrigatorio
+from application.auth.auth_decorators import token_obrigatorio, apenas_professores
 from application.services.service_arquivo import processar_link
 from application.libs.scraping_handler import configure_browser
 from application.utils.validacoes import validar_professor_turma_materia
@@ -18,6 +18,7 @@ def is_valid_url(url):
 
 @links_bp.route('/upload', methods=['POST', 'OPTIONS'])
 @token_obrigatorio
+@apenas_professores
 def scrap_links():
     
     if request.method == 'OPTIONS':

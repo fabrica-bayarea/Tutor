@@ -4,7 +4,7 @@ Rotas para lidar com arquivos.
 from flask import Blueprint, request, jsonify, g
 import uuid
 import json
-from application.auth import token_obrigatorio
+from application.auth.auth_decorators import token_obrigatorio, apenas_professores
 from application.services.service_arquivo import processar_arquivo, obter_arquivos_turma_materia
 from application.utils.validacoes import validar_professor_turma_materia
 
@@ -12,6 +12,7 @@ arquivos_bp = Blueprint('arquivos', __name__)
 
 @arquivos_bp.route('/upload', methods=['POST'])
 @token_obrigatorio
+@apenas_professores
 def upload_arquivos():
     """
     Endpoint para upload de arquivos que serão processados.
