@@ -4,7 +4,7 @@ from flask_cors import CORS
 from application.config.config import Config
 from application.config.database import init_db, db
 from application.config.vector_database import chroma_client
-from application.routes import arquivos_bp, links_bp, professores_bp, alunos_bp, alunos_turmas_bp, rag_bp
+from application.routes import arquivos_bp, links_bp, professores_bp, alunos_bp, vinculos_bp, rag_bp
 from application.socket import socketio
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ app.register_blueprint(arquivos_bp, url_prefix="/arquivos")
 app.register_blueprint(links_bp, url_prefix="/links")
 app.register_blueprint(professores_bp, url_prefix="/professores")
 app.register_blueprint(alunos_bp, url_prefix="/alunos")
-app.register_blueprint(alunos_turmas_bp, url_prefix="/alunos_turmas")
+app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 app.register_blueprint(rag_bp, url_prefix="/rag")
 
 if __name__ == "__main__":
