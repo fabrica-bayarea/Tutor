@@ -1,10 +1,10 @@
 """
-Serviço dedicado a lidar com vínculos nas entidades intermediárias, como 'AlunoTurma', 'ArquivoTurmaMateria', etc.
+Serviço dedicado a lidar com operações CRUD relevantes para vínculos em tabelas intermediárias, como 'AlunoTurma', 'ArquivoTurmaMateria', etc.
 """
 
 import uuid
 from application.config.database import db
-from application.models import AlunoTurma, ProfessorTurmaMateria, ArquivoTurmaMateria
+from application.models import AlunoTurma, TurmaMateria, ProfessorTurmaMateria, ArquivoTurmaMateria
 
 # -------------------- ALUNO <-> TURMA --------------------
 
@@ -39,14 +39,52 @@ def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
 
     Retorna True se o vínculo for criado com sucesso, e False se o vínculo já existir.
     """
-    if not aluno_id or not turma_id:
-        raise ValueError("É obrigatório fornecer um ID de aluno e um ID de turma.")
-    
-    existe = buscar_vinculo_aluno_turma(aluno_id, turma_id)
+    existe = buscar_vinculos_aluno_turma(aluno_id, turma_id)
     if existe:
         return False
     
     db.session.add(AlunoTurma(aluno_id=aluno_id, turma_id=turma_id))
+    db.session.commit()
+    return True
+
+# -------------------- TURMA <-> MATÉRIA --------------------
+
+def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[TurmaMateria]:
+    """
+    Busca vínculos entre turmas e matérias.
+
+    Espera receber um ou ambos esses dois parâmetros:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna uma lista de vínculos TurmaMateria que correspondem aos filtros.
+    Se nenhum parâmetro for fornecido, retorna None.
+    """
+    query = TurmaMateria.query
+    
+    if turma_id is not None:
+        query = query.filter_by(turma_id=turma_id)
+    
+    if materia_id is not None:
+        query = query.filter_by(materia_id=materia_id)
+    
+    return query.all()
+
+def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
+    """
+    Cria um novo vínculo entre uma turma e uma matéria.
+
+    Espera receber todos esses dois parâmetros:
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna True se o vínculo for criado com sucesso, e False se o vínculo já existir.
+    """
+    existe = buscar_vinculos_turma_materia(turma_id, materia_id)
+    if existe:
+        return False
+    
+    db.session.add(TurmaMateria(turma_id=turma_id, materia_id=materia_id))
     db.session.commit()
     return True
 
@@ -88,10 +126,7 @@ def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uui
 
     Retorna o novo vínculo se ele for criado com sucesso, e None se o vínculo já existir.
     """
-    if not professor_id or not turma_id or not materia_id:
-        raise ValueError("É obrigatório fornecer um ID de professor, um ID de turma e um ID de matéria.")
-    
-    existe = buscar_vinculo_professor_turma_materia(professor_id, turma_id, materia_id)
+    existe = buscar_vinculos_professor_turma_materia(professor_id, turma_id, materia_id)
     if existe:
         return None
     
@@ -138,9 +173,6 @@ def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UU
 
     Retorna o vínculo criado se ele for criado com sucesso, e None se o vínculo já existir.
     """
-    if not arquivo_id or not turma_id or not materia_id:
-        raise ValueError("É obrigatório fornecer um ID de arquivo, um ID de turma e um ID de matéria.")
-    
     existe = buscar_vinculos_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
     if existe:
         return None
