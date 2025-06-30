@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { postLinks } from '@/app/services/service_link';
 import { postUpload } from '@/app/services/service_arquivo';
 import SourceUpload from '../professor/components/SourceUpload/SourceUpload';
-import { getVinculosProfessorTurmaMateria } from '@/app/services/service_professor_turma_materia';
+import { getVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 
 // Componente principal da janela de extração
 function ExtratorWindow() {
