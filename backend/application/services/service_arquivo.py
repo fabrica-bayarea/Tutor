@@ -1,5 +1,6 @@
 import os
 import uuid
+import glob
 from datetime import datetime
 from application.config.database import db
 from application.config.vector_database import chroma_client
@@ -179,6 +180,7 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
         "message": "Arquivo processado com sucesso",
         "data": {
             "documento_id": documento.id,
+            "professor_id": professor_id,
             "titulo": documento.titulo,
             "data_upload": documento.data_upload
         }
@@ -245,10 +247,35 @@ def processar_link(link: str, driver, professor_id: uuid.UUID, vinculos: list[di
         "message": "Link processado com sucesso",
         "data": {
             "documento_id": documento.id,
+            "professor_id": professor_id,
             "titulo": documento.titulo,
             "data_upload": documento.data_upload
         }
     }
+
+def obter_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> tuple:
+    """
+    Função atômica, responsável por obter o arquivo real, salvo no sistema de arquivos, a partir do seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+
+    Retorna um tuple com o caminho do arquivo e o arquivo em si.
+    """
+    caminho_arquivo = os.path.join(DOCUMENTOS_DIR, str(professor_id), f"{arquivo_id}_*")
+    arquivos_encontrados = glob.glob(caminho_arquivo)
+
+    if len(arquivos_encontrados) == 0:
+        raise ValueError(f"Arquivo {arquivo_id} não encontrado")
+
+    caminho_arquivo = arquivos_encontrados[0]
+    extensao_arquivo = os.path.splitext(caminho_arquivo)[1]
+
+    with open(caminho_arquivo, 'rb') as f:
+        conteudo_arquivo = f.read()
+    
+    return caminho_arquivo, conteudo_arquivo, extensao_arquivo
 
 def obter_arquivos_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> list[Arquivo]:
     """
