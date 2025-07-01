@@ -1,25 +1,24 @@
 import api from "./api";
+import { InterfaceAluno } from "../types";
 
-const aluno_auth_url = "alunos";
+interface InterfaceLoginResponse {
+    token: string;
+    aluno: InterfaceAluno;
+}
 
-async function postAlunoAuth(matricula_aluno: string, senha: string){
+const alunos_url = "alunos";
+
+export async function loginAluno(matricula_aluno: string, senha: string){
     try {
-        const conteudo = {
-            "matricula": matricula_aluno,
-            "senha": senha
-        };
-        const response = await api.post(`${aluno_auth_url}/login`, conteudo, {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                // "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-        return response.data;
+        const response: InterfaceLoginResponse = await api.post(`${alunos_url}/login`, { matricula_aluno, senha });
+
+        const token = response.token;
+        localStorage.setItem("token", token);
+        
+        const aluno = response.aluno;
+        return aluno;
     } catch (error) {
         console.error("Erro ao autenticar o aluno:", error);
         throw error;
     }
 }
-
-export { postAlunoAuth };

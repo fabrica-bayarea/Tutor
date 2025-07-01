@@ -1,25 +1,24 @@
 import api from "./api";
+import { InterfaceProfessor } from "../types";
 
-const professor_auth_url = "professores";
+interface InterfaceLoginResponse {
+    token: string;
+    professor: InterfaceProfessor;
+}
 
-async function postProfessorAuth(matricula_professor: string, senha: string){
+const professores_url = "professores";
+
+export async function loginProfessor(matricula: string, senha: string){
     try {
-        const conteudo = {
-            "matricula": matricula_professor,
-            "senha": senha
-        };
-        const response = await api.post(`${professor_auth_url}/login`, conteudo, {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                // "Authorization": `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-        return response.data;
+        const response: InterfaceLoginResponse = await api.post(`${professores_url}/login`, { matricula, senha });
+
+        const token = response.token;
+        localStorage.setItem("token", token);
+        
+        const professor = response.professor;
+        return professor;
     } catch (error) {
         console.error("Erro ao autenticar o professor:", error);
         throw error;
     }
 }
-
-export { postProfessorAuth };
