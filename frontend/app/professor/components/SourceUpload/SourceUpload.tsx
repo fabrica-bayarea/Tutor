@@ -9,6 +9,7 @@ export default function SourceUpload() {
     const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link
     const [links, setLinks] = useState<string[]>([]); // Lista de links adicionados
     const linkInputRef = useRef<HTMLInputElement>(null); // Referência ao input de link
+    const [fileType, setFileType] = useState<null | 'arquivo' | 'link' | 'texto'>(null); // Tipo de arquivo selecionado
 
 
     // Atualiza o estado do texto digitado
@@ -22,10 +23,10 @@ export default function SourceUpload() {
             if (text.trim() !== '') {
                 const blob = new Blob([text], { type: 'text/plain' });
                 const fileName = `texto${arqDragEvent.length + 1}.txt`;
-                // Explicitly type the Blob array for File constructor
                 const newFile = new File([blob as BlobPart], fileName, { type: 'text/plain' });
                 setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
                 setText('');
+                if (!fileType) setFileType('texto'); // Define o tipo de arquivo como 'texto' 
             }
         }
     };
@@ -44,13 +45,19 @@ export default function SourceUpload() {
                 if (linkInputRef.current) {
                     linkInputRef.current.value = '';
                 }
+                if (!fileType) setFileType('link'); // Define o tipo de arquivo como 'link' se ainda não estiver definido
             }
         }
     };
 
     // Remove link pelo índice
     const deleteLink = (index: number) => {
-        setLinks(prev => prev.filter((_, i) => i !== index));
+        setLinks(prev => {
+            const novos = prev.filter((_, i) => i !== index)
+            if (novos.length === 0) setFileType(null); // Reseta o tipo de arquivo se não houver mais links
+            return novos;
+        });
+
     };
 
     /* Estados e funções para drag and drop */
@@ -83,9 +90,11 @@ export default function SourceUpload() {
 
     // Remove arquivo da lista
     const deleteArq = (arquivoParaDeletar: File) => {
-        setArqDragEvent(arquivosAnteriores =>
-            arquivosAnteriores.filter(arquivo => arquivo.name !== arquivoParaDeletar.name)
-        );
+        setArqDragEvent(arquivosAnteriores => {
+            const novos = arquivosAnteriores.filter(arquivo => arquivo.name !== arquivoParaDeletar.name)
+            if (novos.length === 0) setFileType(null); // Reseta o tipo de arquivo se não houver mais arquivos
+            return novos;
+        });
     };
 
     // Abre seletor de arquivos ao clicar no botão
@@ -101,6 +110,7 @@ export default function SourceUpload() {
         if (event.target.files && event.target.files.length > 0) {
             const novosArquivos = Array.from(event.target.files) as File[]; // Explicitly type as File[]
             setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
+            if (!fileType) setFileType('arquivo'); // Define o tipo de arquivo como 'arquivo' se ainda não estiver definido
         }
     };
 
@@ -190,13 +200,22 @@ export default function SourceUpload() {
     return (
         <div className={styles.SourceUploadContainer}>
             <div className={styles.modeArqDiv}>
-                <button onClick={() => { setArquivosopen(true); setTextoopen(false); setLinkopen(false); }}>Arquivos</button>
-                <button onClick={() => { setArquivosopen(false); setTextoopen(false); setLinkopen(true); }}>Links</button>
-                <button onClick={() => { setArquivosopen(false); setTextoopen(true); setLinkopen(false); }}>Textos</button>
+                <button 
+                    onClick={() => { setArquivosopen(true); setTextoopen(false); setLinkopen(false); }}
+                    disabled={fileType !== null && fileType !== 'arquivo'}
+                >Arquivos</button>
+                <button 
+                    onClick={() => { setArquivosopen(false); setTextoopen(false); setLinkopen(true); }}
+                    disabled={fileType !== null && fileType !== 'link'}
+                >Links</button>
+                <button 
+                    onClick={() => { setArquivosopen(false); setTextoopen(true); setLinkopen(false); }}
+                    disabled={fileType !== null && fileType !== 'texto'}
+                >Textos</button>
             </div>
 
             {/* Área Ativa */}
-            <div style={posicao}/>
+            {/* <div style={posicao}/> */}
 
 
             {/* Área de drag and drop de arquivos */}
