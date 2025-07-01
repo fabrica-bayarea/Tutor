@@ -31,3 +31,14 @@ def apenas_professores(f):
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper
+
+def apenas_alunos(f):
+    """
+    Decorador personalizado que restringe o acesso da rota apenas para usuários com papel de aluno.
+    """
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not hasattr(g, "usuario_role") or g.usuario_role != "aluno":
+            return jsonify({"error": "Acesso negado"}), 403
+        return f(*args, **kwargs)
+    return wrapper
