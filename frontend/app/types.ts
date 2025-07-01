@@ -16,6 +16,13 @@ export interface InterfaceProfessor {
     data_nascimento?: Date;
 }
 
+export interface InterfaceArquivo {
+    id: string;
+    professor_id: string;
+    titulo: string;
+    data_upload: Date;
+}
+
 export interface InterfaceChat {
     id: string;
     aluno_id: string;
