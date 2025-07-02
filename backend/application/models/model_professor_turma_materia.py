@@ -10,3 +10,15 @@ class ProfessorTurmaMateria(db.Model):
     professor = db.relationship('Professor', back_populates='turmas_materias')
     turma = db.relationship('Turma', back_populates='professores_materias')
     materia = db.relationship('Materia', back_populates='professores_turmas')
+    
+    def to_dict(self):
+        """
+        Função atômica, responsável por converter um objeto ProfessorTurmaMateria em um dicionário serializável.
+
+        Retorna um dicionário contendo os IDs do professor, turma e matéria como strings.
+        """
+        return {
+            "professor_id": str(self.professor_id),
+            "turma_id": str(self.turma_id),
+            "materia_id": str(self.materia_id)
+        }

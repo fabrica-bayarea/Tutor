@@ -11,3 +11,14 @@ class AlunoTurma(db.Model):
 
     aluno = db.relationship('Aluno', back_populates='turmas_matriculadas')
     turma = db.relationship('Turma', back_populates='alunos_matriculados')
+
+    def to_dict(self):
+        """
+        Função atômica, responsável por converter um objeto AlunoTurma em um dicionário serializável.
+
+        Retorna um dicionário contendo os IDs do aluno e turma como strings.
+        """
+        return {
+            "aluno_id": str(self.aluno_id),
+            "turma_id": str(self.turma_id)
+        }
