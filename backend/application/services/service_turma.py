@@ -1,6 +1,18 @@
 import uuid
 from application.models import Turma
 
+def buscar_turma_por_id(turma_id: uuid.UUID = None) -> dict | None:
+    """
+    Busca uma turma no banco de dados usando seu ID.
+
+    Espera receber:
+    - `turma_id`: uuid.UUID - o ID da turma
+    
+    Retorna a turma se ela existir, e None caso contrário.
+    """
+    turma = Turma.query.filter_by(id=turma_id).first()
+    return turma.to_dict() if turma else None
+
 def buscar_id_turma_por_codigo(codigo_turma: str) -> uuid.UUID | None:
     """
     Busca uma turma no banco de dados usando o código fornecido.
