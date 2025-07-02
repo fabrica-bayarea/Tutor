@@ -8,7 +8,7 @@ from application.models import AlunoTurma, TurmaMateria, ProfessorTurmaMateria, 
 
 # -------------------- ALUNO <-> TURMA --------------------
 
-def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID = None) -> list[AlunoTurma]:
+def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID = None) -> list[dict]:
     """
     Busca vínculos entre alunos e turmas.
 
@@ -27,7 +27,7 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
     if turma_id is not None:
         query = query.filter_by(turma_id=turma_id)
     
-    return query.all()
+    return [vinculo.to_dict() for vinculo in query.all()]
 
 def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
     """
@@ -49,7 +49,7 @@ def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
 
 # -------------------- TURMA <-> MATÉRIA --------------------
 
-def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[TurmaMateria]:
+def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
     """
     Busca vínculos entre turmas e matérias.
 
@@ -68,7 +68,7 @@ def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.U
     if materia_id is not None:
         query = query.filter_by(materia_id=materia_id)
     
-    return query.all()
+    return [vinculo.to_dict() for vinculo in query.all()]
 
 def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
     """
@@ -90,7 +90,7 @@ def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> b
 
 # -------------------- PROFESSOR <-> TURMA <-> MATÉRIA --------------------
 
-def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[ProfessorTurmaMateria]:
+def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
     """
     Busca vínculos entre professores, turmas e matérias.
 
@@ -99,7 +99,7 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna uma lista de vínculos ProfessorTurmaMateria que correspondem aos filtros.
+    Retorna uma lista de vínculos ProfessorTurmaMateria que correspondem aos filtros, serializados como dicionários.
     Se nenhum parâmetro for fornecido, retorna None.
     """
     query = ProfessorTurmaMateria.query
@@ -113,7 +113,7 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     if materia_id is not None:
         query = query.filter_by(materia_id=materia_id)
     
-    return query.all()
+    return [vinculo.to_dict() for vinculo in query.all()]
 
 def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ProfessorTurmaMateria | None:
     """
@@ -137,7 +137,7 @@ def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uui
 
 # -------------------- ARQUIVO <-> TURMA <-> MATÉRIA --------------------
 
-def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[ArquivoTurmaMateria]:
+def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
     """
     Busca vínculos entre arquivos, turmas e matérias.
 
@@ -160,7 +160,7 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
     if materia_id is not None:
         query = query.filter_by(materia_id=materia_id)
     
-    return query.all()
+    return [vinculo.to_dict() for vinculo in query.all()]
 
 def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ArquivoTurmaMateria | None:
     """
