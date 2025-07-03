@@ -1,0 +1,126 @@
+.pageContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    background-color: #D92F35;
+}
+
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+    height: fit-content;
+    padding: 2rem;
+    gap: 1rem;
+    border-radius: 16px;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    background-color: #f7f7f7;
+}
+
+.segmentedButtonContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    padding: 0.25rem;
+    border-radius: 999px;
+    justify-content: center;
+    align-items: center;
+    background-color: #EDEDED;
+}
+
+.segmentedButtonContainer button {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    justify-content: center;
+    align-items: center;
+    border-radius: 999px;
+    padding: 1rem;
+    background-color: transparent;
+    color: #1a1a1a;
+    border: none;
+    cursor: pointer;
+
+    transition: ease-out 0.15s;
+}
+.segmentedButtonContainer button:hover {
+    background-color: rgba(217, 47, 53, 0.05);
+}
+
+.segmentedButtonContainer button.selected {
+    background-color: #D92F35;
+    color: #f7f7f7;
+}
+
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 1rem;
+    color: #1a1a1a;
+}
+
+.inputsContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 1rem;
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    gap: 0.35rem;
+    align-items: flex-start;
+}
+.inputContainer label {
+    font-weight: 600;
+}
+
+.forgotPasswordLink {
+    font-size: 0.875rem;
+    color: #666666;
+    text-decoration: none;
+
+    transition: color ease-out 0.15s;
+}
+.forgotPasswordLink:hover {
+    color:#D92F35;
+    text-decoration: underline;
+}
+
+.loginButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: fit-content;
+    border-radius: 8px;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    background-color: white;
+    color: #1a1a1a;
+    cursor: pointer;
+
+    transition: background-color ease-out 0.15s;
+}
+.loginButton:not(:disabled):hover {
+    background-color: rgba(217, 47, 53, 0.05);
+}
+.loginButton:disabled {
+    color: #666666;
+    opacity: 0.5;
+    background-color: transparent;
+    cursor: not-allowed;
+}
