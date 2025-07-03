@@ -2,12 +2,14 @@
 Rotas para lidar com turmas.
 """
 from flask import Blueprint, jsonify
+from application.auth.auth_decorators import token_obrigatorio
 from application.services.service_turma import buscar_turma_por_id
 import uuid
 
 turmas_bp = Blueprint('turmas', __name__)
 
 @turmas_bp.route('/turma/<string:turma_id>', methods=['GET'])
+@token_obrigatorio
 def obter_turma_por_id(turma_id: uuid.UUID):
     """
     Endpoint para obter uma turma a partir de seu ID.

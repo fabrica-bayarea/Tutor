@@ -2,12 +2,14 @@
 Rotas para lidar com matérias.
 """
 from flask import Blueprint, jsonify
+from application.auth.auth_decorators import token_obrigatorio
 from application.services.service_materia import buscar_materia_por_id
 import uuid
 
 materias_bp = Blueprint('materias', __name__)
 
 @materias_bp.route('/materia/<string:materia_id>', methods=['GET'])
+@token_obrigatorio
 def obter_materia_por_id(materia_id: uuid.UUID):
     """
     Endpoint para obter uma matéria a partir de seu ID.
