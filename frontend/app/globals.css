@@ -16,11 +16,11 @@
   }
 }
 
-body, span, button, textarea {
+body, span, button, input, textarea, select, option {
   font-family: DM Sans, Arial, Helvetica, sans-serif;
 }
 
-a, p, span, svg {
+a, p, span, label, svg {
   color: #1a1a1a;
 }
 
@@ -62,4 +62,29 @@ h4 {
 p {
   font-size: 1rem;
   margin: 0;
+}
+
+input {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  font-size: 1rem;
+  color: #1a1a1a;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  outline: 1px solid transparent;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  transition: outline ease-out 0.15s;
+}
+input::placeholder {
+  color: #999999;
+}
+input:hover {
+  outline: 1px solid rgba(0, 0, 0, 0.15);
+}
+input:focus-within {
+  outline: 1px solid rgba(0, 0, 0, 0.5);
 }
