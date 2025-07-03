@@ -51,7 +51,24 @@ export interface InterfaceMateria {
     nome: string;
 }
 
+export interface InterfaceAlunoTurma {
+    aluno_id: string;
+    turma_id: string;
+}
+
 export interface InterfaceTurmaMateria {
+    turma_id: string;
+    materia_id: string;
+}
+
+export interface InterfaceProfessorTurmaMateria {
+    professor_id: string;
+    turma_id: string;
+    materia_id: string;
+}
+
+export interface InterfaceArquivoTurmaMateria {
+    arquivo_id: string;
     turma_id: string;
     materia_id: string;
 }
