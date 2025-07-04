@@ -2,8 +2,13 @@ import React, { useState, useRef, useEffect, KeyboardEventHandler, CSSProperties
 import styles from "./SourceUpload.module.css";
 import { Trash, Link2, FileText, FileVideo, Download, ImageIcon } from "lucide-react";
 
+interface SourceUploadProps {
+  onFilesChange?: (files: File[]) => void;
+  onLinksChange?: (links: string[]) => void;
+  onTextsChange?: (texts: string[]) => void;
+}
 
-export default function SourceUpload() {
+export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChange }: SourceUploadProps) {
     const [text, setText] = useState(''); // Armazena o texto digitado
     const [arqDragEvent, setArqDragEvent] = useState<File[]>([]); // Lista de arquivos carregados
     const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link
@@ -18,12 +23,14 @@ export default function SourceUpload() {
     };
 
     // Converte o texto em arquivo e adiciona à lista de arquivos
-    const addTextAsFileToDrag: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
+    const addTextAsFileToDrag: KeyboardEventHandler<HTMLTextAreaElement> = async (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             if (text.trim() !== '') {
                 const blob = new Blob([text], { type: 'text/plain' });
                 const fileName = `texto${arqDragEvent.length + 1}.txt`;
                 const newFile = new File([blob as BlobPart], fileName, { type: 'text/plain' });
+                // Store the text content in the File object
+                (newFile as any).text = text;
                 setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, newFile]);
                 setText('');
                 if (!fileType) setFileType('texto'); // Define o tipo de arquivo como 'texto' 
@@ -179,6 +186,28 @@ export default function SourceUpload() {
     useEffect(() => {
         trocaTipo();
     }, [linkopen, textoopen, arquivosopen]);
+
+    useEffect(() => {
+        if (onFilesChange) {
+            onFilesChange(arqDragEvent);
+        }
+    }, [arqDragEvent, onFilesChange]);
+
+    useEffect(() => {
+        if (onLinksChange) {
+            onLinksChange(links);
+        }
+    }, [links, onLinksChange]);
+
+    useEffect(() => {
+        if (onTextsChange && text.trim() !== '') {
+            // Apenas notificamos sobre a mudança do texto atual
+            // O componente pai pode decidir quando processar (ex: no submit)
+            onTextsChange([text]);
+        } else if (onTextsChange) {
+            onTextsChange([]);
+        }
+    }, [text, onTextsChange]);
 
     const getFileIcon = (file: File) => {
         const fileType = file.type.toLowerCase();
