@@ -1,5 +1,5 @@
 from flask_socketio import SocketIO
-from .handlers import *
+from .handlers import handle_connect, handle_mensagem_inicial, handle_nova_mensagem
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 

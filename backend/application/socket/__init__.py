@@ -1,2 +1,1 @@
-from .events import *
-from .handlers import *
+from .events import socketio
