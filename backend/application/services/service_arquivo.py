@@ -65,7 +65,7 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
     
     return caminho_arquivo
 
-def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]], data_upload: datetime, texto: str) -> None:
+def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, formatted_vinculos: str, data_upload: datetime, texto: str) -> None:
     """
     Função atômica, responsável por salvar dados do arquivo no ChromaDB.
 
@@ -73,7 +73,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
     - `titulo`: str - o nome do arquivo
     - `professor_id`: uuid.UUID - o ID do professor
-    - `vinculos`: str - os vínculos entre turmas e matérias, no formato 'turma1-materia1,turma2-materia1,turma3materia2'
+    - `vinculos`: str - os vínculos entre turmas e matérias, no formato 'turma1_materia1,turma2_materia1,turma3_materia2'
     - `data_upload`: datetime - a data de upload
     - `texto`: str - o texto extraído do arquivo
     """
@@ -83,7 +83,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
         metadatas=[{
             "titulo": titulo,
             "professor_id": str(professor_id),
-            "vinculos": vinculos,
+            "vinculos": formatted_vinculos,
             "tipo": "pdf",
             "data_upload": data_upload.isoformat(),
         }],
@@ -169,8 +169,8 @@ def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str,
     # 4. Salva o documento no ChromaDB
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
 
-    # Junta todas as relações em uma string, separando-as por vírgulas. Cada relação possui um UUID de turma e um UUID de matéria, separados por hífen
-    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    # Junta todas as relações em uma string, separando-as por vírgulas. Cada relação possui um UUID de turma e um UUID de matéria, separados por underscore
+    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1_materia1,turma2_materia1,turma3_materia2'
     salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, texto_extraido)
     print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
     
@@ -239,7 +239,7 @@ def processar_link(link: str, driver, professor_id: uuid.UUID, vinculos: list[di
     
     # 4. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
     print(f'\n(4/4). Salvando dados do documento no ChromaDB')
-    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1-materia1,turma2-materia1,turma3materia2'
+    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos]) # Exemplo: 'turma1_materia1,turma2_materia1,turma3_materia2'
     salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, dados_extrair_link['content'])
     
     return {
