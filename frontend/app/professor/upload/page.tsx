@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, KeyboardEventHandler, CSSProperties } from 'react';
 import styles from './page.module.css';
 import Select from 'react-select';
-import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
+import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
 import { postLinks } from '@/app/services/service_link';
 import { uploadArquivos, uploadLinks, uploadTextos } from '@/app/services/service_arquivo';
 import SourceUpload from '../components/SourceUpload/SourceUpload';
@@ -16,9 +16,11 @@ function ExtratorWindow() {
     const [matricula_professor, setMatricula_professor] = useState<string>('1');
     const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
     const [materias, setMaterias] = useState<InterfaceMateria[]>([]);
-    const [vinculos, setVinculos] = useState<InterfaceProfessorTurmaMateria[]>([]);
+    const [vinculos, setVinculos] = useState<InterfaceTurmaMateria[]>([]);
+    const [selectedVinculos, setSelectedVinculos] = useState<InterfaceTurmaMateria[]>([]);
+    const [files, setFiles] = useState<File[]>([]);
     const [links, setLinks] = useState<string[]>([]);
-    const [arqDragEvent, setArqDragEvent] = useState<File[]>([]);
+    const [texts, setTexts] = useState<string[]>([]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -38,8 +40,16 @@ function ExtratorWindow() {
     // Busca os vínculos do professor com turmas e matérias
     const handleGetTurmasMaterias = async (professor_id: string) => {
         try {
+            // Busca os vínculos do professor com turmas e matérias
+            // Recebe uma lista de dicionários, onde cada dicionário contém 'professor_id', 'turma_id' e 'materia_id'
             const responseVinculos: InterfaceProfessorTurmaMateria[] = await obterVinculosProfessorTurmaMateria(professor_id);
-            setVinculos(responseVinculos);
+
+            // Remove 'professor_id' de cada dicionário para termos apenas os vínculos entre turmas e matérias
+            const filteredVinculos = responseVinculos.map(vinculo => {
+                const { professor_id, ...rest } = vinculo;
+                return rest;
+            });
+            setVinculos(filteredVinculos);
 
             const responseTurmas: InterfaceTurma[] = await Promise.all(
                 responseVinculos.map(async (vinculo: InterfaceProfessorTurmaMateria) => {
@@ -66,43 +76,78 @@ function ExtratorWindow() {
     /*Matérias*/
 
     // Opções para o componente Select com base nos vínculos do professor
-    const options = vinculos.map((vinculo: InterfaceProfessorTurmaMateria, index: number) => {
+    const options = vinculos.map((vinculo: InterfaceTurmaMateria) => {
         const turma = turmas.find(t => t.id === vinculo.turma_id);
         const materia = materias.find(m => m.id === vinculo.materia_id);
         if (turma && materia) {
             return {
-                value: index,
+                value: vinculo,
                 label: `${turma.codigo} - ${materia.codigo} (${materia.nome})`
             };
         }
-        return { value: index, label: 'Vínculo não encontrado' };
+        return { 
+            value: vinculo,
+            label: 'Vínculo não encontrado' 
+        };
     });
+
+    const handleVinculosChange = (selectedOptions: any) => {
+        setSelectedVinculos(selectedOptions.map((option: any) => option.value));
+        console.log('Vínculos selecionados:', selectedOptions)
+    };
 
     // Adiciona arquivos selecionados via input à lista
     const addArqEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
             const novosArquivos = Array.from(event.target.files) as File[]; // Explicitly type as File[]
-            setArqDragEvent(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
+            setFiles(arquivosAnteriores => [...arquivosAnteriores, ...novosArquivos]);
         }
     };
     
 
     // Função chamada ao clicar em "Enviar"
     const handleEnviar = async () => {
+        //let response = null;
         try {
-            console.log('Enviando links:', links);
+            console.log('Enviando requisição...');
+            
             if (links.length > 0) {
-                const response = await postLinks(links, matricula_professor, vinculos); // Envia os links para o backend
+                console.log('Enviando links:', links);
+                const response = await uploadLinks(links, selectedVinculos); // Envia os links para o backend
                 console.log('Resposta do backend:', response);
+                if (response) {
+                    alert('Links enviados com sucesso!');
+                }
+            }
+            
+            if (files.length > 0) {
+                console.log('Enviando arquivos:', files);
+                const response = await uploadArquivos(files, selectedVinculos); // Envia os arquivos para o backend(); // Envia os arquivos para o backend
+                console.log('Resposta do backend:', response);
+                if (response) {
+                    alert('Arquivos enviados com sucesso!');
+                }
             }
 
-            if (arqDragEvent.length > 0) {
-                await handleUpload(); // Envia os arquivos para o backend
+            if (texts.length > 0) {
+                console.log('Enviando textos:', texts);
+                const response = await uploadTextos(texts, selectedVinculos); // Envia os textos para o backend
+                console.log('Resposta do backend:', response);
+                if (response) {
+                    alert('Textos enviados com sucesso!');
+                }
             }
 
+            console.log('Vinculos selecionados:', selectedVinculos);
+
+            //setArqDragEvent([]);
+            setFiles([]);
+            setTexts([]);
             setLinks([]); // Limpa os links após envio
 
-            alert('Arquivos enviados com sucesso!');
+            // if (response) {
+            //     alert('Arquivos enviados com sucesso!');
+            // }
         } catch (error) {
             console.error('Erro ao enviar os dados:', error);
             console.error('Detalhes completo do erro:', error);
@@ -114,22 +159,23 @@ function ExtratorWindow() {
     // Realiza o upload dos arquivos
     const handleUpload = async () => {
         try {
-            if (arqDragEvent.length === 0) {
+            if (files.length === 0) {
                 alert('Por favor, selecione arquivos para upload');
                 return;
             }
-            if (vinculos.length === 0) {
+            if (selectedVinculos.length === 0) {
                 alert('Por favor, selecione os vínculos de turma e matéria');
                 return;
             }
 
+            console.log('Enviando requisição...');
             const response = await uploadArquivos(
-                arqDragEvent,
-                vinculos
+                files,
+                selectedVinculos
             );
 
             console.log('Upload successful:', response);
-            setArqDragEvent([]); // Limpa os arquivos
+            setFiles([]); // Limpa os arquivos
         } catch (error) {
             console.error('Erro no upload:', error);
             alert('Erro no upload. Por favor, tente novamente.');
@@ -191,10 +237,16 @@ function ExtratorWindow() {
                     isMulti
                     placeholder="Selecione a Matéria"
                     options={options}
+                    onChange={handleVinculosChange}
+                    getOptionValue={(option) => `${option.value.turma_id}_${option.value.materia_id}`}
                 />
             </div>
             <div className={styles.extratorContainer}>
-                <SourceUpload/>
+                <SourceUpload 
+                    onFilesChange={setFiles}
+                    onLinksChange={setLinks}
+                    onTextsChange={setTexts}
+                />
                 <button className={styles.enviar} onClick={handleEnviar}>Enviar</button>
             </div>
         </div>
