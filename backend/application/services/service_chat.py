@@ -26,8 +26,8 @@ def buscar_chats(aluno_id: uuid.UUID) -> list[dict] | None:
 
     Retorna uma lista de chats.
     """
-    chats = Chat.query.filter_by(aluno_id=aluno_id).all()
-    return [chat.to_dict() for chat in chats] if chats else None
+    chats = Chat.query.filter_by(aluno_id=aluno_id)
+    return [chat.to_dict() for chat in chats.all()] if chats else None
 
 def deletar_chat(chat_id: uuid.UUID) -> bool:
     """

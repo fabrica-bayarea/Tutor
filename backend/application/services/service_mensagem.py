@@ -34,9 +34,9 @@ def buscar_mensagens(chat_id: uuid.UUID) -> list[Mensagem]:
 
     Retorna uma lista de mensagens.
     """
-    mensagens = Mensagem.query.filter_by(chat_id=chat_id).all()
+    mensagens = Mensagem.query.filter_by(chat_id=chat_id)
 
-    return [mensagem.to_dict() for mensagem in mensagens] if mensagens else None
+    return [mensagem.to_dict() for mensagem in mensagens.all()] if mensagens else None
 
 def deletar_mensagens(chat_id: uuid.UUID) -> bool:
     """

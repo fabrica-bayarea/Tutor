@@ -23,12 +23,12 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
     vinculos = AlunoTurma.query
     
     if aluno_id is not None:
-        vinculos = vinculos.filter_by(aluno_id=aluno_id).all()
+        vinculos = vinculos.filter_by(aluno_id=aluno_id)
     
     if turma_id is not None:
-        vinculos = vinculos.filter_by(turma_id=turma_id).all()
+        vinculos = vinculos.filter_by(turma_id=turma_id)
     
-    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
+    return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
 def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
     """
@@ -66,12 +66,12 @@ def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.U
     vinculos = TurmaMateria.query
     
     if turma_id is not None:
-        vinculos = vinculos.filter_by(turma_id=turma_id).all()
+        vinculos = vinculos.filter_by(turma_id=turma_id)
     
     if materia_id is not None:
-        vinculos = vinculos.filter_by(materia_id=materia_id).all()
+        vinculos = vinculos.filter_by(materia_id=materia_id)
     
-    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
+    return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
 def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
     """
@@ -110,15 +110,15 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     vinculos = ProfessorTurmaMateria.query
     
     if professor_id is not None:
-        vinculos = vinculos.filter_by(professor_id=professor_id).all()
+        vinculos = vinculos.filter_by(professor_id=professor_id)
     
     if turma_id is not None:
-        vinculos = vinculos.filter_by(turma_id=turma_id).all()
+        vinculos = vinculos.filter_by(turma_id=turma_id)
     
     if materia_id is not None:
-        vinculos = vinculos.filter_by(materia_id=materia_id).all()
+        vinculos = vinculos.filter_by(materia_id=materia_id)
     
-    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
+    return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
 def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ProfessorTurmaMateria | None:
     """
@@ -159,15 +159,15 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
     vinculos = ArquivoTurmaMateria.query
     
     if arquivo_id is not None:
-        vinculos = vinculos.filter_by(arquivo_id=arquivo_id).all()
+        vinculos = vinculos.filter_by(arquivo_id=arquivo_id)
     
     if turma_id is not None:
-        vinculos = vinculos.filter_by(turma_id=turma_id).all()
+        vinculos = vinculos.filter_by(turma_id=turma_id)
     
     if materia_id is not None:
-        vinculos = vinculos.filter_by(materia_id=materia_id).all()
+        vinculos = vinculos.filter_by(materia_id=materia_id)
     
-    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
+    return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
 def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ArquivoTurmaMateria | None:
     """
