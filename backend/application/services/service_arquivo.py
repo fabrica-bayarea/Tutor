@@ -3,7 +3,7 @@ import uuid
 import glob
 from datetime import datetime
 from application.config.database import db
-from application.config.vector_database import chroma_client
+from application.config.vector_database import collection
 from application.models import Arquivo
 from application.libs.docling_handler import extrair_texto_markdown
 from application.libs.scraping_handler import data_extraction
@@ -77,7 +77,6 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
     - `data_upload`: datetime - a data de upload
     - `texto`: str - o texto extraído do arquivo
     """
-    collection = chroma_client.get_or_create_collection("documentos")
     collection.add(
         ids=[str(documento_id)],
         metadatas=[{
