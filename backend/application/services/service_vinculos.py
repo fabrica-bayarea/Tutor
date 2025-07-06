@@ -1,7 +1,6 @@
 """
-Serviço dedicado a lidar com operações CRUD relevantes para vínculos em tabelas intermediárias, como 'AlunoTurma', 'ArquivoTurmaMateria', etc.
+Serviço dedicado a lidar com operações CRUD relevantes para vínculos em tabelas intermediárias.
 """
-
 import uuid
 from application.config.database import db
 from application.models import AlunoTurma, TurmaMateria, ProfessorTurmaMateria, ArquivoTurmaMateria
@@ -16,18 +15,20 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
     - `aluno_id`: uuid.UUID - o ID do aluno
     - `turma_id`: uuid.UUID - o ID da turma
 
-    Retorna uma lista de vínculos AlunoTurma que correspondem aos filtros.
-    Se nenhum parâmetro for fornecido, retorna None.
+    Retorna uma lista de dicionários com vínculos AlunoTurma que correspondem aos filtros, e None se nada for encontrado.
     """
-    query = AlunoTurma.query
+    if not aluno_id or not turma_id:
+        raise ValueError("É obrigatório fornecer um ID de aluno e/ou um ID de turma.")
+    
+    vinculos = AlunoTurma.query
     
     if aluno_id is not None:
-        query = query.filter_by(aluno_id=aluno_id)
+        vinculos = vinculos.filter_by(aluno_id=aluno_id).all()
     
     if turma_id is not None:
-        query = query.filter_by(turma_id=turma_id)
+        vinculos = vinculos.filter_by(turma_id=turma_id).all()
     
-    return [vinculo.to_dict() for vinculo in query.all()]
+    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
 
 def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
     """
@@ -57,18 +58,20 @@ def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.U
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna uma lista de vínculos TurmaMateria que correspondem aos filtros.
-    Se nenhum parâmetro for fornecido, retorna None.
+    Retorna uma lista de dicionários com vínculos TurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    query = TurmaMateria.query
+    if not turma_id or not materia_id:
+        raise ValueError("É obrigatório fornecer um ID de turma e/ou um ID de matéria.")
+    
+    vinculos = TurmaMateria.query
     
     if turma_id is not None:
-        query = query.filter_by(turma_id=turma_id)
+        vinculos = vinculos.filter_by(turma_id=turma_id).all()
     
     if materia_id is not None:
-        query = query.filter_by(materia_id=materia_id)
+        vinculos = vinculos.filter_by(materia_id=materia_id).all()
     
-    return [vinculo.to_dict() for vinculo in query.all()]
+    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
 
 def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
     """
@@ -90,7 +93,7 @@ def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> b
 
 # -------------------- PROFESSOR <-> TURMA <-> MATÉRIA --------------------
 
-def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
+def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict] | None:
     """
     Busca vínculos entre professores, turmas e matérias.
 
@@ -99,21 +102,23 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna uma lista de vínculos ProfessorTurmaMateria que correspondem aos filtros, serializados como dicionários.
-    Se nenhum parâmetro for fornecido, retorna None.
+    Retorna uma lista de dicionários com vínculos ProfessorTurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    query = ProfessorTurmaMateria.query
+    if not professor_id or not turma_id or not materia_id:
+        raise ValueError("É obrigatório fornecer um ID de professor e/ou um ID de turma e/ou um ID de matéria.")
+    
+    vinculos = ProfessorTurmaMateria.query
     
     if professor_id is not None:
-        query = query.filter_by(professor_id=professor_id)
+        vinculos = vinculos.filter_by(professor_id=professor_id).all()
     
     if turma_id is not None:
-        query = query.filter_by(turma_id=turma_id)
+        vinculos = vinculos.filter_by(turma_id=turma_id).all()
     
     if materia_id is not None:
-        query = query.filter_by(materia_id=materia_id)
+        vinculos = vinculos.filter_by(materia_id=materia_id).all()
     
-    return [vinculo.to_dict() for vinculo in query.all()]
+    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
 
 def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ProfessorTurmaMateria | None:
     """
@@ -137,7 +142,7 @@ def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uui
 
 # -------------------- ARQUIVO <-> TURMA <-> MATÉRIA --------------------
 
-def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
+def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict] | None:
     """
     Busca vínculos entre arquivos, turmas e matérias.
 
@@ -146,21 +151,23 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna uma lista de vínculos ArquivoTurmaMateria que correspondem aos filtros.
-    Se nenhum parâmetro for fornecido, retorna None.
+    Retorna uma lista de dicionários com vínculos ArquivoTurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    query = ArquivoTurmaMateria.query
+    if not arquivo_id or not turma_id or not materia_id:
+        raise ValueError("É obrigatório fornecer um ID de arquivo e/ou um ID de turma e/ou um ID de matéria.")
+    
+    vinculos = ArquivoTurmaMateria.query
     
     if arquivo_id is not None:
-        query = query.filter_by(arquivo_id=arquivo_id)
+        vinculos = vinculos.filter_by(arquivo_id=arquivo_id).all()
     
     if turma_id is not None:
-        query = query.filter_by(turma_id=turma_id)
+        vinculos = vinculos.filter_by(turma_id=turma_id).all()
     
     if materia_id is not None:
-        query = query.filter_by(materia_id=materia_id)
+        vinculos = vinculos.filter_by(materia_id=materia_id).all()
     
-    return [vinculo.to_dict() for vinculo in query.all()]
+    return [vinculo.to_dict() for vinculo in vinculos] if vinculos else None
 
 def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ArquivoTurmaMateria | None:
     """

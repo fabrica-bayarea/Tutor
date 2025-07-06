@@ -2,7 +2,7 @@ from application.config.database import db
 from application.models import Chat
 import uuid
 
-def criar_chat(aluno_id: uuid.UUID) -> Chat:
+def criar_chat(aluno_id: uuid.UUID) -> dict:
     """
     Cria um novo chat para um aluno.
 
@@ -15,9 +15,9 @@ def criar_chat(aluno_id: uuid.UUID) -> Chat:
     db.session.add(chat)
     db.session.commit()
 
-    return chat
+    return chat.to_dict()
 
-def buscar_chats(aluno_id: uuid.UUID) -> list[Chat]:
+def buscar_chats(aluno_id: uuid.UUID) -> list[dict] | None:
     """
     Busca TODOS os chats de um aluno.
 
@@ -26,9 +26,8 @@ def buscar_chats(aluno_id: uuid.UUID) -> list[Chat]:
 
     Retorna uma lista de chats.
     """
-    query = Chat.query.filter_by(aluno_id=aluno_id)
-
-    return query.all()
+    chats = Chat.query.filter_by(aluno_id=aluno_id).all()
+    return [chat.to_dict() for chat in chats] if chats else None
 
 def deletar_chat(chat_id: uuid.UUID) -> bool:
     """
