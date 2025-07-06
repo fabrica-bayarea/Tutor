@@ -3,7 +3,6 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from application.config.config import Config
 from application.config.database import init_db, db
-from application.config.vector_database import chroma_client
 from application.routes import arquivos_bp, links_bp, professores_bp, alunos_bp, turmas_bp, materias_bp, vinculos_bp, rag_bp
 from application.socket import socketio
 
@@ -16,8 +15,6 @@ CORS(app, resources={r"/*": {
 }})
 init_db(app)
 migrate = Migrate(app, db)
-
-collection = chroma_client.get_or_create_collection(name="documentos")
 
 app.register_blueprint(arquivos_bp, url_prefix="/arquivos")
 app.register_blueprint(links_bp, url_prefix="/links")
