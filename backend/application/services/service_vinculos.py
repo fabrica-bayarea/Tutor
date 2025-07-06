@@ -17,8 +17,8 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
 
     Retorna uma lista de dicionários com vínculos AlunoTurma que correspondem aos filtros, e None se nada for encontrado.
     """
-    if not aluno_id or not turma_id:
-        raise ValueError("É obrigatório fornecer um ID de aluno e/ou um ID de turma.")
+    if not any([aluno_id, turma_id]):
+        raise ValueError("É obrigatório fornecer ao menos um ID de aluno ou um ID de turma.")
     
     vinculos = AlunoTurma.query
     
@@ -60,8 +60,8 @@ def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.U
 
     Retorna uma lista de dicionários com vínculos TurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    if not turma_id or not materia_id:
-        raise ValueError("É obrigatório fornecer um ID de turma e/ou um ID de matéria.")
+    if not any([turma_id, materia_id]):
+        raise ValueError("É obrigatório fornecer ao menos um ID de turma ou um ID de matéria.")
     
     vinculos = TurmaMateria.query
     
@@ -104,8 +104,8 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
 
     Retorna uma lista de dicionários com vínculos ProfessorTurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    if not professor_id or not turma_id or not materia_id:
-        raise ValueError("É obrigatório fornecer um ID de professor e/ou um ID de turma e/ou um ID de matéria.")
+    if not any([professor_id, turma_id, materia_id]):
+        raise ValueError("É obrigatório fornecer ao menos um ID de professor ou um ID de turma ou um ID de matéria.")
     
     vinculos = ProfessorTurmaMateria.query
     
@@ -153,8 +153,8 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
 
     Retorna uma lista de dicionários com vínculos ArquivoTurmaMateria que correspondem aos filtros, e None se nada for encontrado.
     """
-    if not arquivo_id or not turma_id or not materia_id:
-        raise ValueError("É obrigatório fornecer um ID de arquivo e/ou um ID de turma e/ou um ID de matéria.")
+    if not any([arquivo_id, turma_id, materia_id]):
+        raise ValueError("É obrigatório fornecer ao menos um ID de arquivo ou um ID de turma ou um ID de matéria.")
     
     vinculos = ArquivoTurmaMateria.query
     
