@@ -13,13 +13,30 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
     const [arqDragEvent, setArqDragEvent] = useState<File[]>([]); // Lista de arquivos carregados
     const [linkInput, setLinkInput] = useState(''); // Valor atual do input de link
     const [links, setLinks] = useState<string[]>([]); // Lista de links adicionados
+    const [texts, setTexts] = useState<string[]>([]); // Lista de textos adicionados
     const linkInputRef = useRef<HTMLInputElement>(null); // Referência ao input de link
+    const textareaRef = useRef<HTMLTextAreaElement>(null); // Referência ao textarea de texto
     const [fileType, setFileType] = useState<null | 'arquivo' | 'link' | 'texto'>(null); // Tipo de arquivo selecionado
 
 
     // Atualiza o estado do texto digitado
     const addText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(event.target.value);
+    };
+
+    // Adiciona o texto à lista de textos
+    const addTextToArray: KeyboardEventHandler<HTMLTextAreaElement> = async (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            if (text.trim() !== '') {
+                setTexts(prevTexts => [...prevTexts, text]);
+                setText('');
+                if (!fileType) setFileType('texto');
+                if (onTextsChange) {
+                    onTextsChange([...texts, text]);
+                }
+            }
+        }
     };
 
     // Converte o texto em arquivo e adiciona à lista de arquivos
@@ -65,6 +82,18 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
             return novos;
         });
 
+    };
+
+    // Remove texto pelo índice
+    const deleteText = (index: number) => {
+        setTexts(prev => {
+            const novos = prev.filter((_, i) => i !== index);
+            if (onTextsChange) {
+                onTextsChange(novos);
+            }
+            if (novos.length === 0) setFileType(null);
+            return novos;
+        });
     };
 
     /* Estados e funções para drag and drop */
@@ -200,14 +229,10 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
     }, [links, onLinksChange]);
 
     useEffect(() => {
-        if (onTextsChange && text.trim() !== '') {
-            // Apenas notificamos sobre a mudança do texto atual
-            // O componente pai pode decidir quando processar (ex: no submit)
-            onTextsChange([text]);
-        } else if (onTextsChange) {
-            onTextsChange([]);
+        if (onTextsChange) {
+            onTextsChange(texts);
         }
-    }, [text, onTextsChange]);
+    }, [texts, onTextsChange]);
 
     const getFileIcon = (file: File) => {
         const fileType = file.type.toLowerCase();
@@ -273,10 +298,12 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
                 <div className={styles.textoContainer}>
                     <h1>Inserir texto</h1>
                     <textarea
-                        onKeyDown={addTextAsFileToDrag}
+                        ref={textareaRef}
+                        onKeyDown={addTextToArray}
                         onChange={addText}
                         id="textareInput"
                         value={text}
+                        placeholder="Digite seu texto e pressione Enter para adicionar"
                     />
                     {/*<button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>*/}
                 </div>
@@ -296,7 +323,7 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
             }
             <h1 className={styles.addArqh1}>Arquivos Adicionados</h1>
             <div className={styles.arqList}>
-                {/* Lista de arquivos e links */}
+                {/* Lista de arquivos, textos e links */}
                 {arqDragEvent.map((file: File) => (
                     <li key={file.name}>
                         {getFileIcon(file)}
@@ -307,10 +334,19 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
                     </li>
                 ))}
                 {links.map((link, index) => (
-                    <li key={index}>
+                    <li key={`link-${index}`}>
                         <Link2 />
                         {link}
                         <button className={styles.delArqButton} onClick={() => deleteLink(index)}><Trash /></button>
+                    </li>
+                ))}
+                {texts.map((text, index) => (
+                    <li key={`text-${index}`} className={styles.textItem}>
+                        <FileText />
+                        <span className={styles.textPreview}>
+                            {text.length > 50 ? `${text.substring(0, 50)}...` : text}
+                        </span>
+                        <button className={styles.delArqButton} onClick={() => deleteText(index)}><Trash /></button>
                     </li>
                 ))}
             </div>
