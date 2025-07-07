@@ -11,6 +11,17 @@ Para conseguir executar corretamente o backend da aplicação, **você precisa, 
     * Consulte a seção **[Configuração inicial do PostgreSQL](#configuração-inicial-do-postgresql)** para mais informações
 * Ter um **gerenciador de pacotes de sistema operacional** instalado
     * Algumas dependências do backend **EXIGEM** que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações
+* Ter o cliente do [**Ollama**](https://ollama.com/download) instalado no seu computador
+    * O Ollama possui seu cliente e sua biblioteca Python. A biblioteca já será baixada pelo `pip` ao seguir o passo-a-passo de instalação do projeto corretamente, mas o cliente deve ser instalado manualmente por você.
+* Ter o LLM **Mistral** instalado no seu computador a partir do cliente do Ollama previamente instalado
+    * Abra o prompt de comando do seu computador e execute:
+        ```bash
+        ollama pull mistral
+        ```
+    * Liste os modelos instalados para verificar se o Mistral foi instalado corretamente:
+        ```bash
+        ollama list
+        ```
 
 ## Configuração inicial do PostgreSQL
 Supondo que você já tenha instalado o PostgreSQL corretamente, tendo seguido os passos do vídeo recomendado acima:
@@ -23,7 +34,7 @@ Supondo que você já tenha instalado o PostgreSQL corretamente, tendo seguido o
     * Basta nomeá-lo e salvar. Não se preocupe com outras configurações ou com criar tabelas por agora.
 
 ## Instalação do projeto
-Supondo que você já tenha clonado o repositório:
+Supondo que você já tenha clonado o repositório e **esteja na branch `develop`**:
 
 1. Abra um terminal e navegue até a pasta `backend/`
 
@@ -63,14 +74,20 @@ Certifique-se de estar com o interpretador **do ambiente virtual** ativado antes
     ```bash
     pip install -r requirements.txt
     ```
+    Se houver problemas com o comando acima, tente:
+    ```bash
+    python -m pip install -r requirements.txt
+    ```
 
     _É esperado que a instalação do **ChromaDB** apresente problemas. Para solucioná-los, consulte a seção **[Dependências do backend](#dependências-do-backend)**._
 
 5. Crie um arquivo `.env` também na pasta `backend/` e configure as variáveis de ambiente necessárias:
     ```bash
+    SECRET_KEY=<sua_chave_secreta>
     DATABASE_URL=postgresql://<usuario>:<senha>@localhost:<porta>/tutor
     ```
-    * Substitua os placeholders pelos valores corretos
+    * **`SECRET_KEY`**: uma chave secreta para autenticação. Você pode gerar uma aleatória em sites como [RandomKeyGenerator](https://www.randomkeygen.com/), ou consultar seu líder para obter uma.
+    * **`DATABASE_URL`**: a URL de conexão com o seu banco de dados PostgreSQL. Substitua os placeholders pelos valores corretos:
         * `<usuario>` é o superusuário definido no momento da instalação do PostgreSQL. Provavelmente `postgres`
         * `<senha>` é a senha que **VOCÊ** definiu no momento da instalação do PostgreSQL
         * `<porta>` é a porta definida no momento da instalação do PostgreSQL. Se você não definiu uma personalizada, provavelmente será `5432`, que é a porta padrão do PostgreSQL
@@ -86,15 +103,19 @@ Certifique-se de estar com o interpretador **do ambiente virtual** ativado antes
 
     _As migrações fornecem um "controle de versionamento" para bancos de dados, como se fosse um Git dedicado a isso. É por meio delas que criamos, alteramos e excluímos tabelas do banco de dados, e deixamos tudo registrado num histórico._
 
-## Estrutura do backend do projeto
+**Opcionalmente, você pode executar um script SQL no seu pgAdmin para preencher seu banco de dados com alguns dados mockados. Consulte o líder da equipe para ter acesso ao script e receber orientações.**
+
+## Estrutura do back-end do projeto
 Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada tem um propósito específico.
 
 ```
 Tutor/
 └── backend/
     ├── application/
+    │   ├── auth/           # Contém códigos de autenticação
     │   ├── config/         # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
     │   ├── libs/           # Contém códigos de bibliotecas auxiliares
+    │   ├── mistral/        # Contém códigos específicos do Mistral
     │   ├── models/         # Define as entidades do banco de dados PostgreSQL
     │   ├── routes/         # Define os endpoints da API Flask
     │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
@@ -112,7 +133,7 @@ Tutor/
 
 **Por questões de segurança, o arquivo `.env` e a pasta `data` não são (e nem devem) ser enviados para o repositório.**
 
-## Dependências do backend
+## Dependências do back-end
 ### python-dotenv
 python-dotenv é uma biblioteca que permite carregar variáveis de ambiente de um arquivo `.env`.
 
@@ -130,6 +151,12 @@ Flask-Migrate é uma extensão para Flask que fornece migrações de banco de da
 
 ### Flask-SocketIO
 Flask-SocketIO é uma extensão para Flask que fornece suporte para Socket.IO, uma biblioteca que permite comunicação em tempo real entre o cliente e o servidor.
+
+### eventlet
+Eventlet é uma biblioteca que permite que o Flask-SocketIO funcione de forma assíncrona, ideal para WebSockets.
+
+### PyJWT
+PyJWT é uma biblioteca que permite gerar e validar tokens JWT (JSON Web Tokens).
 
 ### psycopg2
 psycopg2 é um driver de banco de dados para PostgreSQL.
@@ -189,3 +216,18 @@ Ferramenta para automação de navegadores, usada para testes e interação com 
 
 ### webdriver-manager
 Facilita o uso do Selenium, baixando e configurando automaticamente os drivers dos navegadores.
+
+### ollama
+Ollama é uma ferramenta para hospedar e interagir com modelos de IA, como o Mistral no nosso caso.
+
+### langchain
+Langchain é uma biblioteca que facilita a interação com modelos de IA.
+
+### langchain_community
+Langchain_community é uma biblioteca que facilita a interação com modelos de IA.
+
+### sentence-transformers
+Sentence-transformers é uma biblioteca que facilita a transformação de textos em vetores, que podem ser usados para comparação e busca semântica.
+
+### transformers
+Transformers é uma biblioteca que facilita a transformação de textos em vetores, que podem ser usados para comparação e busca semântica.
