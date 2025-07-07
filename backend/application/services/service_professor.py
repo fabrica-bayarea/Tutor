@@ -43,7 +43,7 @@ def buscar_professor(professor_id: uuid.UUID = None, matricula: str = None, nome
     Retorna o professor se ele existir, e None caso contrário.
     """
     if professor_id is not None:
-        professor = Professor.query.filter_by(professor_id=professor_id).first()
+        professor = Professor.query.filter_by(id=professor_id).first()
     
     if matricula is not None:
         professor = Professor.query.filter_by(matricula=matricula).first()

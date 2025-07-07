@@ -43,7 +43,7 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     Retorna um dicionário com os dados do aluno se ele existir, e None caso contrário.
     """
     if aluno_id is not None:
-        aluno = Aluno.query.filter_by(aluno_id=aluno_id).first()
+        aluno = Aluno.query.filter_by(id=aluno_id).first()
     
     if matricula is not None:
         aluno = Aluno.query.filter_by(matricula=matricula).first()
