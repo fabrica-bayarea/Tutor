@@ -7,7 +7,7 @@ import json
 import time
 import os
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores
-from application.services.service_arquivo import processar_arquivo, processar_link, obter_arquivo_real_por_id, obter_arquivos_turma_materia
+from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, obter_arquivo_real_por_id, obter_arquivos_turma_materia
 from application.libs.scraping_handler import configure_browser
 from urllib.parse import urlparse
 from application.utils.validacoes import validar_professor_turma_materia
@@ -168,6 +168,62 @@ def upload_links():
         return jsonify({"message": "Erro ao processar todos os links", "results": resultados}), resultados[0].get('status')
     else:
         return jsonify({"message": "Alguns links foram processados com sucesso, mas outros falharam", "results": resultados}), 207
+
+@arquivos_bp.route('/upload/textos', methods=['POST'])
+@token_obrigatorio
+@apenas_professores
+def upload_textos():
+    """Endpoint para upload de textos que serão processados.
+    
+    Espera receber:
+    textos: list[str] - uma lista com um ou mais textos
+    vinculos: list[dict[str, uuid.UUID]] - uma lista com um ou mais vínculos entre turmas e matérias
+    
+    1. Verifica se os dados necessários estão presentes
+    2. Verifica se os vínculos enviados são válidos
+    3. Processa cada texto
+    
+    Retorna os resultados do processamento de textos.
+    """
+    textos = request.json.get('textos')
+    vinculos = request.json.get('vinculos')
+    
+    # Verifica se os dados necessários estão presentes
+    if not textos or not vinculos:
+        return jsonify({"error": "Parâmetros 'textos' e 'vinculos' são obrigatórios"}), 400
+    
+    # Deserializa os vínculos
+    vinculos_processados: list[dict[str, uuid.UUID]] = []
+    for vinculo in vinculos:
+        try:
+            turma_id = uuid.UUID(vinculo.get('turma_id'))
+            materia_id = uuid.UUID(vinculo.get('materia_id'))
+        except (ValueError, TypeError):
+            return jsonify({"error": "IDs de turma e matéria devem ser UUIDs válidos"}), 400
+
+        if not turma_id or not materia_id:
+            return jsonify({"error": "Cada vínculo deve conter 'turma_id' e 'materia_id'"}), 400
+        
+        # Valida a existência do vínculo entre o professor, a turma e a matéria
+        vinculo_existe = validar_professor_turma_materia(g.usuario_id, turma_id, materia_id)
+        if not vinculo_existe:
+            print(f"Vínculo entre professor '{g.usuario_id}', turma '{turma_id}' e matéria '{materia_id}' não encontrado")
+            return jsonify({"error": f"Vínculo não encontrado para turma '{turma_id}' e matéria '{materia_id}'"}), 404
+
+        # Adiciona o vínculo à lista de vínculos processados
+        vinculos_processados.append({"turma_id": turma_id, "materia_id": materia_id})
+        
+        resultados = []
+        for texto in textos:
+            resultado = processar_texto(texto, g.usuario_id, vinculos_processados)
+            resultados.append(resultado)
+        
+        if all(r.get('status') == 201 for r in resultados):
+            return jsonify({"message": "Todos os textos foram processados com sucesso", "results": resultados}), 201
+        elif all(r.get('status') in [400, 500] for r in resultados):
+            return jsonify({"message": "Erro ao processar todos os textos", "results": resultados}), resultados[0].get('status')
+        else:
+            return jsonify({"message": "Alguns textos foram processados com sucesso, mas outros falharam", "results": resultados}), 207
 
 @arquivos_bp.route('/<string:turma_id>_<string:materia_id>', methods=['GET'])
 @token_obrigatorio
