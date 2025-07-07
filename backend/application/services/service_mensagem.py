@@ -4,7 +4,7 @@ from application.services.service_aluno import buscar_aluno
 from application.constants import LLM_UUID
 import uuid
 
-def criar_mensagem(chat_id: uuid.UUID, sender_id: uuid.UUID, conteudo: str) -> Mensagem:
+def criar_mensagem(chat_id: uuid.UUID, sender_id: uuid.UUID, conteudo: str) -> dict:
     """
     Cria uma nova mensagem.
 
