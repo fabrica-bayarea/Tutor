@@ -80,6 +80,7 @@ def handle_mensagem_inicial(aluno_id, mensagem):
         ]
     })
 
+
 @socketio.on('nova_mensagem')
 def handle_nova_mensagem(chat_id, aluno_id, mensagem):
     """
@@ -95,4 +96,52 @@ def handle_nova_mensagem(chat_id, aluno_id, mensagem):
         3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat
         4. Envia a resposta para o front-end
     """
-    pass
+    
+    #1. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
+    mensagem_aluno = criar_mensagem(chat_id, aluno_id, mensagem)
+    
+    #2. Chama a LLM para gerar uma resposta
+    #2.1. Faz uma busca semântica no banco vetorial usando o conteúdo da mensagem do aluno
+    contexts = collection.query(
+        query_images=[mensagem_aluno.conteudo],
+        n_results= 5
+    )
+    
+    #2.2. Gera a resposta
+    emit("resposta_inicio", {"mensagem": ""})
+
+    try:
+        resposta_completa = ""
+        for chunk in ollama.generate(
+            model=LLM_UUID,
+            prompt=f"""{mensagem_aluno.conteudo}
+            
+            Documentos:
+            {contexts}""",
+            stream=True,
+            options={
+                'num_predict': 512,
+                'temperature': 0.7,
+            }
+        ):
+            texto = chunk.get("response", "")
+            print(f"Chunk: {texto}")
+            resposta_completa += texto
+            print(f"Estado atual da resposta: {resposta_completa}")
+
+            emit("resposta_chunk", {"texto": texto})
+        
+        emit("resposta_fim", {"texto": resposta_completa})
+    except Exception as e:
+        emit("erro", {"mensagem": f"Erro ao gerar resposta: {str(e)}"})
+        
+    #3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
+    mensagem_llm = criar_mensagem(chat_id, LLM_UUID, resposta_completa)
+    
+    #4. Envia a resposta para o front-end
+    emit("nova_mensagem_resposta", {
+        "mensagens": [
+            mensagem_llm
+        ]
+    })
+    
