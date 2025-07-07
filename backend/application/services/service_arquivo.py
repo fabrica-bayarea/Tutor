@@ -252,6 +252,69 @@ def processar_link(link: str, driver, professor_id: uuid.UUID, vinculos: list[di
         }
     }
 
+def processar_texto(texto: str, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> list[dict]:
+    """Função responsavel por receber os textos e armazená-los no banco de dados e no sistema de arquivos.
+    Espera receber:
+    - `texto`: str - um texto
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `vinculos`: list[dict[str, uuid.UUID]] - os vínculos entre turmas e matérias
+    
+    1. Salva metadados no PostgreSQL
+        1.1. Cria um novo registro de Arquivo
+        1.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
+    2. Salva os textos em arquivos no formato `.txt` no diretório do professor
+    3. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+    
+    Retorna uma lista de dicionários com informações do documento.
+    """
+    
+    print(f'\nIniciando processamento do texto:')
+    titulo = f"Texto_{uuid.uuid4()}" # Gera um título único para o texto
+    print(f'\n(1/4). Salvando metadados no PostgreSQL para o texto: {titulo}')
+
+    # 1. Salva metadados no PostgreSQL
+    print(f'\n(1.1/4). Criando um novo registro de Arquivo')
+    documento = salvar_metadados_arquivo(titulo, professor_id)
+
+    # 1.2. Cria um novo registro de ArquivoTurmaMateria para cada vínculo recebido
+    print(f'\n(1.2/4). Criando um novo registro de ArquivoTurmaMateria para cada vínculo recebido')
+    vinculos_arquivo_turma_materia = []
+    for vinculo in vinculos:
+        vinculo_arquivo_turma_materia = criar_vinculo_arquivo_turma_materia(documento.id, vinculo['turma_id'], vinculo['materia_id'])
+        vinculos_arquivo_turma_materia.append(vinculo_arquivo_turma_materia)
+    
+    # 2. Salva o texto em um arquivo no diretório do professor
+    print(f'\n(2/4). Salvando o texto em um arquivo no diretório do professor')
+    nome_arquivo = f"{documento.id}_{titulo.replace(' ', '_')}.txt"
+    for caractere in CARACTERES_NAO_PERMITIDOS:
+        nome_arquivo = nome_arquivo.replace(caractere, '_')
+    nome_arquivo += '.txt'
+    caminho_arquivo = os.path.join(
+        DOCUMENTOS_DIR,
+        str(professor_id),
+        str(nome_arquivo)
+    )
+    print(f'Caminho do arquivo: {caminho_arquivo}')
+    with open(caminho_arquivo, 'w', encoding='utf-8') as f:
+        f.write(texto)
+        
+    # 3. Indexa no ChromaDB utilizando o mesmo ID do PostgreSQL
+    print(f'\n(3/4). Salvando dados do documento no ChromaDB')
+    formatted_vinculos = ','.join([f'{v["turma_id"]}_{v["materia_id"]}' for v in vinculos])
+    salvar_documento_vetor(documento.id, documento.titulo, professor_id, formatted_vinculos, documento.data_upload, texto)
+    print(f'DOCUMENTO SALVO NO CHROMADB COM SUCESSO!')
+
+    return {
+        "status": 201,
+        "message": "texto processado com sucesso",
+        "data": {
+            "documento_id": documento.id,
+            "professor_id": professor_id,
+            "titulo": documento.titulo,
+            "data_upload": documento.data_upload
+        }
+    }
+
 def obter_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> tuple:
     """
     Função atômica, responsável por obter o arquivo real, salvo no sistema de arquivos, a partir do seu ID.
