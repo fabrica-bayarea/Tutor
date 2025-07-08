@@ -25,7 +25,7 @@ export default function CardTurma({
         <div className={styles.cardTurma}>
             <div className={styles.cardTurmaStateLayer}>
                 <h3 className={styles.cardTurmaCodigo}>{turma.codigo}</h3>
-                <h4 className={styles.cardTurmaSemestreTurno}>{turma.semestre} - {turma.turno}</h4>
+                <h4 className={styles.cardTurmaSemestreTurno}>{turma.semestre} - {turma.turno.charAt(0).toUpperCase() + turma.turno.slice(1)}</h4>
             </div>
         </div>
     )
