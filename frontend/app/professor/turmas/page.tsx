@@ -1,38 +1,51 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
 import CardTurma from '../components/CardTurma/CardTurma';
 
-import { InterfaceProfessor, InterfaceTurma } from '../../types';
+import { InterfaceProfessor, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../types';
+import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
+import { obterTurma } from '@/app/services/service_turma';
 
 export default function MinhasTurmas() {
-    const [professor, setProfessor] = useState<InterfaceProfessor>({
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        matricula: '1',
-        nome: 'Regiano',
-        email: 'regiano@gmail.com',
-        cpf: '12345678900' // ...senha, data_nascimento
-    });
-    const [turmas, setTurmas] = useState<InterfaceTurma[]>([
-        {
-            id: 'a4f98f1d-904c-4d8a-861e-df5a14c6e922',
-            codigo: 'ADS01234',
-            semestre: '20251',
-            turno: 'Matutino'
-        },
-        {
-            id: 'b3a5e72e-30d3-4c90-b3d4-0e3a06e3b65d',
-            codigo: 'ADS01235',
-            semestre: '20252',
-            turno: 'Noturno'
-        }
-    ]);
+    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
 
     useEffect(() => {
-
+        const professorData = localStorage.getItem("professor");
+        if (professorData) {
+            try {
+                const parsedProfessor = JSON.parse(professorData);
+                setProfessor(parsedProfessor);
+                handleGetTurmas(parsedProfessor.id);
+            } catch (error) {
+                console.error("Erro ao fazer parse dos dados do professor:", error);
+            }
+        }
     }, []);
+
+    const handleGetTurmas = async (professor_id: string) => {
+            try {
+                // Busca os vínculos do professor com turmas e matérias
+                // Recebe uma lista de dicionários, onde cada dicionário contém 'professor_id', 'turma_id' e 'materia_id'
+                const responseVinculos: InterfaceProfessorTurmaMateria[] = await obterVinculosProfessorTurmaMateria(professor_id);
+    
+                // Pega apenas os IDs das turmas em cada vínculo
+                const filteredTurmasIds = responseVinculos.map(({ turma_id }) => turma_id);
+    
+                const responseTurmas: InterfaceTurma[] = await Promise.all(
+                    filteredTurmasIds.map(async (turma_id: string) => {
+                        const responseTurma: InterfaceTurma = await obterTurma(turma_id);
+                        return responseTurma;
+                    })
+                );
+                setTurmas(responseTurmas);
+            } catch (error) {
+                console.error('Erro ao buscar vínculos:', error);
+            }
+        };
 
     return (
         <div className={styles.midColumn}>
@@ -42,7 +55,9 @@ export default function MinhasTurmas() {
             </div>
             <div className={styles.listTurmas}>
                 {turmas.map((turma) => (
-                    <CardTurma key={turma.id} turma={turma} />
+                    <a href={`/professor/turmas/turma/${turma.id}`} key={turma.id}>
+                        <CardTurma key={turma.id} turma={turma} />
+                    </a>
                 ))}
             </div>
         </div>
