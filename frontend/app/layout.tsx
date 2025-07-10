@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
-import { ModalProvider } from "./contexts/contextModal";
+import { ModalProvider } from "../contexts/contextModal";
 
 export const metadata: Metadata = {
     title: "Tutor",
