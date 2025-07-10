@@ -38,6 +38,25 @@ def buscar_mensagens(chat_id: uuid.UUID) -> list[Mensagem]:
 
     return [mensagem.to_dict() for mensagem in mensagens.all()] if mensagens else None
 
+def atualizar_mensagem(id: uuid.UUID, novo_conteudo: str) -> dict:
+    """
+    Atualiza o conteúdo de uma mensagem.
+
+    Espera receber:
+    - `id`: uuid.UUID - o ID da mensagem
+    - `novo_conteudo`: str - o novo conteúdo da mensagem
+
+    Retorna a mensagem atualizada.
+    """
+    mensagem = Mensagem.query.filter_by(id=id).first()
+    if not mensagem:
+        raise ValueError("Mensagem não encontrada")
+    
+    mensagem.conteudo = novo_conteudo
+    db.session.commit()
+    
+    return mensagem.to_dict()
+
 def deletar_mensagens(chat_id: uuid.UUID) -> bool:
     """
     Deleta TODAS as mensagens de um chat.
