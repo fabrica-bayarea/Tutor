@@ -6,9 +6,9 @@ import styles from './Aside.module.css';
 import { Menu, SquarePen } from 'lucide-react';
 import AsideMainButton from '../../../components/AsideMainButton/AsideMainButton';
 import ChatListItemButton from '../ChatListItemButton/ChatListItemButton';
-import { InterfaceChat } from '../../../types';
+import { InterfaceChat } from '@/app/types';
 
-export default function Aside() {
+export default function Aside({ chats }: { chats: InterfaceChat[] }) {
     const pathname = usePathname();
     const params = useParams();
     
@@ -18,23 +18,12 @@ export default function Aside() {
     };
     const selectedSection = getSelected();
     
-    const [chats, setChats] = useState<InterfaceChat[]>([
-        {
-            id: 'af734cdf-1106-49ec-8b26-be87598c992c',
-            aluno_id: 'cde982bc-2c4b-43a0-8439-eba9d2149306',
-            nome: 'Chat de teste',
-        },
-    ]);
-    
     const selectedChatId = params.chatId;
-    useEffect(() => {
-        
-    }, []);
     
     return (
         <div className={styles.asideContainer}>
             <div className={styles.asideHeader}>
-                <img src="" alt="" />
+                {/* <img src="" alt="" /> */}
                 <Menu size={24} />
             </div>
             <div className={styles.asideMainButtons}>
