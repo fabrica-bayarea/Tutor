@@ -3,12 +3,9 @@ import styles from './MessageBox.module.css';
 import { InterfaceMensagem } from '../../../types';
 
 export default function MessageBox({
-    id,
-    chat_id,
     sender_id,
     conteudo,
-    data_envio,
-}: InterfaceMensagem) {
+}: Pick<InterfaceMensagem, 'sender_id' | 'conteudo'>) {
     const isUser = sender_id === 'cde982bc-2c4b-43a0-8439-eba9d2149306';
 
     return (
