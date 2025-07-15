@@ -2,13 +2,14 @@ from flask import request
 from flask_socketio import SocketIO, emit
 from application.config.vector_database import collection
 from application.services.service_chat import criar_chat
-from application.services.service_mensagem import criar_mensagem, atualizar_mensagem
+from application.services.service_mensagem import criar_mensagem
 from application.constants import LLM_UUID
-from datetime import datetime
 import uuid
 import ollama
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
+pendentes = {}
 
 @socketio.on("connect")
 def handle_connect():
@@ -25,62 +26,86 @@ def handle_mensagem_inicial(data: dict[str, str]):
 
         1. Cria um novo chat usando o ID do aluno
         2. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
-        3. Chama a LLM para gerar uma resposta
-            3.1. Faz uma busca semântica no banco vetorial
-            3.2. Gera a resposta
-        4. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
-        5. Envia o chat e a resposta para o front-end
+        3. Armazena ambos no dicionário `pendentes` para emitir em outros eventos após receber o "handshake" do front-end
     """
-    print(f"Dados recebidos:\n{data}")
+    sid = request.sid
+
     aluno_id = data['aluno_id']
     mensagem = data['mensagem']
+
     #1. Cria um novo chat usando o ID do aluno
     chat = criar_chat(aluno_id)
     print(f"Chat criado:\n{chat}")
-    socketio.emit("novo_chat", chat, to=request.sid)
-
-    # Faz o socket dormir para que o front-end consiga processar o que recebeu
+    socketio.emit("novo_chat", chat, to=sid)
     socketio.sleep(0)
     
     #2. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
     mensagem_aluno = criar_mensagem(chat['id'], aluno_id, mensagem)
     print(f"Mensagem salva:\n{mensagem_aluno}")
-    socketio.emit("mensagem_aluno", mensagem_aluno, to=request.sid)
-    socketio.sleep(0)
-    
-    #3. Gera uma resposta com a LLM
-    #3.1. Cria uma nova mensagem no banco de dados, inicialmente sem conteúdo (pois a LLM ainda não gerou)
-    mensagem_llm = criar_mensagem(chat['id'], LLM_UUID, '')
-    print(f"Mensagem da LLM salva:\n{mensagem_llm}")
-    socketio.emit("resposta_inicio", mensagem_llm, to=request.sid)
-    socketio.sleep(0)
 
-    #3.2. Faz uma busca semântica no banco vetorial usando o conteúdo da mensagem do aluno
-    contexts = collection.query(
-        query_texts=[mensagem_aluno['conteudo']],
-        n_results=5,
-    )
-    print(f"Contextos encontrados:\n{contexts}")
-    
-    #3.3. Extrai os documentos dos contextos
-    documentos = "\n\n".join([doc for doc in contexts.get('documents', [[]])[0]])
-    
-    #3.4. Gera o prompt para a LLM
-    prompt_llm = f"""
-    Com base nas informações fornecidas nos trechos de documentos abaixo, responda ao comando do aluno.
-    Se a resposta não estiver contida nos trechos fornecidos, responda APENAS "Não sei responder com base nas informações disponíveis".
-    Formate a resposta em markdown com tags relevantes para títulos, parágrafos, listas e etc.
+    #3. Salva temporariamente pra emitir em outro evento
+    pendentes[sid] = {
+        "chat": chat,
+        "mensagem": mensagem_aluno
+    }
 
-    Trechos de documentos:
-    {documentos}
-
-    Comando do aluno: {mensagem_aluno['conteudo']}
+@socketio.on('pronto_para_receber')
+def handle_pronto_para_receber():
     """
+    Função responsável por lidar com os eventos subsequentes após receber o "handshake" do front-end.
 
+    1. Emite a mensagem inicial enviada pelo aluno, armazenada em `pendentes`
+    2. Gera a resposta da LLM.
+    """
+    sid = request.sid
+    dados = pendentes.get(sid)
+    
+    if not dados:
+        print(f'Nenhum dado para o socket {sid}')
+        return
+    
+    chat = dados['chat']
+    mensagem_aluno = dados['mensagem']
+
+    print(f"Cliente pronto para receber. Emitindo mensagem e iniciando resposta para chat {chat['id']}")
+    
+    #1. Emite a mensagem inicial enviada pelo aluno, armazenada em `pendentes`
+    socketio.emit("mensagem_aluno", mensagem_aluno, to=sid)
+    socketio.sleep(0)
+    
     try:
+        #2. Gera uma resposta com a LLM
+        #2.1. Gera e emite um ID para a mensagem da LLM
+        id_mensagem_llm = uuid.uuid4()
+        socketio.emit("resposta_inicio", str(id_mensagem_llm), to=sid)
+        socketio.sleep(0)
+
+        #2.2. Faz uma busca semântica no banco vetorial usando o conteúdo da mensagem do aluno
+        contexts = collection.query(
+            query_texts=[mensagem_aluno['conteudo']],
+            n_results=5,
+        )
+        print(f"Contextos encontrados:\n{contexts}")
+        
+        #2.3. Extrai os documentos dos contextos
+        documentos = "\n\n".join([doc for doc in contexts.get('documents', [[]])[0]])
+        
+        #2.4. Gera o prompt para a LLM
+        prompt_llm = f"""
+        Com base nas informações fornecidas nos trechos de documentos abaixo, responda ao comando do aluno.
+        Se a resposta não estiver contida nos trechos fornecidos, responda APENAS "Não sei responder com base nas informações disponíveis".
+        Formate a resposta em markdown com tags relevantes para títulos, parágrafos, listas e etc.
+
+        Trechos de documentos:
+        {documentos}
+
+        Comando do aluno: {mensagem_aluno['conteudo']}
+        """
+
         resposta_completa = ""
         print("Enviando requisição para a LLM...")
         
+        #2.5. Gera a resposta da LLM
         response = ollama.generate(
             model="mistral",
             prompt=prompt_llm,
@@ -93,12 +118,14 @@ def handle_mensagem_inicial(data: dict[str, str]):
         
         print("Recebendo resposta da LLM...")
         
+        #2.6. Pega e emite cada um dos chunks gerados
         for chunk in response:
             texto = chunk.get("response", "")
             print(f"Chunk recebido: {texto}")
             if texto:
                 resposta_completa += texto
                 socketio.emit("resposta_chunk", texto, to=request.sid)
+                print(f"Chunk emitido: {texto}")
                 socketio.sleep(0)
         
         print(f"Resposta completa: {resposta_completa}")
@@ -112,13 +139,13 @@ def handle_mensagem_inicial(data: dict[str, str]):
         socketio.emit("erro", {"mensagem": error_msg}, to=request.sid)
         return
     
-    #4. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
-    mensagem_llm_atualizada = atualizar_mensagem(mensagem_llm['id'], resposta_completa)
-    print(f"Resposta da LLM salva:\n{mensagem_llm_atualizada}")
+    #3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
+    mensagem_llm = criar_mensagem(chat['id'], LLM_UUID, resposta_completa)
+    print(f"Resposta da LLM salva:\n{mensagem_llm}") 
     
-    #5. Envia a resposta para o front-end
-    socketio.emit("resposta_fim", mensagem_llm_atualizada, to=request.sid)
-    print(f"Resposta enviada para o front-end:\n{mensagem_llm_atualizada}")
+    #4. Envia a resposta para o front-end
+    socketio.emit("resposta_fim", mensagem_llm, to=sid)
+    socketio.sleep(0)
 
 @socketio.on('nova_mensagem_aluno')
 def handle_nova_mensagem(data: dict[str, str]):
@@ -135,6 +162,8 @@ def handle_nova_mensagem(data: dict[str, str]):
         3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat
         4. Envia a resposta para o front-end
     """
+    sid = request.sid
+
     chat_id = data['chat_id']
     aluno_id = data['aluno_id']
     mensagem = data['mensagem']
@@ -142,48 +171,42 @@ def handle_nova_mensagem(data: dict[str, str]):
     #1. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
     mensagem_aluno = criar_mensagem(chat_id, aluno_id, mensagem)
     print(f"Mensagem salva:\n{mensagem_aluno}")
-    print(f"Conteúdo da mensagem do aluno (`mensagem_aluno['conteudo']`): {mensagem_aluno['conteudo']}")
-    socketio.emit("res_mensagem", mensagem_aluno, to=request.sid)
+    socketio.emit("res_mensagem", mensagem_aluno, to=sid)
     socketio.sleep(0)
     
-    #2. Chama a LLM para gerar uma resposta
-    #2.1. Faz uma busca semântica no banco vetorial usando o conteúdo da mensagem do aluno
-    contexts = collection.query(
-        query_texts=[mensagem_aluno['conteudo']],
-        n_results= 5
-    )
-    print(f"Contextos encontrados:\n{contexts}")    
-
-    #2.2. Gera a resposta
-    resposta_llm = {
-        'id': str(uuid.uuid4()),
-        'chat_id': chat_id,
-        'sender_id': str(LLM_UUID),
-        'conteudo': '',
-        'data_envio': datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    }
-    socketio.emit("resposta_inicio", resposta_llm, to=request.sid)
-    socketio.sleep(0)
-
-    # Extrai os documentos dos contextos
-    documentos = "\n\n".join([doc for doc in contexts.get('documents', [[]])[0]])
-    
-    prompt_llm = f"""
-    Com base nas informações fornecidas nos trechos de documentos abaixo, responda ao comando do aluno.
-    Se a resposta não estiver contida nos trechos fornecidos, responda APENAS "Não sei responder com base nas informações disponíveis".
-    Formate a resposta em markdown com tags relevantes para títulos, parágrafos, listas e etc.
-
-    Trechos de documentos:
-    {documentos}
-
-    Comando do aluno: {mensagem_aluno['conteudo']}
-    """
-    print(f"Prompt para a LLM:\n{prompt_llm}")
-
     try:
+        #2. Gera uma resposta com a LLM
+        #2.1. Gera e emite um ID para a mensagem da LLM
+        id_mensagem_llm = uuid.uuid4()
+        socketio.emit("resposta_inicio", str(id_mensagem_llm), to=sid)
+        socketio.sleep(0)
+
+        #2.2. Faz uma busca semântica no banco vetorial usando o conteúdo da mensagem do aluno
+        contexts = collection.query(
+            query_texts=[mensagem_aluno['conteudo']],
+            n_results= 5
+        )
+        print(f"Contextos encontrados:\n{contexts}")    
+
+        #2.3. Extrai os documentos dos contextos
+        documentos = "\n\n".join([doc for doc in contexts.get('documents', [[]])[0]])
+        
+        #2.4. Gera o prompt para a LLM
+        prompt_llm = f"""
+        Com base nas informações fornecidas nos trechos de documentos abaixo, responda ao comando do aluno.
+        Se a resposta não estiver contida nos trechos fornecidos, responda APENAS "Não sei responder com base nas informações disponíveis".
+        Formate a resposta em markdown com tags relevantes para títulos, parágrafos, listas e etc.
+
+        Trechos de documentos:
+        {documentos}
+
+        Comando do aluno: {mensagem_aluno['conteudo']}
+        """
+
         resposta_completa = ""
         print("Enviando requisição para a LLM...")
         
+        #2.5. Gera a resposta da LLM
         response = ollama.generate(
             model="mistral",
             prompt=prompt_llm,
@@ -196,26 +219,24 @@ def handle_nova_mensagem(data: dict[str, str]):
         
         print("Recebendo resposta da LLM...")
         
+        #2.6. Pega e emite cada um dos chunks gerados
         for chunk in response:
             texto = chunk.get("response", "")
             print(f"Chunk recebido: {texto}")
             if texto:
                 resposta_completa += texto
-                socketio.emit("resposta_chunk", texto, to=request.sid)
+                socketio.emit("resposta_chunk", texto, to=sid)
                 socketio.sleep(0)
         
         print(f"Resposta completa: {resposta_completa}")
         
         if not resposta_completa.strip():
             raise ValueError("A resposta da LLM está vazia")
-            
-        socketio.emit("resposta_fim", resposta_llm, to=request.sid)
-        socketio.sleep(0)
-        
+    
     except Exception as e:
         error_msg = f"Erro ao gerar resposta: {str(e)}"
         print(error_msg)
-        socketio.emit("erro", {"mensagem": error_msg}, to=request.sid)
+        socketio.emit("erro", {"mensagem": error_msg}, to=sid)
         return
 
     #3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
@@ -223,4 +244,5 @@ def handle_nova_mensagem(data: dict[str, str]):
     print(f"Resposta da LLM salva:\n{mensagem_llm}") 
     
     #4. Envia a resposta para o front-end
-    socketio.emit("nova_resposta_completa", mensagem_llm, to=request.sid)
+    socketio.emit("resposta_fim", mensagem_llm, to=sid)
+    socketio.sleep(0)
