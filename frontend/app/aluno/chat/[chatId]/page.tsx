@@ -168,6 +168,12 @@ export default function ChatPage() {
         }
     }
 
+    const bottomRef = useRef<HTMLDivElement>(null)
+    
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [mensagens])
+
     return (
         <div className={styles.midColumn}>
             <div className={styles.topContainer}>
@@ -182,6 +188,7 @@ export default function ChatPage() {
                             data_envio={msg.data_envio}
                         />
                     ))}
+                    <div ref={bottomRef} />
                 </div>
             </div>
             <div className={styles.bottomContainer}>
