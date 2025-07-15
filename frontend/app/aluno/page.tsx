@@ -27,8 +27,7 @@ export default function Home() {
         socket.on("novo_chat", (chat: InterfaceChat) => {
             console.log(`Novo chat recebido:\n${JSON.stringify(chat)}`)
             console.log(`Redirecionando para '/aluno/chat/${chat.id}'`)
-            router.push(`/aluno/chat/${chat.id}`)
-            //window.location.href = `/aluno/chat/${chat.id}`
+            router.push(`/aluno/chat/${chat.id}?novo=true`)
         })
     }, [])
 
