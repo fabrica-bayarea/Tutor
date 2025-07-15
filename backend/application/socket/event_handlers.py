@@ -111,7 +111,7 @@ def handle_pronto_para_receber():
             prompt=prompt_llm,
             stream=True,
             options={
-                'num_predict': 512,
+                # 'num_predict': 512,
                 'temperature': 0.7,
             }
         )
