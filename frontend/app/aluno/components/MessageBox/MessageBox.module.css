@@ -35,3 +35,92 @@
     word-wrap: break-word;
     word-break: break-word;
 }
+
+.messageContent h1 {
+    margin: 1.5rem 0 1rem 0;
+}
+
+.messageContent h2 {
+    margin: 1.25rem 0 0.875rem 0;
+}
+
+.messageContent h3 {
+    margin: 1rem 0 0.75rem 0;
+}
+
+.messageContent h4 {
+    margin: 0.875rem 0 0.625rem 0;
+}
+
+.messageContent p {
+    margin: 0.5rem 0;
+}
+
+.messageContent p, .messageContent li {
+    line-height: 1.6;
+}
+
+.messageContent strong {
+    font-weight: 600;
+}
+
+.messageContent a {
+    color: #D92F35;
+    text-decoration: none;
+
+    transition: color ease-out 0.15s;
+}
+.messageContent a:hover {
+    text-decoration: underline;
+}
+
+.messageContent hr {
+    margin: 2.25rem 0;
+}
+
+.messageContent pre:has(code) { /* Para BLOCOS de código */
+    background-color: #e5e5e5;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.messageContent p > code { /* Para códigos IN-LINE */
+    background-color: #e5e5e5;
+    padding: 0.125rem;
+    border-radius: 6px;
+    line-height: inherit;
+}
+
+.messageContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.messageContent th {
+    font-weight: 600;
+}
+
+.messageContent th,
+.messageContent td {
+    border-bottom: 1px solid #cccccc;
+    padding: 8px;
+    text-align: left;
+
+    transition: border-bottom ease-out 0.15s;
+}
+.messageContent th:hover,
+.messageContent td:hover {
+    border-bottom: 1px solid #999999;
+}
+
+.messageContent > :first-child {
+    margin-top: 0 !important;
+}
+
+.messageContent > :last-child {
+    margin-bottom: 0 !important;
+}
