@@ -13,6 +13,7 @@ openai-whisper
 selenium
 webdriver-manager
 ollama
+mistral_common
 langchain
 langchain_community
 sentence-transformers
