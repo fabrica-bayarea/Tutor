@@ -53,6 +53,23 @@ export async function uploadTextos(textos: string[], vinculos: InterfaceTurmaMat
     }
 }
 
-// export async function getArquivos(id_professor){
-//     pass
-// }
+export async function getArquivos(turma_id: string, materia_id: string) {
+    try {
+        const response: { data: InterfaceArquivo[] } = await api.get(`/${arquivos_url}/${turma_id}_${materia_id}`);
+
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao obter os arquivos:", error);
+        throw error;
+    }
+}
+
+export async function getDownloadArquivo(arquivo_id: string) {
+    try {
+        const response = await api.get(`/${arquivos_url}/download/${arquivo_id}`)
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao baixar o arquivo:", error);
+        throw error;
+    }
+}
