@@ -1,7 +1,7 @@
 import styles from './MessageBox.module.css';
 import { LLM_UUID } from '@/constants';
 
-import { InterfaceMensagem } from '../../../types';
+import { InterfaceMensagem } from '../../../../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 

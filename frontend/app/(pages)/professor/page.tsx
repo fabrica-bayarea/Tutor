@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import { InterfaceProfessor } from '../types';
+import { InterfaceProfessor } from '../../types';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({

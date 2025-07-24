@@ -5,7 +5,7 @@ import styles from './page.module.css';
 
 import CardTurma from '../components/CardTurma/CardTurma';
 
-import { InterfaceProfessor, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../types';
+import { InterfaceProfessor, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 

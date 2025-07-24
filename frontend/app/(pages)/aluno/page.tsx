@@ -5,7 +5,7 @@ import MessageForm from "./components/MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
-import { InterfaceAluno, InterfaceChat } from "../types"
+import { InterfaceAluno, InterfaceChat } from "../../types"
 
 export default function Home() {
     const router = useRouter()

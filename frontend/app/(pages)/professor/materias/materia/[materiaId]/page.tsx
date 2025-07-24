@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
-import Button from '../../../../components/Button/Button';
-import { InterfaceProfessor, InterfaceMateria, InterfaceTurma } from '../../../../types';
+import Button from '../../../../../components/Button/Button';
+import { InterfaceProfessor, InterfaceMateria, InterfaceTurma } from '../../../../../types';
 import { ArrowLeft, Plus } from 'lucide-react';
 
 export default function Home() {

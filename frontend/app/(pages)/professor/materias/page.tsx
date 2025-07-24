@@ -5,7 +5,7 @@ import styles from './page.module.css';
 
 import CardMateria from '../components/CardMateria/CardMateria';
 
-import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria } from '../../types';
+import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria } from '../../../types';
 
 export default function MinhasMaterias() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({

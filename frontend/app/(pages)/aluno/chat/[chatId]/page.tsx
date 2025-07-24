@@ -8,7 +8,7 @@ import MessageForm from "../../components/MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 
-import { InterfaceAluno, InterfaceMensagem } from "../../../types"
+import { InterfaceAluno, InterfaceMensagem } from "../../../../types"
 import { LLM_UUID } from "@/constants"
 import { obterMensagens } from "@/app/services/service_mensagem"
 

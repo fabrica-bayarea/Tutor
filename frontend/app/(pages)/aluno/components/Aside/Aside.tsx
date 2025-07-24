@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useParams } from 'next/navigation';
 import styles from './Aside.module.css';
 import { Menu, SquarePen } from 'lucide-react';
-import AsideMainButton from '../../../components/AsideMainButton/AsideMainButton';
+import AsideMainButton from '../../../../components/AsideMainButton/AsideMainButton';
 import ChatListItemButton from '../ChatListItemButton/ChatListItemButton';
 import { InterfaceChat } from '@/app/types';
 

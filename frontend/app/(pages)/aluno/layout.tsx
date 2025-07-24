@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import Aside from "./components/Aside/Aside"
 import styles from "./layout.module.css"
-import { InterfaceAluno, InterfaceChat } from "../types"
-import { obterChats } from "../services/service_chat"
+import { InterfaceAluno, InterfaceChat } from "../../types"
+import { obterChats } from "../../services/service_chat"
 import socket from "@/libs/socket"
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {

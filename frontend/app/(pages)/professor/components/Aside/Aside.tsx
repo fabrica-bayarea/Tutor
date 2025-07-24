@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import styles from './Aside.module.css';
 import { Menu, House, GraduationCap, LibraryBig, Plus } from 'lucide-react';
-import AsideMainButton from '../../../components/AsideMainButton/AsideMainButton';
+import AsideMainButton from '../../../../components/AsideMainButton/AsideMainButton';
 
 export default function Aside() {
     const pathname = usePathname();

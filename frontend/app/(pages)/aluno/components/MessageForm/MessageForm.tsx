@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Send, Paperclip } from 'lucide-react';
 import styles from './MessageForm.module.css';
 
-import IconButton from '../../../components/IconButton/IconButton';
+import IconButton from '../../../../components/IconButton/IconButton';
 
 interface MessageFormProps {
     onSendMessage: (message: string) => void;

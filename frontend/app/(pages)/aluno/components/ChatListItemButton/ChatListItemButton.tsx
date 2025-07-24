@@ -1,5 +1,5 @@
 import styles from './ChatListItemButton.module.css';
-import IconButton from '../../../components/IconButton/IconButton';
+import IconButton from '../../../../components/IconButton/IconButton';
 import { Ellipsis } from 'lucide-react';
 
 interface ChatListItemButtonProps {

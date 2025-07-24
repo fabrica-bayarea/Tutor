@@ -1,5 +1,5 @@
 import styles from './CardMateria.module.css';
-import { InterfaceMateria, InterfaceTurma } from '../../../types';
+import { InterfaceMateria, InterfaceTurma } from '../../../../types';
 
 export default function CardMateria({
     materia: {
