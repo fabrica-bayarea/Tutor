@@ -20,7 +20,7 @@ export interface InterfaceArquivo {
     id: string;
     professor_id: string;
     titulo: string;
-    data_upload: Date;
+    data_upload: Date | string;
 }
 
 export interface InterfaceChat {
