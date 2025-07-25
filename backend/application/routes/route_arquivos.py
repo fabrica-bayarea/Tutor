@@ -7,7 +7,7 @@ import json
 import time
 import os
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores
-from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, obter_arquivo_real_por_id, obter_arquivos_turma_materia
+from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_arquivo, buscar_arquivo_real_por_id
 from application.libs.scraping_handler import configure_browser
 from urllib.parse import urlparse
 from application.utils.validacoes import validar_professor_turma_materia
@@ -225,36 +225,27 @@ def upload_textos():
         else:
             return jsonify({"message": "Alguns textos foram processados com sucesso, mas outros falharam", "results": resultados}), 207
 
-@arquivos_bp.route('/<string:turma_id>_<string:materia_id>', methods=['GET'])
+@arquivos_bp.route('/<string:arquivo_id>', methods=['GET'])
 @token_obrigatorio
-def obter_arquivos_por_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID):
+@apenas_professores
+def obter_arquivo(arquivo_id: uuid.UUID):
     """
-    Endpoint para obter TODOS os arquivos de uma matéria associada a uma turma.
-
-    Apenas professores com vínculo podem acessar.
+    Endpoint para obter um arquivo pelo seu ID.
 
     Espera receber:
-    - `turma_id`: uuid.UUID - o ID da turma
-    - `materia_id`: uuid.UUID - o ID da matéria
+    - `arquivo_id`: uuid.UUID - o ID do arquivo a ser buscado
 
     1. Valida o professor
-    2. Busca os arquivos associados à turma e matéria
+    2. Busca o arquivo pelo ID
     
-    Retorna os arquivos encontrados.
+    Retorna o arquivo encontrado.
     """
-    # Valida se o professor tem vínculo com a turma e matéria
-    if not validar_professor_turma_materia(g.usuario_id, turma_id, materia_id):
-        return jsonify({"error": "Acesso não autorizado para esta turma/matéria"}), 403
-
-    # Busca os arquivos associados à turma e matéria
     try:
-        arquivos = obter_arquivos_turma_materia(turma_id, materia_id)
+        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
+        return jsonify(arquivo), 200
     except ValueError as e:
-        print(f'Erro ao buscar arquivos: {str(e)}')
+        print(f'Erro ao buscar arquivo: {str(e)}')
         return jsonify({"error": str(e)}), 400
-
-    # Retorna os arquivos encontrados
-    return jsonify(arquivos), 200
 
 @arquivos_bp.route('/download/<string:arquivo_id>', methods=['GET'])
 @token_obrigatorio
@@ -273,7 +264,7 @@ def download_arquivo(arquivo_id: str):
         arquivo_uuid = uuid.UUID(arquivo_id)
         
         # Obtém o arquivo real do sistema de arquivos
-        caminho_arquivo, conteudo_arquivo, extensao = obter_arquivo_real_por_id(g.usuario_id, arquivo_uuid)
+        caminho_arquivo, conteudo_arquivo, extensao = buscar_arquivo_real_por_id(g.usuario_id, arquivo_uuid)
         
         # Obtém o nome do arquivo original (sem o ID e sem o caminho)
         nome_arquivo = os.path.basename(caminho_arquivo)
