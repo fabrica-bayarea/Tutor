@@ -315,7 +315,20 @@ def processar_texto(texto: str, professor_id: uuid.UUID, vinculos: list[dict[str
         }
     }
 
-def obter_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> tuple:
+def buscar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> dict | None:
+    """
+    Função atômica, responsável por buscar metadados de um arquivo pelo seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+
+    Retorna os metadados do arquivo encontrado.
+    """
+    arquivo = Arquivo.query.filter_by(id=arquivo_id, professor_id=professor_id).first()
+    return arquivo.to_dict() if arquivo else None
+
+def buscar_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> tuple:
     """
     Função atômica, responsável por obter o arquivo real, salvo no sistema de arquivos, a partir do seu ID.
 
@@ -338,16 +351,3 @@ def obter_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) ->
         conteudo_arquivo = f.read()
     
     return caminho_arquivo, conteudo_arquivo, extensao_arquivo
-
-def obter_arquivos_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> list[Arquivo]:
-    """
-    Função atômica, responsável por obter todos os arquivos de uma turma associada a uma matéria no PostgreSQL.
-
-    Espera receber:
-    - `turma_id`: uuid.UUID - o ID da turma
-    - `materia_id`: uuid.UUID - o ID da matéria
-
-    Retorna uma lista de arquivos.
-    """
-    arquivos = Arquivo.query.filter_by(turma_id=turma_id, materia_id=materia_id).all()
-    return [arquivo.to_dict() for arquivo in arquivos]
