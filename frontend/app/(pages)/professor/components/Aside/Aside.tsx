@@ -26,8 +26,7 @@ export default function Aside() {
     return (
         <div className={styles.asideContainer}>
             <div className={styles.asideHeader}>
-                <img src="" alt="" />
-                <Menu size={24} />
+                <img src="null" alt="" />
             </div>
             <div className={styles.asideMainButtons}>
                 <a href="/professor">
