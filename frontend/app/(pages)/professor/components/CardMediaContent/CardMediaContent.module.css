@@ -1,0 +1,91 @@
+.cardMediaContent {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    /* justify-content: space-between;
+    align-items: center; */
+}
+
+.cardMediaContentStateLayer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: inherit;
+    padding: 0.5rem;
+    gap: 1rem;
+    align-items: center;
+
+    transition: background-color ease-out 0.15s;
+}
+.cardMediaContentStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.cardMediaContentLeft {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cardMediaContentIconContainer {
+    display: flex;
+    flex-direction: row;
+    min-width: 2rem;
+    width: 2rem;
+    min-height: 2rem;
+    height: 2rem;
+    padding: 0.125rem;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.cardMediaContentLeft span {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.cardMediaContentRight {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 1rem;
+    align-items: center;
+}
+
+.cardMediaContentRight > div {
+    min-width: 10rem;
+    width: 10rem;
+}
+
+.cardMediaContentRight > div > span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.actionsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    opacity: 0;
+
+    transition: opacity ease-out 0.15s;
+}
+.actionsContainer > button svg {
+    color: #1a1a1a;
+}
+
+.cardMediaContent:hover .actionsContainer {
+    opacity: 1;
+}
