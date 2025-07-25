@@ -64,6 +64,10 @@ p {
   margin: 0;
 }
 
+strong, b {
+  font-weight: 600;
+}
+
 input {
   display: flex;
   flex-direction: row;
