@@ -48,5 +48,41 @@
     height: fit-content;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+}
+
+.fontesAdicionadasListHeader {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    padding: 0 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.fontesAdicionadasListHeader span {
+    color: #666666;
+}
+
+.headerLeft, .headerRight {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.headerRight {
+    gap: 1rem;
+}
+.headerRight div {
+    min-width: 10rem;
+    width: 10rem;
+}
+
+.fontesAdicionadasContent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    overflow-y: auto;
 }

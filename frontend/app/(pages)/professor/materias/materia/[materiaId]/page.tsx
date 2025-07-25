@@ -5,20 +5,19 @@ import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
 import Button from '../../../../../components/Button/Button';
-import { InterfaceProfessor, InterfaceMateria, InterfaceTurma } from '../../../../../types';
+import CardMediaContent from '../../../components/CardMediaContent/CardMediaContent';
+import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../types';
 import { ArrowLeft, Plus } from 'lucide-react';
+import { obterTurma } from '../../../../../services/service_turma';
+import { obterMateria } from '../../../../../services/service_materia';
+import { obterVinculosArquivoTurmaMateria } from '../../../../../services/service_vinculos';
+import { obterArquivo } from '../../../../../services/service_arquivo';
 
-export default function Home() {
+export default function Materia() {
     const params = useParams();
+    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
     const [turmaId, materiaId] = (params.materiaId as string).split('_');
 
-    const [professor, setProfessor] = useState<InterfaceProfessor>({
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        matricula: '1',
-        nome: 'Regiano',
-        email: 'regiano@gmail.com',
-        cpf: '12345678900' // ...senha, data_nascimento
-    });
     const [turma, setTurma] = useState<InterfaceTurma>({
         id: turmaId,
         codigo: '',
@@ -30,10 +29,62 @@ export default function Home() {
         codigo: '',
         nome: ''
     });
+    const [arquivos, setArquivos] = useState<InterfaceArquivo[]>([]);
 
     useEffect(() => {
-
+        const professorData = localStorage.getItem("professor");
+        if (professorData) {
+            try {
+                const parsedProfessor = JSON.parse(professorData);
+                setProfessor(parsedProfessor);
+                handleGetTurma(turmaId);
+                handleGetMateria(materiaId);
+                handleGetArquivos(turmaId, materiaId);
+            } catch (error) {
+                console.error("Erro ao fazer parse dos dados do professor:", error);
+            }
+        }
     }, []);
+
+    const handleGetTurma = async (turma_id: string) => {
+        try {
+            const turmaData: InterfaceTurma = await obterTurma(turma_id);
+            setTurma(turmaData);
+        } catch (error) {
+            console.error("Erro ao buscar turma:", error);
+        }
+    };
+
+    const handleGetMateria = async (materia_id: string) => {
+        try {
+            const materiaData: InterfaceMateria = await obterMateria(materia_id);
+            setMateria(materiaData);
+        } catch (error) {
+            console.error("Erro ao buscar matéria:", error);
+        }
+    };
+
+    const handleGetArquivos = async (turma_id: string, materia_id: string) => {
+        try {
+            // Busca os arquivos que tem vínculo com essa turma-matéria
+            // Recebe uma lista de dicionários, onde cada dicionário contém 'arquivo_id', 'turma_id' e 'materia_id'
+            const responseVinculos: InterfaceArquivoTurmaMateria[] = await obterVinculosArquivoTurmaMateria(turma_id, materia_id);
+
+            // Pega apenas os IDs dos arquivos em cada vínculo
+            const filteredArquivosIds = responseVinculos.map(({ arquivo_id }) => arquivo_id);
+
+            // Busca os arquivos usando cada um dos IDs obtidos
+            const responseArquivos: InterfaceArquivo[] = await Promise.all(
+                filteredArquivosIds.map(async (arquivo_id: string) => {
+                    const responseArquivo: InterfaceArquivo = await obterArquivo(arquivo_id);
+                    return responseArquivo;
+                })
+            );
+            setArquivos(responseArquivos);
+        } catch (error) {
+            console.error("Erro ao buscar arquivos:", error);
+        }
+    }
 
     return (
         <div className={styles.midColumn}>
@@ -43,10 +94,10 @@ export default function Home() {
                     label="Voltar"
                     onClick={() => window.history.back()}
                 />
-                <h1>{turma.id}<br />{materia.id}</h1>
+                <h1>{materia.nome}</h1>
                 <div className={styles.materiaInfo}>
-                    <p><b>Turma:</b> {turma.codigo}</p>
-                    <p><b>Código da matéria:</b> {materia.codigo}</p>
+                    <p><strong>Turma:</strong> {turma.codigo}</p>
+                    <p><strong>Código da matéria:</strong> {materia.codigo}</p>
                 </div>
             </div>
             <div className={styles.fontesAdicionadas}>
@@ -58,6 +109,31 @@ export default function Home() {
                         label="Adicionar fonte"
                         onClick={() => { }}
                     />
+                </div>
+                <div className={styles.fontesAdicionadasList}>
+                    <div className={styles.fontesAdicionadasListHeader}>
+                        <div className={styles.headerLeft}>
+                            <span>Nome</span>
+                        </div>
+                        <div className={styles.headerRight}>
+                            <div>
+                                <span>Adicionado em</span>
+                            </div>
+                            <div>
+                                <span>Tamanho</span>
+                            </div>
+                            <div>
+                                <span>Ações</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className={styles.fontesAdicionadasContent}>
+                        {arquivos.map((arquivo) => (
+                            <CardMediaContent
+                                arquivo={arquivo}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
