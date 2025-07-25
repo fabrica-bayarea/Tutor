@@ -7,8 +7,8 @@ const vinculos_url = "vinculos";
 
 export async function obterVinculosAlunoTurma(aluno_id: string) {
     try {
-        const response: InterfaceAlunoTurma[] = await api.get(`/${vinculos_url}/alunos_turmas/aluno/${aluno_id}`);
-        return response;
+        const response: { data: InterfaceAlunoTurma[] } = await api.get(`/${vinculos_url}/alunos_turmas/aluno/${aluno_id}`);
+        return response.data;
     } catch (error) {
         console.error("Erro ao buscar os vínculos aluno_turma:", error);
         throw error;
@@ -19,8 +19,8 @@ export async function obterVinculosAlunoTurma(aluno_id: string) {
 
 export async function obterVinculosTurmaMateria(turma_id: string) {
     try {
-        const response: InterfaceTurmaMateria[] = await api.get(`/${vinculos_url}/turmas_materias/turma/${turma_id}`);
-        return response;
+        const response: { data: InterfaceTurmaMateria[] } = await api.get(`/${vinculos_url}/turmas_materias/turma/${turma_id}`);
+        return response.data;
     } catch (error) {
         console.error("Erro ao buscar os vínculos turma_materia:", error);
         throw error;
@@ -41,10 +41,10 @@ export async function obterVinculosProfessorTurmaMateria(professor_id: string) {
 
 // -------------------- ARQUIVO <-> TURMA <-> MATÉRIA --------------------
 
-export async function obterVinculosArquivoTurmaMateria(arquivo_id: string) {
+export async function obterVinculosArquivoTurmaMateria(turma_id: string, materia_id: string) {
     try {
-        const response: InterfaceArquivoTurmaMateria[] = await api.get(`/${vinculos_url}/arquivos_turmas_materias/arquivo/${arquivo_id}`);
-        return response;
+        const response: { data: InterfaceArquivoTurmaMateria[] } = await api.get(`/${vinculos_url}/arquivos_turmas_materias/${turma_id}_${materia_id}`);
+        return response.data;
     } catch (error) {
         console.error("Erro ao buscar os vínculos arquivo_turma_materia:", error);
         throw error;
