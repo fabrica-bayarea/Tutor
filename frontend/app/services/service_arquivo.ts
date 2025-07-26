@@ -73,3 +73,22 @@ export async function obterArquivoDownload(arquivo_id: string) {
         throw error;
     }
 }
+
+// export async function editarArquivo(arquivo_id: string, novo_nome: string) {
+//     try {
+//         const response = await api.patch(`/${arquivos_url}/${arquivo_id}`, { nome: novo_nome });
+//         return response.data;
+//     } catch (error) {
+//         console.error("Erro ao editar o arquivo:", error);
+//         throw error;
+//     }
+
+export async function deletarArquivo(arquivo_id: string) {
+    try {
+        const response = await api.delete(`/${arquivos_url}/delete/${arquivo_id}`)
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao deletar o arquivo:", error);
+        throw error;
+    }
+}
