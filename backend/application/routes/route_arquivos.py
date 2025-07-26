@@ -7,7 +7,7 @@ import json
 import time
 import os
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores
-from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_arquivo, buscar_arquivo_real_por_id
+from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_arquivo, buscar_arquivo_real_por_id, atualizar_arquivo, atualizar_arquivo_real, deletar_arquivo, deletar_arquivo_real
 from application.libs.scraping_handler import configure_browser
 from urllib.parse import urlparse
 from application.utils.validacoes import validar_professor_turma_materia
@@ -302,3 +302,74 @@ def download_arquivo(arquivo_id: str):
         # Para outros erros inesperados
         print(f"Erro ao baixar o arquivo: {str(e)}")
         return jsonify({"error": "Erro ao processar o arquivo"}), 500
+
+@arquivos_bp.route('/<string:arquivo_id>', methods=['PATCH'])
+@token_obrigatorio
+@apenas_professores
+def update_arquivo(arquivo_id: uuid.UUID):
+    """
+    Endpoint para atualizar um arquivo pelo seu ID.
+
+    Espera receber:
+    - `arquivo_id`: uuid.UUID - o ID do arquivo a ser atualizado
+    - `titulo`: str - o novo título do arquivo
+
+    1. Valida o professor
+    2. Atualiza o arquivo pelo ID
+    3. Atualiza o arquivo real, salvo no sistema de arquivos
+
+    Retorna o arquivo atualizado.
+    """
+    novo_nome = request.json.get("nome")
+    if not novo_nome:
+        return jsonify({'error': 'Parâmetro "nome" é obrigatório'}), 400
+    
+    try:
+        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
+        if not arquivo:
+            return jsonify({'error': 'Arquivo não encontrado'}), 404
+        
+        if arquivo['professor_id'] != g.usuario_id:
+            return jsonify({'error': 'Operação não autorizada'}), 403
+        
+        arquivo_atualizado = atualizar_arquivo(g.usuario_id, arquivo_id, novo_nome)
+        arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novo_nome)
+        
+        return jsonify(arquivo_atualizado), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@arquivos_bp.route('/delete/<string:arquivo_id>', methods=['DELETE'])
+@token_obrigatorio
+@apenas_professores
+def excluir_arquivo(arquivo_id: uuid.UUID):
+    """
+    Endpoint para deletar um arquivo pelo seu ID.
+
+    Espera receber:
+    - `arquivo_id`: uuid.UUID - o ID do arquivo a ser deletado
+
+    1. Valida o professor
+    2. Deleta o arquivo pelo ID
+    3. Deleta o arquivo real, salvo no sistema de arquivos
+    
+    Retorna os status de sucesso ou erro (True/False).
+    ```json
+    {
+        "arquivo_deletado": <boolean>,
+        "arquivo_real_deletado": <boolean>
+    }
+    ```
+    """
+    try:
+        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
+        if not arquivo:
+            return jsonify({"error": "Arquivo não encontrado"}), 404
+        
+        arquivo_deletado = deletar_arquivo(g.usuario_id, arquivo_id)
+        arquivo_real_deletado = deletar_arquivo_real(g.usuario_id, arquivo_id)
+        
+        return jsonify({"arquivo_deletado": arquivo_deletado, "arquivo_real_deletado": arquivo_real_deletado}), 200
+    except Exception as e:
+        print(f'Erro ao deletar arquivo: {str(e)}')
+        return jsonify({"error": str(e)}), 500

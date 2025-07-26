@@ -4,7 +4,7 @@ import glob
 from datetime import datetime
 from application.config.database import db
 from application.config.vector_database import collection
-from application.models import Arquivo
+from application.models import Arquivo, ArquivoTurmaMateria
 from application.libs.docling_handler import extrair_texto_markdown
 from application.libs.scraping_handler import data_extraction
 from application.libs.whisper_handler import processar_video
@@ -351,3 +351,93 @@ def buscar_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -
         conteudo_arquivo = f.read()
     
     return caminho_arquivo, conteudo_arquivo, extensao_arquivo
+
+def atualizar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_titulo: str) -> dict | None:
+    """
+    Função atômica, responsável por atualizar um arquivo pelo seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+    - `novo_titulo`: str - o novo título do arquivo
+
+    Retorna o arquivo atualizado se ele existir, e None caso contrário.
+    """
+    arquivo = Arquivo.query.filter_by(id=arquivo_id, professor_id=professor_id).first()
+    if not arquivo:
+        return None
+    
+    arquivo.titulo = novo_titulo
+    db.session.commit()
+
+    return arquivo.to_dict()
+
+def atualizar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_titulo: str) -> bool:
+    """
+    Função atômica, responsável por atualizar um arquivo real, salvo no sistema de arquivos, a partir do seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+    - `novo_titulo`: str - o novo título do arquivo
+
+    Retorna True se o arquivo for atualizado com sucesso, e False se o arquivo não existir.
+    """
+    caminho_arquivo = os.path.join(DOCUMENTOS_DIR, str(professor_id), f"{arquivo_id}_*")
+    arquivos_encontrados = glob.glob(caminho_arquivo)
+
+    if len(arquivos_encontrados) == 0:
+        return False
+
+    for arquivo in arquivos_encontrados:
+        os.rename(arquivo, os.path.join(DOCUMENTOS_DIR, str(professor_id), f"{arquivo_id}_{novo_titulo.replace(' ', '_')}.txt"))
+
+    return True
+
+def deletar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
+    """
+    Função atômica, responsável por deletar um arquivo pelo seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+
+    1. Busca o arquivo pelo ID
+    2. Deleta o arquivo
+    3. Deleta todos os vínculos que possuam o ID desse arquivo
+
+    Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
+    """
+    arquivo = Arquivo.query.filter_by(id=arquivo_id, professor_id=professor_id).first()
+    if not arquivo:
+        return False
+    
+    vinculos = ArquivoTurmaMateria.query.filter_by(arquivo_id=arquivo_id).all()
+    for vinculo in vinculos:
+        db.session.delete(vinculo)
+    
+    db.session.delete(arquivo)
+    db.session.commit()
+    
+    return True
+
+def deletar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
+    """
+    Função atômica, responsável por deletar um arquivo real, salvo no sistema de arquivos, a partir do seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+
+    Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
+    """
+    caminho_arquivo = os.path.join(DOCUMENTOS_DIR, str(professor_id), f"{arquivo_id}_*")
+    arquivos_encontrados = glob.glob(caminho_arquivo)
+
+    if len(arquivos_encontrados) == 0:
+        return False
+
+    for arquivo in arquivos_encontrados:
+        os.remove(arquivo)
+    
+    return True
