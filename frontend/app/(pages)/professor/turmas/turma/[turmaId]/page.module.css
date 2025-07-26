@@ -1,0 +1,52 @@
+.midColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 5rem 10rem;
+    gap: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    align-items: flex-start;
+    color: #1a1a1a;
+}
+.header h1 {
+    color: #1a1a1a;
+}
+
+.turmaInfo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    gap: 0.5rem;
+}
+.turmaInfo * {
+    color: #666666;
+}
+
+.materiasContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    gap: 1rem;
+}
+
+.listMaterias {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    height: fit-content;
+    gap: 1rem;
+}
