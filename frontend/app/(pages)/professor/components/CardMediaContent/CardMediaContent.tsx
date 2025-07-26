@@ -11,14 +11,22 @@ export default function CardMediaContent({
         data_upload,
         tamanho_arquivo,
         tipo_arquivo
-    }
+    },
+    onOpen,
+    onDownload,
+    //onEdit,
+    onDelete
 }: {
     arquivo: {
         titulo: InterfaceArquivo["titulo"];
         data_upload: InterfaceArquivo["data_upload"];
         tamanho_arquivo?: string;
         tipo_arquivo?: string;
-    }
+    },
+    onOpen?: () => void,
+    onDownload?: () => void,
+    //onEdit?: () => void,
+    onDelete?: () => void
 }) {
     const [isHovered, setIsHovered] = useState(false);
 
@@ -59,25 +67,25 @@ export default function CardMediaContent({
                             icon={<SquareArrowOutUpRight size={20} />}
                             title="Abrir arquivo"
                             aria-label="Abrir arquivo"
-                            onClick={toggleActions}
+                            onClick={onOpen}
                         />
                         <IconButton
                             icon={<Download size={20} />}
                             title="Baixar arquivo"
                             aria-label="Baixar arquivo"
-                            onClick={toggleActions}
+                            onClick={onDownload}
                         />
                         <IconButton
                             icon={<Pencil size={20} />}
                             title="Editar arquivo"
                             aria-label="Editar arquivo"
-                            onClick={toggleActions}
+                            //onClick={onEdit}
                         />
                         <IconButton
                             icon={<Trash2 size={20} color="#D92F35" />}
                             title="Excluir arquivo"
                             aria-label="Excluir arquivo"
-                            onClick={toggleActions}
+                            onClick={onDelete}
                         />
                     </div>
                 </div>
