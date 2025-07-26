@@ -11,7 +11,7 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { obterTurma } from '../../../../../services/service_turma';
 import { obterMateria } from '../../../../../services/service_materia';
 import { obterVinculosArquivoTurmaMateria } from '../../../../../services/service_vinculos';
-import { obterArquivo } from '../../../../../services/service_arquivo';
+import { obterArquivo, obterArquivoDownload, deletarArquivo } from '../../../../../services/service_arquivo';
 
 export default function Materia() {
     const params = useParams();
@@ -84,7 +84,46 @@ export default function Materia() {
         } catch (error) {
             console.error("Erro ao buscar arquivos:", error);
         }
-    }
+    };
+
+    // Abre o arquivo
+    // NÃO ESTÁ FUNCIONANDO CORRETAMENTE
+    const handleOpenArquivo = async (arquivo_id: string) => {
+        try {
+            const responseArquivo: InterfaceArquivo = await obterArquivoDownload(arquivo_id);
+            console.log(responseArquivo);
+        } catch (error) {
+            console.error("Erro ao buscar arquivo:", error);
+        }
+    };
+
+    // Baixa o arquivo
+    // NÃO ESTÁ FUNCIONANDO CORRETAMENTE
+    const handleDownloadArquivo = async (arquivo_id: string) => {
+        try {
+            const responseArquivo: InterfaceArquivo = await obterArquivoDownload(arquivo_id);
+            console.log(responseArquivo);
+        } catch (error) {
+            console.error("Erro ao baixar arquivo:", error);
+        }
+    };
+
+    // Exclui o arquivo
+    const handleDeleteArquivo = async (arquivo_id: string) => {
+        try {
+            const responseArquivo: {
+                "arquivo_deletado": boolean;
+                "arquivo_real_deletado": boolean;
+            } = await deletarArquivo(arquivo_id);
+            console.log(responseArquivo);
+
+            if (responseArquivo.arquivo_deletado && responseArquivo.arquivo_real_deletado) {
+                setArquivos((prevArquivos) => prevArquivos.filter((arquivo) => arquivo.id !== arquivo_id));
+            }
+        } catch (error) {
+            console.error("Erro ao excluir arquivo:", error);
+        }
+    };
 
     return (
         <div className={styles.midColumn}>
@@ -131,6 +170,10 @@ export default function Materia() {
                         {arquivos.map((arquivo) => (
                             <CardMediaContent
                                 arquivo={arquivo}
+                                onOpen={() => handleOpenArquivo(arquivo.id)}
+                                onDownload={() => handleDownloadArquivo(arquivo.id)}
+                                //onEdit={() => handleEditArquivo(arquivo.id)}
+                                onDelete={() => handleDeleteArquivo(arquivo.id)}
                             />
                         ))}
                     </div>
