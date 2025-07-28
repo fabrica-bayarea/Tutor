@@ -5,69 +5,73 @@ import styles from './page.module.css';
 
 import CardMateria from '../components/CardMateria/CardMateria';
 
-import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria } from '../../../types';
+import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '../../../types';
+import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
+import { obterTurma } from '@/app/services/service_turma';
+import { obterMateria } from '@/app/services/service_materia';
 
 export default function MinhasMaterias() {
-    const [professor, setProfessor] = useState<InterfaceProfessor>({
-        id: '550e8400-e29b-41d4-a716-446655440000',
-        matricula: '1',
-        nome: 'Regiano',
-        email: 'regiano@gmail.com',
-        cpf: '12345678900' // ...senha, data_nascimento
-    });
-    const [turmas, setTurmas] = useState<InterfaceTurma[]>([
-        {
-            id: 'a4f98f1d-904c-4d8a-861e-df5a14c6e922',
-            codigo: 'ADS01234',
-            semestre: '2025/1',
-            turno: 'matutino'
-        },
-        {
-            id: 'b3a5e72e-30d3-4c90-b3d4-0e3a06e3b65d',
-            codigo: 'ADS01235',
-            semestre: '2025/2',
-            turno: 'noturno'
-        }
-    ]);
-    const [materias, setMaterias] = useState<InterfaceMateria[]>([
-        {
-            id: '3f8a1f0b-5d5c-4a37-bb1d-03f057349b15',
-            codigo: 'ADS001',
-            nome: 'Banco de Dados'
-        },
-        {
-            id: '8b14cd22-d2f3-4621-99d9-58764f28db45',
-            codigo: 'ADS002',
-            nome: 'Lógica de Programação'
-        },
-        {
-            id: '6d7c5ed7-c78f-44cb-bad9-5f4d3f131417',
-            codigo: 'ADS003',
-            nome: 'Auditoria e Segurança de Software'
-        }
-    ]);
-    const [turmasMaterias, setTurmasMaterias] = useState<InterfaceTurmaMateria[]>([
-        {
-            turma_id: 'a4f98f1d-904c-4d8a-861e-df5a14c6e922',
-            materia_id: '3f8a1f0b-5d5c-4a37-bb1d-03f057349b15'
-        },
-        {
-            turma_id: 'a4f98f1d-904c-4d8a-861e-df5a14c6e922',
-            materia_id: '8b14cd22-d2f3-4621-99d9-58764f28db45'
-        },
-        {
-            turma_id: 'b3a5e72e-30d3-4c90-b3d4-0e3a06e3b65d',
-            materia_id: '6d7c5ed7-c78f-44cb-bad9-5f4d3f131417'
-        },
-        {
-            turma_id: 'b3a5e72e-30d3-4c90-b3d4-0e3a06e3b65d',
-            materia_id: '8b14cd22-d2f3-4621-99d9-58764f28db45'
-        }
-    ]);
+    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
+    const [materias, setMaterias] = useState<InterfaceMateria[]>([]);
+    const [turmasMaterias, setTurmasMaterias] = useState<InterfaceTurmaMateria[]>([]);
 
     useEffect(() => {
-
+        const professorData = localStorage.getItem("professor");
+        if (professorData) {
+            try {
+                const parsedProfessor: InterfaceProfessor = JSON.parse(professorData);
+                setProfessor(parsedProfessor);
+                handleGetMaterias(parsedProfessor.id);
+            } catch (error) {
+                console.error("Erro ao fazer parse dos dados do professor:", error);
+            }
+        }
     }, []);
+
+    const handleGetMaterias = async (professor_id: string) => {
+        try {
+            // Busca as turmas-matérias que o professor leciona
+            // Recebe uma lista de dicionários, onde cada dicionário contém 'professor_id', 'turma_id' e 'materia_id'
+            const responseVinculos: InterfaceProfessorTurmaMateria[] = await obterVinculosProfessorTurmaMateria(professor_id);
+            console.log(`Vínculos: ${JSON.stringify(responseVinculos, null, 2)}`);
+
+            const filteredVinculos = responseVinculos.map(vinculo => {
+                const { turma_id, materia_id } = vinculo;
+                return { turma_id, materia_id };
+            })
+            // Pega apenas os IDs das turmas em cada vínculo
+            const filteredTurmasIds = filteredVinculos.map(({ turma_id }) => turma_id);
+            // Remove IDs duplicados
+            const uniqueTurmaIds = [...new Set(filteredTurmasIds)];
+
+            // Pega apenas os IDs das matérias em cada vínculo
+            const filteredMateriasIds = filteredVinculos.map(({ materia_id }) => materia_id);
+            // Remove IDs duplicados
+            const uniqueMateriaIds = [...new Set(filteredMateriasIds)];
+
+            // Busca as turmas usando cada um dos IDs obtidos
+            const responseTurmas: InterfaceTurma[] = await Promise.all(
+                uniqueTurmaIds.map(
+                    async (turma_id: string) => await obterTurma(turma_id)
+                )
+            );
+            console.log(`Turmas: ${JSON.stringify(responseTurmas, null, 2)}`);
+            // Busca as matérias usando cada um dos IDs obtidos
+            const responseMaterias: InterfaceMateria[] = await Promise.all(
+                uniqueMateriaIds.map(
+                    async (materia_id: string) => await obterMateria(materia_id)
+                )
+            );
+            console.log(`Materias: ${JSON.stringify(responseMaterias, null, 2)}`);
+
+            setTurmas(responseTurmas);
+            setMaterias(responseMaterias);
+            setTurmasMaterias(filteredVinculos);
+        } catch (error) {
+            console.error("Erro ao obter as matérias:", error);
+        }
+    }
 
     return (
         <div className={styles.midColumn}>
@@ -76,9 +80,12 @@ export default function MinhasMaterias() {
                 <p>Veja todas as matérias que você leciona</p>
             </div>
             <div className={styles.listMaterias}>
-                {materias.map((materia) => (
-                    <a href={`/professor/materias/materia/${turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id}_${materia.id}`} key={materia.id}>
-                        <CardMateria key={materia.id} materia={materia} turma={turmas.find((turma) => turma.id === turmasMaterias.find((turmaMateria) => turmaMateria.materia_id === materia.id)?.turma_id)!} />
+                {turmasMaterias.map((turmaMateria) => (
+                    <a href={`/professor/materias/materia/${turmaMateria.turma_id}_${turmaMateria.materia_id}`} key={`${turmaMateria.turma_id}_${turmaMateria.materia_id}`}>
+                        <CardMateria
+                            materia={materias.find((materia) => materia.id === turmaMateria.materia_id)!}
+                            turma={turmas.find((turma) => turma.id === turmaMateria.turma_id)!}
+                        />
                     </a>
                 ))}
             </div>
