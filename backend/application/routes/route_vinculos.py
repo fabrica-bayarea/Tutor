@@ -3,7 +3,7 @@ Rotas para lidar com todos os tipos de vínculos entre tabelas intermediárias.
 """
 from flask import Blueprint, request, jsonify, g
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores, apenas_alunos
-from application.services.service_vinculos import criar_vinculo_aluno_turma, buscar_vinculos_aluno_turma, buscar_vinculos_professor_turma_materia, buscar_vinculos_arquivo_turma_materia, buscar_vinculos_turma_materia
+from application.services.service_vinculos import criar_vinculo_aluno_turma, buscar_vinculos_aluno_turma, criar_vinculo_turma_materia, buscar_vinculos_turma_materia, criar_vinculo_professor_turma_materia, buscar_vinculos_professor_turma_materia, criar_vinculo_arquivo_turma_materia, buscar_vinculos_arquivo_turma_materia, deletar_vinculo_arquivo_turma_materia
 from application.utils.validacoes import validar_professor_turma_materia
 import uuid
 
@@ -274,3 +274,27 @@ def obter_vinculos_arquivo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.U
 
     # Retorna os vínculos encontrados
     return jsonify(vinculos), 200
+
+@vinculos_bp.route('/arquivos_turmas_materias/<string:arquivo_id>_<string:turma_id>_<string:materia_id>', methods=['DELETE'])
+@token_obrigatorio
+@apenas_professores
+def excluir_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID):
+    """
+    Endpoint para excluir um vínculo entre um arquivo, uma turma e uma matéria.
+
+    Espera receber todos esses três parâmetros:
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna True se o vínculo for excluído com sucesso, e False se o vínculo não existir.
+    """
+    try:
+        vinculo_excluido = deletar_vinculo_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
+        if not vinculo_excluido:
+            return jsonify(False), 404
+        
+        return jsonify(True), 200
+    except ValueError as e:
+        print(f'Erro ao excluir vínculo ArquivoTurmaMateria: {str(e)}')
+        return jsonify({"error": str(e)}), 400

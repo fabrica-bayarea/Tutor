@@ -188,3 +188,22 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
         vinculos = vinculos.filter_by(materia_id=materia_id)
     
     return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
+
+def deletar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID):
+    """
+    Deleta um vínculo entre um arquivo, uma turma e uma matéria.
+    
+    Espera receber:
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+    - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna True se o vínculo for deletado com sucesso, e None se o vínculo não existir.
+    """
+    vinculo = ArquivoTurmaMateria.query.filter_by(arquivo_id=arquivo_id, turma_id=turma_id, materia_id=materia_id).first()
+    if not vinculo:
+        return None
+    
+    db.session.delete(vinculo)
+    db.session.commit()
+    return True
