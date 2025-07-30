@@ -7,7 +7,8 @@ import json
 import time
 import os
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores
-from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_arquivo, buscar_arquivo_real_por_id, atualizar_arquivo, atualizar_arquivo_real, deletar_arquivo, deletar_arquivo_real
+from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_metadados_arquivo, buscar_arquivo_real_por_id, atualizar_metadados_arquivo, atualizar_arquivo_real, atualizar_arquivo_vetor, deletar_metadados_arquivo, deletar_arquivo_real
+from application.services.service_vinculos import criar_vinculo_arquivo_turma_materia
 from application.libs.scraping_handler import configure_browser
 from urllib.parse import urlparse
 from application.utils.validacoes import validar_professor_turma_materia
@@ -241,7 +242,7 @@ def obter_arquivo(arquivo_id: uuid.UUID):
     Retorna o arquivo encontrado.
     """
     try:
-        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
+        arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
         return jsonify(arquivo), 200
     except ValueError as e:
         print(f'Erro ao buscar arquivo: {str(e)}')
@@ -312,7 +313,9 @@ def update_arquivo(arquivo_id: uuid.UUID):
 
     Espera receber:
     - `arquivo_id`: uuid.UUID - o ID do arquivo a ser atualizado
-    - `titulo`: str - o novo título do arquivo
+    - `novo_nome`: str - o novo nome do arquivo (opcional)
+    - `novos_vinculos`: list[dict[str, uuid.UUID]] - uma lista de dicionários com os novos vínculos entre turmas e matérias (opcional)
+    - `vinculos_removidos`: list[dict[str, uuid.UUID]] - uma lista de dicionários com os vínculos entre turmas e matérias a serem removidos (opcional)
 
     1. Valida o professor
     2. Atualiza o arquivo pelo ID
@@ -320,22 +323,61 @@ def update_arquivo(arquivo_id: uuid.UUID):
 
     Retorna o arquivo atualizado.
     """
+    # Verifica se os dados necessários estão presentes
     novo_nome = request.json.get("nome")
-    if not novo_nome:
-        return jsonify({'error': 'Parâmetro "nome" é obrigatório'}), 400
+    novos_vinculos = request.json.get("novos_vinculos")
+    vinculos_a_remover = request.json.get("vinculos_removidos")
+    if not any(novo_nome, novos_vinculos, vinculos_a_remover):
+        return jsonify({'error': 'É obrigatório fornecer ao menos "novo_nome" ou "novos_vinculos" ou "vinculos_removidos"'}), 400
     
     try:
-        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
-        if not arquivo:
-            return jsonify({'error': 'Arquivo não encontrado'}), 404
+        if novo_nome:
+            arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
+            if not arquivo:
+                return jsonify({'error': 'Arquivo não encontrado'}), 404
+            
+            if arquivo['professor_id'] != g.usuario_id:
+                return jsonify({'error': 'Operação não autorizada'}), 403
+            
+            arquivo_metadados_atualizado = atualizar_metadados_arquivo(g.usuario_id, arquivo_id, novo_nome)
+            arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novo_nome)
+            documento_vetor_atualizado = atualizar_arquivo_vetor(arquivo_id, novo_nome)
+            
+            return jsonify(arquivo_metadados_atualizado), 200
         
-        if arquivo['professor_id'] != g.usuario_id:
-            return jsonify({'error': 'Operação não autorizada'}), 403
-        
-        arquivo_atualizado = atualizar_arquivo(g.usuario_id, arquivo_id, novo_nome)
-        arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novo_nome)
-        
-        return jsonify(arquivo_atualizado), 200
+        if novos_vinculos:
+            novos_vinculos_criados = []
+            for vinculo in novos_vinculos:
+                try:
+                    turma_id = uuid.UUID(vinculo.get('turma_id'))
+                    materia_id = uuid.UUID(vinculo.get('materia_id'))
+                except (ValueError, TypeError):
+                    return jsonify({"error": "IDs de turma e matéria devem ser UUIDs válidos"}), 400
+
+                if not turma_id or not materia_id:
+                    return jsonify({"error": "Cada vínculo deve conter 'turma_id' e 'materia_id'"}), 400
+                
+                # Valida a existência do vínculo entre o professor, a turma e a matéria
+                vinculo_existe = validar_professor_turma_materia(g.usuario_id, turma_id, materia_id)
+                if not vinculo_existe:
+                    print(f"Vínculo entre professor '{g.usuario_id}', turma '{turma_id}' e matéria '{materia_id}' não encontrado")
+                    return jsonify({"error": f"Vínculo não encontrado para turma '{turma_id}' e matéria '{materia_id}'"}), 404
+
+                novo_vinculo_criado = criar_vinculo_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
+                # Adiciona o vínculo à lista de vínculos processados
+                novos_vinculos_criados.append(novo_vinculo_criado) if novo_vinculo_criado is not None else None
+            
+            arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
+            if not arquivo:
+                return jsonify({'error': 'Arquivo não encontrado'}), 404
+            
+            if arquivo['professor_id'] != g.usuario_id:
+                return jsonify({'error': 'Operação não autorizada'}), 403
+            
+            arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novos_vinculos)
+            documento_vetor_atualizado = atualizar_arquivo_vetor(arquivo_id, novos_vinculos)
+            
+            return jsonify(novos_vinculos_criados), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -362,11 +404,11 @@ def excluir_arquivo(arquivo_id: uuid.UUID):
     ```
     """
     try:
-        arquivo = buscar_arquivo(g.usuario_id, arquivo_id)
+        arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
         if not arquivo:
             return jsonify({"error": "Arquivo não encontrado"}), 404
         
-        arquivo_deletado = deletar_arquivo(g.usuario_id, arquivo_id)
+        arquivo_deletado = deletar_metadados_arquivo(g.usuario_id, arquivo_id)
         arquivo_real_deletado = deletar_arquivo_real(g.usuario_id, arquivo_id)
         
         return jsonify({"arquivo_deletado": arquivo_deletado, "arquivo_real_deletado": arquivo_real_deletado}), 200

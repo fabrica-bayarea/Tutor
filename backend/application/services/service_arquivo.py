@@ -315,9 +315,9 @@ def processar_texto(texto: str, professor_id: uuid.UUID, vinculos: list[dict[str
         }
     }
 
-def buscar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> dict | None:
+def buscar_metadados_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> dict | None:
     """
-    Função atômica, responsável por buscar metadados de um arquivo pelo seu ID.
+    Função atômica, responsável por buscar metadados de um arquivo no PostgreSQL.
 
     Espera receber:
     - `professor_id`: uuid.UUID - o ID do professor
@@ -352,9 +352,9 @@ def buscar_arquivo_real_por_id(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -
     
     return caminho_arquivo, conteudo_arquivo, extensao_arquivo
 
-def atualizar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_titulo: str) -> dict | None:
+def atualizar_metadados_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_titulo: str) -> dict | None:
     """
-    Função atômica, responsável por atualizar um arquivo pelo seu ID.
+    Função atômica, responsável por atualizar metadados de um arquivo no PostgreSQL.
 
     Espera receber:
     - `professor_id`: uuid.UUID - o ID do professor
@@ -394,17 +394,48 @@ def atualizar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_
 
     return True
 
-def deletar_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
+def atualizar_arquivo_vetor(documento_id: uuid.UUID, novo_titulo: str = None, novos_vinculos: str = None):
     """
-    Função atômica, responsável por deletar um arquivo pelo seu ID.
+    Função atômica, responsável por atualizar um documento no ChromaDB, a partir do seu ID.
+
+    Espera receber:
+    - `documento_id`: uuid.UUID - o ID do documento
+    - `novo_titulo`: str - o novo título do documento (opcional)
+    - `novos_vinculos`: str - os novos vínculos entre turmas e matérias, no formato 'turma1_materia1,turma2_materia1,turma3_materia2'
+
+    Retorna True se o documento for atualizado com sucesso, e False se o documento não existir.
+    """ # REVISAR OS RETORNOS
+    if not any(novo_titulo, novos_vinculos):
+        raise ValueError("É obrigatório fornecer ao menos um título ou um conjunto de vínculos.")
+    
+    new_metadatas = {}
+    
+    if novo_titulo:
+        new_metadatas['titulo'] = novo_titulo
+    if novos_vinculos:
+        new_metadatas['vinculos'] = novos_vinculos
+    
+    try:
+        collection.update(
+            ids=[str(documento_id)],
+            metadatas=[new_metadatas]
+        )
+        return True
+    except Exception as e:
+        print(f"Erro ao atualizar documento no ChromaDB: {str(e)}")
+        raise
+
+def deletar_metadados_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
+    """
+    Função atômica, responsável por deletar metadados de um arquivo no PostgreSQL.
 
     Espera receber:
     - `professor_id`: uuid.UUID - o ID do professor
     - `arquivo_id`: uuid.UUID - o ID do arquivo
 
     1. Busca o arquivo pelo ID
-    2. Deleta o arquivo
-    3. Deleta todos os vínculos que possuam o ID desse arquivo
+    2. Deleta todos os vínculos que possuam o ID desse arquivo
+    3. Deleta o arquivo
 
     Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
     """
@@ -441,3 +472,15 @@ def deletar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool
         os.remove(arquivo)
     
     return True
+
+def deletar_arquivo_vetor(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
+    """
+    Função atômica, responsável por deletar um arquivo real, salvo no sistema de arquivos, a partir do seu ID.
+
+    Espera receber:
+    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
+
+    Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
+    """
+    pass
