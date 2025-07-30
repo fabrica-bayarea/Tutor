@@ -7,6 +7,24 @@ from application.models import AlunoTurma, TurmaMateria, ProfessorTurmaMateria, 
 
 # -------------------- ALUNO <-> TURMA --------------------
 
+def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
+    """
+    Cria um novo vínculo entre um aluno e uma turma.
+
+    Espera receber todos esses dois parâmetros:
+    - `aluno_id`: uuid.UUID - o ID do aluno
+    - `turma_id`: uuid.UUID - o ID da turma
+
+    Retorna True se o vínculo for criado com sucesso, e False se o vínculo já existir.
+    """
+    existe = buscar_vinculos_aluno_turma(aluno_id, turma_id)
+    if existe:
+        return False
+    
+    db.session.add(AlunoTurma(aluno_id=aluno_id, turma_id=turma_id))
+    db.session.commit()
+    return True
+
 def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID = None) -> list[dict]:
     """
     Busca vínculos entre alunos e turmas.
@@ -30,25 +48,25 @@ def buscar_vinculos_aluno_turma(aluno_id: uuid.UUID = None, turma_id: uuid.UUID 
     
     return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
-def criar_vinculo_aluno_turma(aluno_id: uuid.UUID, turma_id: uuid.UUID) -> bool:
+# -------------------- TURMA <-> MATÉRIA --------------------
+
+def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
     """
-    Cria um novo vínculo entre um aluno e uma turma.
+    Cria um novo vínculo entre uma turma e uma matéria.
 
     Espera receber todos esses dois parâmetros:
-    - `aluno_id`: uuid.UUID - o ID do aluno
     - `turma_id`: uuid.UUID - o ID da turma
+    - `materia_id`: uuid.UUID - o ID da matéria
 
     Retorna True se o vínculo for criado com sucesso, e False se o vínculo já existir.
     """
-    existe = buscar_vinculos_aluno_turma(aluno_id, turma_id)
+    existe = buscar_vinculos_turma_materia(turma_id, materia_id)
     if existe:
         return False
     
-    db.session.add(AlunoTurma(aluno_id=aluno_id, turma_id=turma_id))
+    db.session.add(TurmaMateria(turma_id=turma_id, materia_id=materia_id))
     db.session.commit()
     return True
-
-# -------------------- TURMA <-> MATÉRIA --------------------
 
 def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict]:
     """
@@ -73,25 +91,27 @@ def buscar_vinculos_turma_materia(turma_id: uuid.UUID = None, materia_id: uuid.U
     
     return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
-def criar_vinculo_turma_materia(turma_id: uuid.UUID, materia_id: uuid.UUID) -> bool:
-    """
-    Cria um novo vínculo entre uma turma e uma matéria.
+# -------------------- PROFESSOR <-> TURMA <-> MATÉRIA --------------------
 
-    Espera receber todos esses dois parâmetros:
+def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ProfessorTurmaMateria | None:
+    """
+    Cria um novo vínculo entre um professor, uma turma e uma matéria.
+
+    Espera receber todos esses três parâmetros:
+    - `professor_id`: uuid.UUID - o ID do professor
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna True se o vínculo for criado com sucesso, e False se o vínculo já existir.
+    Retorna o novo vínculo se ele for criado com sucesso, e None se o vínculo já existir.
     """
-    existe = buscar_vinculos_turma_materia(turma_id, materia_id)
+    existe = buscar_vinculos_professor_turma_materia(professor_id, turma_id, materia_id)
     if existe:
-        return False
+        return None
     
-    db.session.add(TurmaMateria(turma_id=turma_id, materia_id=materia_id))
+    novo_vinculo = ProfessorTurmaMateria(professor_id=professor_id, turma_id=turma_id, materia_id=materia_id)
+    db.session.add(novo_vinculo)
     db.session.commit()
-    return True
-
-# -------------------- PROFESSOR <-> TURMA <-> MATÉRIA --------------------
+    return novo_vinculo
 
 def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict] | None:
     """
@@ -120,27 +140,27 @@ def buscar_vinculos_professor_turma_materia(professor_id: uuid.UUID = None, turm
     
     return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
 
-def criar_vinculo_professor_turma_materia(professor_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ProfessorTurmaMateria | None:
+# -------------------- ARQUIVO <-> TURMA <-> MATÉRIA --------------------
+
+def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> dict | None:
     """
-    Cria um novo vínculo entre um professor, uma turma e uma matéria.
+    Cria um novo vínculo entre um arquivo, uma turma e uma matéria.
 
     Espera receber todos esses três parâmetros:
-    - `professor_id`: uuid.UUID - o ID do professor
+    - `arquivo_id`: uuid.UUID - o ID do arquivo
     - `turma_id`: uuid.UUID - o ID da turma
     - `materia_id`: uuid.UUID - o ID da matéria
 
-    Retorna o novo vínculo se ele for criado com sucesso, e None se o vínculo já existir.
+    Retorna o vínculo criado como um dicionário serializável se ele for criado com sucesso, e None se o vínculo já existir.
     """
-    existe = buscar_vinculos_professor_turma_materia(professor_id, turma_id, materia_id)
+    existe = buscar_vinculos_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
     if existe:
         return None
     
-    novo_vinculo = ProfessorTurmaMateria(professor_id=professor_id, turma_id=turma_id, materia_id=materia_id)
+    novo_vinculo = ArquivoTurmaMateria(arquivo_id=arquivo_id, turma_id=turma_id, materia_id=materia_id)
     db.session.add(novo_vinculo)
     db.session.commit()
-    return novo_vinculo
-
-# -------------------- ARQUIVO <-> TURMA <-> MATÉRIA --------------------
+    return novo_vinculo.to_dict()
 
 def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id: uuid.UUID = None, materia_id: uuid.UUID = None) -> list[dict] | None:
     """
@@ -168,23 +188,3 @@ def buscar_vinculos_arquivo_turma_materia(arquivo_id: uuid.UUID = None, turma_id
         vinculos = vinculos.filter_by(materia_id=materia_id)
     
     return [vinculo.to_dict() for vinculo in vinculos.all()] if vinculos else None
-
-def criar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.UUID, materia_id: uuid.UUID) -> ArquivoTurmaMateria | None:
-    """
-    Cria um novo vínculo entre um arquivo, uma turma e uma matéria.
-
-    Espera receber todos esses três parâmetros:
-    - `arquivo_id`: uuid.UUID - o ID do arquivo
-    - `turma_id`: uuid.UUID - o ID da turma
-    - `materia_id`: uuid.UUID - o ID da matéria
-
-    Retorna o vínculo criado se ele for criado com sucesso, e None se o vínculo já existir.
-    """
-    existe = buscar_vinculos_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
-    if existe:
-        return None
-    
-    novo_vinculo = ArquivoTurmaMateria(arquivo_id=arquivo_id, turma_id=turma_id, materia_id=materia_id)
-    db.session.add(novo_vinculo)
-    db.session.commit()
-    return novo_vinculo
