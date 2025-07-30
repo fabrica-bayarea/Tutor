@@ -50,3 +50,13 @@ export async function obterVinculosArquivoTurmaMateria(turma_id: string, materia
         throw error;
     }
 }
+
+export async function deletarVinculoArquivoTurmaMateria(arquivo_id: string, turma_id: string, materia_id: string) {
+    try {
+        const response: { data: boolean } = await api.delete(`/${vinculos_url}/arquivos_turmas_materias/${arquivo_id}_${turma_id}_${materia_id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao deletar o vínculo arquivo_turma_materia:", error);
+        throw error;
+    }
+}
