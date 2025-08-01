@@ -84,6 +84,7 @@
     border-radius: 8px;
     font-size: 0.875rem;
     line-height: 1.4;
+    overflow-x: auto;
 }
 
 .messageContent p > code { /* Para códigos IN-LINE */
