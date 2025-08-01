@@ -5,13 +5,15 @@ import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
 import Button from '../../../../../components/Button/Button';
-import CardMediaContent from '../../../components/CardMediaContent/CardMediaContent';
+import IconButton from '@/app/components/IconButton/IconButton';
 import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../types';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Download, File, Play, Music, Text, Pencil, Plus, SquareArrowOutUpRight, Trash2 } from 'lucide-react';
 import { obterTurma } from '../../../../../services/service_turma';
 import { obterMateria } from '../../../../../services/service_materia';
 import { obterVinculosArquivoTurmaMateria } from '../../../../../services/service_vinculos';
 import { obterArquivo, obterArquivoDownload, deletarArquivo } from '../../../../../services/service_arquivo';
+import { deletarVinculoArquivoTurmaMateria } from '../../../../../services/service_vinculos';
+import { TIPOS_ARQUIVO } from '@/constants';
 
 export default function Materia() {
     const params = useParams();
@@ -29,7 +31,13 @@ export default function Materia() {
         codigo: '',
         nome: ''
     });
-    const [arquivos, setArquivos] = useState<InterfaceArquivo[]>([]);
+    const [arquivos, setArquivos] = useState<{
+        id: InterfaceArquivo["id"];
+        titulo: InterfaceArquivo["titulo"];
+        data_upload: InterfaceArquivo["data_upload"];
+        tamanho?: string;
+        tipo_arquivo?: string;
+    }[]>([]);
 
     useEffect(() => {
         const professorData = localStorage.getItem("professor");
@@ -111,13 +119,10 @@ export default function Materia() {
     // Exclui o arquivo
     const handleDeleteArquivo = async (arquivo_id: string) => {
         try {
-            const responseArquivo: {
-                "arquivo_deletado": boolean;
-                "arquivo_real_deletado": boolean;
-            } = await deletarArquivo(arquivo_id);
+            const responseArquivo: boolean = await deletarVinculoArquivoTurmaMateria(arquivo_id, turmaId, materiaId);
             console.log(responseArquivo);
 
-            if (responseArquivo.arquivo_deletado && responseArquivo.arquivo_real_deletado) {
+            if (responseArquivo) {
                 setArquivos((prevArquivos) => prevArquivos.filter((arquivo) => arquivo.id !== arquivo_id));
             }
         } catch (error) {
@@ -150,33 +155,56 @@ export default function Materia() {
                     />
                 </div>
                 <div className={styles.fontesAdicionadasList}>
-                    <div className={styles.fontesAdicionadasListHeader}>
-                        <div className={styles.headerLeft}>
-                            <span>Nome</span>
-                        </div>
-                        <div className={styles.headerRight}>
-                            <div>
-                                <span>Adicionado em</span>
-                            </div>
-                            <div>
-                                <span>Tamanho</span>
-                            </div>
-                            <div>
-                                <span>Ações</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className={styles.fontesAdicionadasContent}>
-                        {arquivos.map((arquivo) => (
-                            <CardMediaContent
-                                arquivo={arquivo}
-                                onOpen={() => handleOpenArquivo(arquivo.id)}
-                                onDownload={() => handleDownloadArquivo(arquivo.id)}
-                                //onEdit={() => handleEditArquivo(arquivo.id)}
-                                onDelete={() => handleDeleteArquivo(arquivo.id)}
-                            />
-                        ))}
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th></th>
+                                <th>Adicionado em</th>
+                                <th>Tamanho</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {arquivos.map((arquivo) => (
+                                <tr key={arquivo.id}>
+                                    <td>
+                                        <div className={styles.iconContainer}>
+                                            {TIPOS_ARQUIVO.documento.includes(`.${arquivo.titulo.split('.').pop()}`) ? <File size={24} /> :
+                                            TIPOS_ARQUIVO.video.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Play size={24} /> :
+                                            TIPOS_ARQUIVO.audio.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Music size={24} /> :
+                                            TIPOS_ARQUIVO.texto.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Text size={24} /> : null}
+                                        </div>
+                                    </td>
+                                    <td>{arquivo.titulo}</td>
+                                    <td>{arquivo.data_upload as String}</td>
+                                    <td>{arquivo.tamanho || "--"}</td>
+                                    <td className={styles.actionsContainer}>
+                                        <IconButton
+                                            icon={<SquareArrowOutUpRight size={20} />}
+                                            title="Abrir arquivo"
+                                            onClick={() => handleOpenArquivo(arquivo.id)}
+                                        />
+                                        <IconButton
+                                            icon={<Download size={20} />}
+                                            title="Baixar arquivo"
+                                            onClick={() => handleDownloadArquivo(arquivo.id)}
+                                        />
+                                        <IconButton
+                                            icon={<Pencil size={20} />}
+                                            title="Editar nome do arquivo"
+                                            //onClick={() => handleEditArquivo(arquivo.id)}
+                                        />
+                                        <IconButton
+                                            icon={<Trash2 size={20} color="#D92F35" />}
+                                            title="Excluir arquivo para esta matéria"
+                                            onClick={() => handleDeleteArquivo(arquivo.id)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

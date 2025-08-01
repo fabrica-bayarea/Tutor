@@ -51,38 +51,89 @@
     gap: 1rem;
 }
 
-.fontesAdicionadasListHeader {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: fit-content;
-    padding: 0 0.5rem;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-}
-.fontesAdicionadasListHeader span {
-    color: #666666;
-}
-
-.headerLeft, .headerRight {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-
-.headerRight {
-    gap: 1rem;
-}
-.headerRight div {
-    min-width: 10rem;
-    width: 10rem;
-}
-
-.fontesAdicionadasContent {
+.fontesAdicionadasList {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: fit-content;
     overflow-y: auto;
+}
+
+.fontesAdicionadasList table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    color: #1a1a1a;
+}
+
+.fontesAdicionadasList table th {
+    color: #666666;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.fontesAdicionadasList table th:first-child,
+.fontesAdicionadasList table td:first-child {
+    padding-left: 1rem;
+}
+
+.fontesAdicionadasList table th:last-child,
+.fontesAdicionadasList table td:last-child {
+    padding-right: 1rem;
+}
+
+.fontesAdicionadasList table td:not(:first-child):not(:nth-child(2)) {
+    color: #666666;
+}
+
+.fontesAdicionadasList table td {
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.fontesAdicionadasList table th,
+.fontesAdicionadasList table td {
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.fontesAdicionadasList table tbody tr {
+    border-radius: 8px;
+    border-top: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+    background-color: transparent;
+    overflow: hidden;
+    cursor: pointer;
+
+    transition: background-color ease-out 0.15s;
+}
+.fontesAdicionadasList table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.fontesAdicionadasList table td.actionsContainer {
+    opacity: 0;
+    transition: opacity ease-out 0.15s;
+}
+
+.fontesAdicionadasList table tr:hover td.actionsContainer {
+    opacity: 1;
+}
+
+.fontesAdicionadasList table td .iconContainer {
+    display: flex;
+    flex-direction: row;
+    min-width: 2rem;
+    width: 2rem;
+    min-height: 2rem;
+    height: 2rem;
+    padding: 0.125rem;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.1);
 }
