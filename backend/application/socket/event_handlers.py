@@ -35,7 +35,30 @@ def handle_mensagem_inicial(data: dict[str, str]):
     mensagem = data['mensagem']
 
     #1. Cria um novo chat usando o ID do aluno
-    chat = criar_chat(aluno_id)
+    prompt_nome_chat = f"""Você é um assistente que precisa criar um nome curto, objetivo e DESCRITIVO para um chat, com base na pergunta abaixo. O nome deve:
+
+- Ser em **português**
+- Ter no máximo **64 caracteres**
+- Ter apenas UMA linha
+- Ser formatado como **título com espaços** (não junte as palavras)
+- NÃO inclua pontuação ou aspas
+- Responda APENAS com o nome gerado (sem explicações)
+
+<pergunta_aluno>
+{mensagem}
+</pergunta_aluno>
+"""
+    response_nome_chat = ollama.generate(
+        model="mistral",
+        prompt=prompt_nome_chat,
+        stream=False,
+        options={
+            'num_predict': 16,
+            'temperature': 0.7,
+        }
+    ).get("response", "")
+    print(f"Nome criado para o chat: {response_nome_chat}")
+    chat = criar_chat(aluno_id, response_nome_chat)
     print(f"Chat criado:\n{chat}")
     socketio.emit("novo_chat", chat, to=sid)
     socketio.sleep(0)
