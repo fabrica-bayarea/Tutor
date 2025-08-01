@@ -4,6 +4,7 @@ Rotas para lidar com todos os tipos de vínculos entre tabelas intermediárias.
 from flask import Blueprint, request, jsonify, g
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores, apenas_alunos
 from application.services.service_vinculos import criar_vinculo_aluno_turma, buscar_vinculos_aluno_turma, criar_vinculo_turma_materia, buscar_vinculos_turma_materia, criar_vinculo_professor_turma_materia, buscar_vinculos_professor_turma_materia, criar_vinculo_arquivo_turma_materia, buscar_vinculos_arquivo_turma_materia, deletar_vinculo_arquivo_turma_materia
+from application.services.service_arquivo import deletar_metadados_arquivo, deletar_arquivo_real, deletar_arquivo_vetor
 from application.utils.validacoes import validar_professor_turma_materia
 import uuid
 
@@ -293,6 +294,15 @@ def excluir_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.
         vinculo_excluido = deletar_vinculo_arquivo_turma_materia(arquivo_id, turma_id, materia_id)
         if not vinculo_excluido:
             return jsonify(False), 404
+        
+        # Se o vínculo excluído for o último, também deletamos tudo relacionado ao arquivo
+        if vinculo_excluido["ultimo_vinculo"]:
+            arquivo_metadados_deletado = deletar_metadados_arquivo(g.usuario_id, arquivo_id)
+            arquivo_real_deletado = deletar_arquivo_real(g.usuario_id, arquivo_id)
+            arquivo_vetor_deletado = deletar_arquivo_vetor(g.usuario_id, arquivo_id)
+            print(f"Arquivo deletado do PostgreSQL: {arquivo_metadados_deletado}")
+            print(f"Arquivo deletado do sistema de arquivos: {arquivo_real_deletado}")
+            print(f"Arquivo deletado do banco vetorial: {arquivo_vetor_deletado}")
         
         return jsonify(True), 200
     except ValueError as e:

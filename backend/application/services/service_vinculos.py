@@ -204,6 +204,13 @@ def deletar_vinculo_arquivo_turma_materia(arquivo_id: uuid.UUID, turma_id: uuid.
     if not vinculo:
         return None
     
+    # Verifica se é o último vínculo do arquivo em questão
+    total_vinculos = ArquivoTurmaMateria.query.filter_by(arquivo_id=arquivo_id).count()
+    
     db.session.delete(vinculo)
     db.session.commit()
-    return True
+    
+    return {
+        "vinculo_deletado": True,
+        "ultimo_vinculo": True if total_vinculos == 1 else False
+    }
