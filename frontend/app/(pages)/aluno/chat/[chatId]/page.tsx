@@ -15,7 +15,7 @@ import { obterMensagens } from "@/app/services/service_mensagem"
 export default function ChatPage() {
     const { chatId } = useParams()
     const searchParams = useSearchParams()
-    const novoChat = searchParams.get("novo") === "true";
+    const [novoChat, setNovoChat] = useState<boolean>(searchParams.get("novo") === "true");
     const prontoEmitido = useRef<boolean>(false)
 
     const [aluno, setAluno] = useState<InterfaceAluno | null>(null)
@@ -69,6 +69,18 @@ export default function ChatPage() {
             carregarMensagens()
         }
     }, [chatId, novoChat])
+
+    // Efeito para remover o parâmetro 'novo' da URL após emitir o handshake, quando se tratar de um chat novo
+    // Não altera o estado 'novoChat', apenas altera a URL em si
+    useEffect(() => {
+        if (prontoEmitido.current && novoChat) {
+            const url = new URL(window.location.href)
+            if (url.searchParams.has("novo")) {
+                url.searchParams.delete("novo");
+                window.history.replaceState(null, "", url.toString())
+            }
+        }
+    }, [])
 
     // Listeners para eventos emitidos pelo back-end
     useEffect(() => {
