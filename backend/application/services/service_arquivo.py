@@ -483,4 +483,13 @@ def deletar_arquivo_vetor(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> boo
 
     Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
     """
-    pass
+    try:
+        collection.delete(
+            ids=[str(arquivo_id)],
+            where={"professor_id": str(professor_id)}
+        )
+    except Exception as e:
+        print(f"Erro ao deletar documento no ChromaDB: {str(e)}")
+        raise
+    
+    return True
