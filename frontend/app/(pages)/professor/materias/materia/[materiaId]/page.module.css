@@ -77,6 +77,7 @@
 .fontesAdicionadasList table th:first-child,
 .fontesAdicionadasList table td:first-child {
     padding-left: 1rem;
+    width: 2rem;
 }
 
 .fontesAdicionadasList table th:last-child,
