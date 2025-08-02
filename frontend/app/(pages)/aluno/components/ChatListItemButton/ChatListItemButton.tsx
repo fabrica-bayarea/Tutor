@@ -21,7 +21,9 @@ export default function ChatListItemButton({
                 <a title={name} href={`/aluno/chat/${id}`} className={styles.chatListItemButtonName}>
                     {name}
                 </a>
-                <IconButton icon={<Ellipsis />} />
+                <div className={styles.iconButtonContainer}>
+                    <IconButton icon={<Ellipsis />} />
+                </div>
             </div>
         </div>
     );

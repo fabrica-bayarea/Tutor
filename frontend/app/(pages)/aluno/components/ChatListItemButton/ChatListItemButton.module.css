@@ -23,7 +23,6 @@
 }
 
 .chatListItemButtonName {
-    display: flex;
     width: 100%;
     padding: 0.5rem 0 0.5rem 0.5rem;
     justify-content: flex-start;
@@ -35,6 +34,15 @@
     text-overflow: ellipsis;
     overflow: hidden;
     color: inherit;
-
     color: #1a1a1a;
+}
+
+.iconButtonContainer {
+    opacity: 0;
+    width: 0;
+    transition: opacity ease-out 0.15s;
+}
+.chatListItemButtonStateLayer:hover .iconButtonContainer {
+    opacity: 1;
+    width: fit-content;
 }
