@@ -36,15 +36,18 @@ export default function Aside({ chats }: { chats: InterfaceChat[] }) {
                 </a>
             </div>
             <div className={styles.asideChatList}>
-                {chats.map((chat) => (
-                    <ChatListItemButton
-                        key={chat.id}
-                        id={chat.id}
-                        aluno_id={chat.aluno_id}
-                        name={chat.nome}
-                        isSelected={chat.id === selectedChatId}
-                    />
-                ))}
+                {chats
+                    .slice()
+                    .reverse()
+                    .map((chat) => (
+                        <ChatListItemButton
+                            key={chat.id}
+                            id={chat.id}
+                            aluno_id={chat.aluno_id}
+                            name={chat.nome}
+                            isSelected={chat.id === selectedChatId}
+                        />
+                    ))}
             </div>
         </div>
     );
