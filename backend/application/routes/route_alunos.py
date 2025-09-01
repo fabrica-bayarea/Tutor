@@ -46,7 +46,7 @@ def gerar_aluno():
     # Verifica se já existe um aluno com alguns dados que devem ser únicos
     aluno_existe = buscar_aluno(matricula=matricula, email=email, cpf=cpf)
     if aluno_existe:
-        return jsonify({"error": "Aluno com essa matrícula, email ou cpf já existe"}), 400
+        return jsonify({"error": "Aluno com essa matrícula, email ou cpf já existe"}), 409
     
     # Cria o aluno
     aluno = criar_aluno(matricula, nome, email, senha, cpf, data_nascimento)

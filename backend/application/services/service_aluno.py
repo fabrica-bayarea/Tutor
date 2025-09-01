@@ -42,23 +42,33 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
 
     Retorna um dicionário com os dados do aluno se ele existir, e None caso contrário.
     """
-    if aluno_id is not None:
+    # Se um ID específico for passado, a busca é direta e ignora os outros campos.
+    if aluno_id:
         aluno = Aluno.query.filter_by(id=aluno_id).first()
+        return aluno.to_dict() if aluno else None
     
-    if matricula is not None:
-        aluno = Aluno.query.filter_by(matricula=matricula).first()
+    # Cria uma lista de filtros baseada nos parâmetros que não são None
+    filtros = []
+
+    if matricula:
+        filtros.append(Aluno.matricula == matricula)
+
+    if email:
+        filtros.append(Aluno.email == email)
+
+    if nome:
+        filtros.append(Aluno.nome == nome)
     
-    if nome is not None:
-        aluno = Aluno.query.filter_by(nome=nome).first()
-    
-    if email is not None:
-        aluno = Aluno.query.filter_by(email=email).first()
-    
-    if cpf is not None:
-        aluno = Aluno.query.filter_by(cpf=cpf).first()
-    
-    if data_nascimento is not None:
-        aluno = Aluno.query.filter_by(data_nascimento=data_nascimento).first()
+    if cpf:
+        filtros.append(Aluno.cpf == cpf)
+
+    if data_nascimento:
+        filtros.append(Aluno.data_nascimento == data_nascimento)
+
+    aluno = None
+
+    if filtros:
+        aluno = Aluno.query.filter(db.or_(*filtros)).first()
     
     return aluno.to_dict() if aluno else None
 
