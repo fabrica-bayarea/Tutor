@@ -6,7 +6,7 @@ Flask-Migrate
 Flask-SocketIO
 eventlet
 PyJWT
-psycopg2
+psycopg2-binary
 chromadb
 docling
 openai-whisper
