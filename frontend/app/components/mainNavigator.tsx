@@ -3,7 +3,7 @@
 import React, { useContext, useState, CSSProperties, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from "./mainNavigator.module.css";
-import { ModalContext } from "../contexts/contextModal"
+import { ModalContext } from "../../contexts/contextModal"
 import { Menu, House, Plus, GraduationCap, BookMarked } from "lucide-react";
 
 function MainNavigator() {
