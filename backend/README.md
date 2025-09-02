@@ -1,233 +1,79 @@
-# Tutor/backend
+# Tutor / Backend
 
-## IMPORTANTE
-Para conseguir executar corretamente o backend da aplicação, **você precisa, no mínimo**:
-* Utilizar uma versão do **Python** entre **3.8** e **3.11**
-    * Sugerimos utilizar a _major version_ **3.11**. Qualquer _minor version_ (3.11.0, 3.11.9, etc) deve funcionar bem
-* Ter o **PostgreSQL** instalado no seu computador
-    * Utilizamos a versão **[17.4](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)**
-    * [Assista a este vídeo curto](https://youtu.be/UbX-2Xud1JA?si=AyfZm32b7bheRwxS) para guiá-lo na instalação
-* Ter o **database** do PostgreSQL devidamente criado
-    * Consulte a seção **[Configuração inicial do PostgreSQL](#configuração-inicial-do-postgresql)** para mais informações
-* Ter um **gerenciador de pacotes de sistema operacional** instalado
-    * Algumas dependências do backend **EXIGEM** que você utilize um gerenciador de pacotes do seu sistema operacional. Consulte a seção **[Dependências do backend](#dependências-do-backend)** para mais informações
-* Ter o cliente do [**Ollama**](https://ollama.com/download) instalado no seu computador
-    * O Ollama possui seu cliente e sua biblioteca Python. A biblioteca já será baixada pelo `pip` ao seguir o passo-a-passo de instalação do projeto corretamente, mas o cliente deve ser instalado manualmente por você.
-* Ter o LLM **Mistral** instalado no seu computador a partir do cliente do Ollama previamente instalado
-    * Abra o prompt de comando do seu computador e execute:
-        ```bash
-        ollama pull mistral
-        ```
-    * Liste os modelos instalados para verificar se o Mistral foi instalado corretamente:
-        ```bash
-        ollama list
-        ```
+Este documento descreve como configurar e rodar o ambiente de desenvolvimento do backend do projeto Tutor utilizando Docker.
 
-## Configuração inicial do PostgreSQL
-Supondo que você já tenha instalado o PostgreSQL corretamente, tendo seguido os passos do vídeo recomendado acima:
+## Rodando o Projeto com Docker
 
-1. Abra o **pgAdmin**
-2. Na aba **Object Explorer**, expanda os conteúdos de **Servers**
-    * Ao fazer isso, você terá que inserir sua senha, definida no momento da instalação do PostgreSQL. **Lembre-se dela**.
-3. Clique com o botão direito sobre **Databases** e selecione **Create** > **Database**
-4. Crie um novo database chamado `tutor`
-    * Basta nomeá-lo e salvar. Não se preocupe com outras configurações ou com criar tabelas por agora.
+A maneira recomendada para rodar o ambiente completo é utilizando o Docker Compose a partir da **raiz do projeto**. Isso garantirá que o backend, o frontend e o banco de dados sejam iniciados e conectados corretamente.
 
-## Instalação do projeto
-Supondo que você já tenha clonado o repositório e **esteja na branch `develop`**:
+### Pré-requisitos
+* [Git](https://git-scm.com/)
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
-1. Abra um terminal e navegue até a pasta `backend/`
+### Passos para a Configuração
 
-    _É **EXTREMAMENTE** importante que você esteja na pasta `backend/` para realizar as etapas seguintes. Fique atento a isso!_
-
-2. Crie seu ambiente virtual:
+1.  **Clone o Repositório:**
     ```bash
-    python -m venv venv
-    ```
-    Ou, se quiser garantir que ele seja criado com uma versão específica do Python (como a **3.11**):
-    * No **Windows**:
-        ```bash
-        py -3.11 -m venv venv
-        ```
-    * No **Linux/MacOS**:
-        ```bash
-        python3.11 -m venv venv
-        ```
-
-3. Ative o ambiente virtual:
-    * No **Windows**:
-        ```bash
-        ./venv/Scripts/activate
-        ```
-    * No **Linux/Mac**:
-        ```bash
-        source ./venv/bin/activate
-        ```
-
-Certifique-se de estar com o interpretador **do ambiente virtual** ativado antes de prosseguir com as etapas restantes. Para isso:
-* Abra algum arquivo Python deste projeto (como o `app.py`)
-* Verifique no canto inferior direito do VS Code o interpretador selecionado (algo como `3.11.9 ('venv': venv)`), e clique nele
-* Se o caminho para o interpretador ativo não for algo como `./backend/venv/Scripts/python.exe`, procure por um que seja dessa forma
-    * Se não encontrar, procure manualmente pelo arquivo `python.exe` no caminho especificado acima
-
-4. **Com o ambiente virtual ativado**, instale as dependências do backend:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    Se houver problemas com o comando acima, tente:
-    ```bash
-    python -m pip install -r requirements.txt
+    git clone [https://github.com/fabrica-bayarea/Tutor.git](https://github.com/fabrica-bayarea/Tutor.git)
+    cd Tutor
     ```
 
-    _É esperado que a instalação do **ChromaDB** apresente problemas. Para solucioná-los, consulte a seção **[Dependências do backend](#dependências-do-backend)**._
-
-5. Crie um arquivo `.env` também na pasta `backend/` e configure as variáveis de ambiente necessárias:
-    ```bash
-    SECRET_KEY=<sua_chave_secreta>
-    DATABASE_URL=postgresql://<usuario>:<senha>@localhost:<porta>/tutor
+2.  **Crie o Arquivo de Ambiente Principal:**
+    * Na raiz do projeto, crie um arquivo chamado `.env`.
+    * Adicione a senha do banco de dados a ele. Esta senha será usada pelo container do PostgreSQL.
     ```
-    * **`SECRET_KEY`**: uma chave secreta para autenticação. Você pode gerar uma aleatória em sites como [RandomKeyGenerator](https://www.randomkeygen.com/), ou consultar seu líder para obter uma.
-    * **`DATABASE_URL`**: a URL de conexão com o seu banco de dados PostgreSQL. Substitua os placeholders pelos valores corretos:
-        * `<usuario>` é o superusuário definido no momento da instalação do PostgreSQL. Provavelmente `postgres`
-        * `<senha>` é a senha que **VOCÊ** definiu no momento da instalação do PostgreSQL
-        * `<porta>` é a porta definida no momento da instalação do PostgreSQL. Se você não definiu uma personalizada, provavelmente será `5432`, que é a porta padrão do PostgreSQL
-
-6. **Ainda na pasta `backend/` e com o ambiente virtual ativado**, aplique as migrações do banco de dados PostgreSQL:
-    ```bash
-    flask db upgrade
-    ```
-    Se houver problemas com o comando acima, tente fazer com que o Python chame diretamente o módulo Flask:
-    ```bash
-    python -m flask db upgrade
+    # Arquivo: ./.env
+    POSTGRES_PASSWORD=sua_senha_segura_aqui
     ```
 
-    _As migrações fornecem um "controle de versionamento" para bancos de dados, como se fosse um Git dedicado a isso. É por meio delas que criamos, alteramos e excluímos tabelas do banco de dados, e deixamos tudo registrado num histórico._
+3.  **Crie o Arquivo de Ambiente do Backend:**
+    * Dentro da pasta `backend/`, crie outro arquivo chamado `.env`.
+    * Adicione as seguintes variáveis. **IMPORTANTE:** O `POSTGRES_PASSWORD` deve ser o mesmo que você definiu no passo anterior.
+    ```
+    # Arquivo: ./backend/.env
+    SECRET_KEY=gere_uma_chave_secreta_aqui
+    DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/tutor
+    DB_HOST=db
+    # Opcional para desenvolvimento:
+    FLASK_DEBUG=1
+    ```
 
-**Opcionalmente, você pode executar um script SQL no seu pgAdmin para preencher seu banco de dados com alguns dados mockados. Consulte o líder da equipe para ter acesso ao script e receber orientações.**
+4.  **Inicie os Containers:**
+    * Com o Docker Desktop rodando, execute o seguinte comando na **raiz do projeto**:
+    ```bash
+    docker-compose up --build
+    ```
+    * Na primeira vez, o Docker irá construir as imagens, o que pode levar alguns minutos. O script de inicialização do backend irá aguardar o banco de dados ficar pronto e aplicará as migrações (`flask db upgrade`) automaticamente.
+
+### Acessando a Aplicação
+* **Frontend:** [http://localhost:3000](http://localhost:3000)
+* **Backend API:** [http://localhost:5000](http://localhost:5000)
+
+### Parando a Aplicação
+* Para parar todos os containers, pressione `Ctrl + C` no terminal onde o `docker-compose` está rodando.
+* Para remover os containers (mas manter os dados do banco), rode `docker-compose down`.
+
 
 ## Estrutura do back-end do projeto
 Estamos usando uma **arquitetura modular baseada em camadas**, onde cada camada tem um propósito específico.
-
 ```
 Tutor/
 └── backend/
-    ├── application/
-    │   ├── auth/           # Contém códigos de autenticação
-    │   ├── config/         # Define configurações globais da aplicação (bancos de dados, variáveis de ambiente, etc)
-    │   ├── libs/           # Contém códigos de bibliotecas auxiliares
-    │   ├── mistral/        # Contém códigos específicos do Mistral
-    │   ├── models/         # Define as entidades do banco de dados PostgreSQL
-    │   ├── routes/         # Define os endpoints da API Flask
-    │   ├── services/       # Contém regras de negócio, operações complexas e interações com os bancos de dados
-    │   ├── socket/         # Contém configurações, eventos e gatilhos do Flask-SocketIO
-    │   ├── utils/          # Contém funções genéricas que podem ser usadas em todo o projeto, como tratamento de datas, etc
-    │   └── constants.py    # Contém constantes globais do projeto
-    ├── data/               # Dados locais do ChromaDB e outros arquivos persistentes
-    ├── migrations/         # Arquivos de controle de migração do Flask-Migrate
-    ├── tests/              # Testes unitários e de integração
-    ├── .env                # Arquivo de variáveis de ambiente
-    ├── app.py              # Inicialização da aplicação Flask
-    ├── README.md           # Documentação do projeto
-    └── requirements.txt    # Arquivo de dependências do backend
+├── application/
+│   ├── auth/          # Contém códigos de autenticação
+│   ├── config/        # Define configurações globais da aplicação
+│   ├── libs/          # Contém códigos de bibliotecas auxiliares
+│   ├── models/        # Define as entidades do banco de dados PostgreSQL
+│   ├── routes/        # Define os endpoints da API Flask
+│   ├── services/      # Contém regras de negócio e interações com os bancos
+│   ├── socket/        # Configurações do Flask-SocketIO
+│   └── utils/         # Contém funções genéricas
+├── migrations/      # Arquivos de controle de migração do Flask-Migrate
+├── .env             # Arquivo de variáveis de ambiente (local)
+├── app.py           # Inicialização da aplicação Flask
+├── Dockerfile       # Instruções para construir a imagem Docker do backend
+├── entrypoint.sh    # Script de inicialização do container
+└── requirements.txt # Arquivo de dependências do backend
 ```
 
-**Por questões de segurança, o arquivo `.env` e a pasta `data` não são (e nem devem) ser enviados para o repositório.**
-
-## Dependências do back-end
-### python-dotenv
-python-dotenv é uma biblioteca que permite carregar variáveis de ambiente de um arquivo `.env`.
-
-### Flask
-Flask é um micro-framework web leve e flexível que permite criar APIs e aplicativos web.
-
-### Flask-CORS
-Flask-CORS é uma extensão para Flask que permite que você controle quais origens (domínios) podem acessar sua API.
-
-### Flask-SQLAlchemy
-Flask-SQLAlchemy é uma extensão para Flask que fornece uma interface ORM (Object-Relational Mapping) para o SQLAlchemy, um framework de ORM para Python.
-
-### Flask-Migrate
-Flask-Migrate é uma extensão para Flask que fornece migrações de banco de dados para o SQLAlchemy.
-
-### Flask-SocketIO
-Flask-SocketIO é uma extensão para Flask que fornece suporte para Socket.IO, uma biblioteca que permite comunicação em tempo real entre o cliente e o servidor.
-
-### eventlet
-Eventlet é uma biblioteca que permite que o Flask-SocketIO funcione de forma assíncrona, ideal para WebSockets.
-
-### PyJWT
-PyJWT é uma biblioteca que permite gerar e validar tokens JWT (JSON Web Tokens).
-
-### psycopg2
-psycopg2 é um driver de banco de dados para PostgreSQL.
-
-### chromadb
-ChromaDB é um banco de dados vetorial open-source projetado para aplicações de IA.
-
-_Se tiver problemas com a instalação do **ChromaDB**, talvez você precise instalar o **Microsoft C++ Build Tools** no seu computador. Para isso, siga os passos abaixo:_
-
-1. Baixe e instale o [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
-
-2. Durante a instalação, selecione as seguintes opções:
-    * C++ CMake Tools for Windows
-    * Windows 10 SDK
-        * _Qualquer versão deve funcionar, mas selecione a mais recente disponível_
-    * MSVC v142 ou superior
-        * Provavelmente ao selecionar a primeira opção (**C++ CMake Tools for Windows**) o **MSVC v143** já será selecionado automaticamente
-
-3. Após instalar, reinicie o terminal e tente novamente instalar o ChromaDB **no ambiente virtual** com:
-    ```bash
-    pip install chromadb
-    ```
-    ou
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-### docling
-Docling é uma poderosa biblioteca que unifica o processamento de vários tipos de documentos, como PDF, DOCX, PPTX, XLSX, HTML, imagens e mais.
-
-### openai-whisper
-Whisper é uma biblioteca da OpenAI que permite transcrever áudio em texto.
-
-### ffmpeg
-FFmpeg é um software de codificação de áudio e vídeo, usado para extrair áudio de vídeos. **Ele é necessário para que o Whisper funcione corretamente.**
-
-_Diferentemente das outras dependências, o FFmpeg não é uma biblioteca instalada pelo **gerenciador de pacotes do Python (`pip`)**. Ele é um software de linha de comando que precisa estar instalado **no seu sistema** através de algum **gerenciador de pacotes de sistema** para funcionar corretamente. Para isso, siga os passos abaixo:_
-
-1. Instale um **gerenciador de pacotes de sistema** no seu computador:
-    * Para **Windows**, a melhor opção é o [Chocolatey](https://chocolatey.org/install)
-    * Para **MacOS**, a melhor opção é o [Brew](https://brew.sh/)
-
-2. Instale o FFmpeg no seu computador utilizando o gerenciador de pacotes de sistema:
-    * No **Windows**:
-        * Abra o prompt de comando **como administrador** e execute:
-            ```bash
-            choco install ffmpeg
-            ```
-    * No **MacOS**:
-        * Abra o terminal e execute:
-            ```bash
-            brew install ffmpeg
-            ```
-
-### selenium
-Ferramenta para automação de navegadores, usada para testes e interação com páginas web.
-
-### webdriver-manager
-Facilita o uso do Selenium, baixando e configurando automaticamente os drivers dos navegadores.
-
-### ollama
-Ollama é uma ferramenta para hospedar e interagir com modelos de IA, como o Mistral no nosso caso.
-
-### langchain
-Langchain é uma biblioteca que facilita a interação com modelos de IA.
-
-### langchain_community
-Langchain_community é uma biblioteca que facilita a interação com modelos de IA.
-
-### sentence-transformers
-Sentence-transformers é uma biblioteca que facilita a transformação de textos em vetores, que podem ser usados para comparação e busca semântica.
-
-### transformers
-Transformers é uma biblioteca que facilita a transformação de textos em vetores, que podem ser usados para comparação e busca semântica.
+**Por questões de segurança, os arquivos `.env` não são (e nem devem) ser enviados para o repositório.**
