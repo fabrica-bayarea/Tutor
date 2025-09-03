@@ -19,3 +19,4 @@ langchain
 langchain_community
 sentence-transformers
 transformers
+gunicorn
