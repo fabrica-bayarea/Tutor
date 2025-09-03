@@ -1,18 +1,18 @@
 # Tutor
 
-Guia de configuração para o ambiente de desenvolvimento do projeto.
+Guia de configuração para o ambiente de desenvolvimento e produção do projeto.
 
 ## Stack de Tecnologias
 
 - **Frontend:** JavaScript com [Next.js](https://nextjs.org/) e React.
-- **Backend:** Python com [Flask](https://flask.palletsprojects.com/).
+- **Backend:** Python com [Flask](https://flask.palletsprojects.com/) e [Gunicorn](https://gunicorn.org/) para produção.
 - **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/).
 - **LLM:** Integração com modelos de linguagem via [Ollama](https://ollama.com/).
 - **Ambiente:** Totalmente containerizado com [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/).
 
 ## Como Rodar o Projeto
 
-O ambiente de desenvolvimento é 100% containerizado com Docker, simplificando a configuração.
+O ambiente é 100% containerizado com Docker, simplificando a configuração para desenvolvimento e produção.
 
 ### Pré-requisitos
 
@@ -59,12 +59,24 @@ ollama pull mistral
     FLASK_DEBUG=1
     ```
 
-4.  **Inicie a Aplicação:**
-    - Com o **Docker Desktop e o Ollama em execução**, rode o seguinte comando na **raiz do projeto**:
-    ```bash
-    docker-compose up --build
-    ```
-    _Aguarde a finalização do processo. Na primeira vez, pode levar alguns minutos._
+### Executando os Ambientes
+
+Com o Docker Desktop e o Ollama em execução, você pode iniciar os containers.
+
+#### Ambiente de Desenvolvimento
+Ideal para codificar, pois possui **hot-reload** (as alterações no código são aplicadas automaticamente).
+
+```bash
+# Na raiz do projeto, execute:
+docker-compose up --build
+```
+#### Ambiente de Produção
+Simula o ambiente real de produção, usando o servidor Gunicorn (backend) e o build otimizado do Next.js. Não possui hot-reload.
+
+```bash
+# Na raiz do projeto, execute:
+docker-compose -f docker-compose.prod.yml up --build
+```
 
 ### Acessando a Aplicação
 
@@ -74,4 +86,4 @@ ollama pull mistral
 ### Parando a Aplicação
 
 - Para parar todos os containers, pressione `Ctrl + C` no terminal.
-- Para remover os containers (mas manter os dados do banco), use `docker-compose down`.
+- Para remover os containers (mas manter os dados do banco), use `docker-compose down` (adicione -f docker-compose.prod.yml se estiver no ambiente de produção).
