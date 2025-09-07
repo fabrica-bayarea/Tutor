@@ -6,7 +6,7 @@ Flask-Migrate
 Flask-SocketIO
 eventlet
 PyJWT
-psycopg2
+psycopg2-binary
 chromadb
 docling
 openai-whisper
@@ -19,3 +19,4 @@ langchain
 langchain_community
 sentence-transformers
 transformers
+gunicorn
