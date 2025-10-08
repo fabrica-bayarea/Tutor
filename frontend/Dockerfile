@@ -34,8 +34,17 @@ COPY --from=build /app/.next ./.next
 # Copia a pasta node_modules COMPLETA e já funcional do estágio de build
 COPY --from=build /app/node_modules ./node_modules
 
+# Copia o script de entrypoint
+COPY entrypoint.sh .
+
+# Dá permissão de execução para o entrypoint
+RUN chmod +x entrypoint.sh
+
 # Expondo a porta que a aplicação irá rodar (Next.js padrão é 3000)
 EXPOSE 3000
+
+# Definindo o entrypoint do container
+ENTRYPOINT ["./entrypoint.sh"]
 
 # Comando para iniciar a aplicação
 CMD ["./node_modules/.bin/next", "start"]
