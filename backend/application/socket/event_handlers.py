@@ -10,6 +10,8 @@ import ollama
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
+client = ollama.Client(host='http://host.docker.internal:11434')
+
 pendentes = {}
 
 @socketio.on("connect")
@@ -48,7 +50,7 @@ def handle_mensagem_inicial(data: dict[str, str]):
 {mensagem}
 </pergunta_aluno>
 """
-    response_nome_chat = ollama.generate(
+    response_nome_chat = client.generate(
         model="mistral",
         prompt=prompt_nome_chat,
         stream=False,
@@ -136,7 +138,7 @@ Formate a resposta em markdown com tags relevantes para títulos, parágrafos, l
         print("Enviando requisição para a LLM...")
         
         #2.5. Gera a resposta da LLM
-        response = ollama.generate(
+        response = client.generate(
             model="mistral",
             prompt=prompt_llm,
             stream=True,
@@ -255,7 +257,7 @@ Responda APENAS com a letra S ou N.
 """
         print(f"Prompt para decisão de RAG:\n{prompt_rag}")
 
-        resposta_rag = ollama.generate(
+        resposta_rag = client.generate(
             model="mistral",
             prompt=prompt_rag,
             stream=False,
@@ -303,7 +305,7 @@ Responda APENAS com a letra S ou N.
         print("Enviando requisição para a LLM...")
         
         #2.6. Gera a resposta da LLM
-        response = ollama.generate(
+        response = client.generate(
             model="mistral",
             prompt=prompt_llm,
             stream=True,
