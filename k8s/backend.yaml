@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 3
+  replicas: 1 # ! reduzido temporariamente para testes locais
   selector:
     matchLabels:
       app: backend
@@ -14,11 +14,18 @@ spec:
     spec:
       containers:
         - name: backend
-          image: luizfsilvano/tutor-backend:latest
-          imagePullPolicy: Always
+          image: tutor-backend-local:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: SECRET_KEY
+            - name: OLLAMA_ANALYTICS_DISABLED
+              value: "true"
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -34,9 +41,11 @@ kind: Service
 metadata:
   name: backend-service
 spec:
+  type: NodePort
   selector:
     app: backend
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 5000
+      nodePort: 30001
