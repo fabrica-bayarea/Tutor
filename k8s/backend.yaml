@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 1 # ! reduzido temporariamente para testes locais
+  replicas: 3
   selector:
     matchLabels:
       app: backend
