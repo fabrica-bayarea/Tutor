@@ -10,7 +10,7 @@ import ollama
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
-client = ollama.Client(host='http://host.docker.internal:11434')
+client = ollama.Client(host='http://localhost:11434')
 
 pendentes = {}
 
