@@ -12,7 +12,10 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de requisição desconhecido');
+        return Promise.reject(rejection);
+    }
 );
 
 api.interceptors.response.use(
@@ -25,7 +28,8 @@ api.interceptors.response.use(
                 window.location.href = `/login?returnTo=${returnTo}`;
             }
         }
-        return Promise.reject(error);
+        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de resposta desconhecido');
+        return Promise.reject(rejection);
     }
 );
 
