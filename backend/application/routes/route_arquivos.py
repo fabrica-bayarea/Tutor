@@ -91,11 +91,14 @@ def upload_arquivos():
         resultados.append(resultado)
 
     if all(r.get('status') == 201 for r in resultados):
-        return jsonify({"message": "Todos os arquivos foram processados com sucesso", "results": resultados}), 201
+        response_data = {"message": "Todos os arquivos foram processados com sucesso", "results": resultados}
+        return json.dumps(response_data), 201, {'Content-Type': 'application/json; charset=utf-8'}
     elif all(r.get('status') in [400, 500] for r in resultados):
-        return jsonify({"message": "Erro ao processar todos os arquivos", "results": resultados}), resultados[0].get('status')
+        response_data = {"message": "Erro ao processar todos os arquivos", "results": resultados}
+        return json.dumps(response_data), resultados[0].get('status'), {'Content-Type': 'application/json'}
     else:
-        return jsonify({"message": "Alguns arquivos foram processados com sucesso, mas outros falharam", "results": resultados}), 207
+        response_data = {"message": "Alguns arquivos foram processados com sucesso, mas outros falharam", "results": resultados}
+        return json.dumps(response_data), 207, {'Content-Type': 'application/json'}
 
 @arquivos_bp.route('/upload/links', methods=['POST'])
 @token_obrigatorio
@@ -164,11 +167,14 @@ def upload_links():
     driver.quit()
     
     if all(r.get('status') == 201 for r in resultados):
-        return jsonify({"message": "Todos os links foram processados com sucesso", "results": resultados}), 201
+        response_data = {"message": "Todos os links foram processados com sucesso", "results": resultados}
+        return json.dumps(response_data), 201, {'Content-Type': 'application/json'}
     elif all(r.get('status') in [400, 500] for r in resultados):
-        return jsonify({"message": "Erro ao processar todos os links", "results": resultados}), resultados[0].get('status')
+        response_data = {"message": "Erro ao processar todos os links", "results": resultados}
+        return json.dumps(response_data), resultados[0].get('status'), {'Content-Type': 'application/json'}
     else:
-        return jsonify({"message": "Alguns links foram processados com sucesso, mas outros falharam", "results": resultados}), 207
+        response_data = {"message": "Alguns links foram processados com sucesso, mas outros falharam", "results": resultados}
+        return json.dumps(response_data), 207, {'Content-Type': 'application/json'}
 
 @arquivos_bp.route('/upload/textos', methods=['POST'])
 @token_obrigatorio
@@ -220,11 +226,14 @@ def upload_textos():
             resultados.append(resultado)
         
         if all(r.get('status') == 201 for r in resultados):
-            return jsonify({"message": "Todos os textos foram processados com sucesso", "results": resultados}), 201
+            response_data = {"message": "Todos os textos foram processados com sucesso", "results": resultados}
+            return json.dumps(response_data), 201, {'Content-Type': 'application/json'}
         elif all(r.get('status') in [400, 500] for r in resultados):
-            return jsonify({"message": "Erro ao processar todos os textos", "results": resultados}), resultados[0].get('status')
+            response_data = {"message": "Erro ao processar todos os textos", "results": resultados}
+            return json.dumps(response_data), resultados[0].get('status'), {'Content-Type': 'application/json'}
         else:
-            return jsonify({"message": "Alguns textos foram processados com sucesso, mas outros falharam", "results": resultados}), 207
+            response_data = {"message": "Alguns textos foram processados com sucesso, mas outros falharam", "results": resultados}
+            return json.dumps(response_data), 207, {'Content-Type': 'application/json'}
 
 @arquivos_bp.route('/<string:arquivo_id>', methods=['GET'])
 @token_obrigatorio
@@ -243,7 +252,8 @@ def obter_arquivo(arquivo_id: uuid.UUID):
     """
     try:
         arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
-        return jsonify(arquivo), 200
+        response_data = arquivo
+        return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
     except ValueError as e:
         print(f'Erro ao buscar arquivo: {str(e)}')
         return jsonify({"error": str(e)}), 400
@@ -343,8 +353,9 @@ def update_arquivo(arquivo_id: uuid.UUID):
             arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novo_nome)
             documento_vetor_atualizado = atualizar_arquivo_vetor(arquivo_id, novo_nome)
             
-            return jsonify(arquivo_metadados_atualizado), 200
-        
+            response_data = arquivo_metadados_atualizado
+            return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
+
         if novos_vinculos:
             novos_vinculos_criados = []
             for vinculo in novos_vinculos:
@@ -377,7 +388,8 @@ def update_arquivo(arquivo_id: uuid.UUID):
             arquivo_real_atualizado = atualizar_arquivo_real(g.usuario_id, arquivo_id, novos_vinculos)
             documento_vetor_atualizado = atualizar_arquivo_vetor(arquivo_id, novos_vinculos)
             
-            return jsonify(novos_vinculos_criados), 200
+            response_data = novos_vinculos_criados
+            return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -411,7 +423,8 @@ def excluir_arquivo(arquivo_id: uuid.UUID):
         arquivo_deletado = deletar_metadados_arquivo(g.usuario_id, arquivo_id)
         arquivo_real_deletado = deletar_arquivo_real(g.usuario_id, arquivo_id)
         
-        return jsonify({"arquivo_deletado": arquivo_deletado, "arquivo_real_deletado": arquivo_real_deletado}), 200
+        response_data = {"arquivo_deletado": arquivo_deletado, "arquivo_real_deletado": arquivo_real_deletado}
+        return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
     except Exception as e:
         print(f'Erro ao deletar arquivo: {str(e)}')
         return jsonify({"error": str(e)}), 500
