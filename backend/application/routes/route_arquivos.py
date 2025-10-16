@@ -327,9 +327,11 @@ def update_arquivo(arquivo_id: uuid.UUID):
     novo_nome = request.json.get("nome")
     novos_vinculos = request.json.get("novos_vinculos")
     vinculos_a_remover = request.json.get("vinculos_removidos")
-    if not any(novo_nome, novos_vinculos, vinculos_a_remover):
+    #if not any(novo_nome, novos_vinculos, vinculos_a_remover):
+    #    return jsonify({'error': 'É obrigatório fornecer ao menos "novo_nome" ou "novos_vinculos" ou "vinculos_removidos"'}), 400
+    if not any([novo_nome, novos_vinculos, vinculos_a_remover]):
         return jsonify({'error': 'É obrigatório fornecer ao menos "novo_nome" ou "novos_vinculos" ou "vinculos_removidos"'}), 400
-    
+
     try:
         if novo_nome:
             arquivo = buscar_metadados_arquivo(g.usuario_id, arquivo_id)
