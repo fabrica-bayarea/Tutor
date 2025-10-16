@@ -18,8 +18,7 @@ services:
   # Serviço do Backend
   backend:
     build: ./backend
-    ports:
-      - "5000:5000"
+    network_mode: "host"
     volumes:
       - ./backend:/app
     env_file:
@@ -28,8 +27,7 @@ services:
       - OLLAMA_ANALYTICS_DISABLED=true
     depends_on:
       - db # Espera o banco de dados estar pronto
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  
 
   # Serviço do Frontend
   frontend:
