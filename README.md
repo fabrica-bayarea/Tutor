@@ -97,6 +97,8 @@ Ideal para codificar, pois possui **hot-reload**.
     docker compose up
     ```
 
+_Nota: Garanta que o ollama esteja rodando no computador
+
 #### Método B: Kubernetes (Simulando Deploy de Produção)
 
 Este método faz o deploy da aplicação em um cluster Kubernetes local.

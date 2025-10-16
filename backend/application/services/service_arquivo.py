@@ -405,7 +405,7 @@ def atualizar_arquivo_vetor(documento_id: uuid.UUID, novo_titulo: str = None, no
 
     Retorna True se o documento for atualizado com sucesso, e False se o documento não existir.
     """ # REVISAR OS RETORNOS
-    if not any(novo_titulo, novos_vinculos):
+    if not any([novo_titulo, novos_vinculos]):
         raise ValueError("É obrigatório fornecer ao menos um título ou um conjunto de vínculos.")
     
     new_metadatas = {}

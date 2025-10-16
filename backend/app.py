@@ -13,6 +13,16 @@ CORS(app, resources={r"/*": {
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"]
 }})
+
+# Adiciona cabeçalhos de segurança
+@app.after_request
+def add_security_headers(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    if 'X-Powered-By' in response.headers:
+        del response.headers['X-Powered-By']
+    return response
+
 init_db(app)
 migrate = Migrate(app, db)
 
