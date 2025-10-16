@@ -31,4 +31,4 @@ ENTRYPOINT [ "./entrypoint.sh" ]
 
 # Comando para iniciar a aplicação
 # Host 0.0.0.0 para a aplicação ser acessível de fora do container
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["python", "app.py"]

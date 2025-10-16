@@ -14,13 +14,13 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: luizfsilvano/tutor-frontend:latest
-          imagePullPolicy: Always
+          image: tutor-frontend:flexible
+          imagePullPolicy: Never
           ports:
             - containerPort: 3000
           env:
-            - name: NEXT_PUBLIC_API_URL
-              value: "http://backend-service:5000" # URL do backend
+            - name: NEXT_PUBLIC_API_URL_RUNTIME
+              value: "http://localhost:30001"
 
 ---
 apiVersion: v1

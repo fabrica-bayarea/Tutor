@@ -35,6 +35,7 @@ app.register_blueprint(chats_bp, url_prefix="/chats")
 app.register_blueprint(mensagens_bp, url_prefix="/mensagens")
 app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 
+socketio.init_app(app)
+
 if __name__ == "__main__":
-    socketio.init_app(app)
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
