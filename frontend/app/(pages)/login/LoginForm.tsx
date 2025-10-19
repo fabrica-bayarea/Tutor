@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
+import Image from 'next/image';
 
 import { loginProfessor } from '@/app/services/service_professor';
 import { loginAluno } from '@/app/services/service_aluno';
@@ -36,68 +37,87 @@ export default function LoginForm() {
 
     return (
         <div className={styles.contentContainer}>
-            <h2>Faça login</h2>
-            <div className={styles.segmentedButtonContainer}>
-                <button
-                    type="button"
-                    onClick={() => setUserType('aluno')}
-                    className={`${userType === 'aluno' ? styles.selected : ''}`}
-                >
-                    Aluno
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setUserType('professor')}
-                    className={`${userType === 'professor' ? styles.selected : ''}`}
-                >
-                    Professor
-                </button>
-            </div>
+
+            <h2 style={{marginTop:'1rem', marginBottom:'1rem'}}>Bem vindo ao Tutor!</h2>
 
             <form className={styles.formContainer} onSubmit={handleSubmit}>
+                
+                <div className={styles.inputsGrid}>
+                    <label htmlFor="matricula">Login:</label>
+                    <input
+                        id="matricula"
+                        name="matricula"
+                        type="text"
+                        required
+                        title=''
+                        className='inputItem'
+                        placeholder="Login"
+                        value={matricula}
+                        onChange={(e) => setMatricula(e.target.value)}
+                    />
+                    <label htmlFor="senha">Senha:</label>
+                    <input
+                        id="senha"
+                        name="senha"
+                        type="password"
+                        required
+                        title=''
+                        className='inputItem'
+                        placeholder="Senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                    />
+                </div>
+
                 <div className={styles.inputsContainer}>
-                    <div className={styles.inputContainer}>
-                        <label htmlFor="matricula" className="sr-only">
-                            Matrícula
+                    <div className={styles.rememberForgotContainer}>
+                        <label className={styles.rememberLabel}>
+                        <input type="checkbox" className={styles.roundCheckbox} />
+                        <span>Lembre-se</span>
                         </label>
-                        <input
-                            id="matricula"
-                            name="matricula"
-                            type="text"
-                            required
-                            title=''
-                            placeholder="Matrícula"
-                            value={matricula}
-                            onChange={(e) => setMatricula(e.target.value)}
-                        />
-                    </div>
-                    <div className={styles.inputContainer}>
-                        <label htmlFor="password" className="sr-only">
-                            Senha
-                        </label>
-                        <input
-                            id="senha"
-                            name="senha"
-                            type="password"
-                            required
-                            title=''
-                            placeholder="Senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                        />
                         <a className={styles.forgotPasswordLink} href="#">Esqueceu sua senha?</a>
                     </div>
                 </div>
 
-                <div>
+                <div className={styles.buttonsContainer}>
                     <button
                         type="submit"
                         disabled={isDisabled}
-                        className={styles.loginButton}
+                        className={styles.loginBtn}
                     >
                         Entrar
                     </button>
+
+                    <button className={styles.googleBtn}>
+                        <Image src="/googleIcon.png" width={30} height={30} alt="Ícone do Google" />
+                    </button>
                 </div>
+
+
+                <div className={styles.dividerContainer}>
+                    <hr className={styles.dividerLine} />
+                    <span className={styles.dividerText}>Ou</span>
+                    <hr className={styles.dividerLine} />
+                </div>
+
+
+
+                <div className={styles.inputContainerRegister}>
+                    <span className={styles.spanItem}>Se não tem conta registre-se</span>
+                    <button
+                        type="submit"
+                        disabled={isDisabled}
+                        className={styles.registerButton}
+                    >
+                        Registrar
+                    </button>
+                </div>
+
+                <div className={styles.inputContainer}>
+                    <span className={styles.spanItem}>Termos de Uso</span>
+                    <span className={styles.spanItem}>Termos de Uso</span>
+                </div>
+
             </form>
         </div>
     );
