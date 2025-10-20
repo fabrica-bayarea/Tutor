@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '__API_URL_PLACEHOLDER__';
+
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:5000', timeout: 100000 // timeout em ms
+    baseURL: API_URL, timeout: 100000 // timeout em ms
 });
 
 api.interceptors.request.use(

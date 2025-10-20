@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Serviço do Banco de Dados PostgreSQL
@@ -15,28 +15,34 @@ services:
     ports:
       - "5432:5432"
 
-
   # Serviço do Backend
   backend:
     build: ./backend
-    ports:
-      - "5000:5000"
+    network_mode: "host"
     volumes:
       - ./backend:/app
     env_file:
       - ./backend/.env # Variáveis de ambiente do backend
+    environment:
+      - OLLAMA_ANALYTICS_DISABLED=true
     depends_on:
       - db # Espera o banco de dados estar pronto
+  
 
   # Serviço do Frontend
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: tutor-frontend:flexible
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules # Evita sobrescrever node_modules
       - /app/.next # Evita sobrescrever a build do Next.js
+    environment:
+      - NEXT_PUBLIC_API_URL_RUNTIME=http://localhost:5000
     depends_on:
       - backend # Espera o backend estar pronto
 
