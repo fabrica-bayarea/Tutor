@@ -19,8 +19,13 @@ CORS(app, resources={r"/*": {
 def add_security_headers(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['X-Content-Type-Options'] = 'nosniff'
+
     if 'X-Powered-By' in response.headers:
         del response.headers['X-Powered-By']
+
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
     return response
 
 init_db(app)

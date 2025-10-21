@@ -27,7 +27,6 @@ services:
       - OLLAMA_ANALYTICS_DISABLED=true
     depends_on:
       - db # Espera o banco de dados estar pronto
-  
 
   # Serviço do Frontend
   frontend:
