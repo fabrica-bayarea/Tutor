@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useParams } from 'next/navigation';
 import styles from './Aside.module.css';
-import { Menu, SquarePen } from 'lucide-react';
+import { MessageCircleMore, Bolt, Ban } from 'lucide-react';
 import AsideMainButton from '../../../../components/AsideMainButton/AsideMainButton';
 import ChatListItemButton from '../ChatListItemButton/ChatListItemButton';
 import { InterfaceChat } from '@/app/types';
@@ -21,34 +21,60 @@ export default function Aside({ chats }: { chats: InterfaceChat[] }) {
     const selectedChatId = params.chatId;
     
     return (
-        <div className={styles.asideContainer}>
-            <div className={styles.asideHeader}>
-                <img src="null" alt="" />
+        <>
+            <div className={styles.asideContainer}>
+                <div className={styles.tituloNav}><h1>Tutor AI</h1></div>
+
+                <div className={styles.asideCriarChatButton}>
+                    <a href="/aluno">
+                    <button className={styles.newChatButton}>
+                        <MessageCircleMore/>
+                        Novo Chat
+                    </button>
+                    </a>
+                </div>
+
+                <div>
+                    <p>Chats</p>
+                    <div className={styles.asideChatList}>
+                        {chats
+                            .slice()
+                            .reverse()
+                            .map((chat) => (
+                                <ChatListItemButton
+                                    key={chat.id}
+                                    id={chat.id}
+                                    aluno_id={chat.aluno_id}
+                                    name={chat.nome}
+                                    isSelected={chat.id === selectedChatId}
+                                />
+                            ))}
+                    </div>
+                </div>
+                
+                <div className={styles.divAsideOtrButtons}>
+                    <div className={styles.asideOtrButton}>
+                        <a href="/configuracao">
+                        <button className={styles.otrButton}>
+                            <Bolt/>
+                            Configuração
+                        </button>
+                        </a>
+                    </div>
+
+                    <div className={styles.asideOtrButton}>
+                        <div>
+                        <a href="/sair">
+                        <button className={styles.otrButton}>
+                            <Ban/>
+                            Sair
+                        </button>
+                        </a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div className={styles.asideMainButtons}>
-                <a href="/aluno">
-                    <AsideMainButton
-                        icon={<SquarePen />}
-                        label="Novo chat"
-                        isCollapsed={false}
-                        isSelected={selectedSection === 'home'}
-                    />
-                </a>
-            </div>
-            <div className={styles.asideChatList}>
-                {chats
-                    .slice()
-                    .reverse()
-                    .map((chat) => (
-                        <ChatListItemButton
-                            key={chat.id}
-                            id={chat.id}
-                            aluno_id={chat.aluno_id}
-                            name={chat.nome}
-                            isSelected={chat.id === selectedChatId}
-                        />
-                    ))}
-            </div>
-        </div>
+        </>
     );
 }

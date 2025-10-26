@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, KeyboardEventHandler, CSSProperties } from "react";
 import styles from "./SourceUpload.module.css";
-import { Trash, Link2, FileText, FileVideo, Download, ImageIcon } from "lucide-react";
+import { Trash, Link2, FileText, FileVideo, Download, ImageIcon, SendHorizonal, File } from "lucide-react";
 
 interface SourceUploadProps {
   onFilesChange?: (files: File[]) => void;
@@ -253,32 +253,41 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
 
     return (
         <div className={styles.SourceUploadContainer}>
-            <div className={styles.modeArqDiv}>
-                <button 
-                    onClick={() => { setArquivosopen(true); setTextoopen(false); setLinkopen(false); }}
-                    disabled={fileType !== null && fileType !== 'arquivo'}
-                >Arquivos</button>
-                <button 
-                    onClick={() => { setArquivosopen(false); setTextoopen(false); setLinkopen(true); }}
-                    disabled={fileType !== null && fileType !== 'link'}
-                >Links</button>
-                <button 
-                    onClick={() => { setArquivosopen(false); setTextoopen(true); setLinkopen(false); }}
-                    disabled={fileType !== null && fileType !== 'texto'}
-                >Textos</button>
-            </div>
-
-            {/* Área Ativa */}
-            {/* <div style={posicao}/> */}
 
 
-            {/* Área de drag and drop de arquivos */}
-            {arquivosopen &&
+                <h1>Inserir link</h1>
+                <div className={styles.linkContainer}>
+                    <input
+                        onKeyDown={addLinkToArray}
+                        type="text"
+                        className="textInput"
+                        onChange={addLink}
+                        placeholder="Digite seu link"
+                        ref={linkInputRef}
+                    />
+                    <SendHorizonal/>
+                </div>
+
+                <h1>Inserir texto</h1>
+                <div className={styles.textoContainer}>
+                    <textarea
+                        ref={textareaRef}
+                        onKeyDown={addTextToArray}
+                        onChange={addText}
+                        id="textareInput"
+                        value={text}
+                        placeholder="Digite seu texto"
+                    />
+                    <SendHorizonal/>
+                </div>
+
+                <h1>Fontes Adicionadas</h1>
+                <p>Arraste e solte aqui arquivos para fazer o upload ou <a onClick={addButtonClick} style={{ fontWeight: "bold", cursor: "pointer", color: "black" }}>clique aqui</a> para selecioná-los</p>
+
                 <div {...dragEvent}
                     ref={dropRef}
                     className={`${styles.dragdropContainer} ${dragUsado ? styles.dragAtivo : ''}`} >
                     <div>
-                        {/* Input oculto para arquivos */}
                         <input
                             type="file"
                             id="fileInput"
@@ -287,69 +296,40 @@ export default function SourceUpload({ onFilesChange, onLinksChange, onTextsChan
                             multiple
                         />
                     </div>
-                    <Download width={45} height={45} />
-                    <p style={{ textAlign: 'center', color: "gray" }}>Arraste e solte aqui arquivos para fazer o upload<br /> ou <a onClick={addButtonClick} style={{ fontWeight: "bold", cursor: "pointer", color: "black" }}>clique aqui</a> para selecioná-los</p>
-                    <br /><br /><br /><br />
-                    <p style={{ textAlign: 'center', color: "gray" }}>Tipos de arquivos compatíveis: PDF, docx, Planilha(ex: xlxs), Vídeo(ex:mp4), Áudio(ex:mp3)<br />Tamanho máximo por arquivo: 50MB</p>
+
+                    
+                    <div className={styles.arqList}>
+                        {arqDragEvent.map((file: File) => (
+                            <li key={file.name}>
+                                {getFileIcon(file)}
+                                {file.name}
+                                <br />
+                                {formatFileSize(file.size)}
+                                <button className={styles.delArqButton} onClick={() => deleteArq(file)}><Trash /></button>
+                            </li>
+                        ))}
+                        {links.map((link, index) => (
+                            <li key={`link-${index}`}>
+                                <Link2 />
+                                {link}
+                                <button className={styles.delArqButton} onClick={() => deleteLink(index)}><Trash /></button>
+                            </li>
+                        ))}
+                        {texts.map((text, index) => (
+                            <li key={`text-${index}`} className={styles.textItem}>
+                                <FileText />
+                                <span className={styles.textPreview}>
+                                    {text.length > 50 ? `${text.substring(0, 50)}...` : text}
+                                </span>
+                                <button className={styles.delArqButton} onClick={() => deleteText(index)}><Trash /></button>
+                            </li>
+                        ))}
+                    </div> 
+
                 </div>
-            }
-            {/* Seção de entrada de texto */}
-            {textoopen &&
-                <div className={styles.textoContainer}>
-                    <h1>Inserir texto</h1>
-                    <textarea
-                        ref={textareaRef}
-                        onKeyDown={addTextToArray}
-                        onChange={addText}
-                        id="textareInput"
-                        value={text}
-                        placeholder="Digite seu texto e pressione Enter para adicionar"
-                    />
-                    {/*<button onClick={addTextAsFileToDrag} className={styles.buttonLinkTextInput}>Adicionar</button>*/}
-                </div>
-            }
-            {/* Seção de entrada de links */}
-            {linkopen &&
-                <div className={styles.linkContainer}>
-                    <h1>Inserir link</h1>
-                    <input
-                        onKeyDown={addLinkToArray}
-                        type="text"
-                        className="textInput"
-                        onChange={addLink}
-                        ref={linkInputRef}
-                    />
-                </div>
-            }
-            <h1 className={styles.addArqh1}>Arquivos Adicionados</h1>
-            <div className={styles.arqList}>
-                {/* Lista de arquivos, textos e links */}
-                {arqDragEvent.map((file: File) => (
-                    <li key={file.name}>
-                        {getFileIcon(file)}
-                        {file.name}
-                        <br />
-                        {formatFileSize(file.size)}
-                        <button className={styles.delArqButton} onClick={() => deleteArq(file)}><Trash /></button>
-                    </li>
-                ))}
-                {links.map((link, index) => (
-                    <li key={`link-${index}`}>
-                        <Link2 />
-                        {link}
-                        <button className={styles.delArqButton} onClick={() => deleteLink(index)}><Trash /></button>
-                    </li>
-                ))}
-                {texts.map((text, index) => (
-                    <li key={`text-${index}`} className={styles.textItem}>
-                        <FileText />
-                        <span className={styles.textPreview}>
-                            {text.length > 50 ? `${text.substring(0, 50)}...` : text}
-                        </span>
-                        <button className={styles.delArqButton} onClick={() => deleteText(index)}><Trash /></button>
-                    </li>
-                ))}
-            </div>
+
+
+
         </div>
     )
 }
