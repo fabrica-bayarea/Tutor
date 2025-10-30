@@ -13,6 +13,21 @@ CORS(app, resources={r"/*": {
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     "allow_headers": ["Content-Type", "Authorization"]
 }})
+
+# Adiciona cabeçalhos de segurança
+@app.after_request
+def add_security_headers(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+
+    if 'X-Powered-By' in response.headers:
+        del response.headers['X-Powered-By']
+
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 init_db(app)
 migrate = Migrate(app, db)
 
@@ -25,6 +40,7 @@ app.register_blueprint(chats_bp, url_prefix="/chats")
 app.register_blueprint(mensagens_bp, url_prefix="/mensagens")
 app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 
+socketio.init_app(app)
+
 if __name__ == "__main__":
-    socketio.init_app(app)
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

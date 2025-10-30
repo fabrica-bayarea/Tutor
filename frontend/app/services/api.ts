@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '__API_URL_PLACEHOLDER__';
+
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:5000', timeout: 100000 // timeout em ms
+    baseURL: API_URL, timeout: 100000 // timeout em ms
 });
 
 api.interceptors.request.use(
@@ -12,7 +14,10 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de requisição desconhecido');
+        return Promise.reject(rejection);
+    }
 );
 
 api.interceptors.response.use(
@@ -25,7 +30,8 @@ api.interceptors.response.use(
                 window.location.href = `/login?returnTo=${returnTo}`;
             }
         }
-        return Promise.reject(error);
+        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de resposta desconhecido');
+        return Promise.reject(rejection);
     }
 );
 

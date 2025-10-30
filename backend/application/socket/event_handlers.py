@@ -3,12 +3,14 @@ from flask_socketio import SocketIO, emit
 from application.config.vector_database import collection
 from application.services.service_chat import criar_chat
 from application.services.service_mensagem import criar_mensagem, buscar_ultimas_n_mensagens
-from application.libs.mistral_handler import contar_tokens_mensagens
+from application.libs.mistral_handler import contar_tokens_mensagens, formatar_mensagens_para_texto, formatar_mensagem_salva, formatar_mensagens_recentes, formatar_mensagens_tokenizacao
 from application.constants import LLM_UUID
 import uuid
 import ollama
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+
+client = ollama.Client(host='http://localhost:11434')
 
 pendentes = {}
 
@@ -48,7 +50,7 @@ def handle_mensagem_inicial(data: dict[str, str]):
 {mensagem}
 </pergunta_aluno>
 """
-    response_nome_chat = ollama.generate(
+    response_nome_chat = client.generate(
         model="mistral",
         prompt=prompt_nome_chat,
         stream=False,
@@ -65,7 +67,9 @@ def handle_mensagem_inicial(data: dict[str, str]):
     
     #2. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
     mensagem_aluno = criar_mensagem(chat['id'], aluno_id, mensagem)
-    print(f"Mensagem salva:\n{mensagem_aluno}")
+    mensagem_aluno_formatada = formatar_mensagem_salva(mensagem_aluno)
+    print(f"Mensagem salva:\n{mensagem_aluno_formatada}")
+    #print(f"Mensagem salva:\n{mensagem_aluno}")
 
     #3. Salva temporariamente pra emitir em outro evento
     pendentes[sid] = {
@@ -136,7 +140,7 @@ Formate a resposta em markdown com tags relevantes para títulos, parágrafos, l
         print("Enviando requisição para a LLM...")
         
         #2.5. Gera a resposta da LLM
-        response = ollama.generate(
+        response = client.generate(
             model="mistral",
             prompt=prompt_llm,
             stream=True,
@@ -200,7 +204,8 @@ def handle_nova_mensagem(data: dict[str, str]):
     
     #1. Salva a mensagem no banco de dados relacional usando o ID do aluno e o ID do chat criado
     mensagem_aluno = criar_mensagem(chat_id, aluno_id, mensagem)
-    print(f"Mensagem salva:\n{mensagem_aluno}")
+    mensagem_aluno_formatada = formatar_mensagem_salva(mensagem_aluno)
+    print(f"Mensagem salva:\n{mensagem_aluno_formatada}")
     socketio.emit("res_mensagem", mensagem_aluno, to=sid)
     socketio.sleep(0)
     
@@ -218,9 +223,14 @@ def handle_nova_mensagem(data: dict[str, str]):
         mensagens_para_tokenizer = []
         ha_mais_mensagens = True # Evita loops infinitos
 
+        
+
+
         while total_tokens < limite_tokens and ha_mais_mensagens:
             mensagens_recentes = buscar_ultimas_n_mensagens(chat_id, n_mensagens)
-            print(f"Mensagens recentes encontradas:\n{mensagens_recentes}")
+            mensagens_recentes_formatadas = formatar_mensagens_recentes(mensagens_recentes)
+            print(f"Mensagens recentes encontradas:\n{mensagens_recentes_formatadas}")
+            #print(f"Mensagens recentes encontradas:\n{mensagens_recentes}")
 
             # Se a quantidade de mensagens retornadas for menor que a quantidade solicitada, significa que não há mais mensagens
             if len(mensagens_recentes) < n_mensagens:
@@ -231,10 +241,25 @@ def handle_nova_mensagem(data: dict[str, str]):
                 {"role": "assistant", "content": m["conteudo"]}
                 for m in mensagens_recentes
             ])
-            print(f"Mensagens para tokenização:\n{mensagens_para_tokenizer}")
+
+            #for m in mensagens_recentes:
+            #    if m["sender_id"] == aluno_id:
+            #        mensagens_para_tokenizer.append({"role": "user", "content": m["conteudo"]})
+            #    else:
+            #        mensagens_para_tokenizer.append({"role": "assistant", "content": m["conteudo"]})
+
+            mensagens_para_tokenizer_formatada = formatar_mensagens_tokenizacao(mensagens_para_tokenizer)
+            print(f"Mensagens para tokenização:\n{mensagens_para_tokenizer_formatada}")
+            #print(f"Mensagens para tokenização:\n{mensagens_para_tokenizer}")
+
 
             total_tokens += contar_tokens_mensagens(mensagens_para_tokenizer)
             print(f"Total de tokens: {total_tokens}")
+        
+        #Formatação de conversa mais amigável para os prompts
+        #conversa_formatada = preparar_conversa_anterior(mensagens_para_tokenizer)
+
+        
         
         prompt_rag = f"""
 Você é um assistente que decide se uma pergunta pode ser respondida apenas com base na conversa anterior com o usuário, ou se precisa consultar documentos externos para dar uma resposta precisa (como materiais didáticos, textos técnicos ou artigos em uma base de conhecimento).
@@ -244,7 +269,7 @@ Você é um assistente que decide se uma pergunta pode ser respondida apenas com
 </mensagem_usuario>
 
 <conversa_anterior>
-{mensagens_para_tokenizer}
+{mensagens_para_tokenizer_formatada}
 </conversa_anterior>
 
 Se a resposta à pergunta do usuário pode ser dada com base apenas na conversa anterior, responda com "N".
@@ -255,7 +280,7 @@ Responda APENAS com a letra S ou N.
 """
         print(f"Prompt para decisão de RAG:\n{prompt_rag}")
 
-        resposta_rag = ollama.generate(
+        resposta_rag = client.generate(
             model="mistral",
             prompt=prompt_rag,
             stream=False,
@@ -287,7 +312,7 @@ Responda APENAS com a letra S ou N.
         prompt_llm = f"""
 <mensagens_recentes>
 # Histórico recente da conversa. Use para manter o tom e o contexto do usuário.
-{mensagens_para_tokenizer}
+{mensagens_para_tokenizer_formatada}
 </mensagens_recentes>
 
 {documentos_section}
@@ -303,7 +328,7 @@ Responda APENAS com a letra S ou N.
         print("Enviando requisição para a LLM...")
         
         #2.6. Gera a resposta da LLM
-        response = ollama.generate(
+        response = client.generate(
             model="mistral",
             prompt=prompt_llm,
             stream=True,
@@ -337,7 +362,9 @@ Responda APENAS com a letra S ou N.
 
     #3. Salva a resposta da LLM no banco de dados relacional usando o ID da LLM e o ID do chat criado
     mensagem_llm = criar_mensagem(chat_id, LLM_UUID, resposta_completa)
-    print(f"Resposta da LLM salva:\n{mensagem_llm}") 
+    mensagem_llm_formatada = formatar_mensagem_salva(mensagem_llm)
+    print(f"Resposta da LLM salva:\n{mensagem_llm_formatada}") 
+    #print(f"Resposta da LLM salva:\n{mensagem_llm}")
     
     #4. Envia a resposta para o front-end
     socketio.emit("resposta_fim", mensagem_llm, to=sid)

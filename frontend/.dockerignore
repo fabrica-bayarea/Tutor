@@ -1,0 +1,14 @@
+
+# Dependências locais (serão instaladas dentro do container)
+node_modules/
+
+# Pasta de build do Next.js (será gerada dentro do container)
+.next/
+
+# Arquivos de log do npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variáveis de ambiente locais
+.env.local
