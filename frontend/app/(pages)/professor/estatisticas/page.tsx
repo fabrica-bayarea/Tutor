@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
-import { ChartNoAxesCombined } from 'lucide-react';
-import { InterfaceProfessor } from '../../types';
+import { ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Shapes, Funnel} from 'lucide-react';
+import { InterfaceProfessor } from '../../../types';
+import BarraDeProgresso from '../components/BarraDeProgresso/BarraDeProgresso';
+import Select from 'react-select';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({
@@ -21,7 +23,25 @@ export default function Home() {
     return (
         <div className={styles.midColumn}>
             <div className={styles.header}>
-                <h1>Olá, {professor.nome}!</h1>
+                <div>
+                    <h1>Estatísticas Completas</h1>
+                    <p>Análise detalhada das dúvidas e engajamento.</p>
+                </div>
+                <div className={styles.filterButtons}>
+                    <Funnel/>
+                    <Select
+                        isMulti
+                        placeholder="Todas as matérias"
+                        //options={options}
+                        //onChange={handleVinculosChange}
+                    />
+                    <Select
+                        isMulti
+                        placeholder="Todas as Turmas"
+                        //options={options}
+                        //onChange={handleVinculosChange}
+                    />
+                </div>
             </div>
 
             <div className={styles.itensTelaPrincipal}>
@@ -80,26 +100,45 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className={styles.itensAcoesRapidasTelaPrincipal}>
-                    <div className={styles.itemAcoesRapidasTelaPrincipal}>
-                        <p className={styles.bolderText}>Ações rápidas</p>
-                        <a href="/professor/estatisticas">
-                            <button className={styles.buttonAcoesRapidas}>Ver Estatísticas Completas</button>
-                        </a>
-                        <a href="/professor/upload">
-                            <button className={styles.buttonAcoesRapidas}>Adicionar Conteúdo</button>
-                        </a>
-                        <a href="/professor/config">
-                            <button className={styles.buttonConfig}>Configurações</button>
-                        </a>
+                <div className={styles.estatisticasRanking}>
+                    <div className={styles.itemEstatisticaRanking}>
+                        <div className={styles.headerEstatisticaRanking}>
+                            <ChartNoAxesColumnIncreasing/>
+                            <p className={styles.bolderText}>Ranking de dúvidas mais frequentes</p>
+                        </div>
+                        <div >
+                            //foreach aqui
+                            <div className={styles.itemRankeadoPerguntas}>
+                                <div className={styles.perguntasInfos}>
+                                    <p>Quais são as leis de Newton?</p>
+                                    <p>Física</p>
+                                </div>
+                                <div className={styles.perguntasInfos}>
+                                    <p className={styles.bolderText}>0</p>
+                                    <p className={styles.legendBottomPercentage}>+0%</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className={styles.itemAcoesRapidasTelaPrincipal}>
-                        <p className={styles.bolderText}>Tutor AI</p>
-                        <a href="/professor/chat" >
-                            <button className={styles.buttonAcoesRapidas}>Abrir chat Tutor</button>
-                        </a>
+                    <div className={styles.itemEstatisticaRanking}>
+                        <div className={styles.headerEstatisticaRanking}>
+                            <Shapes/>
+                            <p className={styles.bolderText}>Distribuição por matéria</p>
+                        </div>
+
+                        <div>
+                            //foreach aqui
+                            <div className={styles.itemRankeadoVolume}>
+                                <div className={styles.volumeInfos}>
+                                    <p>Física</p>
+                                    <p>0 dúvidas</p>
+                                </div>
+                                <BarraDeProgresso porcentagem={70} />
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     )
