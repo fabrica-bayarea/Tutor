@@ -33,20 +33,3 @@
 .turmaInfo * {
     color: #666666;
 }
-
-.materiasContainer {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: fit-content;
-    gap: 1rem;
-}
-
-.listMaterias {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    height: fit-content;
-    gap: 1rem;
-}

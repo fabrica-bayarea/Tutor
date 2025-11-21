@@ -80,15 +80,31 @@ export default function MinhasMaterias() {
                 <p>Veja todas as matérias que você leciona</p>
             </div>
             <div className={styles.listMaterias}>
-                {turmasMaterias.map((turmaMateria) => (
-                    <a href={`/professor/materias/materia/${turmaMateria.turma_id}_${turmaMateria.materia_id}`} key={`${turmaMateria.turma_id}_${turmaMateria.materia_id}`}>
-                        <CardMateria
-                            materia={materias.find((materia) => materia.id === turmaMateria.materia_id)!}
-                            turma={turmas.find((turma) => turma.id === turmaMateria.turma_id)!}
-                        />
+                {turmasMaterias.length > 0 ? (
+                    turmasMaterias.map((turmaMateria) => (
+                        <a
+                            href={`/professor/materias/materia/${turmaMateria.turma_id}_${turmaMateria.materia_id}`}
+                            key={`${turmaMateria.turma_id}_${turmaMateria.materia_id}`}
+                        >
+                            <CardMateria
+                                materia={materias.find((materia) => materia.id === turmaMateria.materia_id)!}
+                                turma={turmas.find((turma) => turma.id === turmaMateria.turma_id)!}
+                            />
+                        </a>
+                    ))
+                ) : (
+                    <a
+                            href={`/professor/materias/materia/${1}_${2}`}
+                            key={`${1}_${2}`}
+                    >
+                    <CardMateria
+                        materia={{ id: 'dummy', nome: 'Matéria Exemplo',codigo: 'MAT123' }}
+                        turma={{ id: 'dummy', codigo: 'MAT123', semestre: '1', turno:'Matutino'  }}
+                    />
                     </a>
-                ))}
+                )}
             </div>
+
         </div>
     )
 }
