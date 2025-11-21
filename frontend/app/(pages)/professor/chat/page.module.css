@@ -7,6 +7,8 @@
     box-sizing: border-box;
 }
 
+
+
 .headerContainer {
     display: flex;
     flex-direction: column;
