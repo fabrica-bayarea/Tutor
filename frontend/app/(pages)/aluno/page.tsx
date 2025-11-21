@@ -6,6 +6,7 @@ import styles from "./page.module.css"
 import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
 import { InterfaceAluno, InterfaceChat } from "../../types"
+import Select from 'react-select';
 
 export default function Home() {
     const router = useRouter()
@@ -43,6 +44,14 @@ export default function Home() {
 
     return (
         <div className={styles.midColumn}>
+                <div className={styles.materiaFilter}>
+                    <Select
+                        isMulti
+                        placeholder="Todas as matérias"
+                        //options={options}
+                        //onChange={handleVinculosChange}
+                    />
+                </div>
             <div className={styles.headerContainer}>
                 <h1>Olá, {aluno?.nome}!</h1>
                 <h2>Como posso ajudar hoje?</h2>

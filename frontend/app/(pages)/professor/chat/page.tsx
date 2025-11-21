@@ -7,6 +7,7 @@ import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
 import { InterfaceAluno, InterfaceChat } from "../../../types"
 import AsideChat from "../components/AsideChat/AsideChat";
+import Select from 'react-select';
 
 export default function Home() {
     const router = useRouter()
@@ -47,6 +48,14 @@ export default function Home() {
         <AsideChat chats={[]}/>
         <div className={styles.midColumn}>
             <div className={styles.headerContainer}>
+                <div className={styles.materiaFilter}>
+                    <Select
+                        isMulti
+                        placeholder="Todas as matérias"
+                        //options={options}
+                        //onChange={handleVinculosChange}
+                    />
+                </div>
                 <h1>Olá, {aluno?.nome}!</h1>
                 <h2>Como posso ajudar hoje?</h2>
             </div>

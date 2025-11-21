@@ -1,7 +1,7 @@
 .asideContainerProf {
-    position: absolute;       /* faz o elemento sair do fluxo e sobrepor os outros */
-    top: 0;                   /* fixa no topo */
-    left: 0;                  /* fixa na esquerda */
+    position: absolute;   
+    top: 0;                 
+    left: 0;         
     width: 18rem;
     min-width: 10rem;
     height: 100%;
@@ -9,7 +9,7 @@
     background-color: #f2f2f2;
     border-right: 2px solid black;
     box-sizing: border-box;
-    z-index: 1000;            /* garante que fique acima de outros elementos */
+    z-index: 1000;       
 }
 
 
