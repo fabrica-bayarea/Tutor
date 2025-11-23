@@ -34,19 +34,63 @@
     color: #666666;
 }
 
-.materiasContainer {
+.itensTelaPrincipal{
     display: flex;
-    flex-direction: column;
     width: 100%;
-    height: fit-content;
-    gap: 1rem;
+    height: 50vh;
+    margin-top: 3vh;
+    flex-direction: column;
 }
 
-.listMaterias {
+.bolderText{
+    font-size: 23px;
+    font-weight: bolder;
+}
+
+.itensEstatisticosTelaPrincipal{
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     width: 100%;
+    height: 25%;
+    gap: 20px;
+}
+
+.estatisticasRanking{
+    margin-top: 2vh;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    height: 45%;
+}
+
+.itemDireito{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.buttonEst{
+    margin-bottom: 1vh;
+    background-color: #CDCDCD;
+    border-radius: 11px;
+    height: 40px;
+    width: 95%;
+    font-weight: normal;
+    align-self: center;
+}
+
+.buttonEst:hover{
+    background-color: #9c9c9c;
+}
+
+.buttonA{
+    width: 100%;
+    align-self: center;
+}
+
+.itemA{
+    display: flex;
+    flex-direction: column;
+    width: 105%;
     height: fit-content;
-    gap: 1rem;
 }

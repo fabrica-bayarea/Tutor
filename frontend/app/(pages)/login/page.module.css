@@ -3,59 +3,24 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-
-    background-color: #D92F35;
+    background-color: #ffffff;
 }
 
 .contentContainer {
     display: flex;
     flex-direction: column;
-    width: 20rem;
+    width: 25rem;
     height: fit-content;
     padding: 2rem;
     gap: 1rem;
+    border-color: black;
+    border: 3px;
+    border-style: solid;
     border-radius: 16px;
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
     background-color: #f7f7f7;
-}
-
-.segmentedButtonContainer {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: fit-content;
-    padding: 0.25rem;
-    border-radius: 999px;
-    justify-content: center;
-    align-items: center;
-    background-color: #EDEDED;
-}
-
-.segmentedButtonContainer button {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: fit-content;
-    justify-content: center;
-    align-items: center;
-    border-radius: 999px;
-    padding: 1rem;
-    background-color: transparent;
-    color: #1a1a1a;
-    border: none;
-    cursor: pointer;
-
-    transition: ease-out 0.15s;
-}
-.segmentedButtonContainer button:hover {
-    background-color: rgba(217, 47, 53, 0.05);
-}
-
-.segmentedButtonContainer button.selected {
-    background-color: #D92F35;
-    color: #f7f7f7;
 }
 
 .formContainer {
@@ -67,60 +32,183 @@
     color: #1a1a1a;
 }
 
-.inputsContainer {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    gap: 1rem;
-}
-
 .inputContainer {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-around;
     width: 100%;
     height: fit-content;
-    gap: 0.35rem;
-    align-items: flex-start;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
 }
-.inputContainer label {
-    font-weight: 600;
+
+.inputContainerRegister {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    height: fit-content;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.inputsGrid {
+  display: grid;
+  grid-template-columns: 80px 2fr;
+  gap: 0.5rem 1rem; 
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.inputsGrid label { justify-self: end; font-weight: 600;}
+.inputsGrid input { width: 100%; box-sizing: border-box; }
+
+.rememberForgotContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 0.5rem;
+}
+
+.rememberLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.roundCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 4px;
+  height: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 50%; 
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.roundCheckbox:checked {
+  background-color: #a8a8a8; 
+  border-color: #333;
+}
+
+.roundCheckbox:hover {
+  border-color: #0000006b;
 }
 
 .forgotPasswordLink {
-    font-size: 0.875rem;
-    color: #666666;
-    text-decoration: none;
-
-    transition: color ease-out 0.15s;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+  transition: color 0.2s;
 }
+
 .forgotPasswordLink:hover {
-    color:#D92F35;
-    text-decoration: underline;
+  text-decoration: underline;
+  color: rgba(0, 0, 0, 0.8);
 }
 
-.loginButton {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: fit-content;
-    border-radius: 8px;
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.loginBtn {
+  width: 80%;
+  background-color: #999;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.loginBtn:hover {
+  background-color: #444; 
+}
+
+.loginBtn:disabled {
+  background-color: #dddddd;
+  cursor: not-allowed;
+}
+
+.googleBtn {
+  width: 10%;
+  min-width: 48px; 
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.googleBtn:hover {
+  background-color: #f0f0f0;
+}
+
+.dividerContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* espaço entre linha e texto */
+  width: 100%;
+  margin: 1rem 0; /* espaçamento vertical opcional */
+}
+
+.dividerLine {
+  flex: 1; /* ocupa todo o espaço restante */
+  height: 2px; /* espessura da linha */
+  background-color: #ccc; /* cor da linha */
+  border: none;
+}
+
+.dividerText {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6); /* desbotado */
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.spanItem{
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
+.registerButton{
+    width: 80%;
+    background-color: #999;
+    color: #fff;
     border: none;
-    padding: 0.5rem 0.75rem;
-    background-color: white;
-    color: #1a1a1a;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
 
-    transition: background-color ease-out 0.15s;
+.registerButton:hover {
+  background-color: #444; 
 }
-.loginButton:not(:disabled):hover {
-    background-color: rgba(217, 47, 53, 0.05);
-}
-.loginButton:disabled {
-    color: #666666;
-    opacity: 0.5;
-    background-color: transparent;
-    cursor: not-allowed;
+
+.registerButton:disabled {
+  background-color: #dddddd;
+  cursor: not-allowed;
 }

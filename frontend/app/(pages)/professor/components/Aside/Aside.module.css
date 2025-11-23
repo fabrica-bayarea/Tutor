@@ -1,10 +1,13 @@
 .asideContainer {
     display: flex;
     flex-direction: column;
-    width: 25rem;
+    width: 18rem;
+    min-width: 10rem;
     height: 100%;
     padding: 1rem;
-    background-color: #ededed;
+    background-color: #f2f2f2;
+    border-right: 2px solid black;
+    box-sizing: border-box;
 }
 .expanded {
     width: 320px;
@@ -47,3 +50,53 @@
     gap: 1rem;
     padding: 1rem 0 0 0;
 } */
+
+.asideOtrButton{
+    background-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.otrButton{
+    display: flex;
+    font-weight: normal;
+    font-size: 15px;
+    flex-direction: row;
+    width: 100%;
+    justify-content: start;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    border: 2px solid gray;
+}
+
+.otrButton:hover{
+    background-color: rgb(0,0,0,0.1);
+}
+
+.divAsideOtrButtons{
+    margin-top: 2rem;
+}
+
+.asideCriarChatButton{
+    background-color: transparent;
+    margin-bottom: .5rem;
+}
+
+.newChatButton{
+    display: flex;
+    font-weight: normal;
+    font-size: 15px;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+}
+.newChatButton:hover{
+    background-color: rgb(0,0,0,0.1);
+}

@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import MessageForm from "./components/MessageForm/MessageForm"
+import MessageForm from "./MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
-import { InterfaceAluno, InterfaceChat } from "../../types"
+import { InterfaceAluno, InterfaceChat } from "../../../types"
+import AsideChat from "../components/AsideChat/AsideChat";
 import Select from 'react-select';
 
 export default function Home() {
@@ -43,16 +44,19 @@ export default function Home() {
     }
 
     return (
+        <>
+        <AsideChat chats={[]}/>
         <div className={styles.midColumn}>
+            <div className={styles.headerContainer}>
                 <div className={styles.materiaFilter}>
                     <Select
+                        instanceId="materia-select"
                         isMulti
                         placeholder="Todas as matérias"
                         //options={options}
                         //onChange={handleVinculosChange}
                     />
                 </div>
-            <div className={styles.headerContainer}>
                 <h1>Olá, {aluno?.nome}!</h1>
                 <h2>Como posso ajudar hoje?</h2>
             </div>
@@ -61,5 +65,6 @@ export default function Home() {
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
         </div>
+        </>
     )
 }

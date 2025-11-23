@@ -130,6 +130,13 @@ export default function Materia() {
         }
     };
 
+    const mockArquivo: InterfaceArquivo = {
+        id: 'dummy1',
+        titulo: 'Arquivo Exemplo.pdf',
+        data_upload: '2025-11-20',
+        professor_id: '1'
+    };
+
     return (
         <div className={styles.midColumn}>
             <div className={styles.header}>
@@ -147,12 +154,14 @@ export default function Materia() {
             <div className={styles.fontesAdicionadas}>
                 <div className={styles.fontesAdicionadasHeader}>
                     <h2>Fontes adicionadas</h2>
+                    <a href="/professor/upload">
                     <Button
                         style="filled"
                         icon={<Plus size={24} />}
                         label="Adicionar fonte"
                         onClick={() => { }}
                     />
+                    </a>
                 </div>
                 <div className={styles.fontesAdicionadasList}>
                     <table>
@@ -166,43 +175,42 @@ export default function Materia() {
                             </tr>
                         </thead>
                         <tbody>
-                            {arquivos.map((arquivo) => (
-                                <tr key={arquivo.id}>
-                                    <td>
-                                        <div className={styles.iconContainer}>
-                                            {TIPOS_ARQUIVO.documento.includes(`.${arquivo.titulo.split('.').pop()}`) ? <File size={24} /> :
-                                            TIPOS_ARQUIVO.video.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Play size={24} /> :
-                                            TIPOS_ARQUIVO.audio.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Music size={24} /> :
-                                            TIPOS_ARQUIVO.texto.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Text size={24} /> : null}
-                                        </div>
-                                    </td>
-                                    <td>{arquivo.titulo}</td>
-                                    <td>{arquivo.data_upload as String}</td>
-                                    <td>{arquivo.tamanho || "--"}</td>
-                                    <td className={styles.actionsContainer}>
-                                        <IconButton
-                                            icon={<SquareArrowOutUpRight size={20} />}
-                                            title="Abrir arquivo"
-                                            onClick={() => handleOpenArquivo(arquivo.id)}
-                                        />
-                                        <IconButton
-                                            icon={<Download size={20} />}
-                                            title="Baixar arquivo"
-                                            onClick={() => handleDownloadArquivo(arquivo.id)}
-                                        />
-                                        <IconButton
-                                            icon={<Pencil size={20} />}
-                                            title="Editar nome do arquivo"
-                                            //onClick={() => handleEditArquivo(arquivo.id)}
-                                        />
-                                        <IconButton
-                                            icon={<Trash2 size={20} color="#D92F35" />}
-                                            title="Excluir arquivo para esta matéria"
-                                            onClick={() => handleDeleteArquivo(arquivo.id)}
-                                        />
-                                    </td>
-                                </tr>
-                            ))}
+                        {(arquivos.length > 0 ? arquivos : [mockArquivo]).map((arquivo) => (
+                            <tr key={arquivo.id}>
+                            <td>
+                                <div className={styles.iconContainer}>
+                                {TIPOS_ARQUIVO.documento.includes(`.${arquivo.titulo.split('.').pop()}`) ? <File size={24} /> :
+                                TIPOS_ARQUIVO.video.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Play size={24} /> :
+                                TIPOS_ARQUIVO.audio.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Music size={24} /> :
+                                TIPOS_ARQUIVO.texto.includes(`.${arquivo.titulo.split('.').pop()}`) ? <Text size={24} /> : null}
+                                </div>
+                            </td>
+                            <td>{arquivo.titulo}</td>
+                            <td>{arquivo.data_upload as String}</td>
+                            <td>--</td>
+                            <td className={styles.actionsContainer}>
+                                <IconButton
+                                icon={<SquareArrowOutUpRight size={20} />}
+                                title="Abrir arquivo"
+                                onClick={() => handleOpenArquivo(arquivo.id)}
+                                />
+                                <IconButton
+                                icon={<Download size={20} />}
+                                title="Baixar arquivo"
+                                onClick={() => handleDownloadArquivo(arquivo.id)}
+                                />
+                                <IconButton
+                                icon={<Pencil size={20} />}
+                                title="Editar nome do arquivo"
+                                />
+                                <IconButton
+                                icon={<Trash2 size={20} color="#D92F35" />}
+                                title="Excluir arquivo para esta matéria"
+                                onClick={() => handleDeleteArquivo(arquivo.id)}
+                                />
+                            </td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 </div>

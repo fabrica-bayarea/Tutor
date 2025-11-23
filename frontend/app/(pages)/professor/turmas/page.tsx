@@ -47,6 +47,14 @@ export default function MinhasTurmas() {
             }
         };
 
+    const mockTurma: InterfaceTurma = {
+        id: 'dummy1',
+        codigo: 'TURMA123',
+        semestre: '2025.2',
+        turno: 'Matutino'
+        // preencha outros campos obrigatórios de InterfaceTurma se houver
+    };
+
     return (
         <div className={styles.midColumn}>
             <div className={styles.header}>
@@ -54,9 +62,9 @@ export default function MinhasTurmas() {
                 <p>Veja todas as turmas para as quais você leciona alguma matéria</p>
             </div>
             <div className={styles.listTurmas}>
-                {turmas.map((turma) => (
+                {(turmas.length > 0 ? turmas : [mockTurma]).map((turma) => (
                     <a href={`/professor/turmas/turma/${turma.id}`} key={turma.id}>
-                        <CardTurma key={turma.id} turma={turma} />
+                        <CardTurma turma={turma} />
                     </a>
                 ))}
             </div>

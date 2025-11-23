@@ -38,11 +38,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 300px;
-    width: 100%;
+    margin-top: 1rem;
+    height: 13rem;
+    width: 70%;
     border-style: dashed;
-    border-color: rgba(0, 0, 0, 0.5);
-    border-radius: 30px;
+    border-color: #CDCDCD;
+    border-radius: 15px;
+    padding: 12px;
 }
 
 /* Lista de arquivos arrastados */
@@ -51,11 +53,11 @@
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: space-around;
-    height: 11%;
+    height: 100%;
     width: 100%;
     font-family: "fontePadrao",sans-serif;
     color: black;
-    overflow: auto;
+    overflow: none;
 }
 
 .arqList li {
@@ -64,16 +66,15 @@
     justify-content: space-between;
     align-items: center;
     margin: 1px;
+    background-color: #CDCDCD;
     width:20%;
-    height: 50%;
+    min-height: 2rem;
+    height: 3rem;
     font-size: 16px;
     padding: 10px;
     font-weight: bold;
     color: gray;
-    border: 2px;
     border-radius: 12px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.2);
     list-style: none;
 }
 
@@ -93,61 +94,47 @@
 }
 
 /* Container para input de link */
-.linkContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: top;
-    height: 300px;
-    width: 100%;
-    border-style: solid;
-    border-color: white;
-}
-
-.linkContainer h1 {
+.SourceUploadContainer h1 {
     font-family: "fontePadrao",sans-serif;
-    font-size: 22px;
-    font-weight: normal;
-    width: 90%;
+    font-size: 25px;
+    font-weight: bolder;
     text-align: left;
     color: black;
     margin-top: 0;
     margin-bottom: 5;
+}
+
+.linkContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 10px;
+    height: 2rem;
+    padding: .2rem;
+    width: 50%;
+    margin-bottom: 1.5rem;
 }
 
 .linkContainer input {
     font-family: "fontePadrao",sans-serif;
     outline: none;
     font-size: 15px;
-    width: 90%;
-    height: 30px;
-    border: 2px;
-    border-color: rgba(0, 0, 0, 0.2);
-    border-style: solid;
-    border-radius: 10px;
+    width: 95%;
+    background-color: transparent;
     resize: none;
 }
 
 .textoContainer {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: top;
-    height: 300px;
-    width: 100%;
-    border-style: solid;
-    border-color: white;
-}
-
-.textoContainer h1 {
-    font-family: "fontePadrao",sans-serif;
-    font-size: 22px;
-    font-weight: normal;
-    width: 90%;
-    text-align: left;
-    color: black;
-    margin-top: 0;
-    margin-bottom: 5;
+    border: 1px solid black;
+    border-radius: 10px;
+    height: 3rem;
+    padding: .2rem;
+    width: 50%;
+    margin-bottom: 1.5rem;
 }
 
 .textoContainer textarea {
@@ -155,22 +142,11 @@
     outline: none;
     font-size: 15px;
     font-family: "fontePadrao",sans-serif;
-    width: 90%;
-    height: 60px;
+    width: 95%;
+    height: 3rem;
     overflow: hidden;
-    border: 2px;
-    border-color: rgba(0, 0, 0, 0.2);
-    border-style: solid;
-    border-radius: 10px;
     resize: none;
+    background-color: transparent;
+    border: none;
     text-decoration: none;
-}
-
-.addArqh1 {
-    font-family: "fontePadrao",sans-serif;
-    width: 100%;
-    text-align: left;
-    font-size: 22px;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
 }

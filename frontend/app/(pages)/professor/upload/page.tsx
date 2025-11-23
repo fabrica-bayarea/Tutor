@@ -201,6 +201,7 @@ function ExtratorWindow() {
                 border: "1px solid rgba(0, 0, 0, 0.15)",
             },
             transition: "border ease-out 0.15s",
+            backgroundColor:"#CDCDCD"
         }),
         menu: (base: any) => ({
             ...base,
@@ -215,7 +216,7 @@ function ExtratorWindow() {
         }),
         placeholder: (base: any) => ({
             ...base,
-            color: "#999999",
+            color: "#000000ff",
         }),
     }
 
@@ -230,9 +231,9 @@ function ExtratorWindow() {
             <div className={styles.selectMaterias}>
                 <div className={styles.title}>
                     <h2>Matérias</h2>
-                    <p>Selecione as matérias para as quais você quer adicionar os arquivos</p>
                 </div>
                 <Select
+                    instanceId="materia-select"
                     styles={customDropDownStyles}
                     isMulti
                     placeholder="Selecione a Matéria"

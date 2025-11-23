@@ -1,7 +1,7 @@
 import styles from './AsideMainButton.module.css';
 
 export default function AsideMainButton({
-    icon,
+    icon = null,
     label,
     isCollapsed,
     isSelected,

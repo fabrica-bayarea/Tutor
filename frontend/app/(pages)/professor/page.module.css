@@ -13,8 +13,83 @@
 
 .header {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
     align-items: flex-start;
     color: #1a1a1a;
+}
+.header h1{
+    margin-bottom: 1rem;
+}
+
+.itensTelaPrincipal{
+    display: flex;
+    width: 100%;
+    height: 50vh;
+    margin-top: 3vh;
+    flex-direction: column;
+}
+
+.bolderText{
+    font-size: 23px;
+    font-weight: bolder;
+}
+
+.itensEstatisticosTelaPrincipal{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 25%;
+    gap: 20px;
+}
+
+.itensAcoesRapidasTelaPrincipal{
+    margin-top: 2vh;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    height: 45%;
+}
+
+.itemAcoesRapidasTelaPrincipal{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    padding: 15px;
+    border-style: solid;
+    border-color: #CDCDCD;
+    border-radius: 11px;
+}
+
+.itemAcoesRapidasTelaPrincipal a {
+    display: flex;
+    justify-content: center;
+}
+
+
+.buttonAcoesRapidas{
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    background-color: #CDCDCD;
+    border-radius: 11px;
+    height: 40px;
+    width: 100%;
+    font-weight: normal;
+}
+
+.buttonAcoesRapidas:hover{
+    background-color: #9c9c9c;
+}
+
+.buttonConfig{
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    border-style: solid;
+    border-color: #CDCDCD;
+    border-radius: 11px;
+    width: 20%;
+    height: 40px;
+    font-weight: normal;
+    align-self: center;
 }

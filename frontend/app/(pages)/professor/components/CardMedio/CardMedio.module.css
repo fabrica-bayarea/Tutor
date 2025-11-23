@@ -1,0 +1,81 @@
+
+.itemEstatisticaRanking {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    padding: 15px;
+    border: 1px solid #CDCDCD;
+    border-radius: 11px;
+    height: fit-content;
+}
+
+.headerEstatisticaRanking {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2vh;
+}
+
+.bolderText {
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.legendBottomPercentage {
+    font-size: 13px;
+    color: #E87373;
+}
+
+.flexCol {
+    display: flex;
+    flex-direction: column;
+}
+
+.flexRowBetween {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.itemRankeadoPerguntas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 25px 5px 35px;
+    height: 61px;
+    background-color: #CDCDCD;
+    border-radius: 11px;
+    margin-bottom: 1vh;
+}
+
+.perguntasInfos {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.itemRankeadoVolume {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 11px;
+    margin-bottom: 2vh;
+}
+
+.volumeInfos {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1vh;
+}
+
+.itemDireitoMateria {
+    background-color: #CDCDCD;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    padding: 15px;
+    height: 15px;
+    border-radius: 11px;
+}

@@ -1,7 +1,6 @@
 .midColumn {
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 100%;
     height: 100%;
     padding: 5rem 10rem;
@@ -11,22 +10,15 @@
     box-sizing: border-box;
 }
 
+
 .header {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: fit-content;
+    width: 85%;
     align-items: flex-start;
     color: #1a1a1a;
 }
-.header > * {
-    margin: 0;
-}
 
-.listMaterias {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    gap: 1rem;
+.header h1{
+    margin-bottom: 1rem;
 }
