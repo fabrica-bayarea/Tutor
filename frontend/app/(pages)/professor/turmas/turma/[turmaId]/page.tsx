@@ -12,6 +12,8 @@ import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vincu
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
 import BarraDeProgresso from '../../../components/BarraDeProgresso/BarraDeProgresso';
+import CardPequeno from '../../../components/CardPequeno/CardPequeno';
+import CardMedio from '../../../components/CardMedio/CardMedio';
 
 export default function Turma() {
     const params = useParams();
@@ -67,98 +69,70 @@ export default function Turma() {
 
             <div className={styles.itensTelaPrincipal}>
                 <div className={styles.itensEstatisticosTelaPrincipal}>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Total de  Dúvidas</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Alunos Ativos</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Tempo médio de uso</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0hr</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
+                    <CardPequeno
+                        titulo='Total de dúvidas' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Alunos Ativos' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Tempo médio de uso' 
+                        volume='0hr'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
                 </div>
 
-                                <div className={styles.estatisticasRanking}>
-                    <div className={styles.itemEstatisticaRanking}>
-                        <div className={styles.headerEstatisticaRanking}>
-                            <ChartNoAxesColumnIncreasing/>
-                            <p className={styles.bolderText}>Ranking de dúvidas mais frequentes</p>
-                        </div>
-                        <div >
-                            //foreach aqui
-                            <div className={styles.itemRankeadoPerguntas}>
-                                <div className={styles.perguntasInfos}>
-                                    <p>Quais são as leis de Newton?</p>
-                                    <p>Física</p>
-                                </div>
-                                <div className={styles.perguntasInfos}>
-                                    <p className={styles.bolderText}>0</p>
-                                    <p className={styles.legendBottomPercentage}>+0%</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div className={styles.estatisticasRanking}>
+                    <CardMedio
+                        titulo = 'Ranking de dúvidas mais frequentes'
+                        tipo = 'RankingDeDuvidas'
+                        itens = {[
+                            { 
+                                duvida: 'Quais são as leis de Newton?', 
+                                materia: 'Física', 
+                                volume: '0', 
+                                porcentagem: '+0'
+                            },
+                            { 
+                                duvida: 'Quanto é um mais um?', 
+                                materia: 'Matemática', 
+                                volume: '0', 
+                                porcentagem: '+0'
+                            },
+                        ]}
+                    />
+
                     <div className={styles.itemDireito}>
-                        <div className={styles.itemEstatisticaRanking}>
-                            <div className={styles.headerEstatisticaRanking}>
-                                <Brain/>
-                                <p className={styles.bolderText}>Insights do Tutor</p>
-                            </div>
-
-                            <div>
-                                <p>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus dicta sit quia assumenda inventore, 
-                                    porro eius qui atque ratione blanditiis earum sint illo consectetur incidunt! Quo explicabo quidem 
-                                    eveniet dolore.
-                                </p>
-                            </div>
-                        </div>
-                        <div className={styles.itemEstatisticaRanking}>
-                            <div className={styles.headerEstatisticaRanking}>
-                                <GraduationCap/>
-                                <p className={styles.bolderText}>Matérias ensinadas</p>
-                            </div>
-
-                            <div>
-                                //foreach aqui
-                                <div className={styles.itemRankeadoVolume}>
-                                    <div className={styles.itemDireitoMateria}>
-                                        <p>Física</p>
-                                        <ChevronRight/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <CardMedio
+                            titulo = 'Ranking de dúvidas mais frequentes'
+                            tipo = 'InsightTutor'
+                            itens = {[]}
+                        />
+                        <CardMedio
+                            titulo = 'Ranking de dúvidas mais frequentes'
+                            tipo = 'MateriasEnsinadas'
+                            itens = {[
+                                { 
+                                    duvida: '', 
+                                    materia: 'Física', 
+                                    volume: '', 
+                                    porcentagem: ''
+                                },
+                                { 
+                                    duvida: '', 
+                                    materia: 'Matemática', 
+                                    volume: '', 
+                                    porcentagem: ''
+                                }
+                            ]}
+                        />
                         <div className={styles.itemA}>
                             <a href="/professor/estatisticas" className={styles.buttonA}>
                                 <button className={styles.buttonEst}>Ver Estatísticas Completas</button>

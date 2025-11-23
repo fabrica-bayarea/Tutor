@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
-import { ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Shapes, Funnel} from 'lucide-react';
+import { ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Shapes, Funnel, Car} from 'lucide-react';
 import { InterfaceProfessor } from '../../../types';
 import BarraDeProgresso from '../components/BarraDeProgresso/BarraDeProgresso';
 import Select from 'react-select';
+import CardPequeno from '../components/CardPequeno/CardPequeno';
+import CardMedio from '../components/CardMedio/CardMedio';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({
@@ -30,12 +32,14 @@ export default function Home() {
                 <div className={styles.filterButtons}>
                     <Funnel/>
                     <Select
+                        instanceId="materia-select"
                         isMulti
                         placeholder="Todas as matérias"
                         //options={options}
                         //onChange={handleVinculosChange}
                     />
                     <Select
+                        instanceId="materia-select"
                         isMulti
                         placeholder="Todas as Turmas"
                         //options={options}
@@ -46,97 +50,69 @@ export default function Home() {
 
             <div className={styles.itensTelaPrincipal}>
                 <div className={styles.itensEstatisticosTelaPrincipal}>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Total de  Dúvidas</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Alunos Ativos</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Tempo médio de uso</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0hr</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Total de dúvidas</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
+                    <CardPequeno
+                        titulo='Total de dúvidas' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Alunos Ativos' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Tempo médio de uso' 
+                        volume='0hr'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Tempo médio de uso' 
+                        volume='0hr'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
                 </div>
 
-                <div className={styles.estatisticasRanking}>
-                    <div className={styles.itemEstatisticaRanking}>
-                        <div className={styles.headerEstatisticaRanking}>
-                            <ChartNoAxesColumnIncreasing/>
-                            <p className={styles.bolderText}>Ranking de dúvidas mais frequentes</p>
-                        </div>
-                        <div >
-                            //foreach aqui
-                            <div className={styles.itemRankeadoPerguntas}>
-                                <div className={styles.perguntasInfos}>
-                                    <p>Quais são as leis de Newton?</p>
-                                    <p>Física</p>
-                                </div>
-                                <div className={styles.perguntasInfos}>
-                                    <p className={styles.bolderText}>0</p>
-                                    <p className={styles.legendBottomPercentage}>+0%</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticaRanking}>
-                        <div className={styles.headerEstatisticaRanking}>
-                            <Shapes/>
-                            <p className={styles.bolderText}>Distribuição por matéria</p>
-                        </div>
-
-                        <div>
-                            //foreach aqui
-                            <div className={styles.itemRankeadoVolume}>
-                                <div className={styles.volumeInfos}>
-                                    <p>Física</p>
-                                    <p>0 dúvidas</p>
-                                </div>
-                                <BarraDeProgresso porcentagem={70} />
-                            </div>
-                        </div>
-                    </div>
+                <div className={styles.itensEstatisticosTelaPrincipal}>
+                    <CardMedio
+                        titulo = 'Ranking de dúvidas mais frequentes'
+                        tipo = 'RankingDeDuvidas'
+                        itens = {[
+                            { 
+                                duvida: 'Quais são as leis de Newton?', 
+                                materia: 'Física', 
+                                volume: '0', 
+                                porcentagem: '+0'
+                            },
+                            { 
+                                duvida: 'Quanto é um mais um?', 
+                                materia: 'Matemática', 
+                                volume: '0', 
+                                porcentagem: '+0'
+                            },
+                        ]}
+                    />
+                    <CardMedio
+                        titulo = 'Distribuição por matéria'
+                        tipo = 'RankingDeMaterias'
+                        itens = {[
+                            { 
+                                duvida: '', 
+                                materia: 'Física', 
+                                volume: '1', 
+                                porcentagem: '50'
+                            },
+                            { 
+                                duvida: '', 
+                                materia: 'Matemática', 
+                                volume: '1', 
+                                porcentagem: '50'
+                            },
+                        ]}
+                    />
                 </div>
 
             </div>

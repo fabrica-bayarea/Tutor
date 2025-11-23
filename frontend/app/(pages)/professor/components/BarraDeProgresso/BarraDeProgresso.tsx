@@ -1,5 +1,3 @@
-"use client";
-
 import styles from './BarraDeProgresso.module.css';
 
 export default function BarraDeProgresso({ porcentagem = 0 }) {

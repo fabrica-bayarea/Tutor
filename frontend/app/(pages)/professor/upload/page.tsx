@@ -233,6 +233,7 @@ function ExtratorWindow() {
                     <h2>Matérias</h2>
                 </div>
                 <Select
+                    instanceId="materia-select"
                     styles={customDropDownStyles}
                     isMulti
                     placeholder="Selecione a Matéria"

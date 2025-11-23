@@ -50,6 +50,7 @@ export default function Home() {
             <div className={styles.headerContainer}>
                 <div className={styles.materiaFilter}>
                     <Select
+                        instanceId="materia-select"
                         isMulti
                         placeholder="Todas as matérias"
                         //options={options}

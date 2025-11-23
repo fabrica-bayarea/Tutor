@@ -55,38 +55,6 @@
     gap: 20px;
 }
 
-.legenda{
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 5px;
-    margin-left: 10px;
-}
-
-.itemEstatisticoTelaPrincipal{
-    width: 100%;
-    padding: 15px;
-    border-style: solid;
-    border-color: #CDCDCD;
-    border-radius: 11px;
-    height: fit-content;
-}
-
-.itemEstatistico{
-    margin-top: 5px;
-    margin-left: 10px;
-}
-
-.legendBottomPercentage{
-    font-size: 13px;
-    color: #E87373;
-}
-
-.legendBottom{
-    font-size: 13px;
-}
-
-
 .estatisticasRanking{
     margin-top: 2vh;
     display: flex;
@@ -95,52 +63,10 @@
     height: 45%;
 }
 
-.headerEstatisticaRanking{
-    display: flex;
-    gap: 5px;
-    margin-bottom: 2vh;
-}
-
-.itemEstatisticaRanking{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: fit-content;
-    padding: 15px;
-    border-style: solid;
-    border-color: #CDCDCD;
-    border-radius: 11px;
-}
-
-.itemRankeadoPerguntas{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px;
-    padding-left: 35px;
-    padding-right: 25px;
-    height: 61px;
-    background-color: #CDCDCD;
-    border-radius: 11px;
-}
-
 .itemDireito{
     display: flex;
     flex-direction: column;
     gap: 15px;
-}
-
-.itemDireitoMateria{
-    background-color: #CDCDCD;
-    display: flex;
-    flex-direction: row;
-    width: 95%;
-    height: 15px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
-    border-radius: 11px;
 }
 
 .buttonEst{
@@ -148,7 +74,7 @@
     background-color: #CDCDCD;
     border-radius: 11px;
     height: 40px;
-    width: 100%;
+    width: 95%;
     font-weight: normal;
     align-self: center;
 }

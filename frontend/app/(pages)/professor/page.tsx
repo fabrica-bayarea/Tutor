@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import { ChartNoAxesCombined } from 'lucide-react';
 import { InterfaceProfessor } from '../../types';
+import CardPequeno from './components/CardPequeno/CardPequeno';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({
@@ -26,58 +27,30 @@ export default function Home() {
 
             <div className={styles.itensTelaPrincipal}>
                 <div className={styles.itensEstatisticosTelaPrincipal}>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Total de  Dúvidas</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Alunos Ativos</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Tempo médio de uso</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0hr</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
-                    <div className={styles.itemEstatisticoTelaPrincipal}>
-                        <div className={styles.itemEstatistico}>
-                            <p>Total de dúvidas</p>
-                        </div>
-                        <div className={styles.itemEstatistico}>
-                            <p className={styles.bolderText}>0</p>
-                        </div>
-                        <div className={styles.legenda}>
-                            <ChartNoAxesCombined/>
-                            <p className={styles.legendBottomPercentage}>+0% </p>
-                            <p className={styles.legendBottom}> este mês</p>
-                        </div>
-                    </div>
+                    <CardPequeno
+                        titulo='Total de dúvidas' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Alunos Ativos' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Tempo médio de uso' 
+                        volume='0hr'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
+                    <CardPequeno
+                        titulo='Total de dúvidas' 
+                        volume='0'
+                        porcentagem='0'
+                        tempo='este mês'
+                    />
                 </div>
 
                 <div className={styles.itensAcoesRapidasTelaPrincipal}>

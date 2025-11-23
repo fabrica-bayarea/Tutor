@@ -1,0 +1,35 @@
+.bolderText{
+    font-size: 23px;
+    font-weight: bolder;
+}
+
+.legenda{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.itemEstatisticoTelaPrincipal{
+    width: 100%;
+    padding: 15px;
+    border-style: solid;
+    border-color: #CDCDCD;
+    border-radius: 11px;
+    height: fit-content;
+}
+
+.itemEstatistico{
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.legendBottomPercentage{
+    font-size: 13px;
+    color: #E87373;
+}
+
+.legendBottom{
+    font-size: 13px;
+}
