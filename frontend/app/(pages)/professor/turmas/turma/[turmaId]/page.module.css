@@ -1,5 +1,6 @@
-.midColumnContainer{
+.midColumnDiv{
     overflow: auto;
+    height: 100vh;
 }
 
 .midColumn {

@@ -52,98 +52,98 @@ export default function Turma() {
     }
 
     return (
-        <>
-        <div className={styles.midColumn}>
-            <div className={styles.header}>
-                <Button
-                    icon={<ArrowLeft size={24} />}
-                    label="Voltar"
-                    onClick={() => window.history.back()}
-                />
-                <h1>{turma?.codigo}</h1>
-                <div className={styles.turmaInfo}>
-                    <h1>{turma!.codigo}</h1>
-                    <p><strong>Semestre:</strong> {turma!.semestre}</p>
-                    <p><strong>Turno:</strong> {turma!.turno.charAt(0).toUpperCase() + turma!.turno.slice(1)}</p>
-                </div>
-            </div>
-
-            <div className={styles.itensTelaPrincipal}>
-                <div className={styles.itensEstatisticosTelaPrincipal}>
-                    <CardPequeno
-                        titulo='Total de dúvidas' 
-                        volume='0'
-                        porcentagem='0'
-                        tempo='este mês'
+        <div className={styles.midColumnDiv}>
+            <div className={styles.midColumn}>
+                <div className={styles.header}>
+                    <Button
+                        icon={<ArrowLeft size={24} />}
+                        label="Voltar"
+                        onClick={() => window.history.back()}
                     />
-                    <CardPequeno
-                        titulo='Alunos Ativos' 
-                        volume='0'
-                        porcentagem='0'
-                        tempo='este mês'
-                    />
-                    <CardPequeno
-                        titulo='Tempo médio de uso' 
-                        volume='0hr'
-                        porcentagem='0'
-                        tempo='este mês'
-                    />
+                    <h1>{turma?.codigo}</h1>
+                    <div className={styles.turmaInfo}>
+                        <h1>{turma!.codigo}</h1>
+                        <p><strong>Semestre:</strong> {turma!.semestre}</p>
+                        <p><strong>Turno:</strong> {turma!.turno.charAt(0).toUpperCase() + turma!.turno.slice(1)}</p>
+                    </div>
                 </div>
 
-                <div className={styles.estatisticasRanking}>
-                    <CardMedio
-                        titulo = 'Ranking de dúvidas mais frequentes'
-                        tipo = 'RankingDeDuvidas'
-                        itens = {[
-                            { 
-                                duvida: 'Quais são as leis de Newton?', 
-                                materia: 'Física', 
-                                volume: '0', 
-                                porcentagem: '+0'
-                            },
-                            { 
-                                duvida: 'Quanto é um mais um?', 
-                                materia: 'Matemática', 
-                                volume: '0', 
-                                porcentagem: '+0'
-                            },
-                        ]}
-                    />
-
-                    <div className={styles.itemDireito}>
-                        <CardMedio
-                            titulo = 'Ranking de dúvidas mais frequentes'
-                            tipo = 'InsightTutor'
-                            itens = {[]}
+                <div className={styles.itensTelaPrincipal}>
+                    <div className={styles.itensEstatisticosTelaPrincipal}>
+                        <CardPequeno
+                            titulo='Total de dúvidas' 
+                            volume='0'
+                            porcentagem='0'
+                            tempo='este mês'
                         />
-                        <CardMedio
-                            titulo = 'Ranking de dúvidas mais frequentes'
-                            tipo = 'MateriasEnsinadas'
-                            itens = {[
-                                { 
-                                    duvida: '', 
-                                    materia: 'Física', 
-                                    volume: '', 
-                                    porcentagem: ''
-                                },
-                                { 
-                                    duvida: '', 
-                                    materia: 'Matemática', 
-                                    volume: '', 
-                                    porcentagem: ''
-                                }
-                            ]}
+                        <CardPequeno
+                            titulo='Alunos Ativos' 
+                            volume='0'
+                            porcentagem='0'
+                            tempo='este mês'
                         />
-                        <div className={styles.itemA}>
-                            <a href="/professor/estatisticas" className={styles.buttonA}>
-                                <button className={styles.buttonEst}>Ver Estatísticas Completas</button>
-                            </a>
-                        </div>
+                        <CardPequeno
+                            titulo='Tempo médio de uso' 
+                            volume='0hr'
+                            porcentagem='0'
+                            tempo='este mês'
+                        />
                     </div>
 
+                    <div className={styles.estatisticasRanking}>
+                        <CardMedio
+                            titulo = 'Ranking de dúvidas mais frequentes'
+                            tipo = 'RankingDeDuvidas'
+                            itens = {[
+                                { 
+                                    duvida: 'Quais são as leis de Newton?', 
+                                    materia: 'Física', 
+                                    volume: '0', 
+                                    porcentagem: '+0'
+                                },
+                                { 
+                                    duvida: 'Quanto é um mais um?', 
+                                    materia: 'Matemática', 
+                                    volume: '0', 
+                                    porcentagem: '+0'
+                                },
+                            ]}
+                        />
+
+                        <div className={styles.itemDireito}>
+                            <CardMedio
+                                titulo = 'Ranking de dúvidas mais frequentes'
+                                tipo = 'InsightTutor'
+                                itens = {[]}
+                            />
+                            <CardMedio
+                                titulo = 'Ranking de dúvidas mais frequentes'
+                                tipo = 'MateriasEnsinadas'
+                                itens = {[
+                                    { 
+                                        duvida: '', 
+                                        materia: 'Física', 
+                                        volume: '', 
+                                        porcentagem: ''
+                                    },
+                                    { 
+                                        duvida: '', 
+                                        materia: 'Matemática', 
+                                        volume: '', 
+                                        porcentagem: ''
+                                    }
+                                ]}
+                            />
+                            <div className={styles.itemA}>
+                                <a href="/professor/estatisticas" className={styles.buttonA}>
+                                    <button className={styles.buttonEst}>Ver Estatísticas Completas</button>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
-        </>
     )
 }

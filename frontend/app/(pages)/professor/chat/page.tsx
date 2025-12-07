@@ -65,7 +65,7 @@ export default function Home() {
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
         </div>
-        <UserButton user="professor"/>
+        <UserButton isProf={true} user="professor"/>
         </>
     )
 }
