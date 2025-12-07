@@ -3,11 +3,11 @@ Rotas para lidar com alunos.
 """
 from flask import Blueprint, request, jsonify
 from application.auth.jwt_handler import gerar_token
-from application.services.service_aluno import criar_aluno, buscar_aluno, logar_aluno
+from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno
 
-alunos_bp = Blueprint('alunos', __name__)
+usuarios_bp = Blueprint('alunos', __name__)
 
-@alunos_bp.route('/criar', methods=['POST'])
+@usuarios_bp.route('/criar', methods=['POST'])
 def gerar_aluno():
     """
     Endpoint para criar um aluno.
@@ -17,7 +17,6 @@ def gerar_aluno():
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
     - `senha`: str - a senha do aluno
-    - `cpf`: str - o cpf do aluno
     - `data_nascimento`: str - a data de nascimento do aluno
     
     Retorna um dicionário contendo as informações do aluno criado.
@@ -27,7 +26,6 @@ def gerar_aluno():
         "matricula": "matricula",
         "nome": "nome",
         "email": "email",
-        "cpf": "cpf",
         "data_nascimento": "data_nascimento"
     }
     ```
@@ -37,22 +35,21 @@ def gerar_aluno():
     nome = request.json.get('nome')
     email = request.json.get('email')
     senha = request.json.get('senha')
-    cpf = request.json.get('cpf')
     data_nascimento = request.json.get('data_nascimento')
     
-    if not matricula or not nome or not email or not senha or not cpf or not data_nascimento:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email', 'cpf', 'data_nascimento' e 'senha' são obrigatórios"}), 400
+    if not matricula or not nome or not email or not senha or not data_nascimento:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email', 'data_nascimento' e 'senha' são obrigatórios"}), 400
     
     # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email, cpf=cpf)
+    aluno_existe = buscar_aluno(matricula=matricula, email=email)
     if aluno_existe:
-        return jsonify({"error": "Aluno com essa matrícula, email ou cpf já existe"}), 409
+        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
     
     # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha, cpf, data_nascimento)
+    aluno = criar_aluno(matricula, nome, email, senha, data_nascimento)
     return jsonify(aluno), 201
 
-@alunos_bp.route('/login', methods=['POST'])
+@usuarios_bp.route('/login', methods=['POST'])
 def login_aluno():
     """
     Endpoint para logar um aluno.
@@ -70,8 +67,8 @@ def login_aluno():
             "matricula": "matricula",
             "nome": "nome",
             "email": "email",
-            "cpf": "cpf",
             "data_nascimento": "data_nascimento"
+            "role": "role do usuario(1,2,3)"
         }
     }
     ```

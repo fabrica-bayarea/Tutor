@@ -1,8 +1,8 @@
 import uuid
-from application.models import Aluno
+from application.models import Usuario
 from application.config.database import db
 
-def criar_aluno(matricula: str, nome: str, email: str, senha: str, cpf: str, data_nascimento: str) -> dict[str, str] | None:
+def criar_aluno(matricula: str, nome: str, email: str, senha: str, data_nascimento: str) -> dict[str, str] | None:
     """
     Função atômica, responsável por criar um aluno no PostgreSQL.
 
@@ -11,7 +11,6 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str, cpf: str, dat
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
     - `senha`: str - a senha do aluno
-    - `cpf`: str - o cpf do aluno
     - `data_nascimento`: str - a data de nascimento do aluno
 
     Retorna um dicionário com os dados do aluno criado.
@@ -21,14 +20,14 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str, cpf: str, dat
         nome=nome,
         email=email,
         senha=senha,
-        cpf=cpf,
-        data_nascimento=data_nascimento
+        data_nascimento=data_nascimento,
+        role=3
     )
     db.session.add(aluno)
     db.session.commit()
     return aluno.to_dict()
 
-def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = None, email: str = None, cpf: str = None, data_nascimento: str = None) -> dict[str, str] | None:
+def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = None, email: str = None, data_nascimento: str = None, role: str = None) -> dict[str, str] | None:
     """
     Busca um aluno no banco de dados usando um ou mais filtros.
 
@@ -37,8 +36,8 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     - `matricula`: str - o número de matrícula do aluno
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
-    - `cpf`: str - o cpf do aluno
     - `data_nascimento`: str - a data de nascimento do aluno
+    - `role`: str - a função do usuario
 
     Retorna um dicionário com os dados do aluno se ele existir, e None caso contrário.
     """
@@ -59,8 +58,8 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     if nome:
         filtros.append(Aluno.nome == nome)
     
-    if cpf:
-        filtros.append(Aluno.cpf == cpf)
+    if role:
+        filtros.append(Aluno.role == role)
 
     if data_nascimento:
         filtros.append(Aluno.data_nascimento == data_nascimento)

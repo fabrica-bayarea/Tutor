@@ -6,7 +6,8 @@ class Mensagem(db.Model):
     __tablename__ = 'mensagens'
 
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chat_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('chats.id'), nullable=False)
+    chat = db.relationship('Chat', back_populates='mensagens')
+    sessao_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('sessao.id'),nullable=False)
     sender_id = db.Column(db.UUID(as_uuid=True), nullable=False)
     conteudo = db.Column(db.String(3200), nullable=False)
     data_envio = db.Column(db.DateTime, nullable=False, default=datetime.now)
@@ -20,6 +21,7 @@ class Mensagem(db.Model):
         return {
             'id': str(self.id),
             'chat_id': str(self.chat_id),
+            'sessao_id': str(self.sessao_id),
             'sender_id': str(self.sender_id),
             'conteudo': self.conteudo,
             'data_envio': self.data_envio.strftime('%d/%m/%Y %H:%M:%S')
