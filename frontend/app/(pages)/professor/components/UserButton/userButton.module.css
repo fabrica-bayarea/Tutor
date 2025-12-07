@@ -1,0 +1,42 @@
+.wrapper {
+    position: absolute !important;
+    top: 3vh !important;
+    right: 3vh !important;
+    z-index: 9999 !important;
+}
+
+.btnUser {
+    color: rgba(255, 255, 255, 0);
+    border: 2px solid black;
+    height: 57px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* DROPDOWN */
+.dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: white;
+    border: 2px solid #000000;
+    border-radius: 11px;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+.dropdown button {
+    padding: 10px 16px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.dropdown button:hover {
+    background: #f1f1f1;
+}

@@ -2,7 +2,7 @@
     position: absolute;   
     top: 0;                 
     left: 0;         
-    width: 18rem;
+    width: 15.9rem;
     min-width: 10rem;
     height: 100%;
     padding: 1rem;
@@ -10,6 +10,9 @@
     border-right: 2px solid black;
     box-sizing: border-box;
     z-index: 1000;       
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 

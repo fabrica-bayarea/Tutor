@@ -3,8 +3,8 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 
-import MessageBox from "../../components/MessageBox/MessageBox"
-import MessageForm from "../../components/MessageForm/MessageForm"
+import MessageBox from "../MessageBox/MessageBox"
+import MessageForm from "../MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 

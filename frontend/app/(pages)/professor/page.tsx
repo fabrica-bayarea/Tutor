@@ -5,6 +5,7 @@ import styles from './page.module.css';
 import { ChartNoAxesCombined } from 'lucide-react';
 import { InterfaceProfessor } from '../../types';
 import CardPequeno from './components/CardPequeno/CardPequeno';
+import UserButton from './components/UserButton/userButton';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceProfessor>({
@@ -24,7 +25,6 @@ export default function Home() {
             <div className={styles.header}>
                 <h1>Olá, {professor.nome}!</h1>
             </div>
-
             <div className={styles.itensTelaPrincipal}>
                 <div className={styles.itensEstatisticosTelaPrincipal}>
                     <CardPequeno

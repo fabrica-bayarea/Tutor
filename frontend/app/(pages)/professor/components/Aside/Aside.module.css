@@ -1,12 +1,13 @@
 .asideContainer {
     display: flex;
+    justify-content: space-between;
     flex-direction: column;
     width: 18rem;
     min-width: 10rem;
     height: 100%;
     padding: 1rem;
     background-color: #f2f2f2;
-    border-right: 2px solid black;
+    border-right: 2px solid rgb(0, 0, 0);
     box-sizing: border-box;
 }
 .expanded {

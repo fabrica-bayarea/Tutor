@@ -10,6 +10,7 @@ import SourceUpload from '../components/SourceUpload/SourceUpload';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
+import UserButton from '../components/UserButton/userButton';
 
 function ExtratorWindow() {
     const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
@@ -223,7 +224,6 @@ function ExtratorWindow() {
     return (
         <div className={styles.midColumn}>
             {/* Container principal */}
-
             <div className={styles.header}>
                 <h1>Adicionar fontes</h1>
                 <p>Adicione materiais (arquivos, links e textos personalizados) à sua base de conteúdos para que o modelo de IA gere respostas mais precisas para seus alunos com base neles.</p>

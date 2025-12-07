@@ -25,13 +25,13 @@ export default function Aside() {
 
     return (
         <>
-            <div className={styles.asideContainer}>
-                <div className={styles.tituloNav}><h1>DashBoard</h1></div>
-            <div className={styles.asideHeader}>
-                <img src="null" alt="" />
-            </div>
-            <div className={styles.asideMainButtons}>
+        <div className={styles.asideContainer}>
 
+            <div className={styles.asideMainButtons}>
+                <div className={styles.tituloNav}><h1>DashBoard</h1></div>
+                <div className={styles.asideHeader}>
+                    <img src="null" alt="" />
+                </div>
                 <div className={styles.asideCriarChatButton}>
                     <a href="/professor">
                     <button className={styles.newChatButton}>
@@ -91,24 +91,28 @@ export default function Aside() {
                     </button>
                     </a>
                 </div>  
+            </div>  
+            <div className={styles.asideMainButtons}>
 
-                <div className={styles.divAsideOtrButtons}>
-                    <div className={styles.asideOtrButton}>
-                        <a href="/configuracao">
-                        <button className={styles.otrButton}>
-                            <Bolt/>
-                            Configuração
-                        </button>
-                        </a>
-                    </div>
+                <div>
+                    <div className={styles.divAsideOtrButtons}>
+                        <div className={styles.asideOtrButton}>
+                            <a href="/configuracao">
+                            <button className={styles.otrButton}>
+                                <Bolt/>
+                                Configuração
+                            </button>
+                            </a>
+                        </div>
 
-                    <div className={styles.asideOtrButton}>
-                        <a href="/sair">
-                        <button className={styles.otrButton}>
-                            <Ban/>
-                            Sair
-                        </button>
-                        </a>
+                        <div className={styles.asideOtrButton}>
+                            <a href="/sair">
+                            <button className={styles.otrButton}>
+                                <Ban/>
+                                Sair
+                            </button>
+                            </a>
+                        </div>
                     </div>
                 </div>
 

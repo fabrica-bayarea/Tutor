@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { InterfaceAluno, InterfaceChat } from "../../../types"
 import AsideChat from "../components/AsideChat/AsideChat";
 import Select from 'react-select';
+import UserButton from "../components/UserButton/userButton";
 
 export default function Home() {
     const router = useRouter()
@@ -47,16 +48,15 @@ export default function Home() {
         <>
         <AsideChat chats={[]}/>
         <div className={styles.midColumn}>
-            <div className={styles.headerContainer}>
                 <div className={styles.materiaFilter}>
                     <Select
-                        instanceId="materia-select"
                         isMulti
                         placeholder="Todas as matérias"
                         //options={options}
                         //onChange={handleVinculosChange}
                     />
                 </div>
+            <div className={styles.headerContainer}>
                 <h1>Olá, {aluno?.nome}!</h1>
                 <h2>Como posso ajudar hoje?</h2>
             </div>
@@ -65,6 +65,7 @@ export default function Home() {
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
         </div>
+        <UserButton user="professor"/>
         </>
     )
 }

@@ -20,7 +20,8 @@ export default function AsideChat({ chats }: { chats: InterfaceChat[] }) {
     
     return (
         <>
-            <div className={styles.asideContainerProf}>
+        <div className={styles.asideContainerProf} >
+            <div>
                 <div className={styles.tituloNavProf}><h1>Tutor AI</h1></div>
 
                 <div className={styles.asideCriarChatButtonProf}>
@@ -49,7 +50,8 @@ export default function AsideChat({ chats }: { chats: InterfaceChat[] }) {
                             ))}
                     </div>
                 </div>
-                
+            </div>
+            <div>
                 <div className={styles.divAsideOtrButtonsProf}>
                     <div className={styles.asideOtrButtonProf}>
                         <a href="/configuracao">
@@ -84,6 +86,7 @@ export default function AsideChat({ chats }: { chats: InterfaceChat[] }) {
                 </div>
 
             </div>
+        </div>
         </>
     );
 }
