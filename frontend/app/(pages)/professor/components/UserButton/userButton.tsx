@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styles from "./userButton.module.css";
-import { UserRound } from "lucide-react";
+import { Ban, Bolt, Coffee, UserRound } from "lucide-react";
 
 export default function UserButton({ user = '' }) {
     const [open, setOpen] = useState(false);
@@ -19,9 +19,42 @@ export default function UserButton({ user = '' }) {
 
             {open && (
                 <div className={styles.dropdown}>
-                    <button>Perfil</button>
-                    <button>Configurações</button>
-                    <button>Sair</button>
+                    <div>
+                        <div className={styles.divAsideOtrButtonsProf}>
+                            <div className={styles.asideOtrButtonProf}>
+                                <a href="/configuracao">
+                                <button className={styles.otrButtonProf}>
+                                    <Bolt/>
+                                    Configuração
+                                </button>
+                                </a>
+                            </div>
+
+                            <div className={styles.asideOtrButtonProf}>
+                                <div>
+                                <a href="/professor">
+                                <button className={styles.otrButtonProf}>
+                                    <Coffee/>
+                                    Área do Professor
+                                </button>
+                                </a>
+                                </div>
+                            </div>
+
+                            <div className={styles.asideOtrButtonProf}>
+                                <div>
+                                <a href="/sair">
+                                <button className={styles.otrButtonProf}>
+                                    <Ban/>
+                                    Sair
+                                </button>
+                                </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             )}
         </div>

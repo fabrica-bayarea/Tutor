@@ -40,3 +40,33 @@
 .dropdown button:hover {
     background: #f1f1f1;
 }
+
+
+.asideOtrButtonProf{
+    background-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+
+.otrButtonProf{
+    display: flex;
+    font-weight: normal;
+    font-size: 15px;
+    flex-direction: row;
+    width: 100%;
+    justify-content: start;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    border: 2px solid gray;
+}
+
+.otrButtonProf:hover{
+    background-color: rgb(0,0,0,0.1);
+}
+
+.divAsideOtrButtonsProf{
+    margin-top: 2rem;
+}

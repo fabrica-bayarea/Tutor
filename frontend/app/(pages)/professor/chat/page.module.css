@@ -8,9 +8,9 @@
 }
 
 .materiaFilter{
-    position: absolute;
-    top: 3vh;
-    left: 35vh;
+    position: absolute !important;
+    top: 4.5vh !important;
+    right: 17vh !important;
 }
 
 .headerContainer {
