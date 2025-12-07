@@ -51,41 +51,7 @@ export default function AsideChat({ chats }: { chats: InterfaceChat[] }) {
                     </div>
                 </div>
             </div>
-            <div>
-                <div className={styles.divAsideOtrButtonsProf}>
-                    <div className={styles.asideOtrButtonProf}>
-                        <a href="/configuracao">
-                        <button className={styles.otrButtonProf}>
-                            <Bolt/>
-                            Configuração
-                        </button>
-                        </a>
-                    </div>
-
-                    <div className={styles.asideOtrButtonProf}>
-                        <div>
-                        <a href="/professor">
-                        <button className={styles.otrButtonProf}>
-                            <Coffee/>
-                            Área do Professor
-                        </button>
-                        </a>
-                        </div>
-                    </div>
-
-                    <div className={styles.asideOtrButtonProf}>
-                        <div>
-                        <a href="/sair">
-                        <button className={styles.otrButtonProf}>
-                            <Ban/>
-                            Sair
-                        </button>
-                        </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            <div></div>
         </div>
         </>
     );

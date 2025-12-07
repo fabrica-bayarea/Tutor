@@ -4,8 +4,9 @@ import { useState } from "react";
 import styles from "./userButton.module.css";
 import { Ban, Bolt, Coffee, UserRound } from "lucide-react";
 
-export default function UserButton({ user = '' }) {
+export default function UserButton({ isProf = false, user='' }) {
     const [open, setOpen] = useState(false);
+    const [eProfessor, seteProfessor] = useState(isProf)
 
     return (
         <>
@@ -19,7 +20,7 @@ export default function UserButton({ user = '' }) {
 
             {open && (
                 <div className={styles.dropdown}>
-                    <div>
+                        <h1 className={styles.nomeUser}>{user}</h1>
                         <div className={styles.divAsideOtrButtonsProf}>
                             <div className={styles.asideOtrButtonProf}>
                                 <a href="/configuracao">
@@ -30,6 +31,7 @@ export default function UserButton({ user = '' }) {
                                 </a>
                             </div>
 
+                            {eProfessor &&
                             <div className={styles.asideOtrButtonProf}>
                                 <div>
                                 <a href="/professor">
@@ -40,6 +42,7 @@ export default function UserButton({ user = '' }) {
                                 </a>
                                 </div>
                             </div>
+                            }
 
                             <div className={styles.asideOtrButtonProf}>
                                 <div>
@@ -52,9 +55,6 @@ export default function UserButton({ user = '' }) {
                                 </div>
                             </div>
                         </div>
-
-                    </div>
-
                 </div>
             )}
         </div>

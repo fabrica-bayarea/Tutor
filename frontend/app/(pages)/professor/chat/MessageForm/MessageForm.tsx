@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { SendHorizonal, Paperclip } from 'lucide-react';
 import styles from './MessageForm.module.css';

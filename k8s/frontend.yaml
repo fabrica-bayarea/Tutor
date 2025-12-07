@@ -30,7 +30,7 @@ metadata:
 spec:
   selector:
     app: frontend
-  type: LoadBalancer
+  type: NodePort
   ports:
     - protocol: TCP
       port: 80

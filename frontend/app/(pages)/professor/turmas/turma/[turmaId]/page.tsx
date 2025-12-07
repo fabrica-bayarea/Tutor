@@ -52,6 +52,7 @@ export default function Turma() {
     }
 
     return (
+        <>
         <div className={styles.midColumn}>
             <div className={styles.header}>
                 <Button
@@ -143,5 +144,6 @@ export default function Turma() {
                 </div>
             </div>
         </div>
+        </>
     )
 }

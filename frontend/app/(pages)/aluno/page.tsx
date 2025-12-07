@@ -7,6 +7,7 @@ import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
 import { InterfaceAluno, InterfaceChat } from "../../types"
 import Select from 'react-select';
+import UserButton from "@/app/components/UserButton/userButton";
 
 export default function Home() {
     const router = useRouter()
@@ -43,6 +44,7 @@ export default function Home() {
     }
 
     return (
+        <>
         <div className={styles.midColumn}>
                 <div className={styles.materiaFilter}>
                     <Select
@@ -61,5 +63,7 @@ export default function Home() {
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
         </div>
+        <UserButton user='aluno'  isProf={false}/>
+        </>
     )
 }

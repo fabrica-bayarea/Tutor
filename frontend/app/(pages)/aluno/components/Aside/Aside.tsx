@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useParams } from 'next/navigation';
 import styles from './Aside.module.css';
-import { MessageCircleMore, Bolt, Ban } from 'lucide-react';
+import { MessageCircleMore} from 'lucide-react';
 import AsideMainButton from '../../../../components/AsideMainButton/AsideMainButton';
 import ChatListItemButton from '../ChatListItemButton/ChatListItemButton';
 import { InterfaceChat } from '@/app/types';
@@ -49,28 +49,6 @@ export default function Aside({ chats }: { chats: InterfaceChat[] }) {
                                     isSelected={chat.id === selectedChatId}
                                 />
                             ))}
-                    </div>
-                </div>
-                
-                <div className={styles.divAsideOtrButtons}>
-                    <div className={styles.asideOtrButton}>
-                        <a href="/configuracao">
-                        <button className={styles.otrButton}>
-                            <Bolt/>
-                            Configuração
-                        </button>
-                        </a>
-                    </div>
-
-                    <div className={styles.asideOtrButton}>
-                        <div>
-                        <a href="/sair">
-                        <button className={styles.otrButton}>
-                            <Ban/>
-                            Sair
-                        </button>
-                        </a>
-                        </div>
                     </div>
                 </div>
 
