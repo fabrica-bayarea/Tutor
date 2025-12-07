@@ -85,7 +85,7 @@
     border-style: solid;
     border-color: #CDCDCD;
     border-radius: 11px;
-    width: 20%;
+    width: fit-content;
     height: 40px;
     font-weight: normal;
     align-self: center;

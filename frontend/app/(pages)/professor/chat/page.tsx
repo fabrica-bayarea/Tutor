@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 import { InterfaceAluno, InterfaceChat } from "../../../types"
 import AsideChat from "../components/AsideChat/AsideChat";
 import Select from 'react-select';
-import UserButton from "../components/UserButton/userButton";
+import UserButton from "../../../components/UserButton/userButton";
 
 export default function Home() {
     const router = useRouter()

@@ -1,3 +1,7 @@
+.midColumnContainer{
+    overflow: auto;
+}
+
 .midColumn {
     display: flex;
     flex-direction: column;
