@@ -3,12 +3,12 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    height: 100%;
     padding: 5rem 10rem;
     gap: 2rem;
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+    overflow: auto;
 }
 
 .header {
@@ -37,7 +37,6 @@
 .itensTelaPrincipal{
     display: flex;
     width: 100%;
-    height: 50vh;
     margin-top: 3vh;
     flex-direction: column;
 }
@@ -51,7 +50,6 @@
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: 25%;
     gap: 20px;
 }
 
@@ -60,7 +58,6 @@
     display: flex;
     flex-direction: row;
     gap: 20px;
-    height: 45%;
 }
 
 .itemDireito{
