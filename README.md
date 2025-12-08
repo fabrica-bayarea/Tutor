@@ -130,7 +130,6 @@ Ideal para codificar, pois possui **hot-reload**.
     ```
     # Na raiz do projeto, execute:
     cp backend/.env.compose backend/.env
-    cp frontend/.env.compose.local frontend/.env.local
     docker compose up
     ```
 
