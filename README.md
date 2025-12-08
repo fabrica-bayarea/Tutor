@@ -118,7 +118,7 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
     O segredo armazena a senha do banco de dados de forma segura no cluster.
 
     ```
-    kubectl create secret generic postgres-secret --from-env-file=.env
+    kubectl create secret generic postgres-secret --from-env-file=backend/.env
     ```
 
     _Nota: Se o segredo já existir, delete-o primeiro com `kubectl delete secret postgres-secret`._
