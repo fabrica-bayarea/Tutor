@@ -61,6 +61,13 @@ ollama pull mistral
       DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/tutor
       DB_HOST=db
       FLASK_DEBUG=1
+      GOOGLE_CLIENT_ID=id do cliente para login com google
+      ```
+
+    - **Arquivo do Frontend (`./frontend/.env.local`):** Usado pelo Next.js.
+    
+      ```
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
 
 ### Passo 2: Construindo a Imagem Docker Universal

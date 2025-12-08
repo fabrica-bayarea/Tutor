@@ -13,6 +13,12 @@ export interface InterfaceArquivo {
     data_upload: Date | string;
 }
 
+export interface GooglePayload {
+  email: string;
+  name: string;
+  sub: string; 
+}
+
 export interface InterfaceChat {
     id: string;
     aluno_id: string;
