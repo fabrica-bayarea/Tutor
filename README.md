@@ -137,7 +137,7 @@ _Nota: Garanta que o ollama esteja rodando no computador
 
 #### Método B: Kubernetes (Simulando Deploy de Produção)
 
-Este método faz o deploy da aplicação em um cluster Kubernetes local, neste tutorial estará sendo utilizado o lubernetes imbutido no docker desktop pela sua facilidade de configuração.
+Este método faz o deploy da aplicação em um cluster Kubernetes local, neste tutorial estará sendo utilizado o kubernetes imbutido no docker desktop pela sua facilidade de configuração.
 
 1.  Abra o Docker Desktop.
 
