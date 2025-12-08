@@ -20,7 +20,7 @@ spec:
             - containerPort: 3000
           env:
             - name: NEXT_PUBLIC_API_URL_RUNTIME
-              value: "http://localhost:30001"
+              value: "http://backend-service:5000"
 
 ---
 apiVersion: v1
