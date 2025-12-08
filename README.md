@@ -53,27 +53,45 @@ ollama pull mistral
       SECRET_KEY=mesma-senha-do-backend-aqui
       ```
 
-    - **Arquivo do Backend (`./backend/.env`):** Usado pelo Flask.
+    - **Arquivo do Backend (`./backend/.env.compose`):** Usado pelo Flask e docker compose.
 
       ```
-      # Arquivo: ./backend/.env
       SECRET_KEY=gere_uma_chave_secreta_aqui
-      DATABASE_URL=postgresql://USUARIO:SENHA@HOST:PORTA/NOME_DO_BANCO
       POSTGRES_PASSWORD=sua_senha_segura_aqui
+      DATABASE_URL=postgresql://postgres:sua_senha_segura_aqui@db:5432/tutor
       DB_HOST=db
       FLASK_DEBUG=1
       GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
 
-    - **Arquivo do Frontend (`./frontend/.env.local`):** Usado pelo Next.js.
+    - **Arquivo do Backend (`./backend/.env.k8s`):** Usado pelo kubernetes.
+
+      ```
+      SECRET_KEY=gere_uma_chave_secreta_aqui
+      POSTGRES_PASSWORD=sua_senha_segura_aqui
+      DATABASE_URL=postgresql://postgres:sua_senha_segura_aqui@postgres-service:5432/tutor
+      DB_HOST=postgres-service
+      FLASK_DEBUG=0
+      GOOGLE_CLIENT_ID=id do cliente para login com google
+      ```
+
+    - **Arquivo do Frontend (`./frontend/.env.compose.local`):** Usado pelo Next.js.
     
       ```
+      NEXT_PUBLIC_API_URL_RUNTIME=http://localhost:5000
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
+      ```
+      
+    - **Arquivo do Frontend (`./frontend/.env.k8s.local`):** Usado pelo Next.js.
+    
+      ```
+      NEXT_PUBLIC_API_URL_RUNTIME=http://backend-service:5000
       NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
 
 ### Passo 2: Construindo a Imagem Docker Universal
 
-Este é o passo mais importante. Construa a imagem flexível do frontend que será usada em ambos os ambientes.
+Este é o passo mais importante. Construa a imagem do backend e a imagem flexível do frontend que será usada em ambos os ambientes.
 
 ```
 # Backend
@@ -81,8 +99,15 @@ cd backend
 docker build -t tutor-backend:latest -f Dockerfile.prod .
 cd ..
 
+#caso esteja subindo com kubernetes
+cp frontend/.env.k8s.local frontend/.env.local
+
+#caso esteja subindo com docker compose
+cp frontend/.env.compose.local frontend/.env.local
+
 # Frontend
 cd frontend
+
 docker build -t tutor-frontend:flexible .
 cd ..
 
@@ -104,6 +129,8 @@ Ideal para codificar, pois possui **hot-reload**.
 
     ```
     # Na raiz do projeto, execute:
+    cp backend/.env.compose backend/.env
+    cp frontend/.env.compose.local frontend/.env.local
     docker compose up
     ```
 
@@ -111,19 +138,36 @@ _Nota: Garanta que o ollama esteja rodando no computador
 
 #### Método B: Kubernetes (Simulando Deploy de Produção)
 
-Este método faz o deploy da aplicação em um cluster Kubernetes local.
+Este método faz o deploy da aplicação em um cluster Kubernetes local, neste tutorial estará sendo utilizado o lubernetes imbutido no docker desktop pela sua facilidade de configuração.
 
-1.  Crie o Segredo do Banco de Dados (se ainda não existir):
+1.  Abra o Docker Desktop.
+
+2.  Vá em Settings → Kubernetes.
+
+3.  Marque Enable Kubernetes.
+
+4.  Clique em Apply & Restart.
+
+5.  Teste no terminal:
+
+    ```
+    kubectl cluster-info
+    kubectl get nodes
+    ```
+    Se retornar um nó docker-desktop, está funcionando.
+    
+6.  Crie o Segredo do Banco de Dados (se ainda não existir):
 
     O segredo armazena a senha do banco de dados de forma segura no cluster.
 
     ```
+    cp backend/.env.k8s backend/.env
     kubectl create secret generic postgres-secret --from-env-file=backend/.env
     ```
 
     _Nota: Se o segredo já existir, delete-o primeiro com `kubectl delete secret postgres-secret`._
 
-2.  Faça o Deploy da Aplicação:
+7.  Faça o Deploy da Aplicação(na raiz do projeto):
 
     Aplique todos os manifestos de configuração contidos na pasta k8s/:
 
@@ -131,7 +175,7 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
     kubectl apply -f k8s/
     ```
 
-3.  Force a Atualização (se necessário):
+8.  Force a Atualização (se necessário):
 
     Se você reconstruir a imagem tutor-frontend:flexible e precisar que o Kubernetes a utilize, force uma reinicialização do deployment:
 
@@ -139,7 +183,7 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
     kubectl rollout restart deployment frontend-deployment
     ```
 
-4.  Verifique o Status:
+9.  Verifique o Status:
 
     Aguarde alguns minutos e verifique se todos os pods estão com o status Running:
 
@@ -154,23 +198,17 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
 O ingress é responsável por alterar a url de acesso à aplicação.
 
 1.  Altere o host/paths listado no arquivo /k8s/ingress.yaml da forma que preferir, ele será sua nova url de acesso
-
-2.  Habilite o ingress no controller(ex.:Minikube):
-
-    ```
-    minikube addons enable ingress
-    ```
     
-3.  Aplique o ingress:
+2.  Aplique o ingress:
 
     ```
     kubectl apply -f k8s/ingress.yaml
     ```
 
-4. Configure o host local:
+3. Configure o host local:
 
     ```
-    <cluster-ip> tutor.local
+    127.0.0.1 tutor.local
     ```
 
 ### Ativando a LLM (Ollama)
@@ -203,12 +241,12 @@ O ingress é responsável por alterar a url de acesso à aplicação.
 - **Ambiente Kubernetes:**
 
   - Frontend: Acesse via [http://localhost](http://localhost).
-  - Backend API: [http://localhost:30001](https://www.google.com/search?q=http://localhost:30001) (O serviço `NodePort` expõe a API diretamente nesta porta para acesso externo).
+  - Backend API: [http://localhost:30001](http://localhost:30001) (O serviço `NodePort` expõe a API diretamente nesta porta para acesso externo).
 
 - **Ambiente Kubernetes(com Ingress):**
 
   - Frontend: Acesse via [http://tutor.local/](http://tutor.local/)
-  - Backend API: [http://tutor.local/api](http://tutor.local/api)
+  - Backend API: [http://tutor.local/api](http://tutor.local/api) (O serviço `Ingress` expõe a API diretamente nesta porta para acesso externo).
 
 ### Parando a Aplicação
 
