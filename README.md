@@ -58,7 +58,7 @@ ollama pull mistral
       ```
       # Arquivo: ./backend/.env
       SECRET_KEY=gere_uma_chave_secreta_aqui
-      DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/tutor
+      DATABASE_URL=postgresql://USUARIO:SENHA@HOST:PORTA/NOME_DO_BANCO
       DB_HOST=db
       FLASK_DEBUG=1
       GOOGLE_CLIENT_ID=id do cliente para login com google
