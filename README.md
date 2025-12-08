@@ -209,7 +209,7 @@ O ingress é responsável por alterar a url de acesso à aplicação.
     127.0.0.1 tutor.local
     ```
 
-### Ativando a LLM (Ollama)
+### Passo 5: Ativando a LLM (Ollama)
 
 1.  Baixe o modelo mistral:
     
