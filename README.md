@@ -76,14 +76,16 @@ ollama pull mistral
 Este é o passo mais importante. Construa a imagem flexível do frontend que será usada em ambos os ambientes.
 
 ```
-# Navegue até a pasta do frontend
-cd frontend
-
-# Construa a imagem
-docker build -t tutor-frontend:flexible .
-
-# Volte para a raiz do projeto
+# Backend
+cd backend
+docker build -t tutor-backend:latest -f Dockerfile.prod .
 cd ..
+
+# Frontend
+cd frontend
+docker build -t tutor-frontend:flexible .
+cd ..
+
 ```
 
 ### Passo 3: Executando a Aplicação
@@ -143,10 +145,54 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
 
     ```
     kubectl get pods
+    kubectl get svc
     ```
 
 ---
+### Configurando o Ingress
 
+O ingress é responsável por alterar a url de acesso à aplicação.
+
+1.  Altere o host/paths listado no arquivo /k8s/ingress.yaml da forma que preferir, ele será sua nova url de acesso
+
+2.  Habilite o ingress no controller(ex.:Minikube):
+
+    ```
+    minikube addons enable ingress
+    ```
+    
+3.  Aplique o ingress:
+
+    ```
+    kubectl apply -f k8s/ingress.yaml
+    ```
+
+4. Configure o host local:
+
+    ```
+    <cluster-ip> tutor.local
+    ```
+
+### Ativando a LLM (Ollama)
+
+1.  Baixe o modelo mistral:
+    
+    ```
+    ollama pull mistral
+    ```
+
+2.  Inicie o servidor Ollama:
+    
+    ```
+    ollama serve
+    ```
+
+3.  Teste a conexão:
+
+    ```
+    ollama run mistral "Olá, mundo!"
+    ```
+    
 ### Acessando a Aplicação
 
 - **Ambiente Docker Compose:**
@@ -158,7 +204,11 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local.
 
   - Frontend: Acesse via [http://localhost](http://localhost).
   - Backend API: [http://localhost:30001](https://www.google.com/search?q=http://localhost:30001) (O serviço `NodePort` expõe a API diretamente nesta porta para acesso externo).
-  - Alternativa para Debug: Se precisar de um túnel de comunicação direto com o serviço, independentemente de sua exposição, o comando `kubectl port-forward service/backend-service 5001:5000` ainda é uma ferramenta útil.
+
+- **Ambiente Kubernetes(com Ingress):**
+
+  - Frontend: Acesse via [http://tutor.local/](http://tutor.local/)
+  - Backend API: [http://tutor.local/api](http://tutor.local/api)
 
 ### Parando a Aplicação
 
