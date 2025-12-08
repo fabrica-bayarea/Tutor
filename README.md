@@ -190,9 +190,8 @@ Este método faz o deploy da aplicação em um cluster Kubernetes local, neste t
     kubectl get pods
     kubectl get svc
     ```
-
----
-### Configurando o Ingress
+    
+### Passo 4: Configurando o Ingress
 
 O ingress é responsável por alterar a url de acesso à aplicação.
 
@@ -229,6 +228,8 @@ O ingress é responsável por alterar a url de acesso à aplicação.
     ```
     ollama run mistral "Olá, mundo!"
     ```
+    
+---
     
 ### Acessando a Aplicação
 
