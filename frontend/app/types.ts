@@ -3,17 +3,7 @@ export interface InterfaceAluno {
     matricula: string;
     nome: string;
     email: string;
-    cpf: string;
-    data_nascimento?: Date;
-}
-
-export interface InterfaceProfessor {
-    id: string;
-    matricula: string;
-    nome: string;
-    email: string;
-    cpf: string;
-    data_nascimento?: Date;
+    role: string
 }
 
 export interface InterfaceArquivo {
@@ -33,6 +23,7 @@ export interface InterfaceChat {
 export interface InterfaceMensagem {
     id: string;
     chat_id: string;
+    sessao_id: string;
     sender_id: string;
     conteudo: string;
     data_envio: Date;
@@ -71,4 +62,11 @@ export interface InterfaceArquivoTurmaMateria {
     arquivo_id: string;
     turma_id: string;
     materia_id: string;
+}
+
+export interface Sessao {
+    id: string;
+    dono_id: string;
+    inicio: Date;
+    fim: Date;
 }

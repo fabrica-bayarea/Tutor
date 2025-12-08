@@ -109,7 +109,8 @@ export default function ChatPage() {
                 chat_id: chatId as string,
                 sender_id: LLM_UUID,
                 conteudo: "",
-                data_envio: new Date()
+                data_envio: new Date(),
+                sessao_id: ""
             }
             mensagemGeradaRef.current = respostaParcial;
             setMensagens(prev => [...prev, respostaParcial])
@@ -166,6 +167,7 @@ export default function ChatPage() {
             setMensagens(prev => [...prev, {
                 id: '',
                 chat_id: chatId as string,
+                sessao_id: '',
                 sender_id: aluno.id,
                 conteudo: mensagem,
                 data_envio: new Date(),
@@ -197,8 +199,8 @@ export default function ChatPage() {
                             chat_id={msg.chat_id}
                             sender_id={msg.sender_id}
                             conteudo={msg.conteudo}
-                            data_envio={msg.data_envio}
-                        />
+                            data_envio={msg.data_envio} 
+                            sessao_id={""}                        />
                     ))}
                     <div ref={bottomRef} />
                 </div>

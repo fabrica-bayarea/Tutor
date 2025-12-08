@@ -11,7 +11,6 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str, data_nascimen
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
     - `senha`: str - a senha do aluno
-    - `data_nascimento`: str - a data de nascimento do aluno
 
     Retorna um dicionário com os dados do aluno criado.
     """
@@ -20,14 +19,13 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str, data_nascimen
         nome=nome,
         email=email,
         senha=senha,
-        data_nascimento=data_nascimento,
         role=3
     )
     db.session.add(aluno)
     db.session.commit()
     return aluno.to_dict()
 
-def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = None, email: str = None, data_nascimento: str = None, role: str = None) -> dict[str, str] | None:
+def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = None, email: str = None, role: str = None) -> dict[str, str] | None:
     """
     Busca um aluno no banco de dados usando um ou mais filtros.
 
@@ -36,7 +34,6 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     - `matricula`: str - o número de matrícula do aluno
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
-    - `data_nascimento`: str - a data de nascimento do aluno
     - `role`: str - a função do usuario
 
     Retorna um dicionário com os dados do aluno se ele existir, e None caso contrário.
@@ -60,10 +57,7 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     
     if role:
         filtros.append(Aluno.role == role)
-
-    if data_nascimento:
-        filtros.append(Aluno.data_nascimento == data_nascimento)
-
+        
     aluno = None
 
     if filtros:
@@ -90,3 +84,25 @@ def logar_aluno(matricula: str, senha: str) -> dict[str, str] | None:
         return aluno.to_dict()
     
     return None
+
+def alterar_aluno(matricula: str, role: str):
+    """
+    Função atômica, responsável por alterar a role de um usuario no PostgreSQL.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `role`: str - role do usuario
+
+    Retorna um dicionário com os dados do usuario alterado.
+    """
+    aluno = Aluno.query.filter_by(matricula=matricula).first()
+    
+    if not aluno:
+        return None  # Se não encontrar, retorna None
+    
+    aluno.role = role
+    
+    db.session.commit()
+    
+    return aluno.to_dict()
+

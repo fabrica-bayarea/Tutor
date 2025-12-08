@@ -15,7 +15,6 @@ class Usuario(db.Model):
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
     senha = db.Column(db.String(128), nullable=False)
-    data_nascimento = db.Column(db.Date, nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
 
     turmas_matriculadas = db.relationship('AlunoTurma', back_populates='aluno', cascade='all, delete-orphan')
@@ -34,6 +33,5 @@ class Usuario(db.Model):
             'nome': self.nome,
             'email': self.email,
             'cpf': self.cpf,
-            'data_nascimento': self.data_nascimento.strftime('%d/%m/%Y'),
             'role': str(self.role)
         }

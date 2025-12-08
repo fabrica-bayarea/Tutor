@@ -2,7 +2,7 @@
 
 import { usePathname, useParams } from 'next/navigation';
 import styles from './AsideChat.module.css';
-import { MessageCircleMore, Bolt, Ban, Coffee } from 'lucide-react';
+import { MessageCircleMore } from 'lucide-react';
 import ChatListItemButton from '../../../aluno/components/ChatListItemButton/ChatListItemButton';
 import { InterfaceChat } from '@/app/types';
 

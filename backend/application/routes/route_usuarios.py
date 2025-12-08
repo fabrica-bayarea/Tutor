@@ -3,7 +3,8 @@ Rotas para lidar com alunos.
 """
 from flask import Blueprint, request, jsonify
 from application.auth.jwt_handler import gerar_token
-from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno
+from application.auth.auth_decorators import apenas_admins
+from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno, alterar_aluno
 
 usuarios_bp = Blueprint('alunos', __name__)
 
@@ -17,7 +18,6 @@ def gerar_aluno():
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
     - `senha`: str - a senha do aluno
-    - `data_nascimento`: str - a data de nascimento do aluno
     
     Retorna um dicionário contendo as informações do aluno criado.
     ```json
@@ -26,7 +26,7 @@ def gerar_aluno():
         "matricula": "matricula",
         "nome": "nome",
         "email": "email",
-        "data_nascimento": "data_nascimento"
+        "role": "role do usuario"
     }
     ```
     """
@@ -35,10 +35,9 @@ def gerar_aluno():
     nome = request.json.get('nome')
     email = request.json.get('email')
     senha = request.json.get('senha')
-    data_nascimento = request.json.get('data_nascimento')
     
-    if not matricula or not nome or not email or not senha or not data_nascimento:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email', 'data_nascimento' e 'senha' são obrigatórios"}), 400
+    if not matricula or not nome or not email or not senha:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
     
     # Verifica se já existe um aluno com alguns dados que devem ser únicos
     aluno_existe = buscar_aluno(matricula=matricula, email=email)
@@ -46,7 +45,7 @@ def gerar_aluno():
         return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
     
     # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha, data_nascimento)
+    aluno = criar_aluno(matricula, nome, email, senha)
     return jsonify(aluno), 201
 
 @usuarios_bp.route('/login', methods=['POST'])
@@ -67,7 +66,6 @@ def login_aluno():
             "matricula": "matricula",
             "nome": "nome",
             "email": "email",
-            "data_nascimento": "data_nascimento"
             "role": "role do usuario(1,2,3)"
         }
     }
@@ -86,10 +84,49 @@ def login_aluno():
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
     
     # Gera um token JWT
-    token = gerar_token(aluno['id'], role="aluno")
+    token = gerar_token(aluno['id'], aluno[role])
     
     # Retorna o token JWT e as informações do aluno
     return jsonify({
         "token": token,
         "aluno": aluno
     }), 200
+
+@usuarios_bp.route('/alterar', methods=['PUT'])
+@token_obrigatorio
+@apenas_admins
+def elegerUsuario:
+    """
+    Endpoint para editar um usuario.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do usuario
+    - `role`: str - role nova do usuario
+    
+    Retorna um dicionário contendo as informações do aluno alterado.
+    ```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+    }
+    ```
+    """
+
+    # Verifica se os dados necessários estão presentes
+    matricula = request.json.get('matricula')
+    role = request.json.get('role')
+
+        
+    if not matricula or not role:
+        return jsonify({"error": "Parâmetros 'matricula' e 'role' são obrigatórios"}), 400
+
+    aluno_existe = buscar_aluno(matricula=matricula)
+
+    if not aluno_existe:
+        return jsonify({"error": "Matrícula não encontrada"}), 404
+
+    aluno = alterar_aluno(matricula,role)
+    return jsonify(aluno), 200        
