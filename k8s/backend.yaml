@@ -17,7 +17,7 @@ spec:
           image: tutor-backend:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
           env:
             - name: SECRET_KEY
               valueFrom:
@@ -47,5 +47,5 @@ spec:
   ports:
     - protocol: TCP
       port: 5000
-      targetPort: 5000
+      targetPort: 8000
       nodePort: 30001
