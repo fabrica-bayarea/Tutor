@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: tutor-backend:latest
-          imagePullPolicy: Never
+          image: seu-usuario/tutor-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
