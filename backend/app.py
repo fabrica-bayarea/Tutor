@@ -5,6 +5,7 @@ from application.config.config import Config
 from application.config.database import init_db, db
 from application.routes import arquivos_bp, usuarios_bp, turmas_bp, materias_bp, chats_bp, mensagens_bp, vinculos_bp
 from application.socket import socketio
+import application.models
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = Config.SECRET_KEY
