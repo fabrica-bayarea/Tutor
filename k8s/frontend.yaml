@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: tutor-frontend:flexible
-          imagePullPolicy: Never
+          image: seu-usuario/tutor-frontend:flexible
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           env:
