@@ -1,12 +1,11 @@
 import logging
 import os
-from dotenv import load_dotenv
-load_dotenv(dotenv_path="backend/.env")
 from logging.config import fileConfig
-
 from flask import current_app
-
 from alembic import context
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path="backend/.env")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
