@@ -11,14 +11,6 @@ Guia de configuração para os ambientes de desenvolvimento e produção do proj
 - **Ambiente:** Totalmente containerizado com [Docker](https://www.docker.com/).
 - **Orquestração:** Deploy em [Kubernetes](https://kubernetes.io/) para simulação de produção.
 
-## Como Rodar o Projeto
-
-O fluxo de trabalho consiste em três etapas principais:
-
-1.  **Configuração Inicial:** Preparar os arquivos de ambiente.
-2.  **Build da Imagem:** Construir a imagem Docker universal do frontend.
-3.  **Execução:** Escolher um ambiente para rodar a aplicação (Docker Compose ou Kubernetes).
-
 ### Pré-requisitos Gerais
 
 Antes de começar, garanta que você tenha os seguintes softwares instalados:
@@ -39,12 +31,12 @@ Antes de começar, garanta que você tenha os seguintes softwares instalados:
 
     Você precisará de dois arquivos de configuração. A senha do PostgreSQL deve ser a mesma em todos eles.
 
-    - **Arquivo do Backend (`./backend/.env`):** Usado pelo Flask e docker compose.
+    - **Arquivo do Backend (`./backend/.env`):** Usado pelo Flask.
 
       ```
       SECRET_KEY=gere_uma_chave_secreta_aqui
       POSTGRES_PASSWORD=sua_senha_segura_aqui
-      DATABASE_URL=postgresql://seu_usuario_postgres:sua_senha_segura_aqui@postgres-service:5432/tutor
+      DATABASE_URL=postgresql://postgres:sua_senha_segura_aqui@postgres-service:5432/tutor
       DB_HOST=postgres-service
       FLASK_DEBUG=1
       GOOGLE_CLIENT_ID=id do cliente para login com google
@@ -56,6 +48,7 @@ Antes de começar, garanta que você tenha os seguintes softwares instalados:
       NEXT_PUBLIC_API_URL_RUNTIME=http://tutor.local/api
       NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
+      
 ### Passo 2: Logando e configurando os usuários:
 
 1.  Realize login com docker e salve o nome de usuário disponibilizado após autentificação:
@@ -85,46 +78,46 @@ docker login
         image: seu-usuario/ollama-mistral:latest
 ```
 
-### Passo 2: Configurando a LLM
+### Passo 3: Configurando a LLM
 
 1.  Crie a imagem do Ollama:
     
 ```
 cd ollama
-docker build -t ollama-mistral:latest -f Dockerfile .
+docker build -t seu-usuario/ollama-mistral:latest -f Dockerfile .
 ```
 
-3.  Inicie o servidor Ollama e teste localmente:
+2.  Inicie o servidor Ollama e teste localmente:
     
 ```
 docker run -p 11434:11434 seu-usuario/ollama-mistral:latest
 curl http://localhost:11434/api/generate -d '{"model":"mistral","prompt":"Olá, mundo!"}'
 ```
 
-5.  Suba a imagem para o DockerHub:
+3.  Suba a imagem para o DockerHub:
 
 ```
 docker push seu-usuario/ollama-mistral:latest
 ```
 
-### Passo 3: Configurando Imagens do frontend e backend
+### Passo 4: Configurando Imagens do frontend e backend
 
-Este é o passo mais importante. Construa a imagem do backend e a imagem flexível do frontend que será usada em ambos os ambientes.
+1.  Este é o passo mais importante. Construa a imagem do backend e a imagem flexível do frontend que será usada em ambos os ambientes.
 
 ```
 # Backend
 cd backend
-docker build -t tutor-backend:latest -f Dockerfile.prod .
+docker build -t seu-usuario/tutor-backend:latest -f Dockerfile.prod .
 cd ..
 
 # Frontend
 cd frontend
-docker build -t tutor-frontend:flexible .
+docker build -t seu-usuario/tutor-frontend:flexible .
 cd ..
 
 ```
 
-### Passo 4: Subindo imagens para o DockerHub
+2.  Agora suba as imagens criadas para o dockerhub
 
 ```
 #faça o push das imagens para o seu repositório remoto docker
@@ -194,7 +187,7 @@ O ingress é responsável por alterar a url de acesso à aplicação.
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 ```
 
-Após a instalação, confira se os pods foram subidos:
+2.  Após a instalação, confira se os pods foram subidos:
 
 ``` 
 kubectl get pods -n ingress-nginx
