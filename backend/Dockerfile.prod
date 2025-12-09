@@ -17,6 +17,10 @@ FROM python:3.11-slim AS production
 
 WORKDIR /app
 
+# Instala o cliente do PostgreSQL para permitir uso do psql dentro do container
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copia as dependências instaladas do estágio de build
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 
