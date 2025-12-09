@@ -1,34 +1,3 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: ollama-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: ollama-pull-mistral
-spec:
-  template:
-    spec:
-      containers:
-      - name: ollama
-        image: ollama/ollama:latest
-        command: ["ollama", "pull", "mistral"]
-        volumeMounts:
-        - name: ollama-data
-          mountPath: /root/.ollama
-      restartPolicy: Never
-      volumes:
-      - name: ollama-data
-        persistentVolumeClaim:
-          claimName: ollama-pvc
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,16 +14,9 @@ spec:
     spec:
       containers:
       - name: ollama
-        image: ollama/ollama:latest
+        image: seu-usuario/ollama-mistral:latest
         ports:
         - containerPort: 11434
-        volumeMounts:
-        - name: ollama-data
-          mountPath: /root/.ollama
-      volumes:
-      - name: ollama-data
-        persistentVolumeClaim:
-          claimName: ollama-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -67,4 +29,3 @@ spec:
     - protocol: TCP
       port: 11434
       targetPort: 11434
-
