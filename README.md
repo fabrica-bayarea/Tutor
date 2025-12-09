@@ -220,11 +220,6 @@ Abra o bloco de notas como administrador e entre no diretório C:\Windows\System
 
 - **Ambiente Kubernetes:**
 
-  - Frontend: Acesse via [http://localhost](http://localhost).
-  - Backend API: [http://localhost:30001](http://localhost:30001) (O serviço `NodePort` expõe a API diretamente nesta porta para acesso externo).
-
-- **Ambiente Kubernetes(com Ingress):**
-
   - Frontend: Acesse via [http://tutor.local/](http://tutor.local/)
   - Backend API: [http://tutor.local/api](http://tutor.local/api) (O serviço `Ingress` expõe a API diretamente nesta porta para acesso externo).
 
