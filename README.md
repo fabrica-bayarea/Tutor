@@ -53,9 +53,37 @@ Antes de começar, garanta que você tenha os seguintes softwares instalados:
     - **Arquivo do Frontend (`./frontend/.env.local`):** Usado pelo Next.js.
     
       ```
-      NEXT_PUBLIC_API_URL_RUNTIME=http://localhost:5000
+      NEXT_PUBLIC_API_URL_RUNTIME=http://tutor.local/api
       NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
+### Passo 2: Logando e configurando os usuários:
+
+1.  Realize login com docker e salve o nome de usuário disponibilizado após autentificação:
+```
+#realize o login no terminal
+docker login
+```
+
+2.  Altere o arquivo k8s/backend.yaml na linha 17 para que ele aponte corretamente o seu usuário:
+
+```
+#linha 17
+        image: seu-usuario/tutor-backend:latest
+```
+
+3.  Altere o arquivo k8s/frontend.yaml na linha 17 para que ele aponte corretamente o seu usuário:
+
+```
+#linha 17
+        image: seu-usuario/tutor-frontend:flexible
+```
+
+4.  Altere o arquivo k8s/ollama.yaml na linha 17 para que ele aponte corretamente o seu usuário:
+
+```
+#linha 17
+        image: seu-usuario/ollama-mistral:latest
+```
 
 ### Passo 2: Configurando a LLM
 
@@ -63,33 +91,23 @@ Antes de começar, garanta que você tenha os seguintes softwares instalados:
     
 ```
 cd ollama
-docker build -t seu-usuario/ollama-mistral:latest .
+docker build -t ollama-mistral:latest -f Dockerfile .
 ```
 
-2.  Inicie o servidor Ollama e teste localmente:
+3.  Inicie o servidor Ollama e teste localmente:
     
 ```
 docker run -p 11434:11434 seu-usuario/ollama-mistral:latest
 curl http://localhost:11434/api/generate -d '{"model":"mistral","prompt":"Olá, mundo!"}'
 ```
 
-3.  Teste a conexão:
+5.  Suba a imagem para o DockerHub:
 
 ```
-ollama run mistral "Olá, mundo!"
-```
-
-4.  Suba a imagem para o DockerHub:
-
-```
-#realize o login no terminal
-docker login
-
-#faça o push da imagem para o seu repositório remoto docker
 docker push seu-usuario/ollama-mistral:latest
 ```
 
-### Passo 3: Construindo a Imagem Docker Universal
+### Passo 3: Configurando Imagens do frontend e backend
 
 Este é o passo mais importante. Construa a imagem do backend e a imagem flexível do frontend que será usada em ambos os ambientes.
 
@@ -152,33 +170,25 @@ kubectl create secret generic postgres-secret --from-env-file=backend/.env
 Aplique todos os manifestos de configuração contidos na pasta k8s/:
 
 ```
-kubectl apply -f k8s/
+kubectl apply -f k8s/database
+kubectl apply -f k8s/ollama
+kubectl apply -f k8s/backend
+kubectl apply -f k8s/frontend
 ```
 
-8.  Force a Atualização (se necessário):
-
-Se você reconstruir a imagem tutor-frontend:flexible e precisar que o Kubernetes a utilize, force uma reinicialização do deployment:
-
-```
-kubectl rollout restart deployment frontend-deployment
-```
-
-9.  Verifique o Status:
+8.  Verifique o Status:
 
 Aguarde alguns minutos e verifique se todos os pods estão com o status Running:
 
 ```
 kubectl get pods
-kubectl get svc
 ```
     
 ### Passo 6: Configurando o Ingress
 
 O ingress é responsável por alterar a url de acesso à aplicação.
 
-1.  Altere o host/paths listado no arquivo /k8s/ingress.yaml da forma que preferir, ele será sua nova url de acesso
-
-2.  Instalar o NGINX Ingress Controller:
+1.  Instalar o NGINX Ingress Controller:
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
@@ -225,5 +235,4 @@ Abra o bloco de notas como administrador e entre no diretório C:\Windows\System
 
 ### Parando a Aplicação
 
-- **Docker Compose:** Pressione `Ctrl + C` no terminal e depois `docker compose down`.
 - **Kubernetes:** Execute `kubectl delete -f k8s/`.
