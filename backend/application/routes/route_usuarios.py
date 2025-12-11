@@ -6,7 +6,7 @@ from flask import Blueprint, request, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import apenas_admins
+from application.auth.auth_decorators import apenas_admins, token_obrigatorio
 from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno, alterar_aluno
 
 usuarios_bp = Blueprint('alunos', __name__)
@@ -134,7 +134,7 @@ def elegerUsuario():
     aluno = alterar_aluno(matricula,role)
     return jsonify(aluno), 200        
 
-@usuarios_bp.route('/buscar',methods['GET'])
+@usuarios_bp.route('/buscar',methods=['GET'])
 def buscarUsuario():
 
     matricula = request.json.get('matricula')
