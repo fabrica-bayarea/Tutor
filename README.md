@@ -83,22 +83,51 @@ docker login
 1.  Crie a imagem do Ollama:
     
 ```
-cd ollama
-docker build -t seu-usuario/ollama-mistral:latest -f Dockerfile .
+docker build -t ollama/ollama:latest
 ```
 
-2.  Inicie o servidor Ollama e teste localmente:
+2.  Inicie o servidor Ollama:
     
 ```
-docker run -p 11434:11434 seu-usuario/ollama-mistral:latest
+docker run 11434:11434 ollama/ollama:latest
+```
+
+3.  Crie a imagem do mistral:
+    
+```
+ollama pull mistral
+```
+
+4.  Teste localmente:
+    
+```
+#abra outro terminal e teste
 curl http://localhost:11434/api/generate -d '{"model":"mistral","prompt":"Olá, mundo!"}'
 ```
 
-3.  Suba a imagem para o DockerHub:
+5.  Commitar o container em uma nova imagem:
 
 ```
+#veja o CONTAINER_ID do que rodou
+docker ps -a   
+
+docker commit <CONTAINER_ID> seu-usuario/ollama-mistral:latest
+
+#push para o Docker Hub
 docker push seu-usuario/ollama-mistral:latest
 ```
+
+
+6.  Apagar a imagem localmente(opcional):
+
+Após realizar a criação e envio da imagem para o DockerHub, com o intuito de evitar consumo de armazenamento desnecessário, você poderá apagar a imagem criada LOCALMENTE
+OBS: isso pode ser feito pois a aplicação roda com kubernetes, que utiliza as imagens do dockerhub, uma vez tendo elas lá, as locais não são mais necessárias
+
+ - Entre no docker desktop
+ - Vá para conteineres
+ - Selecione o conteiner que foi utilizado pelo ollama, apague ele
+ - Vá para imagens
+ - Selecione as duas imagens criadas neste tutorial, ollama/ollama e seu-usuario/ollama-mistral, apague-as
 
 ### Passo 4: Configurando Imagens do frontend e backend
 
@@ -124,6 +153,18 @@ cd ..
 docker push seu-usuario/tutor-backend:latest
 docker push seu-usuario/tutor-frontend:flexible
 ```
+
+3.  Apagar a imagem localmente(opcional):
+
+Após realizar a criação e envio da imagem para o DockerHub, com o intuito de evitar consumo de armazenamento desnecessário, você poderá apagar a imagem criada LOCALMENTE
+OBS: isso pode ser feito pois a aplicação roda com kubernetes, que utiliza as imagens do dockerhub, uma vez tendo elas lá, as locais não são mais necessárias
+
+ - Entre no docker desktop
+ - Vá para conteineres
+ - Selecione o conteiner que foi utilizado pelo frontend/backend, apague-os
+ - Vá para imagens
+ - Selecione as duas imagens criadas neste tutorial, seu-usuario/tutor-frontend e seu-usuario/tutor-backend, apague-as
+
 
 ### Passo 5: Executando a Aplicação Kubernetes (Simulando Deploy de Produção)
 
