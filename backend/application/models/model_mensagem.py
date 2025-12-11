@@ -6,7 +6,7 @@ class Mensagem(db.Model):
     __tablename__ = 'mensagens'
 
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    chat = db.relationship('Chat', back_populates='mensagens')
+    chat_id = db.relationship('Chat', back_populates='mensagens')
     sessao_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('sessao.id'),nullable=False)
     sender_id = db.Column(db.UUID(as_uuid=True), nullable=False)
     conteudo = db.Column(db.String(3200), nullable=False)
