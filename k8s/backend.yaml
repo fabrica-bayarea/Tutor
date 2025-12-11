@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 1  
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -12,10 +12,16 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command: ['sh', '-c', 'until pg_isready -h postgres-service -p 5432; do echo waiting for postgres; sleep 2; done;']
+        - name: wait-for-ollama
+          image: busybox
+          command: ['sh', '-c', 'until nc -z ollama-service 11434; do echo waiting for ollama; sleep 2; done;']
       containers:
         - name: backend
           image: ivinvaz/tutor-backend:latest
-          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
@@ -24,35 +30,35 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: SECRET_KEY
-
             - name: OLLAMA_ANALYTICS_DISABLED
               value: "true"
-
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
-
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: DATABASE_URL
-
             - name: DB_HOST
               value: "postgres-service"
-
             - name: CHROMADB_PATH
               value: "/data/chroma"
-
           volumeMounts:
             - name: chroma-storage
               mountPath: /data/chroma
-
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
       volumes:
         - name: chroma-storage
-          emptyDir: {}  
+          emptyDir: {}
+
 ---
 apiVersion: v1
 kind: Service
