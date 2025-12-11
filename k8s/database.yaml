@@ -1,13 +1,13 @@
 apiVersion: v1
-kind: PersistentVolumeClaim # O "pedido" por espaço em disco
+kind: PersistentVolumeClaim 
 metadata:
   name: postgres-pvc
 spec:
   accessModes:
-    - ReadWriteOnce # O volume só pode ser usado por um nó de cada vez
+    - ReadWriteOnce 
   resources:
     requests:
-      storage: 1Gi # Pede 1 Gigabyte de armazenamento
+      storage: 1Gi 
 
 ---
 apiVersion: apps/v1
@@ -37,16 +37,21 @@ spec:
             - name: POSTGRES_PASSWORD_FILE
               value: "/etc/postgres-secrets/POSTGRES_PASSWORD"
           volumeMounts:
-            - name: postgres-storage # Monta o volume de dados
+            - name: postgres-storage
               mountPath: /var/lib/postgresql/data
-            - name: postgres-secrets-volume # Monta o volume da senha
+            - name: postgres-secrets-volume 
               mountPath: /etc/postgres-secrets
               readOnly: true
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
       volumes:
-        - name: postgres-storage # Define o volume de dados usando o PVC
+        - name: postgres-storage
           persistentVolumeClaim:
             claimName: postgres-pvc
-        - name: postgres-secrets-volume # Define o volume da senha
+        - name: postgres-secrets-volume 
           secret:
             secretName: postgres-secret
 
