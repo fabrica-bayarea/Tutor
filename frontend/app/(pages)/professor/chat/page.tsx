@@ -5,14 +5,14 @@ import MessageForm from "./MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 import { useRouter } from "next/navigation"
-import { InterfaceAluno, InterfaceChat } from "../../../types"
+import { InterfaceUsuario, InterfaceChat } from "../../../types"
 import AsideChat from "../components/AsideChat/AsideChat";
 import Select from 'react-select';
 import UserButton from "../../../components/UserButton/userButton";
 
 export default function Home() {
     const router = useRouter()
-    const [aluno, setAluno] = useState<InterfaceAluno | null>(null)
+    const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
 
     useEffect(() => {
         const alunoData = localStorage.getItem("aluno")

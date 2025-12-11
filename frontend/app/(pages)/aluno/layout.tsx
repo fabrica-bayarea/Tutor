@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react"
 import Aside from "./components/Aside/Aside"
 import styles from "./layout.module.css"
-import { InterfaceAluno, InterfaceChat } from "../../types"
+import { InterfaceUsuario, InterfaceChat } from "../../types"
 import { obterChats } from "../../services/service_chat"
 import socket from "@/libs/socket"
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {
-    const [aluno, setAluno] = useState<InterfaceAluno | null>(null)
+    const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
     const [chats, setChats] = useState<InterfaceChat[]>([])
 
     useEffect(() => {

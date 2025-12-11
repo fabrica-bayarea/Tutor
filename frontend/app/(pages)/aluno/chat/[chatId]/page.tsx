@@ -8,7 +8,7 @@ import MessageForm from "../../components/MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 
-import { InterfaceAluno, InterfaceMensagem } from "../../../../types"
+import { InterfaceUsuario, InterfaceMensagem } from "../../../../types"
 import { LLM_UUID } from "@/constants"
 import { obterMensagens } from "@/app/services/service_mensagem"
 
@@ -18,7 +18,7 @@ export default function ChatPage() {
     const [novoChat, setNovoChat] = useState<boolean>(searchParams.get("novo") === "true");
     const prontoEmitido = useRef<boolean>(false)
 
-    const [aluno, setAluno] = useState<InterfaceAluno | null>(null)
+    const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
     const [mensagens, setMensagens] = useState<InterfaceMensagem[]>([])
     const [gerandoResposta, setGerandoResposta] = useState<boolean>(false)
     const [mensagemGerada, setMensagemGerada] = useState<InterfaceMensagem | null>(null)

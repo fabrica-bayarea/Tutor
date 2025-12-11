@@ -98,7 +98,7 @@ def login_aluno():
 @usuarios_bp.route('/alterar', methods=['PUT'])
 @token_obrigatorio
 @apenas_admins
-def elegerUsuario:
+def elegerUsuario():
     """
     Endpoint para editar um usuario.
 
@@ -135,7 +135,7 @@ def elegerUsuario:
     return jsonify(aluno), 200        
 
 @usuarios_bp.route('/buscar',methods['GET'])
-def buscarUsuario:
+def buscarUsuario():
 
     matricula = request.json.get('matricula')
     nome: request.json.get('nome')

@@ -5,13 +5,13 @@ import styles from './page.module.css';
 
 import CardMateria from '../components/CardMateria/CardMateria';
 
-import { InterfaceProfessor, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '../../../types';
+import { InterfaceUsuario, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
 
 export default function MinhasMaterias() {
-    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
     const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
     const [materias, setMaterias] = useState<InterfaceMateria[]>([]);
     const [turmasMaterias, setTurmasMaterias] = useState<InterfaceTurmaMateria[]>([]);
@@ -20,7 +20,7 @@ export default function MinhasMaterias() {
         const professorData = localStorage.getItem("professor");
         if (professorData) {
             try {
-                const parsedProfessor: InterfaceProfessor = JSON.parse(professorData);
+                const parsedProfessor: InterfaceUsuario = JSON.parse(professorData);
                 setProfessor(parsedProfessor);
                 handleGetMaterias(parsedProfessor.id);
             } catch (error) {

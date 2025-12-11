@@ -1,4 +1,4 @@
-export interface InterfaceAluno {
+export interface InterfaceUsuario {
     id: string;
     matricula: string;
     nome: string;
@@ -29,7 +29,7 @@ export interface InterfaceChat {
 export interface InterfaceMensagem {
     id: string;
     chat_id: string;
-    sessao_id: string;
+    sessao_id?: string;
     sender_id: string;
     conteudo: string;
     data_envio: Date;

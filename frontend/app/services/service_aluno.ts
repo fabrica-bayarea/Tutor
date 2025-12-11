@@ -1,13 +1,13 @@
 import api from "./api";
-import { InterfaceAluno, GooglePayload } from "../types";
+import { InterfaceUsuario, GooglePayload } from "../types";
 import * as jwt_decode from 'jwt-decode';
 
 
 const alunos_url = "usuario";
 
-export async function loginAluno(matricula: string, senha: string): Promise<InterfaceAluno | null> {
+export async function loginAluno(matricula: string, senha: string): Promise<InterfaceUsuario | null> {
     try {
-        const response: { data: { token: string; aluno: InterfaceAluno } } = await api.post(
+        const response: { data: { token: string; aluno: InterfaceUsuario } } = await api.post(
             `${alunos_url}/login`,
             { matricula, senha }
         );
@@ -25,9 +25,9 @@ export async function loginAluno(matricula: string, senha: string): Promise<Inte
     }
 }
 
-export async function criarAluno(matricula: string, nome: string, email: string, senha: string): Promise<InterfaceAluno | null> {
+export async function criarAluno(matricula: string, nome: string, email: string, senha: string): Promise<InterfaceUsuario | null> {
     try {
-        const response: { data: { aluno: InterfaceAluno; token: string } } = await api.post(
+        const response: { data: { aluno: InterfaceUsuario; token: string } } = await api.post(
             `${alunos_url}/criar`,
             { matricula, nome, email, senha }
         );
@@ -45,7 +45,7 @@ export async function criarAluno(matricula: string, nome: string, email: string,
     }
 }
 
-export async function loginAlunoGoogle(googleToken: string): Promise<InterfaceAluno | null> {
+export async function loginAlunoGoogle(googleToken: string): Promise<InterfaceUsuario | null> {
     try {
         const response = await api.post(`${alunos_url}/login/google`, { token: googleToken });
         const aluno = response.data.aluno;
