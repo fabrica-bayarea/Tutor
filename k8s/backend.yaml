@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 3
+  replicas: 1  
   selector:
     matchLabels:
       app: backend
@@ -24,20 +24,35 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: SECRET_KEY
+
             - name: OLLAMA_ANALYTICS_DISABLED
               value: "true"
+
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: DATABASE_URL
+
             - name: DB_HOST
               value: "postgres-service"
+
+            - name: CHROMADB_PATH
+              value: "/data/chroma"
+
+          volumeMounts:
+            - name: chroma-storage
+              mountPath: /data/chroma
+
+      volumes:
+        - name: chroma-storage
+          emptyDir: {}  
 ---
 apiVersion: v1
 kind: Service

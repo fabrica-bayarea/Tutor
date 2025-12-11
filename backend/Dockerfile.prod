@@ -1,9 +1,10 @@
 # ================ Estágio de Build ================
-# Base do Python
 FROM python:3.11-slim AS build
 
 # Atualiza pacotes e instala dependências de build
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -17,24 +18,23 @@ FROM python:3.11-slim AS production
 
 WORKDIR /app
 
-# Instala o cliente do PostgreSQL para permitir uso do psql dentro do container
-RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client && \
+# Instala o cliente do PostgreSQL
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
-# Copia as dependências instaladas do estágio de build
-COPY --from=build /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+# Criar diretório persistente do ChromaDB
+RUN mkdir -p /data/chroma && chmod -R 777 /data
 
-# Copia os executáveis (incluindo o gunicorn) do estágio de build
+# Copia dependências do build
+COPY --from=build /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=build /usr/local/bin/ /usr/local/bin/
 
 # Copia o código da aplicação
 COPY --from=build /app .
 
-# Expõe a porta 8000 (padrão do Gunicorn)
+# Expõe porta do backend
 EXPOSE 8000
 
-# Comando para iniciar o servidor de produção com Gunicorn
-# Ele irá rodar 4 "workers" para lidar com as requisições
-# O bind 0.0.0.0:8000 torna a aplicação acessível
-# app:app se refere ao objeto 'app' dentro do arquivo 'app.py'
+# Comando para iniciar o servidor de produção
 CMD ["gunicorn", "--workers=4", "--bind=0.0.0.0:8000", "app:app"]
