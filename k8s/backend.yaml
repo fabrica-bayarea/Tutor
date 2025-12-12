@@ -49,12 +49,6 @@ spec:
           volumeMounts:
             - name: chroma-storage
               mountPath: /data/chroma
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 5
       volumes:
         - name: chroma-storage
           emptyDir: {}
