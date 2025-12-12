@@ -37,4 +37,4 @@ COPY --from=build /app .
 EXPOSE 8000
 
 # Comando para iniciar o servidor de produção
-CMD ["gunicorn", "--workers=4", "--bind=0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--workers=1", "--bind=0.0.0.0:8000", "app:app"]
