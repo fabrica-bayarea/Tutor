@@ -1,5 +1,5 @@
 """
-Rotas para lidar com mensagens.
+Rotas  para lidar com mensagens.
 
 Para BUSCAR mensagens de um chat que JÁ EXISTE, usamos endpoints REST.
 Para as demais operações CRUD, usamos eventos WebSockets.

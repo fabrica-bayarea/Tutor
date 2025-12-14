@@ -2,66 +2,119 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import styles from './page.module.css';
 import Image from 'next/image';
+import Script from 'next/script';
 
-import { loginProfessor } from '@/app/services/service_professor';
-import { loginAluno } from '@/app/services/service_aluno';
+import styles from './page.module.css';
+import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
 
-type UserType = 'aluno' | 'professor';
+type UserType = 'aluno' | 'professor' | 'admin';
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 export default function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
+
     const [userType, setUserType] = useState<UserType>('aluno');
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // ----------- LOGIN COM FORMULÁRIO -----------
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMessage(null);
+        setLoading(true);
+
         try {
-            if (userType === 'aluno') {
-                await loginAluno(matricula, senha);
-            } else if (userType === 'professor') {
-                await loginProfessor(matricula, senha);
+            let aluno = await loginAluno(matricula, senha);
+
+            if (!aluno) {
+                setErrorMessage("Credenciais inválidas");
+                setLoading(false);
+                return;
             }
-            
-            const returnTo = searchParams.get('returnTo') || `/${userType}`;
-            router.push(returnTo);
+            console.log(aluno.role);
+            const destino =
+                (aluno.role == 'RoleEnum.ADMIN' || aluno.role == 'RoleEnum.PROFESSOR')
+                    ? '/professor/chat'
+                    : '/aluno';
+
+            router.push(destino);
+
         } catch (error) {
             console.error('Erro no login:', error);
+            setErrorMessage("Erro ao realizar login");
+        } finally {
+            setLoading(false);
         }
     };
 
-    const isDisabled = !matricula || !senha;
+    const handleGoogleLogin = async (response: any) => {
+        try {
+            setLoading(true);
+
+            const googleToken = response.credential;
+
+            const aluno = await loginAlunoGoogle(googleToken);
+
+            if (!aluno) {
+                setErrorMessage("Falha no login com Google");
+                setLoading(false);
+                return;
+            }
+
+            const destino =
+                (aluno.role === '1' || aluno.role === '2')
+                    ? '/professor'
+                    : '/aluno';
+
+            router.push(destino);
+
+        } catch (error) {
+            console.error("Erro no login Google:", error);
+            setErrorMessage("Erro ao tentar login com Google");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const isDisabled = !matricula || !senha || loading;
 
     return (
         <div className={styles.contentContainer}>
 
-            <h2 style={{marginTop:'1rem', marginBottom:'1rem'}}>Bem vindo ao Tutor!</h2>
+            <h2 style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                Bem vindo ao Tutor!
+            </h2>
 
             <form className={styles.formContainer} onSubmit={handleSubmit}>
-                
+
                 <div className={styles.inputsGrid}>
-                    <label htmlFor="matricula">Login:</label>
+                    <label htmlFor="matricula">Matrícula:</label>
                     <input
                         id="matricula"
                         name="matricula"
                         type="text"
                         required
-                        title=''
                         className='inputItem'
-                        placeholder="Login"
+                        placeholder="Matrícula"
                         value={matricula}
                         onChange={(e) => setMatricula(e.target.value)}
                     />
+
                     <label htmlFor="senha">Senha:</label>
                     <input
                         id="senha"
                         name="senha"
                         type="password"
                         required
-                        title=''
                         className='inputItem'
                         placeholder="Senha"
                         value={senha}
@@ -69,13 +122,20 @@ export default function LoginForm() {
                     />
                 </div>
 
+                {errorMessage && (
+                    <p style={{ color: 'red', marginTop: '0.5rem' }}>
+                        {errorMessage}
+                    </p>
+                )}
                 <div className={styles.inputsContainer}>
                     <div className={styles.rememberForgotContainer}>
                         <label className={styles.rememberLabel}>
-                        <input type="checkbox" className={styles.roundCheckbox} />
-                        <span>Lembre-se</span>
+                            <input type="checkbox" className={styles.roundCheckbox} />
+                            <span>Lembre-se</span>
                         </label>
-                        <a className={styles.forgotPasswordLink} href="#">Esqueceu sua senha?</a>
+                        <a className={styles.forgotPasswordLink} href="#">
+                            Esqueceu sua senha?
+                        </a>
                     </div>
                 </div>
 
@@ -85,14 +145,10 @@ export default function LoginForm() {
                         disabled={isDisabled}
                         className={styles.loginBtn}
                     >
-                        Entrar
+                        {loading ? "Entrando..." : "Entrar"}
                     </button>
-
-                    <button className={styles.googleBtn}>
-                        <Image src="/googleIcon.png" width={30} height={30} alt="Ícone do Google" />
-                    </button>
+                    <div id="googleBtn" className={styles.googleBtn}></div>
                 </div>
-
 
                 <div className={styles.dividerContainer}>
                     <hr className={styles.dividerLine} />
@@ -100,14 +156,14 @@ export default function LoginForm() {
                     <hr className={styles.dividerLine} />
                 </div>
 
-
-
                 <div className={styles.inputContainerRegister}>
-                    <span className={styles.spanItem}>Se não tem conta registre-se</span>
+                    <span className={styles.spanItem}>
+                        Se não tem conta registre-se
+                    </span>
                     <button
-                        type="submit"
-                        disabled={isDisabled}
+                        type="button"
                         className={styles.registerButton}
+                        onClick={() => router.push('/register')}
                     >
                         Registrar
                     </button>
@@ -115,10 +171,35 @@ export default function LoginForm() {
 
                 <div className={styles.inputContainer}>
                     <span className={styles.spanItem}>Termos de Uso</span>
-                    <span className={styles.spanItem}>Termos de Uso</span>
+                    <span className={styles.spanItem}>Política de Privacidade</span>
                 </div>
 
             </form>
+
+            <Script
+                src="https://accounts.google.com/gsi/client"
+                strategy="lazyOnload"
+                onLoad={() => {
+                    if (!window.google) return;
+
+                    window.google.accounts.id.initialize({
+                        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+                        callback: handleGoogleLogin,
+                    });
+
+                    window.google.accounts.id.renderButton(
+                    document.getElementById("googleBtn"),
+                    {
+                        type: "icon",
+                        theme: "outline",
+                        size: "large",
+                        shape: "circle",
+                        logo_alignment: "center",
+                    }
+                    );
+                }}
+            />
+
         </div>
     );
 }

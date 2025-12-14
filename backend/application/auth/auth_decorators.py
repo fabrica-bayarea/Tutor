@@ -21,13 +21,24 @@ def token_obrigatorio(f):
         return f(*args, **kwargs)
     return wrapper
 
+def apenas_admins(f):
+    """
+    Decorador personalizado que restringe o acesso da rota apenas para usuários com papel de admin.
+    """
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not hasattr(g, "usuario_role") or g.usuario_role != '1':
+            return jsonify({"error": "Acesso negado"}), 403
+        return f(*args, **kwargs)
+    return wrapper
+
 def apenas_professores(f):
     """
     Decorador personalizado que restringe o acesso da rota apenas para usuários com papel de professor.
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role != "professor":
+        if not hasattr(g, "usuario_role") or g.usuario_role != '2' or g.usuario_role != '1':
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper
@@ -38,7 +49,7 @@ def apenas_alunos(f):
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role != "aluno":
+        if not hasattr(g, "usuario_role") or g.usuario_role != "3":
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper

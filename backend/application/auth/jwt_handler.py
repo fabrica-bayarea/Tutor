@@ -14,7 +14,7 @@ def gerar_token(user_id: str, role: str, expiracao_min=60) -> str:
     Retorna o token JWT gerado.
     """
     payload = {
-        "user_id": user_id,
+        "user_id": str(user_id),
         "role": role,
         "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=expiracao_min)
     }

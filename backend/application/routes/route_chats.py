@@ -5,14 +5,13 @@ Para CRIAR um chat, usamos eventos WebSockets.
 Para as demais operações CRUD, usamos endpoints REST.
 """
 from flask import Blueprint, request, jsonify, g
-from application.auth.auth_decorators import token_obrigatorio, apenas_alunos
+from application.auth.auth_decorators import token_obrigatorio
 from application.services.service_chat import buscar_chats, buscar_chat, atualizar_chat, deletar_chat
 
 chats_bp = Blueprint('chats', __name__)
 
 @chats_bp.route('/aluno/<aluno_id>', methods=['GET'])
 @token_obrigatorio
-@apenas_alunos
 def obter_chats(aluno_id):
     try:
         if aluno_id != g.usuario_id:
@@ -25,7 +24,6 @@ def obter_chats(aluno_id):
 
 @chats_bp.route('/chat/<string:chat_id>', methods=['PATCH'])
 @token_obrigatorio
-@apenas_alunos
 def update_chat(chat_id: str):
     # Verifica se os dados necessários estão presentes
     novo_nome = request.json.get('nome')
@@ -47,7 +45,6 @@ def update_chat(chat_id: str):
 
 @chats_bp.route('/chat/<string:chat_id>', methods=['DELETE'])
 @token_obrigatorio
-@apenas_alunos
 def delete_chat(chat_id: str):
     try:
         chat = buscar_chat(chat_id)

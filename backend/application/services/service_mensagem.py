@@ -1,6 +1,6 @@
 from application.config.database import db
 from application.models import Mensagem
-from application.services.service_aluno import buscar_aluno
+from application.services.service_usuario import buscar_aluno
 from application.constants import LLM_UUID
 import uuid
 

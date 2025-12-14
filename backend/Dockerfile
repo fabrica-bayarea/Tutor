@@ -1,34 +1,40 @@
-# Imagem oficial do Python como Base
-FROM python:3.11-slim
+# ================ Estágio de Build ================
+FROM python:3.11-slim AS build
 
-# Atualiza os pacotes do sistema pra corrigir as vulnerabilidades e limpa o cache
-RUN apt-get update && \
-    apt-get install -y netcat-traditional && \
-    apt-get upgrade -y && \
+# Atualiza pacotes e instala dependências de build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Definindo o diretório de trabalho dentro do container
 WORKDIR /app
-
-# Copiando o arquivo de dependências para o container
 COPY requirements.txt .
-
-# Instalando as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiando o restante da aplicação (backend) para o container
 COPY . .
 
-# Copia o script de entrypoint
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# ================ Estágio de Produção ================
+FROM python:3.11-slim AS production
 
-# Expondo a porta 5000 (padrão do Flask)
-EXPOSE 5000
+WORKDIR /app
 
-# Entrypoint do container
-ENTRYPOINT [ "./entrypoint.sh" ]
+# Instala o cliente do PostgreSQL
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
 
-# Comando para iniciar a aplicação
-# Host 0.0.0.0 para a aplicação ser acessível de fora do container
-CMD ["python", "app.py"]
+# Criar diretório persistente do ChromaDB
+RUN mkdir -p /data/chroma && chmod -R 777 /data
+
+# Copia dependências do build
+COPY --from=build /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=build /usr/local/bin/ /usr/local/bin/
+
+# Copia o código da aplicação
+COPY --from=build /app .
+
+# Expõe porta do backend
+EXPOSE 8000
+
+# Comando para iniciar o servidor de produção
+CMD ["gunicorn", "--workers=1", "--bind=0.0.0.0:8000", "app:app"]

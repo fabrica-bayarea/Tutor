@@ -155,14 +155,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
-  border: 1px solid #ccc;
   border-radius: 10px;
   cursor: pointer;
-}
-
-.googleBtn:hover {
-  background-color: #f0f0f0;
 }
 
 .dividerContainer {

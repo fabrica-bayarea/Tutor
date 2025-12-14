@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, KeyboardEventHandler, CSSProperties } from 'react';
 import styles from './page.module.css';
 import Select from 'react-select';
-import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
 import { postLinks } from '@/app/services/service_link';
 import { uploadArquivos, uploadLinks, uploadTextos } from '@/app/services/service_arquivo';
 import SourceUpload from '../components/SourceUpload/SourceUpload';
@@ -13,7 +13,7 @@ import { obterMateria } from '@/app/services/service_materia';
 import UserButton from '../../../components/UserButton/userButton';
 
 function ExtratorWindow() {
-    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
     const [matricula_professor, setMatricula_professor] = useState<string>('1');
     const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
     const [materias, setMaterias] = useState<InterfaceMateria[]>([]);

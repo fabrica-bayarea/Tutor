@@ -6,7 +6,7 @@ import styles from './page.module.css';
 
 import Button from '../../../../../components/Button/Button';
 import IconButton from '@/app/components/IconButton/IconButton';
-import { InterfaceProfessor, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../types';
 import { ArrowLeft, Download, File, Play, Music, Text, Pencil, Plus, SquareArrowOutUpRight, Trash2 } from 'lucide-react';
 import { obterTurma } from '../../../../../services/service_turma';
 import { obterMateria } from '../../../../../services/service_materia';
@@ -17,7 +17,7 @@ import { TIPOS_ARQUIVO } from '@/constants';
 
 export default function Materia() {
     const params = useParams();
-    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
     const [turmaId, materiaId] = (params.materiaId as string).split('_');
 
     const [turma, setTurma] = useState<InterfaceTurma>({

@@ -8,17 +8,22 @@ import MessageForm from "../../components/MessageForm/MessageForm"
 import styles from "./page.module.css"
 import socket from "@/libs/socket"
 
-import { InterfaceAluno, InterfaceMensagem } from "../../../../types"
+import { InterfaceUsuario, InterfaceMensagem } from "../../../../types"
 import { LLM_UUID } from "@/constants"
 import { obterMensagens } from "@/app/services/service_mensagem"
+import UserButton from "@/app/components/UserButton/userButton";
 
 export default function ChatPage() {
     const { chatId } = useParams()
     const searchParams = useSearchParams()
     const [novoChat, setNovoChat] = useState<boolean>(searchParams.get("novo") === "true");
     const prontoEmitido = useRef<boolean>(false)
-
-    const [aluno, setAluno] = useState<InterfaceAluno | null>(null)
+    const alunoData = typeof window !== "undefined" ? localStorage.getItem("aluno") : null;
+    const alunoInicial: InterfaceUsuario | null = alunoData ? JSON.parse(alunoData) : null;
+    const [eProfessor, seteProfessor] = useState<boolean>(
+        alunoInicial ? (alunoInicial.role === "RoleEnum.ADMIN" || alunoInicial.role === "RoleEnum.PROFESSOR") : false
+    );
+    const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
     const [mensagens, setMensagens] = useState<InterfaceMensagem[]>([])
     const [gerandoResposta, setGerandoResposta] = useState<boolean>(false)
     const [mensagemGerada, setMensagemGerada] = useState<InterfaceMensagem | null>(null)
@@ -109,7 +114,8 @@ export default function ChatPage() {
                 chat_id: chatId as string,
                 sender_id: LLM_UUID,
                 conteudo: "",
-                data_envio: new Date()
+                data_envio: new Date(),
+                sessao_id: ""
             }
             mensagemGeradaRef.current = respostaParcial;
             setMensagens(prev => [...prev, respostaParcial])
@@ -166,6 +172,7 @@ export default function ChatPage() {
             setMensagens(prev => [...prev, {
                 id: '',
                 chat_id: chatId as string,
+                sessao_id: '',
                 sender_id: aluno.id,
                 conteudo: mensagem,
                 data_envio: new Date(),
@@ -197,8 +204,8 @@ export default function ChatPage() {
                             chat_id={msg.chat_id}
                             sender_id={msg.sender_id}
                             conteudo={msg.conteudo}
-                            data_envio={msg.data_envio}
-                        />
+                            data_envio={msg.data_envio} 
+                            sessao_id={""}                        />
                     ))}
                     <div ref={bottomRef} />
                 </div>
@@ -207,6 +214,7 @@ export default function ChatPage() {
                 <MessageForm onSendMessage={handleEnviar} />
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
+            <UserButton user={aluno?.nome.split(' ')[0]}  isProf={eProfessor}/>
         </div>
     )
 }

@@ -5,12 +5,12 @@ import styles from './page.module.css';
 
 import CardTurma from '../components/CardTurma/CardTurma';
 
-import { InterfaceProfessor, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../../types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 
 export default function MinhasTurmas() {
-    const [professor, setProfessor] = useState<InterfaceProfessor | null>(null);
+    const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
     const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
 
     useEffect(() => {

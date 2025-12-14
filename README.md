@@ -11,14 +11,6 @@ Guia de configuração para os ambientes de desenvolvimento e produção do proj
 - **Ambiente:** Totalmente containerizado com [Docker](https://www.docker.com/).
 - **Orquestração:** Deploy em [Kubernetes](https://kubernetes.io/) para simulação de produção.
 
-## Como Rodar o Projeto
-
-O fluxo de trabalho consiste em três etapas principais:
-
-1.  **Configuração Inicial:** Preparar os arquivos de ambiente.
-2.  **Build da Imagem:** Construir a imagem Docker universal do frontend.
-3.  **Execução:** Escolher um ambiente para rodar a aplicação (Docker Compose ou Kubernetes).
-
 ### Pré-requisitos Gerais
 
 Antes de começar, garanta que você tenha os seguintes softwares instalados:
@@ -26,14 +18,8 @@ Antes de começar, garanta que você tenha os seguintes softwares instalados:
 - [Git](https://git-scm.com/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (com o Kubernetes ativado nas configurações)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/)
-- [Ollama](https://ollama.com/download)
-
-_Nota: Atualmente, o serviço da LLM (Ollama) precisa ser executado na máquina local. Após instalar o Ollama, baixe o modelo `mistral` que o projeto utiliza:_
-
-```
-ollama pull mistral
-```
-
+  
+    
 ### Passo 1: Configuração Inicial
 
 1.  **Clone o Repositório:**
@@ -43,116 +29,244 @@ ollama pull mistral
     ```
 2.  Crie os Arquivos de Ambiente (.env):
 
-    Você precisará de três arquivos de configuração. A senha do PostgreSQL deve ser a mesma em todos eles.
-
-    - **Arquivo Principal (`./.env`):** Usado pelo Docker Compose.
-
-      ```
-      # Arquivo: ./.env
-      POSTGRES_PASSWORD=sua_senha_segura_aqui
-      SECRET_KEY=mesma-senha-do-backend-aqui
-      ```
+    Você precisará de dois arquivos de configuração. A senha do PostgreSQL deve ser a mesma em todos eles.
 
     - **Arquivo do Backend (`./backend/.env`):** Usado pelo Flask.
 
       ```
-      # Arquivo: ./backend/.env
       SECRET_KEY=gere_uma_chave_secreta_aqui
-      DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/tutor
-      DB_HOST=db
+      POSTGRES_PASSWORD=sua_senha_segura_aqui
+      DATABASE_URL=postgresql://postgres:sua_senha_segura_aqui@postgres-service:5432/tutor
+      DB_HOST=postgres-service
       FLASK_DEBUG=1
+      GOOGLE_CLIENT_ID=id do cliente para login com google
       ```
 
-### Passo 2: Construindo a Imagem Docker Universal
+    - **Arquivo do Frontend (`./frontend/.env.local`):** Usado pelo Next.js.
+    
+      ```
+      NEXT_PUBLIC_API_URL_RUNTIME=http://tutor.local/api
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID=id do cliente para login com google
+      ```
+      
+### Passo 2: Logando e configurando os usuários:
 
-Este é o passo mais importante. Construa a imagem flexível do frontend que será usada em ambos os ambientes.
+1.  Realize login com docker e salve o nome de usuário disponibilizado após autentificação:
+```
+#realize o login no terminal
+docker login
+```
+
+2.  Altere o arquivo k8s/backend.yaml na linha 17 para que ele aponte corretamente o seu usuário:
 
 ```
-# Navegue até a pasta do frontend
-cd frontend
+#linha 17
+        image: seu-usuario/tutor-backend:latest
+```
 
-# Construa a imagem
-docker build -t tutor-frontend:flexible .
+3.  Altere o arquivo k8s/frontend.yaml na linha 17 para que ele aponte corretamente o seu usuário:
 
-# Volte para a raiz do projeto
+```
+#linha 17
+        image: seu-usuario/tutor-frontend:flexible
+```
+
+4.  Altere o arquivo k8s/ollama.yaml na linha 17 para que ele aponte corretamente o seu usuário:
+
+```
+#linha 17
+        image: seu-usuario/ollama-mistral:latest
+```
+
+### Passo 3: Configurando a LLM
+
+1.  Crie a imagem do Ollama:
+    
+```
+docker build -t ollama/ollama:latest
+```
+
+2.  Inicie o servidor Ollama:
+    
+```
+docker run 11434:11434 ollama/ollama:latest
+```
+
+3.  Crie a imagem do mistral:
+    
+```
+ollama pull mistral
+```
+
+4.  Teste localmente:
+    
+```
+#abra outro terminal e teste
+curl http://localhost:11434/api/generate -d '{"model":"mistral","prompt":"Olá, mundo!"}'
+```
+
+5.  Commitar o container em uma nova imagem:
+
+```
+#veja o CONTAINER_ID do que rodou
+docker ps -a   
+
+docker commit <CONTAINER_ID> seu-usuario/ollama-mistral:latest
+
+#push para o Docker Hub
+docker push seu-usuario/ollama-mistral:latest
+```
+
+
+6.  Apagar a imagem localmente(opcional):
+
+Após realizar a criação e envio da imagem para o DockerHub, com o intuito de evitar consumo de armazenamento desnecessário, você poderá apagar a imagem criada LOCALMENTE
+OBS: isso pode ser feito pois a aplicação roda com kubernetes, que utiliza as imagens do dockerhub, uma vez tendo elas lá, as locais não são mais necessárias
+
+ - Entre no docker desktop
+ - Vá para conteineres
+ - Selecione o conteiner que foi utilizado pelo ollama, apague ele
+ - Vá para imagens
+ - Selecione as duas imagens criadas neste tutorial, ollama/ollama e seu-usuario/ollama-mistral, apague-as
+
+### Passo 4: Configurando Imagens do frontend e backend
+
+1.  Este é o passo mais importante. Construa a imagem do backend e a imagem flexível do frontend que será usada em ambos os ambientes.
+
+```
+# Backend
+cd backend
+docker build -t seu-usuario/tutor-backend:latest -f Dockerfile.prod .
 cd ..
+
+# Frontend
+cd frontend
+docker build -t seu-usuario/tutor-frontend:flexible .
+cd ..
+
 ```
 
-### Passo 3: Executando a Aplicação
+2.  Agora suba as imagens criadas para o dockerhub
 
-Com a imagem pronta, escolha como você quer rodar o projeto:
+```
+#faça o push das imagens para o seu repositório remoto docker
+docker push seu-usuario/tutor-backend:latest
+docker push seu-usuario/tutor-frontend:flexible
+```
 
-#### Método A: Docker Compose (Ambiente de Desenvolvimento)
+3.  Apagar a imagem localmente(opcional):
 
-Ideal para codificar, pois possui **hot-reload**.
+Após realizar a criação e envio da imagem para o DockerHub, com o intuito de evitar consumo de armazenamento desnecessário, você poderá apagar a imagem criada LOCALMENTE
+OBS: isso pode ser feito pois a aplicação roda com kubernetes, que utiliza as imagens do dockerhub, uma vez tendo elas lá, as locais não são mais necessárias
 
-1.  Verifique o docker-compose.yml:
+ - Entre no docker desktop
+ - Vá para conteineres
+ - Selecione o conteiner que foi utilizado pelo frontend/backend, apague-os
+ - Vá para imagens
+ - Selecione as duas imagens criadas neste tutorial, seu-usuario/tutor-frontend e seu-usuario/tutor-backend, apague-as
 
-    Garanta que o serviço frontend está configurado para usar a imagem tutor-frontend:flexible.
 
-2.  **Execute o comando:**
+### Passo 5: Executando a Aplicação Kubernetes (Simulando Deploy de Produção)
 
-    ```
-    # Na raiz do projeto, execute:
-    docker compose up
-    ```
+Este método faz o deploy da aplicação em um cluster Kubernetes local, neste tutorial estará sendo utilizado o kubernetes imbutido no docker desktop pela sua facilidade de configuração.
 
-_Nota: Garanta que o ollama esteja rodando no computador
+1.  Abra o Docker Desktop.
 
-#### Método B: Kubernetes (Simulando Deploy de Produção)
+2.  Vá em Settings → Kubernetes.
 
-Este método faz o deploy da aplicação em um cluster Kubernetes local.
+3.  Marque Enable Kubernetes.
 
-1.  Crie o Segredo do Banco de Dados (se ainda não existir):
+4.  Clique em Apply & Restart.
 
-    O segredo armazena a senha do banco de dados de forma segura no cluster.
+5.  Teste no terminal:
 
-    ```
-    kubectl create secret generic postgres-secret --from-env-file=.env
-    ```
+```
+kubectl cluster-info
+kubectl get nodes
+```
 
-    _Nota: Se o segredo já existir, delete-o primeiro com `kubectl delete secret postgres-secret`._
+Se retornar um nó docker-desktop, está funcionando.
+    
+6.  Crie o Segredo do Banco de Dados (se ainda não existir):
 
-2.  Faça o Deploy da Aplicação:
+O segredo armazena a senha do banco de dados de forma segura no cluster.
 
-    Aplique todos os manifestos de configuração contidos na pasta k8s/:
+```
+#delete qualquer segredo anterior para evitar erros
+kubectl delete secret postgres-secret
 
-    ```
-    kubectl apply -f k8s/
-    ```
+#crie o novo segredo
+kubectl create secret generic postgres-secret --from-env-file=backend/.env
+```
+    
+7.  Faça o Deploy da Aplicação(na raiz do projeto):
 
-3.  Force a Atualização (se necessário):
+Aplique todos os manifestos de configuração contidos na pasta k8s/:
 
-    Se você reconstruir a imagem tutor-frontend:flexible e precisar que o Kubernetes a utilize, force uma reinicialização do deployment:
+```
+kubectl apply -f k8s/database
+kubectl apply -f k8s/ollama
+kubectl apply -f k8s/backend
+kubectl apply -f k8s/frontend
+```
 
-    ```
-    kubectl rollout restart deployment frontend-deployment
-    ```
+8.  Verifique o Status:
 
-4.  Verifique o Status:
+Aguarde alguns minutos e verifique se todos os pods estão com o status Running:
 
-    Aguarde alguns minutos e verifique se todos os pods estão com o status Running:
+```
+kubectl get pods
+```
+    
+### Passo 6: Configurando o Ingress
 
-    ```
-    kubectl get pods
-    ```
+O ingress é responsável por alterar a url de acesso à aplicação.
+
+1.  Instalar o NGINX Ingress Controller:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+```
+
+2.  Após a instalação, confira se os pods foram subidos:
+
+``` 
+kubectl get pods -n ingress-nginx
+```
+
+Você deve ver algo como ingress-nginx-controller em estado Running
+
+3.  Valide os serviços
+
+O ingress aponta para dois Services, backend-service na porta 5000 e frontend-service na porta 80, verifique se eles existem e estão corretos:
+
+```
+kubectl get svc
+```
+
+4.  Aplique o ingress:
+
+```
+kubectl apply -f k8s/ingress.yaml
+```
+
+5. Configure o host local:
+
+Abra o bloco de notas como administrador e entre no diretório C:\Windows\System32\drivers\etc\hosts, abra o arquivo hosts e adicione esta linha ao final dele:
+
+```
+127.0.0.1 tutor.local
+```
 
 ---
 
 ### Acessando a Aplicação
 
-- **Ambiente Docker Compose:**
-
-  - Frontend: [http://localhost:3000](http://localhost:3000)
-  - Backend API: [http://localhost:5000](http://localhost:5000)
-
 - **Ambiente Kubernetes:**
 
-  - Frontend: Acesse via [http://localhost](http://localhost).
-  - Backend API: [http://localhost:30001](https://www.google.com/search?q=http://localhost:30001) (O serviço `NodePort` expõe a API diretamente nesta porta para acesso externo).
-  - Alternativa para Debug: Se precisar de um túnel de comunicação direto com o serviço, independentemente de sua exposição, o comando `kubectl port-forward service/backend-service 5001:5000` ainda é uma ferramenta útil.
+  - Frontend: Acesse via [http://tutor.local/](http://tutor.local/)
+  - Backend API: [http://tutor.local/api](http://tutor.local/api) (O serviço `Ingress` expõe a API diretamente nesta porta para acesso externo).
 
 ### Parando a Aplicação
 
-- **Docker Compose:** Pressione `Ctrl + C` no terminal e depois `docker compose down`.
 - **Kubernetes:** Execute `kubectl delete -f k8s/`.

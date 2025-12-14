@@ -11,6 +11,7 @@ class Materia(db.Model):
     professores_turmas = db.relationship('ProfessorTurmaMateria', back_populates='materia', cascade='all, delete-orphan')
     turmas = db.relationship('TurmaMateria', back_populates='materia', cascade='all, delete-orphan')
     arquivos = db.relationship('ArquivoTurmaMateria', back_populates='materia')
+    chats = db.relationship('Chat', back_populates='materia', cascade='all, delete-orphan')
 
     def to_dict(self):
         """

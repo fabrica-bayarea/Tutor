@@ -2,7 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 
 export interface TokenPayload {
     user_id: string;
-    role: 'aluno' | 'professor';
+    role: '1' | '2' | '3';
     exp: number;
 }
 
@@ -31,15 +31,19 @@ export function isAuthenticated(): boolean {
     return token.exp * 1000 > Date.now();
 }
 
-export function getUserRole(): 'aluno' | 'professor' | null {
+export function getUserRole(): '1' | '2' | '3' | null {
     const token = getDecodedToken();
     return token?.role || null;
 }
 
 export function isStudent(): boolean {
-    return getUserRole() === 'aluno';
+    return getUserRole() === '3';
 }
 
 export function isProfessor(): boolean {
-    return getUserRole() === 'professor';
+    return getUserRole() === '2';
+}
+
+export function isAdmin(): boolean {
+    return getUserRole() === '1';
 }

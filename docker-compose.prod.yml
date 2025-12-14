@@ -15,8 +15,8 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod # Usa o Dockerfile de produção
-    container_name: tutor_backend_prod
+      dockerfile: Dockerfile # Usa o Dockerfile de produção
+    container_name: tutor_backend
     restart: always
     env_file:
       - ./backend/.env
@@ -27,8 +27,8 @@ services:
       - "5000:8000"
 
   frontend:
-    build: ./frontend # O Dockerfile do frontend já é otimizado
-    container_name: tutor_frontend_prod
+    build: ./frontend 
+    container_name: tutor_frontend
     restart: always
     ports:
       - "3000:3000"

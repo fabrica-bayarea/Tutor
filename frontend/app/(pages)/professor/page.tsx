@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import { ChartNoAxesCombined } from 'lucide-react';
-import { InterfaceProfessor } from '../../types';
+import { InterfaceUsuario } from '../../types';
 import CardPequeno from './components/CardPequeno/CardPequeno';
 import UserButton from '../../components/UserButton/userButton';
 
 export default function Home() {
-    const [professor, setProfessor] = useState<InterfaceProfessor>({
+    const [professor, setProfessor] = useState<InterfaceUsuario>({
         id: '550e8400-e29b-41d4-a716-446655440000',
         matricula: '1',
         nome: 'Regiano',
         email: 'regiano@gmail.com',
-        cpf: '12345678900', // ...senha, data_nascimento
+        role: '2'
     });
     
     useEffect(() => {
