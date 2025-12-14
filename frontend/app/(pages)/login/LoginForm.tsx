@@ -40,10 +40,10 @@ export default function LoginForm() {
                 setLoading(false);
                 return;
             }
-
+            console.log(aluno.role);
             const destino =
-                (aluno.role == '1' || aluno.role == '2')
-                    ? '/professor'
+                (aluno.role == 'RoleEnum.ADMIN' || aluno.role == 'RoleEnum.PROFESSOR')
+                    ? '/professor/chat'
                     : '/aluno';
 
             router.push(destino);
@@ -97,14 +97,14 @@ export default function LoginForm() {
             <form className={styles.formContainer} onSubmit={handleSubmit}>
 
                 <div className={styles.inputsGrid}>
-                    <label htmlFor="matricula">Login:</label>
+                    <label htmlFor="matricula">Matrícula:</label>
                     <input
                         id="matricula"
                         name="matricula"
                         type="text"
                         required
                         className='inputItem'
-                        placeholder="Login"
+                        placeholder="Matrícula"
                         value={matricula}
                         onChange={(e) => setMatricula(e.target.value)}
                     />
@@ -127,7 +127,6 @@ export default function LoginForm() {
                         {errorMessage}
                     </p>
                 )}
-
                 <div className={styles.inputsContainer}>
                     <div className={styles.rememberForgotContainer}>
                         <label className={styles.rememberLabel}>

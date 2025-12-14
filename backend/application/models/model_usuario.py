@@ -15,7 +15,7 @@ class Usuario(db.Model):
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
     senha = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.Enum(RoleEnum), nullable=False)
+    role = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
 
     turmas_matriculadas = db.relationship('AlunoTurma', back_populates='aluno', cascade='all, delete-orphan')
     turmas_materias = db.relationship('ProfessorTurmaMateria', back_populates='professor', cascade='all, delete-orphan')

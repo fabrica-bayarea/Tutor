@@ -2,12 +2,22 @@
 Rotas para lidar com alunos.
 """
 import os
+import secrets
+from application.config.database import db
 from flask import Blueprint, request, jsonify
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
 from application.auth.auth_decorators import apenas_admins, token_obrigatorio
 from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno, alterar_aluno
+from application.models import Usuario
+from application.models.model_usuario import RoleEnum  
+
+from pathlib import Path
+from dotenv import load_dotenv
+
+dotenv_path = Path(__file__).resolve().parents[2] / ".env"
+load_dotenv(dotenv_path)
 
 usuarios_bp = Blueprint('alunos', __name__)
 
@@ -42,9 +52,17 @@ def gerar_aluno():
     if not matricula or not nome or not email or not senha:
         return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
     
+    existente = Usuario.query.filter(
+        (Usuario.matricula == matricula) | (Usuario.email == email)
+    ).first()
+
+    if existente:
+        return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
+
     # Verifica se já existe um aluno com alguns dados que devem ser únicos
     aluno_existe = buscar_aluno(matricula=matricula, email=email)
     if aluno_existe:
+        print('ca')
         return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
     
     # Cria o aluno
@@ -87,7 +105,7 @@ def login_aluno():
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
     
     # Gera um token JWT
-    token = gerar_token(aluno['id'], aluno[role])
+    token = gerar_token(aluno['id'], aluno['role'])
     
     # Retorna o token JWT e as informações do aluno
     return jsonify({
@@ -156,25 +174,33 @@ def buscarUsuario():
 def login_google():
     data = request.json
     token = data.get('token')
-    
-    try:
-        idinfo = id_token.verify_oauth2_token(token, grequests.Request(), os.getenv("GOOGLE_CLIENT_ID"))
 
-        email = idinfo['email']
-        nome = idinfo['name']
-        sub = idinfo['sub']
+    if not token:
+        return jsonify({"error": "Token não enviado"}), 400
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            grequests.Request(),
+            os.getenv("GOOGLE_CLIENT_ID"),
+            clock_skew_in_seconds=10 
+        )
+
+        email = idinfo.get('email')
+        nome = idinfo.get('name')
+        sub = idinfo.get('sub')
+
+        if not email:
+            return jsonify({"error": "Email não encontrado no token"}), 401
 
         aluno = Usuario.query.filter_by(email=email).first()
 
         if not aluno:
-            matricula = f"G{sub}"
-            senha = secrets.token_urlsafe(8)
-
             aluno = Usuario(
-                matricula=matricula,
+                matricula=f"G{sub[-8:]}",
                 nome=nome,
                 email=email,
-                senha=senha,
+                senha=secrets.token_urlsafe(16),
                 role=RoleEnum.ALUNO
             )
             db.session.add(aluno)
@@ -187,5 +213,6 @@ def login_google():
             "token": token_jwt
         }), 200
 
-    except ValueError:
+    except Exception as e:
+        print("ERRO GOOGLE LOGIN:", e)
         return jsonify({"error": "Token inválido"}), 401

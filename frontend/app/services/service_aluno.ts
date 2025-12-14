@@ -29,7 +29,8 @@ export async function criarAluno(matricula: string, nome: string, email: string,
     try {
         const response: { data: { aluno: InterfaceUsuario; token: string } } = await api.post(
             `${alunos_url}/criar`,
-            { matricula, nome, email, senha }
+            { matricula, nome, email, senha },
+            { headers: { 'Content-Type': 'application/json' } }
         );
 
         const token = response.data.token;

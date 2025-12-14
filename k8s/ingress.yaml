@@ -3,20 +3,23 @@ kind: Ingress
 metadata:
   name: tutor-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - host: tutor.local
     http:
       paths:
-      - path: /api(/|$)(.*)
+      # Backend: todas as requisições começando com /api
+      - path: /api
         pathType: Prefix
         backend:
           service:
             name: backend-service
             port:
               number: 5000
-      - path: /(.*)
+
+      # Frontend: tudo que não for /api
+      - path: /
         pathType: Prefix
         backend:
           service:

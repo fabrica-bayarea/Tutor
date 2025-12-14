@@ -11,13 +11,18 @@ import socket from "@/libs/socket"
 import { InterfaceUsuario, InterfaceMensagem } from "../../../../types"
 import { LLM_UUID } from "@/constants"
 import { obterMensagens } from "@/app/services/service_mensagem"
+import UserButton from "@/app/components/UserButton/userButton";
 
 export default function ChatPage() {
     const { chatId } = useParams()
     const searchParams = useSearchParams()
     const [novoChat, setNovoChat] = useState<boolean>(searchParams.get("novo") === "true");
     const prontoEmitido = useRef<boolean>(false)
-
+    const alunoData = typeof window !== "undefined" ? localStorage.getItem("aluno") : null;
+    const alunoInicial: InterfaceUsuario | null = alunoData ? JSON.parse(alunoData) : null;
+    const [eProfessor, seteProfessor] = useState<boolean>(
+        alunoInicial ? (alunoInicial.role === "RoleEnum.ADMIN" || alunoInicial.role === "RoleEnum.PROFESSOR") : false
+    );
     const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
     const [mensagens, setMensagens] = useState<InterfaceMensagem[]>([])
     const [gerandoResposta, setGerandoResposta] = useState<boolean>(false)
@@ -209,6 +214,7 @@ export default function ChatPage() {
                 <MessageForm onSendMessage={handleEnviar} />
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
+            <UserButton user={aluno?.nome.split(' ')[0]}  isProf={eProfessor}/>
         </div>
     )
 }

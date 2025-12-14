@@ -27,9 +27,18 @@ export default function AlunoLayout({ children }: { children: React.ReactNode })
     // Listeners para eventos emitidos pelo back-end
     useEffect(() => {
         socket.on("novo_chat", (chat: InterfaceChat) => {
-            setChats(prev => [...prev, chat])
-        })
-    }, [])
+            setChats(prev => {
+                const existe = prev.some(c => c.id === chat.id);
+                if (existe) return prev; 
+                return [...prev, chat];   
+            })
+        });
+
+        return () => {
+            socket.off("novo_chat");
+        }
+    }, []);
+
 
     return (
         <main className={styles.pageContainer}>

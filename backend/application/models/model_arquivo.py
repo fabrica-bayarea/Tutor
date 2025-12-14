@@ -1,6 +1,7 @@
 from application.config.database import db
 import uuid
 from datetime import datetime
+from sqlalchemy.sql import func
 
 class Arquivo(db.Model):
     __tablename__ = 'arquivos'
@@ -8,7 +9,7 @@ class Arquivo(db.Model):
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     titulo = db.Column(db.String(255), nullable=False)
     professor_id = db.Column(db.UUID(as_uuid=True), db.ForeignKey('usuario.id'), nullable=False)
-    data_upload = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    data_upload = db.Column(db.DateTime, nullable=False, server_default=func.now())
 
     turmas_materias = db.relationship('ArquivoTurmaMateria', back_populates='arquivo')
 

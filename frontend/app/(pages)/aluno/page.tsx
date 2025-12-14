@@ -11,9 +11,11 @@ import UserButton from "@/app/components/UserButton/userButton";
 
 export default function Home() {
     const router = useRouter()
+    const [isMounted, setIsMounted] = useState(false);
     const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
 
     useEffect(() => {
+        setIsMounted(true);
         const alunoData = localStorage.getItem("aluno")
         if (alunoData) {
             try {
@@ -42,7 +44,7 @@ export default function Home() {
             })
         }
     }
-
+    if (!isMounted) return null;
     return (
         <>
         <div className={styles.midColumn}>
@@ -63,7 +65,7 @@ export default function Home() {
                 <span>A inteligência artificial pode cometer erros. Considere checar informações importantes.</span>
             </div>
         </div>
-        <UserButton user='aluno'  isProf={false}/>
+        <UserButton user={aluno?.nome.split(' ')[0]}  isProf={aluno?.role == 'RoleEnum.ADMIN' || aluno?.role == 'RoleEnum.PROFESSOR'}/>
         </>
     )
 }

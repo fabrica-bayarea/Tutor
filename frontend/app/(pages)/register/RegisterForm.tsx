@@ -24,19 +24,18 @@ export default function RegisterForm() {
 
     try {
       const aluno = await criarAluno(matricula, nome, email, senha);
-
-      if (!aluno) {
-        setErrorMessage("Erro ao registrar aluno");
-        setLoading(false);
-        return;
-      }
-
       router.push('/login');
-
-    } catch (error) {
-      console.error('Erro no registro:', error);
-      setErrorMessage("Não foi possível completar o registro.");
-    } finally {
+    }
+    catch (error: any) {
+        if (error.response?.status === 409) {
+            console.error("Usuário já existe:", error)  ;
+            setErrorMessage("Email ou matrícula já cadastrados.");
+        } else {
+            console.error("Erro ao criar o aluno:", error);
+            setErrorMessage("Erro ao criar o aluno.");
+        }
+        return null;
+    }finally {
       setLoading(false);
     }
   };
@@ -125,7 +124,6 @@ export default function RegisterForm() {
         <div className={styles.inputContainerRegister}>
           <span className={styles.spanItem}>Já tem conta? <a href="/login">Faça login</a></span>
         </div>
-
         <div className={styles.inputContainer}>
           <span className={styles.spanItem}>Termos de Uso</span>
           <span className={styles.spanItem}>Política de Privacidade</span>

@@ -83,7 +83,7 @@ export default function Aside() {
                 </div>
 
                 <div className={styles.asideCriarChatButton}>
-                    <a href="/professor/chat">
+                    <a href="/aluno">
                     <button className={styles.newChatButton}>
                         <MessageCircleMore/>
                         Chat
@@ -106,7 +106,7 @@ export default function Aside() {
                         </div>
 
                         <div className={styles.asideOtrButton}>
-                            <a href="/sair">
+                            <a href="/aluno">
                             <button className={styles.otrButton}>
                                 <Ban/>
                                 Sair

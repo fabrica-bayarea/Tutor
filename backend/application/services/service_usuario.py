@@ -1,8 +1,9 @@
 import uuid
 from application.models import Usuario
 from application.config.database import db
+from application.models.model_usuario import RoleEnum
 
-def criar_aluno(matricula: str, nome: str, email: str, senha: str, data_nascimento: str) -> dict[str, str] | None:
+def criar_aluno(matricula: str, nome: str, email: str, senha: str) -> dict[str, str] | None:
     """
     Função atômica, responsável por criar um aluno no PostgreSQL.
 
@@ -14,12 +15,12 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str, data_nascimen
 
     Retorna um dicionário com os dados do aluno criado.
     """
-    aluno = Aluno(
+    aluno = Usuario(
         matricula=matricula,
         nome=nome,
         email=email,
         senha=senha,
-        role=3
+        role=RoleEnum.ALUNO
     )
     db.session.add(aluno)
     db.session.commit()
@@ -40,28 +41,28 @@ def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = 
     """
     # Se um ID específico for passado, a busca é direta e ignora os outros campos.
     if aluno_id:
-        aluno = Aluno.query.filter_by(id=aluno_id).first()
+        aluno = Usuario.query.filter_by(id=aluno_id).first()
         return aluno.to_dict() if aluno else None
     
     # Cria uma lista de filtros baseada nos parâmetros que não são None
     filtros = []
 
     if matricula:
-        filtros.append(Aluno.matricula == matricula)
+        filtros.append(Usuario.matricula == matricula)
 
     if email:
-        filtros.append(Aluno.email == email)
+        filtros.append(Usuario.email == email)
 
     if nome:
-        filtros.append(Aluno.nome == nome)
+        filtros.append(Usuario.nome == nome)
     
     if role:
-        filtros.append(Aluno.role == role)
+        filtros.append(Usuario.role == role)
         
     aluno = None
 
     if filtros:
-        aluno = Aluno.query.filter(db.or_(*filtros)).first()
+        aluno = Usuario.query.filter(db.or_(*filtros)).first()
     
     return aluno.to_dict() if aluno else None
 
@@ -78,7 +79,7 @@ def logar_aluno(matricula: str, senha: str) -> dict[str, str] | None:
     
     Retorna um dicionário com os dados do aluno se o login for válido, e None caso contrário.
     """
-    aluno = Aluno.query.filter_by(matricula=matricula).first()
+    aluno = Usuario.query.filter_by(matricula=matricula).first()
     
     if aluno and aluno.senha == senha:
         return aluno.to_dict()
@@ -95,7 +96,7 @@ def alterar_aluno(matricula: str, role: str):
 
     Retorna um dicionário com os dados do usuario alterado.
     """
-    aluno = Aluno.query.filter_by(matricula=matricula).first()
+    aluno = Usuario.query.filter_by(matricula=matricula).first()
     
     if not aluno:
         return None  # Se não encontrar, retorna None

@@ -46,7 +46,7 @@ export default function UserButton({ isProf = false, user='' }) {
 
                             <div className={styles.asideOtrButtonProf}>
                                 <div>
-                                <a href="/sair">
+                                <a href="/login">
                                 <button className={styles.otrButtonProf}>
                                     <Ban/>
                                     Sair
