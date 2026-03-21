@@ -3,6 +3,7 @@
 # O script irá parar imediatamente se um comando falhar
 set -e
 
+
 # Exporta a variável de ambiente para que o Flask a reconheça
 export DATABASE_URL=${DATABASE_URL}
 
