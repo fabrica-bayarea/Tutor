@@ -1,7 +1,7 @@
-import { io } from "socket.io-client"
+// import { io } from "socket.io-client"
 
-const API_URL = "http://localhost:5000";
+// const API_URL = "http://localhost:5000";
 
-const socket = io(API_URL)
+// const socket = io(API_URL)
 
-export default socket
+// export default socket

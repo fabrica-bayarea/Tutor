@@ -12,26 +12,5 @@ services:
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile # Usa o Dockerfile de produção
-    container_name: tutor_backend
-    restart: always
-    env_file:
-      - ./backend/.env
-    depends_on:
-      - db
-    # Em produção, a porta interna do Gunicorn (8000) pode ser mapeada para 5000 externamente
-    ports:
-      - "5000:8000"
-
-  frontend:
-    build: ./frontend 
-    container_name: tutor_frontend
-    restart: always
-    ports:
-      - "3000:3000"
-
 volumes:
   postgres_data_prod:
