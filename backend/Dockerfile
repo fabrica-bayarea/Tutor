@@ -1,7 +1,6 @@
 # ================ Estágio de Build ================
 FROM python:3.11-slim AS build
 
-# Atualiza pacotes e instala dependências de build
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         libpq-dev && \
@@ -10,31 +9,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
 
 # ================ Estágio de Produção ================
 FROM python:3.11-slim AS production
 
-WORKDIR /app
-
-# Instala o cliente do PostgreSQL
+# Instala netcat-openbsd (essencial para o script de espera) e libpq5 para o Postgres
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        postgresql-client && \
+        netcat-openbsd \
+        libpq5 && \
     rm -rf /var/lib/apt/lists/*
 
-# Criar diretório persistente do ChromaDB
-RUN mkdir -p /data/chroma && chmod -R 777 /data
+WORKDIR /app
 
-# Copia dependências do build
+# Copia as dependências e o código do estágio de build
 COPY --from=build /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=build /usr/local/bin/ /usr/local/bin/
-
-# Copia o código da aplicação
 COPY --from=build /app .
 
-# Expõe porta do backend
-EXPOSE 8000
+# Copia o entrypoint explicitamente para a raiz do WORKDIR
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
-# Comando para iniciar o servidor de produção
+# Use o caminho relativo direto ou absoluto
+ENTRYPOINT ["/app/entrypoint.sh"]
+# Comando padrão para rodar a aplicação
 CMD ["gunicorn", "--workers=1", "--bind=0.0.0.0:8000", "app:app"]
