@@ -493,3 +493,20 @@ def deletar_arquivo_vetor(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> boo
         raise
     
     return True
+
+def buscar_arquivos_por_materia(materia_id: uuid.UUID) -> list[dict]:
+    """
+    Função atômica, responsável por buscar todos os arquivos relacionados à uma matéria.
+
+    Espera receber:
+    - `materia_id`: uuid.UUID - o ID da matéria
+
+    Retorna uma array com os ids das matérias.
+    """
+    vinculos = ArquivoTurmaMateria.query.filter_by(materia_id=materia_id).all()
+    arquivos = []
+    for vinculo in vinculos:
+        arquivo = Arquivo.query.filter_by(id=vinculo.arquivo_id).first()
+        if arquivo:
+            arquivos.append(arquivo.to_dict())
+    return arquivos
