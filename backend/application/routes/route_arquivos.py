@@ -428,3 +428,18 @@ def excluir_arquivo(arquivo_id: uuid.UUID):
     except Exception as e:
         print(f'Erro ao deletar arquivo: {str(e)}')
         return jsonify({"error": str(e)}), 500
+
+@arquivos_bp.route('/materia/<string:materia_id>', methods=['GET'])
+@token_obrigatorio
+def obter_arquivos_por_materia(materia_id: uuid.UUID):
+    """
+    Endpoint para obter todos os arquivos vinculados a uma matéria.
+    Espera receber:
+    - `materia_id`: uuid.UUID - o ID da matéria
+    Retorna uma lista de arquivos vinculados.
+    """
+    try:
+        arquivos = buscar_arquivos_por_materia(materia_id)
+        return json.dumps(arquivos), 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
