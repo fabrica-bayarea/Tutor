@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from flask import request
 from flask_socketio import SocketIO, emit
 from application.config.vector_database import collection
@@ -28,7 +28,7 @@ def _is_valid_iso_date_(value: any):
     
     if isinstance(value, str):
         try: 
-            datetime.fromisoformart(value.replace("Z", "+00:00"))
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
             return True
         except ValueError:
             return False
@@ -43,8 +43,8 @@ def validacao_emit(json_emit: dict[str, any]):
         erros.append(f"id_usuario: '{json_emit.get('id_usuario')}'. deve ser um UUID válido.")
     
     # id_materia
-    if "id_materia" not in json_emit or not isinstance(json_emit["id_materia"], str) or not json_emit["id_materia"].strip():
-        erros.append(f"id_materia inválido: '{json_emit.get('id_materia')}'. Deve ser uma string.")
+    if "id_materia" not in json_emit or not _is_valid_uuid_(json_emit["id_materia"]):
+        erros.append(f"id_materia: '{json_emit.get('id_materia')}'. deve ser um UUID válido.")
     
     #LLM
     if "LLM" not in json_emit or not isinstance(json_emit["LLM"], str) or not json_emit["LLM"].strip():
