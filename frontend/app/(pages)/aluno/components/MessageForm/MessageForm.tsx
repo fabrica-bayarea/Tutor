@@ -35,11 +35,24 @@ export default function MessageForm({ onSendMessage }: MessageFormProps) {
                 value={messageText}
                 onChange={handleMessageTextChange}
             />
-            <div className={styles.messageFormButtonContainer}>
-                <button type="submit" disabled={isMessageTextEmpty} title="Enviar mensagem">
-                    <SendHorizonal size={24} />
-                </button>
+            <div className={styles.chatControls}>
+                <select className={styles.materiaPadding} name="materia" required>
+                    <option value="">Selecionar Matéria</option>
+                </select>
+
+                <select name="llm" required>
+                    <option value="">Selecionar Modelo (LLM)</option>
+                </select>
+
+                <div className={styles.messageFormButtonContainer}>
+                    <button type="submit" disabled={isMessageTextEmpty} title="Enviar mensagem">
+                        <SendHorizonal size={24} />
+                    </button>
+                </div>
             </div>
+
+
+
         </form>
     );
 }
