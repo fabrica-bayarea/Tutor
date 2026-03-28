@@ -30,6 +30,8 @@ def test_registrar_chat():
             senha="123456",
             role=RoleEnum.ALUNO
         )
+            db.session.add(usuario)
+
 
         materia = Materia.query.filter_by(codigo="MAT001").first()
 
@@ -38,19 +40,21 @@ def test_registrar_chat():
             codigo="MAT001",
             nome="Matéria Teste"
             )
-            
-        db.session.add(materia)
+            db.session.add(materia)
+
         db.session.commit()
 
-        db.session.add(usuario)
-        db.session.add(materia)
-        db.session.commit()
 
         id_chat = registrar_chat(id_usuario=usuario.id ,id_materia=materia.id, primeiro_titulo="Chat de teste")
 
         assert id_chat is not None
 
         print("Teste de integração passou")
+
+        chat = db.session.get(Chat, id_chat)
+        if chat:
+            db.session.delete(chat)
+            db.session.commit()
 
 if __name__ == "__main__":
     test_registrar_chat()
