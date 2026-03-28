@@ -72,30 +72,19 @@ def validacao_emit(json_emit: dict[str, any]):
         "Invalido": erros
     }
 
-
-def disparar_emit(socketio: SocketIO, evento: str, payload: dict): 
+def disparar_emit(socketio: SocketIO, evento: str, payload: dict, room: str | None = None):
     try:
-        validacao = validacao_emit(payload)
-
-        if not validacao["Valido"]:
-            print(f"[Socket Error] payload invalido: {validacao['invalido']}")
-            return
-
-        id_chat = payload.get("id_chat")
-        id_usuario = payload.get("id_usuario")
-
-        if not id_chat and not id_usuario:
-            print(f"[Socket Warning] evento '{evento}' sem id_chat ou id_usuario.")
+        if not isinstance(payload, dict):
+            print(f"[Socket Error] payload não é um dicionario")
             return
         
-        room = f"chat_{id_chat}" if id_chat else f"user_{id_usuario}"
+        payload_seguro = { **payload, "timestamp": datetime.now().isoformat() }
+        
+        if room: 
+            socketio.emit(evento, payload_seguro, room=room)
+        else:
+            socketio.emit(evento, payload_seguro)
 
-        payload_seguro = {
-            **payload,
-            "timestamp": datetime.now().isoformat()
-        }
-
-        socketio.emit(evento, payload_seguro, room=room)
         print(f"[Socket Emit] evento: {evento} | room: {room}")
     except Exception as e:
-        print(f"[Socket Error] falha ao emitir '{evento}': {str(e)}")
+       print(f"[Socket Error] falha ao emitir '{evento}': {str(e)}")

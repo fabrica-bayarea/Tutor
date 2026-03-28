@@ -21,38 +21,30 @@ from application.socket.Impl.event_handlers import disparar_emit
 
 #teste de sucesso
 
-json_emit_valido = {
-    "id_usuario": "550e8400-e29b-41d4-a716-446655440000",
-    "id_materia": "550e8400-e29b-41d4-a716-446655440000",
-    "LLM": "gpt-4",
-    "mensagem": "Olá mundo",
-    "chat_novo": True,
-    "id_chat": "123e4567-e89b-12d3-a456-426614174000",
-    "data_envio": datetime.now()
+json_emit_sem_room = {
+    "mensagem": "sem ids"
 }
 
-disparar_emit(socketio_mock, "teste", json_emit_valido)
+disparar_emit(socketio_mock, "teste", json_emit_sem_room)
 
-assert socketio_mock.emit.called, "emit não foi chamado"
+assert socketio_mock.emit.called, "emit não foi chamado no caso sem room"
 
 args, kwargs = socketio_mock.emit.call_args
 
 assert args[0] == "teste"
 assert "timestamp" in args[1]
-assert kwargs["room"] == f"chat_{json_emit_valido['id_chat']}"
+assert "room" not in kwargs  # 👈 ponto principal
 
-
-print("Teste passou com sucesso!")
-
+print("Teste sem room passou!")
 
 #teste de bloqueio
 
-json_emit_invalido = {
-    "mensagem": "sem ids"
-}
+socketio_mock.emit.reset_mock()
 
+payload_invalido = "isso não é dict"
 
-disparar_emit(socketio_mock, "teste", json_emit_invalido)
+disparar_emit(socketio_mock, "teste", payload_invalido)
 
+assert not socketio_mock.emit.called, "emit não deveria ser chamado"
 
-print("Teste de bloqueio passou!")
+print("Teste de payload inválido passou!")
