@@ -33,7 +33,7 @@ args, kwargs = socketio_mock.emit.call_args
 
 assert args[0] == "teste"
 assert "timestamp" in args[1]
-assert "room" not in kwargs  # 👈 ponto principal
+assert "room" not in kwargs
 
 print("Teste sem room passou!")
 
