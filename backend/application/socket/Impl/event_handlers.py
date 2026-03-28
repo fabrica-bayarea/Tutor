@@ -7,6 +7,8 @@ from application.services.service_mensagem import criar_mensagem, buscar_ultimas
 from application.constants import LLM_UUID
 import uuid
 import ollama
+from application.models.model_chat import Chat
+from application.config.database import db
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
 
@@ -70,3 +72,28 @@ def validacao_emit(json_emit: dict[str, any]):
         "Valido": len(erros) == 0,
         "Invalido": erros
     }
+
+def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
+    try: 
+        titulo = primeiro_titulo.strip().replace("\n", " ")
+        titulo = " ".join(titulo.split())
+        titulo = titulo[:50]
+
+        if not titulo: 
+            titulo = "Novo chat"
+
+        novo_chat = Chat(
+            aluno_id =id_usuario,
+            materia_id=id_materia,
+            nome=titulo
+        )
+
+        db.session.add(novo_chat)
+        db.session.commit()
+
+        return novo_chat.id
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"[Error] erro ao registrar chat: {e}")
+        return None
