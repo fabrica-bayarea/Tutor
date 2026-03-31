@@ -1,6 +1,7 @@
 from datetime import datetime
 import uuid
 
+
 def _is_valid_uuid_(value: any): 
     try:
         uuid.UUID(str(value))
