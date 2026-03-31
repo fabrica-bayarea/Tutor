@@ -11,7 +11,7 @@ sys.modules["application.socket.socketio"] = MagicMock()
 
 from app import app
 from application.models import Chat
-from application.socket.Impl.event_handlers import registrar_mensagem
+from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.config.database import db
 from application.models.model_usuario import Usuario, RoleEnum
 from application.models.model_sessao import Sessao

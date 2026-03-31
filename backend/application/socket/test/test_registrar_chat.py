@@ -10,7 +10,7 @@ sys.modules["application.socket.socketio"] = MagicMock()
 
 from app import app
 from application.models import Chat
-from application.socket.Impl.event_handlers import registrar_chat
+from application.socket.Impl.registrar_chat import registrar_chat
 from application.config.database import db
 from application.models.model_usuario import Usuario, RoleEnum
 from application.models.model_materia import Materia

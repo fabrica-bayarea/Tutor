@@ -15,7 +15,7 @@ sys.modules["sqlalchemy"] = MagicMock()
 sys.modules["sqlalchemy.sql"] = MagicMock()
 sys.modules["ollama"] = MagicMock()
 
-from application.socket.Impl.event_handlers import validacao_emit
+from application.socket.Impl.validacao_emit import validacao_emit
 
 json_emit_valido = {
     "id_usuario": "550e8400-e29b-41d4-a716-446655440000",
