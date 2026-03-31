@@ -1,7 +1,6 @@
 import sys
 from unittest.mock import MagicMock
 import uuid
-from datetime import datetime 
 
 #Tive que mockar alguns import para poder rodar a função isoladamente
 sys.modules["application.config.vector_database"] = MagicMock()
@@ -11,14 +10,14 @@ sys.modules["application.socket.socketio"] = MagicMock()
 
 from app import app
 from application.models import Chat
-from application.socket.Impl.registrar_mensagem import registrar_mensagem
+from application.socket.Impl.registrar_chat import registrar_chat
 from application.config.database import db
 from application.models.model_usuario import Usuario, RoleEnum
-from application.models.model_sessao import Sessao
+from application.models.model_materia import Materia
 
-def test_registrar_mensagem():
+def test_registrar_chat():
     with app.app_context():
-    
+
         aluno_id = uuid.uuid4()
         usuario = Usuario.query.filter_by(matricula="20260001").first()
 
@@ -32,35 +31,32 @@ def test_registrar_mensagem():
             role=RoleEnum.ALUNO
         )
             db.session.add(usuario)
-        
-        chat = Chat.query.filter_by(id="88e405c6-f81c-48ee-acdf-cc27ac671815").first()
 
-        if not chat:
-            chat = Chat(
-                aluno_id=aluno_id,
-                materia_id=str(uuid.uuid4()),
-                nome="teste"
+
+        materia = Materia.query.filter_by(codigo="MAT001").first()
+
+        if not materia:
+            materia = Materia(
+            codigo="MAT001",
+            nome="Matéria Teste"
             )
-            db.session.add(chat)
-
-        sessao = Sessao.query.filter_by(id="80423d12-440a-480b-b1b4-fa68912d11fa").first()
-
-        if not sessao:
-            sessao = Sessao(
-                dono_id=usuario.id,
-                inicio=datetime.now(),
-                fim=datetime.now()
-            )
-            db.session.add(sessao)
+            db.session.add(materia)
 
         db.session.commit()
 
-        id_mensagem = registrar_mensagem(id_chat=chat.id, usuario_id=usuario.id, sessao_id=sessao.id, data_de_envio=datetime.now(), conteudo="teste final xd")
 
-        assert id_mensagem is not None
+        id_chat = registrar_chat(id_usuario=usuario.id ,id_materia=materia.id, primeiro_titulo="Chat de teste")
+
+        assert id_chat is not None
 
         print("Teste de integração passou")
 
+        chat = db.session.get(Chat, id_chat)
+        if chat:
+            db.session.delete(chat)
+            db.session.commit()
 
 if __name__ == "__main__":
-    test_registrar_mensagem()
+    test_registrar_chat()
+
+
