@@ -17,7 +17,7 @@ sys.modules["ollama"] = MagicMock()
 
 socketio_mock = MagicMock()
 
-from application.socket.Impl.event_handlers import disparar_emit
+from application.socket.Impl.disparar_emit import disparar_emit
 
 #teste de sucesso
 
