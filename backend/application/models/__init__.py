@@ -9,3 +9,4 @@ from .model_turma_materia import TurmaMateria
 from .model_arquivo_turma_materia import ArquivoTurmaMateria
 from .model_aluno_turma import AlunoTurma
 from .model_sessao import Sessao
+from .model_llm import LLM
