@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { SendHorizonal, Paperclip } from 'lucide-react';
 import styles from './MessageForm.module.css';
+import Select from 'react-select';
 
 import IconButton from '../../../../components/IconButton/IconButton';
 
 interface MessageFormProps {
     onSendMessage: (message: string) => void;
+    isDisabled?: boolean;
 }
 
-export default function MessageForm({ onSendMessage }: MessageFormProps) {
+export default function MessageForm({ onSendMessage, isDisabled }: MessageFormProps) {
     const [messageText, setMessageText] = useState('');
     console.log(messageText); // teste
 
@@ -34,25 +36,26 @@ export default function MessageForm({ onSendMessage }: MessageFormProps) {
                 placeholder="Digite uma mensagem"
                 value={messageText}
                 onChange={handleMessageTextChange}
+                disabled={isDisabled}
             />
             <div className={styles.chatControls}>
-                <select className={styles.materiaPadding} name="materia" required>
-                    <option value="">Selecionar Matéria</option>
-                </select>
-
-                <select name="llm" required>
-                    <option value="">Selecionar Modelo (LLM)</option>
-                </select>
-
+                <Select
+                    className={styles.materiaPadding}
+                    placeholder="Matéria"
+                    //options={options}
+                    //onChange={handleVinculosChange}
+                />
+                 <Select
+                    placeholder="IA"
+                    //options={options}
+                    //onChange={handleVinculosChange}
+                />
                 <div className={styles.messageFormButtonContainer}>
-                    <button type="submit" disabled={isMessageTextEmpty} title="Enviar mensagem">
+                    <button type="submit" disabled={isMessageTextEmpty || isDisabled} title="Enviar mensagem">
                         <SendHorizonal size={24} />
                     </button>
                 </div>
             </div>
-
-
-
         </form>
     );
 }
