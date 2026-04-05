@@ -8,7 +8,7 @@ from application.constants import LLM_UUID
 import uuid
 import ollama
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 
 @socketio.on("connect")
 def handle_connect():
