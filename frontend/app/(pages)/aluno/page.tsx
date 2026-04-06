@@ -60,12 +60,6 @@ export default function Home() {
         <>
         <div className={styles.midColumn}>
                 <div className={styles.materiaFilter}>
-                    <Select
-                        isMulti
-                        placeholder="Todas as matérias"
-                        //options={options}
-                        //onChange={handleVinculosChange}
-                    />
                 </div>
             <div className={styles.headerContainer}>
                 <h1>Olá, {aluno?.nome}!</h1>

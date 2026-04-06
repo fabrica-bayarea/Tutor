@@ -1,6 +1,6 @@
 .messageFormContainer {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 50%;
     border-radius: 16px;
     /* padding: 1rem; */
@@ -16,6 +16,18 @@
 }
 .messageFormContainer:focus-within {
     outline: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.chatControls{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    
+}
+
+.materiaPadding {
+    margin: 10px;
 }
 
 .messageFormContainer textarea {
