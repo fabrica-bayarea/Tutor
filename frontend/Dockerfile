@@ -47,4 +47,4 @@ EXPOSE 3000
 ENTRYPOINT ["./entrypoint.sh"]
 
 # Comando para iniciar a aplicação
-CMD ["./node_modules/.bin/next", "start"]
+CMD ["./node_modules/.bin/next", "start", "-H", "0.0.0.0"]

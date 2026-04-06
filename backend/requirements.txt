@@ -4,7 +4,8 @@ flask-cors
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-SocketIO
-eventlet
+gevent
+gevent-websocket
 PyJWT
 chromadb
 docling

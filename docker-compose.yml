@@ -12,6 +12,15 @@ services:
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
 
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: tutor_ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
   backend:
     build:
       context: ./backend
@@ -20,10 +29,27 @@ services:
     restart: always
     env_file:
       - ./backend/.env
+    environment:
+      - OLLAMA_HOST=http://ollama-service:11434
     depends_on:
       - postgres-service
+      - ollama-service
     ports:
       - "5000:8000"
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tutor_frontend_prod
+    restart: always
+    env_file:
+      - ./frontend/.env.local
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data_prod:
+  ollama_data:
