@@ -6,9 +6,10 @@ import IconButton from '../../../../components/IconButton/IconButton';
 
 interface MessageFormProps {
     onSendMessage: (message: string) => void;
+    isDisabled?: boolean;
 }
 
-export default function MessageForm({ onSendMessage }: MessageFormProps) {
+export default function MessageForm({ onSendMessage, isDisabled }: MessageFormProps) {
     const [messageText, setMessageText] = useState('');
     console.log(messageText); // teste
 
@@ -34,9 +35,10 @@ export default function MessageForm({ onSendMessage }: MessageFormProps) {
                 placeholder="Digite uma mensagem"
                 value={messageText}
                 onChange={handleMessageTextChange}
+                disabled={isDisabled}
             />
             <div className={styles.messageFormButtonContainer}>
-                <button type="submit" disabled={isMessageTextEmpty} title="Enviar mensagem">
+                <button type="submit" disabled={isMessageTextEmpty || isDisabled} title="Enviar mensagem">
                     <SendHorizonal size={24} />
                 </button>
             </div>
