@@ -35,7 +35,7 @@ services:
       - postgres-service
       - ollama-service
     ports:
-      - "5000:8000"
+      - "5000:5000"
 
   frontend:
     build:

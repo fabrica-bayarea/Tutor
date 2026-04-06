@@ -14,7 +14,7 @@ from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.socket.Impl.validacao_emit import validacao_emit
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
 
 @socketio.on("connect")
 def handle_connect():
