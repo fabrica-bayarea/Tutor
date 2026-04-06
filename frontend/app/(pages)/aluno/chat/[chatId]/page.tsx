@@ -30,7 +30,6 @@ export default function ChatPage() {
 
     const idMensagemGeradaRef = useRef<string | null>(null)
     const mensagemGeradaRef = useRef<InterfaceMensagem | null>(null)
-    const chunkBuffer = useRef<string[]>([]) // Buffer para chunks que chegarem antes da estrutura inicial da mensagem da LLM
 
     useEffect(() => {
         console.log("mensagemGerada atualizada:", mensagemGerada?.conteudo)
