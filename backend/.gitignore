@@ -175,3 +175,6 @@ cython_debug/
 
 # Custom removals
 data/
+
+#tests
+test_mcp.py
