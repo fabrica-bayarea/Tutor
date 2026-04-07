@@ -42,10 +42,7 @@ export default function LoginForm() {
                 return;
             }
             console.log(aluno.role);
-            const destino =
-                (aluno.role == 'RoleEnum.ADMIN' || aluno.role == 'RoleEnum.PROFESSOR')
-                    ? '/professor/chat'
-                    : '/aluno';
+            const destino = '/chat';
 
             router.push(destino);
 
