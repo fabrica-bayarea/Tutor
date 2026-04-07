@@ -4,11 +4,19 @@ import socket from "@/libs/socket";
 import { useEffect, useState } from "react";
 import { Ban, Bolt, ChevronDown, MessageCircleMore, Plus, SendHorizonal, User } from "lucide-react";
 import Head from 'next/head';
+import TextAreaChat from "./Components/TextAreaChat/TextAreaChat";
 
 export default function Home(){
 
     const [eProfessor, seteProfessor] = useState<boolean>(true);
     const [user, setUser] = useState<string>("");
+
+    //handler do componente de textarea de envio de mensagens
+    const [mensagemAtual, setMensagemAtual] = useState("");
+    function handleSend() {
+        console.log("Enviar:", mensagemAtual);
+        setMensagemAtual("");
+    }
     
     //estado para testar se a tela precisa pedir a matéria do chat
     const [novoChat, setNovoChat] = useState<boolean>(false);
@@ -118,17 +126,13 @@ export default function Home(){
 
             <section className="chatField flex-1 overflow-auto pt-4 pb-24">
             </section>
-
-            <section className="textareaField mt-auto flex items-center gap-3 mb-4">
-            <button id="openChooseClass" className="plusIcon mx-2 p-2 border border-black rounded-full">
-                <Plus width={5} height={5}/>
-            </button>
-
-            <article className="flex items-center flex-1 mx-auto border border-black rounded-full px-3 py-1 max-w-3xl">
-                <textarea placeholder="Envie uma dúvida" className="bg-transparent resize-none outline-none w-full px-2 py-1 text-sm"></textarea>
-                <SendHorizonal width={6} height={6} className="xml-2"/>
-            </article>
-            </section>
+    
+            <TextAreaChat
+                value={mensagemAtual}
+                onChange={setMensagemAtual}
+                onSend={handleSend}
+                onPlusClick={() => console.log("Abrir anexos")}
+            />
         </main>
 
         <footer className="hidden md:flex flex-shrink-0 justify-center items-center m-1 text-gray-400">
