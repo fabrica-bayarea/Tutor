@@ -19,6 +19,9 @@ export default function Home(){
             messageFieldRef.current.addMessage("llm", "Entendido. A interface está renderizando corretamente!");
             messageFieldRef.current.addMessage("user", "Estou verificando o alinhamento e as cores.");
             messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
+            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
+            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
+            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
             }
     }, []);
 

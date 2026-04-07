@@ -8,12 +8,11 @@
     flex: 0 0 auto;
 }
 
-.MessageConteiner {
+.conteinerMensagens {
     display: flex;
     flex: 1;
     flex-direction: column;
     overflow-y: auto;
     min-height: 0;
-    max-height: 7.5rem;
     overflow: hidden; 
 }
