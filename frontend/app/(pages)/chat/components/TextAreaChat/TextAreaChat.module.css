@@ -47,7 +47,7 @@
 }
 
 .textareaDeskTop{
-    display: flex;
+    display: none;
     flex: 1;
     flex-direction: column;
     margin: 0.5rem;

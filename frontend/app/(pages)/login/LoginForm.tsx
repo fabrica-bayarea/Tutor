@@ -68,10 +68,7 @@ export default function LoginForm() {
                 return;
             }
 
-            const destino =
-                (aluno.role === '1' || aluno.role === '2')
-                    ? '/professor'
-                    : '/aluno';
+            const destino = '/chat';
 
             router.push(destino);
 
