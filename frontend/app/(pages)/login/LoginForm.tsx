@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { setCookie } from "cookies-next";
 import Script from 'next/script';
 
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
 
-type UserType = 'aluno' | 'professor' | 'admin';
+type UserType = 'comum' | 'admin';
 
 declare global {
   interface Window {
@@ -20,7 +21,7 @@ export default function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [userType, setUserType] = useState<UserType>('aluno');
+    const [userType, setUserType] = useState<UserType>('comum');
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -41,6 +42,7 @@ export default function LoginForm() {
                 setLoading(false);
                 return;
             }
+            setCookie("token", aluno.token, { maxAge: 60 * 60 * 24 });
             console.log(aluno.role);
             const destino = '/chat';
 
