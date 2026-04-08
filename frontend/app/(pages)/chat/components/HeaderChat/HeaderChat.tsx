@@ -65,6 +65,7 @@ export default function HeaderChat({
               onNovoChat={onNewChatClick}
               onConfig={() => onNavItemClick?.("Configurações")}
               onSair={() => onNavItemClick?.("Sair")}
+              onDash={() => onNavItemClick?.("Dashboard")}
             />
           )}
         </section>
