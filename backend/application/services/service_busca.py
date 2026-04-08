@@ -10,7 +10,7 @@ def executar_busca_semantica(mensagem_usuario: str, arquivos_ids: list[str]) -> 
 
     resultados = collection.query(
         query_texts=[mensagem_usuario],
-        where={"id": {"$in": arquivos_ids}},
+        where={"arquivo_id": {"$in": arquivos_ids}},
         n_results=5
     )
 

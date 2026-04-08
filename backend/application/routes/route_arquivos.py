@@ -7,13 +7,29 @@ import json
 import time
 import os
 from application.auth.auth_decorators import token_obrigatorio, apenas_professores
-from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_metadados_arquivo, buscar_arquivo_real_por_id, atualizar_metadados_arquivo, atualizar_arquivo_real, atualizar_arquivo_vetor, deletar_metadados_arquivo, deletar_arquivo_real
+from application.services.service_arquivo import processar_arquivo, processar_link, processar_texto, buscar_metadados_arquivo, buscar_arquivo_real_por_id, atualizar_metadados_arquivo, atualizar_arquivo_real, atualizar_arquivo_vetor, deletar_metadados_arquivo, deletar_arquivo_real, migrar_arquivo_id_vetor
 from application.services.service_vinculos import criar_vinculo_arquivo_turma_materia
 from application.libs.scraping_handler import configure_browser
 from urllib.parse import urlparse
 from application.utils.validacoes import validar_professor_turma_materia
 
 arquivos_bp = Blueprint('arquivos', __name__)
+
+@arquivos_bp.route('/migrar/arquivo-id', methods=['POST'])
+@token_obrigatorio
+def migrar_arquivo_id():
+    """
+    Endpoint para migrar documentos existentes no ChromaDB,
+    adicionando o campo 'arquivo_id' nos metadados de cada documento.
+
+    Retorna o resultado da migração.
+    """
+    print("ROTA EXECUTADA")
+    try:
+        resultado = migrar_arquivo_id_vetor()
+        return json.dumps(resultado), 200, {'Content-Type': 'application/json'}
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def is_valid_url(url):
     try:
@@ -443,3 +459,4 @@ def obter_arquivos_por_materia(materia_id: uuid.UUID):
         return json.dumps(arquivos), 200, {'Content-Type': 'application/json'}
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
