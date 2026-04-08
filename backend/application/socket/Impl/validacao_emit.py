@@ -41,6 +41,16 @@ def validacao_emit(json_emit: dict[str, any]):
     #mensagem
     if "mensagem" not in json_emit or not isinstance(json_emit["mensagem"], str) or not json_emit["mensagem"].strip():
         erros.append(f"A menssgem: '{json_emit.get('mensagem')}'. Deve ser uma String e não pode estar vazia ou conter apenas espaços.")
+    
+    #histórico
+    if "historico" not in json_emit or not isinstance(json_emit["historico"], dict) or not json_emit["historico"]:
+        erros.append("historico deve ser um dicionário não vazio.")
+
+    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("user", [])):
+        erros.append("historico.user deve conter apenas strings.")
+
+    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("lmm", [])):
+        erros.append("historico.lmm deve conter apenas strings.")
 
     #chat_novo
     if "chat_novo" not in json_emit or not isinstance(json_emit["chat_novo"], bool):
