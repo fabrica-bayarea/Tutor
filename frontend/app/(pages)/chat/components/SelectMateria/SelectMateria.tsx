@@ -4,9 +4,9 @@ import { useState } from "react";
 import styles from "./SelectMaterias.module.css";
 
 interface SelectMateriasProps {
-    materias: Record<string, string>; 
+    materias: Record<string, string>;
     onChange?: (id: string, nome: string) => void;
-  
+}
 
 export default function SelectMaterias({materias,onChange}: SelectMateriasProps){
 
