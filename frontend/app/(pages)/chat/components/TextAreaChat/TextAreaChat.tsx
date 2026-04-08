@@ -2,6 +2,7 @@ import { Plus, SendHorizontal } from "lucide-react";
 import styles from "./TextAreaChat.module.css";
 
 interface TextAreaChatProps {
+  isDisabled : boolean;
   value: string;
   onChange: (val: string) => void;
   onSend: () => void;
@@ -9,6 +10,7 @@ interface TextAreaChatProps {
 }
 
 export default function TextAreaChat({
+  isDisabled,
   value,
   onChange,
   onSend,
@@ -22,6 +24,7 @@ export default function TextAreaChat({
         </article>
         <article className={styles.articleSend}>
           <textarea
+            disabled={isDisabled}
             placeholder="Envie aqui sua dúvida"
             value={value}
             onChange={(e) => onChange(e.target.value)}
