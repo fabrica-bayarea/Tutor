@@ -510,3 +510,39 @@ def buscar_arquivos_por_materia(materia_id: uuid.UUID) -> list[dict]:
         if arquivo:
             arquivos.append(arquivo.to_dict())
     return arquivos
+
+def migrar_arquivo_id_vetor() -> dict:
+    """
+    Função atômica, responsável por migrar os documentos existentes no ChromaDB,
+    adicionando o campo 'arquivo_id' nos metadados de cada documento.
+
+    Retorna um dicionário com o resultado da migração.
+    """
+    resultados = collection.get()
+    ids = resultados.get("ids", [])
+    metadatas = resultados.get("metadatas", [])
+
+    if not ids:
+        return {"message": "Nenhum documento encontrado no ChromaDB.", "migrados": 0}
+
+    migrados = 0
+    erros = []
+
+    for doc_id, metadata in zip(ids, metadatas):
+        if metadata.get("arquivo_id"):
+            continue  # já migrado, pula
+
+        try:
+            collection.update(
+                ids=[doc_id],
+                metadatas=[{**metadata, "arquivo_id": doc_id}]
+            )
+            migrados += 1
+        except Exception as e:
+            erros.append({"id": doc_id, "erro": str(e)})
+
+    return {
+        "message": "Migração concluída.",
+        "migrados": migrados,
+        "erros": erros
+    }
