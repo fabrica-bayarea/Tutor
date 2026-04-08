@@ -9,43 +9,42 @@ import HeaderChat from "./components/HeaderChat/HeaderChat";
 import styles from "./page.module.css";
 
 export default function Home(){
-
+    const messageFieldRef = useRef<MessageFieldRef>(null);
     const [showSelectMaterias, setShowSelectMaterias] = useState(false);
+    const [text,setText] = useState("");
 
-    //buscar as matérias do aluno/professor aqui
-    const materias = {
-        "id-mat-1": "Matemática",
-        "id-mat-2": "História",
-    };
+    const materias = {"id-mat-1": "Matemática","id-mat-2": "História",};//buscar as matérias do aluno/professor aqui
 
     const handleMateriaChange = (id: string, nome: string) => {
-        console.log("Matéria escolhida:", id, nome);
         setShowSelectMaterias(false);
     };
-    
-    const [text,setText] = useState("");
-    
-    const messageFieldRef = useRef<MessageFieldRef>(null);
 
-    useEffect(() => {
-        if (messageFieldRef.current) {
-            messageFieldRef.current.addMessage("user", "Olá! Isso é um teste de interface.");
-            messageFieldRef.current.addMessage("llm", "Entendido. A interface está renderizando corretamente!");
-            messageFieldRef.current.addMessage("user", "Estou verificando o alinhamento e as cores.");
-            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
-            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
-            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
-            messageFieldRef.current.addMessage("llm", "As mensagens de usuário devem ficar de um lado e as minhas de outro.");
-            }
-    }, []);
+    const handleNovoChat = () => {
+        console.log("Realizar sequência de novo chat");
+    };
+    
+    const handleConfig = () => {
+        console.log("Abrir configurações");
+    };
+    
+    const handleSair = () => {
+        console.log("Encerrar sessão");
+    };
 
+    const handleDash = () => {
+        console.log("Abrir Dashboard");
+    };
+    
     return (
     <>    
         <header className={styles.headerFixo}>
             <HeaderChat
-              onNewChatClick={() => console.log("Novo Chat clicado")}
-              onUserClick={() => console.log("Usuário clicado")}
-              onNavItemClick={(item) => console.log("Item do menu:", item)}
+            onNewChatClick={handleNovoChat}
+            onNavItemClick={(item) => {
+                if (item === "Sair") handleSair();
+                if (item == "Configurações") handleConfig();
+                if (item == "Dashboard") handleDash();
+            }}
             />
         </header>
 
@@ -54,7 +53,7 @@ export default function Home(){
         </section>
 
         {showSelectMaterias && Object.keys(materias).length > 1 &&(
-            <SelectMaterias materias={materias} onChange={handleMateriaChange} />
+            <SelectMateria materias={materias} onChange={handleMateriaChange} />
         )}
         
         <footer className={styles.footerFixo}>
