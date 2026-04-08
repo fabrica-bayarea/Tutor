@@ -5,6 +5,7 @@ import { Ban, Bolt, MessageCircleMore} from "lucide-react";
 
 interface MenuMobileProps {
   onNovoChat?: () => void;
+  onDash?: () => void;
   onConfig?: () => void;
   onSair?: () => void;
 }
