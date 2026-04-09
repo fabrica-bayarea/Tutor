@@ -9,15 +9,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // if (!token) {
-  //   return NextResponse.redirect(new URL("/login", request.url))
-  // }
+  if (!token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next).*)"],
 }

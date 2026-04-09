@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { setCookie } from "cookies-next";
 import Script from 'next/script';
 
 import styles from './page.module.css';
@@ -42,8 +41,6 @@ export default function LoginForm() {
                 setLoading(false);
                 return;
             }
-            setCookie("token", aluno.token, { maxAge: 60 * 60 * 24 });
-            console.log(aluno.role);
             const destino = '/chat';
 
             router.push(destino);

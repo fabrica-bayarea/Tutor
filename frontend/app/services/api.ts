@@ -3,22 +3,10 @@ import axios from "axios";
 const API_URL = "http://localhost:5000";
 
 const api = axios.create({
-    baseURL: API_URL, timeout: 100000 // timeout em ms
+    baseURL: API_URL,
+    timeout: 100000,
+    withCredentials: true, 
 });
-
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de requisição desconhecido');
-        return Promise.reject(rejection);
-    }
-);
 
 api.interceptors.response.use(
     (response) => response,
@@ -30,8 +18,7 @@ api.interceptors.response.use(
                 window.location.href = `/login?returnTo=${returnTo}`;
             }
         }
-        const rejection = (error instanceof Error) ? error : new Error(error.message || 'Erro de resposta desconhecido');
-        return Promise.reject(rejection);
+        return Promise.reject(error);
     }
 );
 

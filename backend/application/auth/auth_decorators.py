@@ -8,7 +8,7 @@ def token_obrigatorio(f):
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        token = request.headers.get("Authorization", "").replace("Bearer ", "")
+        token = request.cookies.get("token")
         if not token:
             return jsonify({"error": "Token ausente"}), 401
         
@@ -38,7 +38,7 @@ def apenas_professores(f):
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role != '2' or g.usuario_role != '1':
+        if not hasattr(g, "usuario_role") or g.usuario_role not in ['1', '2']:
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper

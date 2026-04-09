@@ -15,6 +15,7 @@ from application.models.model_usuario import RoleEnum
 
 from pathlib import Path
 from dotenv import load_dotenv
+from flask import make_response
 
 dotenv_path = Path(__file__).resolve().parents[2] / ".env"
 load_dotenv(dotenv_path)
@@ -104,14 +105,24 @@ def login_aluno():
     if not aluno:
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
     
-    # Gera um token JWT
+    # Gera o token
     token = gerar_token(aluno['id'], aluno['role'])
-    
-    # Retorna o token JWT e as informações do aluno
-    return jsonify({
-        "token": token,
+
+    response = make_response(jsonify({
         "aluno": aluno
-    }), 200
+    }))
+
+    response.set_cookie(
+        "token",
+        token,
+        httponly=True,
+        secure=False,  
+        samesite="Lax",  
+        max_age=60 * 60 * 24,
+        path="/"
+    )
+
+    return response
 
 @usuarios_bp.route('/alterar', methods=['PUT'])
 @token_obrigatorio
@@ -207,11 +218,22 @@ def login_google():
             db.session.commit()
 
         token_jwt = gerar_token(aluno.id, aluno.role.value)
+        
+        response = make_response(jsonify({
+            "aluno": aluno.to_dict()
+        }))
 
-        return jsonify({
-            "aluno": aluno.to_dict(),
-            "token": token_jwt
-        }), 200
+        response.set_cookie(
+            "token",
+            token_jwt,
+            httponly=True,
+            secure=False,  
+            samesite="Lax",
+            max_age=60 * 60 * 24,
+            path="/"
+        )
+
+        return response
 
     except Exception as e:
         print("ERRO GOOGLE LOGIN:", e)
