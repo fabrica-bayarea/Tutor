@@ -1,0 +1,55 @@
+.MessageConteiner{
+  display: flex;
+  flex: 1;
+  width: 90%;
+  margin: auto;
+  overflow-y: hidden;
+}
+
+.MessageField{
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 1rem 0rem;
+  gap: 1rem;
+  max-height: 90%;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+        display: none;
+    }
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
+}
+
+.MessageUser{
+  display: flex;
+  max-width: 75%;
+  border: 1px solid black;
+  border-radius: 20px 20px 0px 20px;
+  padding: 1rem;
+  margin-left: auto;
+}
+
+.MessageLLM{
+  display: flex;
+  max-width: 75%;
+  border: 1px solid black;
+  border-radius: 20px 20px 20px 0px;
+  padding: 1rem;
+  margin-right: auto;
+}
+
+@media(width >= 768px){
+  .MessageConteiner{
+      width: 55%;
+  }
+  .MessageUser{
+      max-width: 45%;
+  }
+  .MessageLLM{
+      max-width: 45%;
+  }
+}

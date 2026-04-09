@@ -1,0 +1,18 @@
+.headerFixo {
+    display: flex;
+    flex: 0 0 4rem;
+}
+
+.footerFixo {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+.conteinerMensagens {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden; 
+}

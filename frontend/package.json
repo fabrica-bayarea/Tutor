@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "axios": "^1.10.0",
+    "cookies-next": "^6.1.1",
     "framer-motion": "^12.6.3",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.511.0",
@@ -28,7 +29,10 @@
     "@types/node": "^20",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.16",
     "baseline-browser-mapping": "^2.10.10",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
 }

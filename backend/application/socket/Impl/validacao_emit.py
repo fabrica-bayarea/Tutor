@@ -34,13 +34,19 @@ def validacao_emit(json_emit: dict[str, any]):
     if "id_materia" not in json_emit or not _is_valid_uuid_(json_emit["id_materia"]):
         erros.append(f"id_materia: '{json_emit.get('id_materia')}'. deve ser um UUID válido.")
     
-    #LLM
-    if "LLM" not in json_emit or not isinstance(json_emit["LLM"], str) or not json_emit["LLM"].strip():
-        erros.append(f"LLM deve ser uma String: '{json_emit.get('LLM')}'.")
-    
     #mensagem
     if "mensagem" not in json_emit or not isinstance(json_emit["mensagem"], str) or not json_emit["mensagem"].strip():
         erros.append(f"A menssgem: '{json_emit.get('mensagem')}'. Deve ser uma String e não pode estar vazia ou conter apenas espaços.")
+    
+    #histórico
+    if "historico" not in json_emit or not isinstance(json_emit["historico"], dict) or not json_emit["historico"]:
+        erros.append("historico deve ser um dicionário não vazio.")
+
+    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("user", [])):
+        erros.append("historico.user deve conter apenas strings.")
+
+    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("lmm", [])):
+        erros.append("historico.lmm deve conter apenas strings.")
 
     #chat_novo
     if "chat_novo" not in json_emit or not isinstance(json_emit["chat_novo"], bool):

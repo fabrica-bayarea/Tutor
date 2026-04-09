@@ -20,8 +20,8 @@ from application.socket.Impl.validacao_emit import validacao_emit
 json_emit_valido = {
     "id_usuario": "550e8400-e29b-41d4-a716-446655440000",
     "id_materia": "550e8400-e29b-41d4-a716-446655440000",
-    "LLM": "gpt-4",
     "mensagem": "Olá mundo",
+    "historico": {"user":["mensagem1","mensagem2"],"lmm":["mensagem1","mensagem2"]},
     "chat_novo": True,
     "id_chat": "123e4567-e89b-12d3-a456-426614174000",
     "data_envio": datetime.now()
@@ -34,8 +34,8 @@ print(resultado)
 json_emit_invalido = {
     "id_usuario": "teste",
     "id_materia": "teste",
-    "LLM": 111,
     "mensagem": " ",
+    "historico": {"user":["mensagem1","mensagem2"],"lmm":["mensagem1","mensagem2"]},
     "chat_novo": "true",
     "id_chat": "teste",
     "data_envio": "111"

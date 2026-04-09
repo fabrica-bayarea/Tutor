@@ -8,7 +8,7 @@ import Script from 'next/script';
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
 
-type UserType = 'aluno' | 'professor' | 'admin';
+type UserType = 'comum' | 'admin';
 
 declare global {
   interface Window {
@@ -20,11 +20,12 @@ export default function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [userType, setUserType] = useState<UserType>('aluno');
+    const [userType, setUserType] = useState<UserType>('comum');
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const googleId = "__GOOGLE_ID_PLACEHOLDER__";
 
     // ----------- LOGIN COM FORMULÁRIO -----------
     const handleSubmit = async (e: React.FormEvent) => {
@@ -40,11 +41,7 @@ export default function LoginForm() {
                 setLoading(false);
                 return;
             }
-            console.log(aluno.role);
-            const destino =
-                (aluno.role == 'RoleEnum.ADMIN' || aluno.role == 'RoleEnum.PROFESSOR')
-                    ? '/professor/chat'
-                    : '/aluno';
+            const destino = '/chat';
 
             router.push(destino);
 
@@ -70,10 +67,7 @@ export default function LoginForm() {
                 return;
             }
 
-            const destino =
-                (aluno.role === '1' || aluno.role === '2')
-                    ? '/professor'
-                    : '/aluno';
+            const destino = '/chat';
 
             router.push(destino);
 
@@ -183,7 +177,7 @@ export default function LoginForm() {
                     if (!window.google) return;
 
                     window.google.accounts.id.initialize({
-                        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+                        client_id: googleId,
                         callback: handleGoogleLogin,
                     });
 

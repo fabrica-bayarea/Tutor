@@ -3,7 +3,8 @@ export interface InterfaceUsuario {
     matricula: string;
     nome: string;
     email: string;
-    role: string
+    role: string;
+    token?: string;
 }
 
 export interface InterfaceArquivo {
