@@ -1,5 +1,6 @@
 from application.socket.Impl.disparar_emit import disparar_emit
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
+from application.socket.Impl.llm_providers import obter_provider
 from datetime import datetime
 
 
@@ -26,82 +27,25 @@ def obter_provedor_llm(id_llm):
 
 async def gerar_resposta_llm(prompt_completo, id_llm, socket, id_mensagem, id_chat, sessao_id):
     try:
-        room = f"chat_{id_chat}"
+        if not id_llm:
+            print("local", id_llm)
+            id_llm = "local"
 
-        if id_llm:
-             client = obter_provedor_llm(id_llm)
-        else:
-             client = "llm id local"
+        client = obter_provedor_llm(id_llm)
+        llm_provider = obter_provider(id_llm)
 
         texto_acumulado = ""
 
-        if id_llm.startswith("gpt"):
-            response = await client.chat.completions.create(
-                model=id_llm,
-                messages=prompt_completo,
-                stream=True
-            )
+        room = f"chat_{id_chat}"
 
-            async for chunk in response:
-                delta = chunk.choices[0].delta.content or ""
+        async for delta in llm_provider(client, prompt_completo, id_llm):
+            texto_acumulado += delta
 
-                if delta:
-                    texto_acumulado += delta
-                    disparar_emit(socket, 'chunk_mensagem', {
-                        "id_mensagem": id_mensagem,
-                        "delta": delta
-                    }, room=room)
-
-
-        elif id_llm.startswith("claude"):
-            response = await client.messages.create(
-                model=id_llm,
-                messages=prompt_completo,
-                stream=True
-            )
-
-            async for chunk in response:
-                if chunk.type == "content_block_delta":
-                    delta = chunk.delta.text or ""
-
-                    if delta:
-                        texto_acumulado += delta
-                        disparar_emit(socket, 'chunk_mensagem', {
-                            "id_mensagem": id_mensagem,
-                            "delta": delta
-                        },room=room)
-
-
-        elif id_llm.startswith("gemini"):
-            model = client.GenerativeModel(id_llm)
-
-            response = model.generate_content(
-                prompt_completo,
-                stream=True
-            )
-
-            for chunk in response:
-                delta = chunk.text or ""
-
-                if delta:
-                    texto_acumulado += delta
-                    disparar_emit(socket, 'chunk_mensagem', {
-                        "id_mensagem": id_mensagem,
-                        "delta": delta
-                    }, room=room)
-
-        elif id_llm == "local":
-            response = client.stream(prompt_completo)
-
-            async for delta in response:
-                if delta:
-                    texto_acumulado += delta
-                    disparar_emit(socket, 'chunk_mensagem', {
-                        "id_mensagem": id_mensagem,
-                        "delta": delta
-                    }, room=room)
+            disparar_emit(socket, 'chunk_mensagem', {
+            "id_mensagem": id_mensagem,
+            "resposta": delta
+        }, room=room)
         
-
         disparar_emit(socket, 'mensagem_completa', {
             "id_mensagem": id_mensagem,
             "resposta": texto_acumulado
@@ -120,4 +64,4 @@ async def gerar_resposta_llm(prompt_completo, id_llm, socket, id_mensagem, id_ch
         disparar_emit(socket, 'server_error', {
             "id_mensagem": id_mensagem,
             "error_message": str(e)
-        })
+        }, room=room)

@@ -10,21 +10,19 @@ async def test_gerar_resposta_llm_gpt():
 
     socket_mock = MagicMock()
 
-    mock_chunks = [
-        MagicMock(choices=[MagicMock(delta=MagicMock(content="Olá "))]),
-        MagicMock(choices=[MagicMock(delta=MagicMock(content="mundo"))]),
-    ]
 
-    async def mock_stream():
-        for chunk in mock_chunks:
-            yield chunk
+    async def mock_stream(client, prompt, model):
+        yield "Olá "
+        yield "mundo"
 
-    mock_client = MagicMock()
-    mock_client.chat.completions.create = AsyncMock(return_value=mock_stream())
+    mock_provider = MagicMock(return_value=mock_stream)
 
     with patch(
+        "application.socket.Impl.gerar_resposta_llm.obter_provider",
+        return_value=mock_stream
+    ), patch(
         "application.socket.Impl.gerar_resposta_llm.obter_provedor_llm",
-        return_value=mock_client
+        return_value=MagicMock()
     ):
     
 
