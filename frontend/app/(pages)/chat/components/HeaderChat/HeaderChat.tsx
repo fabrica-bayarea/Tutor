@@ -36,22 +36,24 @@ export default function HeaderChat({
               <p>Novo Chat</p>
             </button>
           </article>
-          <button onClick={toggleNav}>
-            <User />
-          </button>
-          {navOpen && (
-            <nav className={styles.navMenu}>
-              <a href="#config" onClick={() => onNavItemClick?.("Configurações")}>
-                <Bolt /> Configurações
-              </a>
-              <a href="#dashboard" onClick={() => onNavItemClick?.("Dashboard")}>
-                <ChartArea /> Dashboard
-              </a>
-              <a href="#sair" onClick={() => onNavItemClick?.("Sair")}>
-                <Ban /> Sair
-              </a>
-            </nav>
-          )}
+          <div className={styles.userMenuWrapper}>
+            <button onClick={toggleNav}>
+              <User />
+            </button>
+            {navOpen && (
+              <nav className={styles.navMenu}>
+                <a href="#config" onClick={() => onNavItemClick?.("Configurações")}>
+                  <Bolt /> Configurações
+                </a>
+                <a href="#dashboard" onClick={() => onNavItemClick?.("Dashboard")}>
+                  <ChartArea /> Dashboard
+                </a>
+                <a href="#sair" onClick={() => onNavItemClick?.("Sair")}>
+                  <Ban /> Sair
+                </a>
+              </nav>
+            )}
+          </div>
         </section>
       )}
 

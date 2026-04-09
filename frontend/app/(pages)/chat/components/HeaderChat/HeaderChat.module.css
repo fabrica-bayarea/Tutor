@@ -18,7 +18,7 @@
     align-items: center;
 }
 
-.headerDesktop > button{
+.userMenuWrapper > button{
     padding: 0.5rem 0.6rem;
     align-items: center;
     border: 1px solid black;
@@ -26,7 +26,7 @@
     border-radius: 25px;
 }
 
-.headerDesktop > button:hover{
+.userMenuWrapper > button:hover{
     background-color: rgba(0, 0, 0, 0.149);
 }
 
@@ -74,14 +74,15 @@
 
 .navMenu {
     position: absolute;
-    top: 100%;
-    right: 5rem;
+    top: calc(100% + 0.5rem); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    right: 0; 
     background: white;
     border: 1px solid #000000;
     border-radius: 6px;
     display: flex; 
     flex-direction: column;
-    min-width: 150px;
+    min-width: 160px;
     z-index: 1000;
 }
 
@@ -99,4 +100,9 @@
 
 .navMenu a:hover {
     background-color: #f0f0f0;
+}
+
+.userMenuWrapper {
+    position: relative;
+    display: inline-block;
 }
