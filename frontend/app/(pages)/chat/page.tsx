@@ -56,6 +56,7 @@ export default function Home() {
 
         socket.on("erro", () => {
             messageFieldRef.current?.updateLastMessage("Não foi possível gerar sua resposta, tente novamente.");
+            setTextAreaDisabled(false)
         });
         return () => {
         
