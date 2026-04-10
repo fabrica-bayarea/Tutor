@@ -7,8 +7,7 @@ import Script from 'next/script';
 
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
-
-type UserType = 'comum' | 'admin';
+import { useAuth } from '@/contexts/AuthContext';
 
 declare global {
   interface Window {
@@ -18,9 +17,8 @@ declare global {
 
 export default function LoginForm() {
     const router = useRouter();
-    const searchParams = useSearchParams();
+    const { setAluno } = useAuth();
 
-    const [userType, setUserType] = useState<UserType>('comum');
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -34,16 +32,17 @@ export default function LoginForm() {
         setLoading(true);
 
         try {
-            let aluno = await loginAluno(matricula, senha);
+            const aluno = await loginAluno(matricula, senha);
 
             if (!aluno) {
                 setErrorMessage("Credenciais inválidas");
                 setLoading(false);
                 return;
             }
-            const destino = '/chat';
 
-            router.push(destino);
+            setAluno(aluno);
+
+            router.replace("/chat");
 
         } catch (error) {
             console.error('Erro no login:', error);
@@ -54,6 +53,7 @@ export default function LoginForm() {
     };
 
     const handleGoogleLogin = async (response: any) => {
+
         try {
             setLoading(true);
 
@@ -67,9 +67,9 @@ export default function LoginForm() {
                 return;
             }
 
-            const destino = '/chat';
+            setAluno(aluno);
 
-            router.push(destino);
+            router.replace("/chat");
 
         } catch (error) {
             console.error("Erro no login Google:", error);
