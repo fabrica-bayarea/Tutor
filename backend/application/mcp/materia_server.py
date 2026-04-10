@@ -39,6 +39,23 @@ async def list_tools() -> list[Tool]:
                 },
                 "required": ["id_materia", "mensagem_usuario"]
             }
+        ),
+        
+        Tool(
+            name="consultar_llm",
+            description="Consulta uma LLM",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "api_key_id": {
+                        "type": "string"
+                    }
+                },
+                "required": ["prompt"]
+            }
         )
     ]
 
@@ -60,7 +77,21 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 [{"role": "system", "content": f"Erro na busca semântica: {str(e)}"}],
                 ensure_ascii=False
             ))]
+    elif name == "consultar_llm":
+        try:
+            prompt = arguments["prompt"]
 
+            return[TextContent(
+                type="text",
+                text=f"Resposta mock: {prompt}"
+            )]
+        
+        except Exception as e:
+            return[TextContent(
+                type="text",
+                text=f"Error LLM: {str(e)}"
+            )] 
+    
 async def main():
     async with stdio_server() as (read, write):
         await server.run(read, write, server.create_initialization_options())

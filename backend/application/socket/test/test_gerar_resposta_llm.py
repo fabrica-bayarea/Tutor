@@ -1,31 +1,25 @@
 import asyncio
-import sys
 from unittest.mock import AsyncMock, MagicMock, patch
-
-sys.modules["application.socket.Impl.registrar_mensagem"] = MagicMock()
 
 from application.socket.Impl.gerar_resposta_llm import gerar_resposta_llm
 
-async def test_gerar_resposta_llm_gpt():
+async def test_gerar_resposta_llm_mcp():
 
     socket_mock = MagicMock()
 
+    mock_resultado = [MagicMock(text="Olá mundo")]
 
-    async def mock_stream(client, prompt, model):
-        yield "Olá "
-        yield "mundo"
-
-    mock_provider = MagicMock(return_value=mock_stream)
+    mock_mcp = MagicMock()
+    mock_mcp.connect_to_server = AsyncMock()
+    mock_mcp.call_tool = AsyncMock(return_value=mock_resultado)
 
     with patch(
-        "application.socket.Impl.gerar_resposta_llm.obter_provider",
-        return_value=mock_stream
+        "application.socket.Impl.gerar_resposta_llm.MCPClientManager",
+        return_value=mock_mcp
     ), patch(
-        "application.socket.Impl.gerar_resposta_llm.obter_provedor_llm",
-        return_value=MagicMock()
+        "application.socket.Impl.gerar_resposta_llm.registrar_mensagem",
+        return_value=None
     ):
-    
-
         await gerar_resposta_llm(
             prompt_completo=[{"role": "user", "content": "oi"}],
             id_llm="gpt-4",
@@ -37,12 +31,11 @@ async def test_gerar_resposta_llm_gpt():
 
     calls = socket_mock.emit.call_args_list
 
-    assert any("chunk_mensagem" in str(call) for call in calls)
     assert any("mensagem_completa" in str(call) for call in calls)
 
-    print("Teste GPT streaming passou!")
+    print("Teste MCP passou!")
 
 print("Rodando teste...")
 
 if __name__ == "__main__":
-    asyncio.run(test_gerar_resposta_llm_gpt())
+    asyncio.run(test_gerar_resposta_llm_mcp())
