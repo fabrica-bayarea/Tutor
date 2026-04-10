@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function Home() {
     const router = useRouter();
     const messageFieldRef = useRef<MessageFieldRef>(null);
-    const [showSelectMaterias, setShowSelectMaterias] = useState(false);
+    const [showSelectMaterias, setShowSelectMaterias] = useState(true);
     const [text, setText] = useState("");
     const [isTextAreaDisabled, setTextAreaDisabled] = useState(false);
     const [idMateria, setIdMateria] = useState("");
