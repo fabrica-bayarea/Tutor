@@ -1,257 +1,109 @@
-"""
-Rotas para lidar com alunos.
-"""
-import os
-import secrets
-from application.config.database import db
-from flask import Blueprint, request, jsonify, g
-from google.oauth2 import id_token
-from google.auth.transport import requests as grequests
-from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import apenas_admins, token_obrigatorio
-from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno, alterar_aluno
+import uuid
 from application.models import Usuario
-from application.models.model_usuario import RoleEnum  
+from application.config.database import db
+from application.models.model_usuario import RoleEnum
 
-from pathlib import Path
-from dotenv import load_dotenv
-from flask import make_response
-
-dotenv_path = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(dotenv_path)
-
-usuarios_bp = Blueprint('alunos', __name__)
-
-@usuarios_bp.route('/criar', methods=['POST'])
-def gerar_aluno():
+def criar_aluno(matricula: str, nome: str, email: str, senha: str) -> dict[str, str] | None:
     """
-    Endpoint para criar um aluno.
+    Função atômica, responsável por criar um aluno no PostgreSQL.
 
     Espera receber:
     - `matricula`: str - o número de matrícula do aluno
     - `nome`: str - o nome do aluno
     - `email`: str - o email do aluno
     - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo as informações do aluno criado.
-    ```json
-    {
-        "id": "id",
-        "matricula": "matricula",
-        "nome": "nome",
-        "email": "email",
-        "role": "role do usuario"
-    }
-    ```
-    """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    nome = request.json.get('nome')
-    email = request.json.get('email')
-    senha = request.json.get('senha')
-    
-    if not matricula or not nome or not email or not senha:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
 
-    # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email)
-    if aluno_existe:
-        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
-    
-    # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha)
-    return jsonify(aluno), 201
-
-@usuarios_bp.route('/login', methods=['POST'])
-def login_aluno():
+    Retorna um dicionário com os dados do aluno criado.
     """
-    Endpoint para logar um aluno.
+    aluno = Usuario(
+        matricula=matricula,
+        nome=nome,
+        email=email,
+        senha=senha,
+        role=RoleEnum.ALUNO
+    )
+    db.session.add(aluno)
+    db.session.commit()
+    return aluno.to_dict()
+
+def buscar_aluno(aluno_id: uuid.UUID = None, matricula: str = None, nome: str = None, email: str = None, role: str = None) -> dict[str, str] | None:
+    """
+    Busca um aluno no banco de dados usando um ou mais filtros.
+
+    Espera receber um ou mais dos seguintes parâmetros:
+    - `aluno_id`: uuid.UUID - o ID do aluno
+    - `matricula`: str - o número de matrícula do aluno
+    - `nome`: str - o nome do aluno
+    - `email`: str - o email do aluno
+    - `role`: str - a função do usuario
+
+    Retorna um dicionário com os dados do aluno se ele existir, e None caso contrário.
+    """
+    # Se um ID específico for passado, a busca é direta e ignora os outros campos.
+    if aluno_id:
+        aluno = Usuario.query.filter_by(id=aluno_id).first()
+        return aluno.to_dict() if aluno else None
+    
+    # Cria uma lista de filtros baseada nos parâmetros que não são None
+    filtros = []
+
+    if matricula:
+        filtros.append(Usuario.matricula == matricula)
+
+    if email:
+        filtros.append(Usuario.email == email)
+
+    if nome:
+        filtros.append(Usuario.nome == nome)
+    
+    if role:
+        filtros.append(Usuario.role == role)
+        
+    aluno = None
+
+    if filtros:
+        aluno = Usuario.query.filter(db.or_(*filtros)).first()
+    
+    return aluno.to_dict() if aluno else None
+
+def logar_aluno(matricula: str, senha: str) -> dict[str, str] | None:
+    """
+    Função atômica, responsável por logar um aluno no PostgreSQL.
 
     Espera receber:
     - `matricula`: str - o número de matrícula do aluno
     - `senha`: str - a senha do aluno
+
+    1. Busca um aluno no banco de dados usando o número de matrícula fornecido
+    2. Verifica se o aluno existe e se a senha fornecida é igual à senha do aluno
     
-    Retorna um dicionário contendo o token JWT e as informações do aluno logado.
-    ```json
-    {
-        "token": "token",
-        "aluno": {
-            "id": "id",
-            "matricula": "matricula",
-            "nome": "nome",
-            "email": "email",
-            "role": "role do usuario(1,2,3)"
-        }
-    }
-    ```
+    Retorna um dicionário com os dados do aluno se o login for válido, e None caso contrário.
     """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    senha = request.json.get('senha')
+    aluno = Usuario.query.filter_by(matricula=matricula).first()
     
-    if not matricula or not senha:
-        return jsonify({"error": "Parâmetros 'matricula' e 'senha' são obrigatórios"}), 400
+    if aluno and aluno.senha == senha:
+        return aluno.to_dict()
     
-    # Verifica se existe um aluno com esses dados
-    aluno = logar_aluno(matricula, senha)
-    if not aluno:
-        return jsonify({"error": "Matrícula ou senha inválidos"}), 401
-    
-    # Gera o token
-    token = gerar_token(aluno['id'], aluno['role'])
+    return None
 
-    response = make_response(jsonify({
-        "aluno": aluno
-    }))
-
-    response.set_cookie(
-        "token",
-        token,
-        httponly=True,
-        secure=False,  
-        samesite="Lax",  
-        max_age=60 * 60 * 24,
-        path="/"
-    )
-
-    return response
-
-@usuarios_bp.route('/alterar', methods=['PUT'])
-@token_obrigatorio
-@apenas_admins
-def elegerUsuario():
+def alterar_aluno(matricula: str, role: str):
     """
-    Endpoint para editar um usuario.
+    Função atômica, responsável por alterar a role de um usuario no PostgreSQL.
 
     Espera receber:
-    - `matricula`: str - o número de matrícula do usuario
-    - `role`: str - role nova do usuario
-    
-    Retorna um dicionário contendo as informações do aluno alterado.
-    ```json
-    {
-        "id": "id",
-        "matricula": "matricula",
-        "nome": "nome",
-        "email": "email",
-        "role": "role do usuario"
-    }
-    ```
+    - `matricula`: str - o número de matrícula do aluno
+    - `role`: str - role do usuario
+
+    Retorna um dicionário com os dados do usuario alterado.
     """
-
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    role = request.json.get('role')
-
-        
-    if not matricula or not role:
-        return jsonify({"error": "Parâmetros 'matricula' e 'role' são obrigatórios"}), 400
-
-    aluno_existe = buscar_aluno(matricula=matricula)
-
-    if not aluno_existe:
-        return jsonify({"error": "Matrícula não encontrada"}), 404
-
-    aluno = alterar_aluno(matricula,role)
-    return jsonify(aluno), 200        
-
-@usuarios_bp.route('/buscar',methods=['GET'])
-def buscarUsuario():
-
-    matricula = request.args.get('matricula')
-    nome = request.args.get('nome')
-    email = request.args.get('email')
-    role = request.args.get('role')
-
-    if not matricula and not role and not nome and not email:
-        return jsonify({"error": "Parâmetros de busca são obrigatórios"}), 422
+    aluno = Usuario.query.filter_by(matricula=matricula).first()
     
-    aluno = buscar_aluno(matricula=matricula,nome=nome,email=email,role=role)
-
     if not aluno:
-        return jsonify({"error": "Usuário não encontrado"}), 404
-
-    return jsonify(aluno), 200
-
-@usuarios_bp.route('/login/google', methods=['POST'])
-def login_google():
-    data = request.json
-    token = data.get('token')
-
-    if not token:
-        return jsonify({"error": "Token não enviado"}), 400
-
-    try:
-        idinfo = id_token.verify_oauth2_token(
-            token,
-            grequests.Request(),
-            os.getenv("GOOGLE_CLIENT_ID"),
-            clock_skew_in_seconds=10 
-        )
-
-        email = idinfo.get('email')
-        nome = idinfo.get('name')
-        sub = idinfo.get('sub')
-
-        if not email:
-            return jsonify({"error": "Email não encontrado no token"}), 401
-
-        aluno = Usuario.query.filter_by(email=email).first()
-
-        if not aluno:
-            aluno = Usuario(
-                matricula=f"G{sub[-8:]}",
-                nome=nome,
-                email=email,
-                senha=secrets.token_urlsafe(16),
-                role=RoleEnum.ALUNO
-            )
-            db.session.add(aluno)
-            db.session.commit()
-
-        token_jwt = gerar_token(aluno.id, aluno.role.value)
-        
-        response = make_response(jsonify({
-            "aluno": aluno.to_dict()
-        }))
-
-        response.set_cookie(
-            "token",
-            token_jwt,
-            httponly=True,
-            secure=False,  
-            samesite="Lax",
-            max_age=60 * 60 * 24,
-            path="/"
-        )
-
-        return response
-
-    except Exception as e:
-        print("ERRO GOOGLE LOGIN:", e)
-        return jsonify({"error": "Token inválido"}), 401
+        return None  # Se não encontrar, retorna None
     
-@usuarios_bp.route('/logout', methods=['POST'])
-def logout():
-    response = make_response(jsonify({"message": "Logout realizado"}))
+    aluno.role = role
     
-    response.set_cookie(
-        "token",
-        "",
-        expires=0,
-        path="/"
-    )
+    db.session.commit()
+    
+    return aluno.to_dict()
 
-    return response
-
-@usuarios_bp.route('/me', methods=['GET'])
-@token_obrigatorio
-def me():
-    usuario_id = g.usuario_id 
-
-    usuario = Usuario.query.get(usuario_id)
-
-    if not usuario:
-        return jsonify({"error": "Usuário não encontrado"}), 404
-
-    return jsonify(usuario.to_dict()), 200

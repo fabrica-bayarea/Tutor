@@ -7,70 +7,34 @@ import MessageField, { MessageFieldRef } from "./components/MessageField/Message
 import SelectMateria from "./components/SelectMateria/SelectMateria";
 import HeaderChat from "./components/HeaderChat/HeaderChat";
 import styles from "./page.module.css";
-import { useRouter } from "next/navigation";
-import { logoutAluno } from "@/app/services/service_aluno";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Home() {
-    const router = useRouter();
     const messageFieldRef = useRef<MessageFieldRef>(null);
-    const [showSelectMaterias, setShowSelectMaterias] = useState(true);
+    const [showSelectMaterias, setShowSelectMaterias] = useState(false);
     const [text, setText] = useState("");
     const [isTextAreaDisabled, setTextAreaDisabled] = useState(false);
-    const [idMateria, setIdMateria] = useState("");
-    const [chatNovo, setChatNovo] = useState(true);
-    const [idChat, setIdChat] = useState("");
-    const { aluno, setAluno, loading } = useAuth();
 
-    if (loading || !aluno) return null;
-    
     const materias = { "id-mat-1": "Matemática", "id-mat-2": "História", };//buscar as matérias do aluno/professor aqui
 
     const handleMateriaChange = (id: string, nome: string) => {
         setShowSelectMaterias(false);
-        setIdMateria(id);
     };
 
     const handleNovoChat = () => {
-        messageFieldRef.current?.deleteAllMessages();
-        setIdMateria("")
-        setIdChat("")
-        setChatNovo(true);
+        console.log("Realizar sequência de novo chat");
     };
 
     const handleConfig = () => {
         console.log("Abrir configurações");
     };
 
-    const handleSair = async () => {
-        try {
-          await logoutAluno();
-          setAluno(null);
-          router.replace("/login");
-        } catch (error) {
-          console.error("Erro ao sair:", error);
-        }
-      };
+    const handleSair = () => {
+        console.log("Encerrar sessão");
+    };
 
     const handleDash = () => {
         console.log("Abrir Dashboard");
     };
-
-    const handleSend = (text: string) => {
-        if(!text.trim()) return;
-
-        messageFieldRef.current?.addMessage("user",text);
-        messageFieldRef.current?.addMessage("llm","...");
-
-        console.log("Adicionar aqui a lógica de socket de envio de mensagem.");
-
-        //após a lógica de envio
-        if(chatNovo){
-            setIdChat("id-do-chat-recebido-novo")
-            setChatNovo(false);
-        }
-        setText("");
-    }
 
     useEffect(() => {
         socket.on("processando", () => {
@@ -95,13 +59,13 @@ export default function Home() {
             setTextAreaDisabled(false)
         });
         return () => {
-            socket.off("processando");
-            socket.off("buscando_material");
-            socket.off("gerando_resposta");
-            socket.off("processo_completo");
-            socket.off("erro");
-        };
-
+        
+            socket.off("processando")
+            socket.off("buscando_material")
+            socket.off("gerando_resposta")
+            socket.off("processo_completo")
+            socket.off("erro")
+        }
     }, [])
 
     return (
@@ -130,7 +94,7 @@ export default function Home() {
                     isDisabled={isTextAreaDisabled}
                     value={text}
                     onChange={setText}
-                    onSend={(text) => handleSend(text)}
+                    onSend={() => console.log("Enviar:", text)}
                 />
             </footer>
         </>

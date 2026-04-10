@@ -18,6 +18,8 @@ export async function criarAluno(matricula: string, nome: string, email: string,
 
         const aluno = response.data;
 
+        localStorage.setItem("aluno", JSON.stringify(aluno));
+
         return aluno;
     } catch (error) {
         console.error("Erro ao criar o aluno:", error);
@@ -34,6 +36,8 @@ export async function loginAluno(matricula: string, senha: string): Promise<Inte
         );
 
         const aluno = response.data.aluno;
+
+        localStorage.setItem("aluno", JSON.stringify(aluno)); 
 
         return aluno;
     } catch (error) {
@@ -52,17 +56,11 @@ export async function loginAlunoGoogle(googleToken: string): Promise<InterfaceUs
 
         const aluno = response.data.aluno;
 
+        localStorage.setItem("aluno", JSON.stringify(aluno)); 
+
         return aluno;
     } catch (error) {
         console.error("Erro login Google:", error);
         return null;
-    }
-}
-
-export async function logoutAluno() {
-    try {
-        await api.post("/usuario/logout", {}, { withCredentials: true });
-    } catch (error) {
-        console.error("Erro ao deslogar:", error);
     }
 }
