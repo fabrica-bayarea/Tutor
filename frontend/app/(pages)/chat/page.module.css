@@ -16,3 +16,20 @@
     min-height: 0;
     overflow: hidden; 
 }
+
+.materiaBackground {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: 24px;
+    font-weight: 600;
+    color: rgba(120, 120, 120, 0.15);
+
+    z-index: 0;
+    pointer-events: none;
+
+    user-select: none;
+    white-space: nowrap;
+}

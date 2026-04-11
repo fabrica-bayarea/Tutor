@@ -82,3 +82,29 @@
         width: 50%;
     }
 }
+
+.conteinerTextarea:has(textarea:disabled) {
+  opacity: 0.8;
+  filter: grayscale(0.2);
+  animation: waitingPulse 1.6s infinite;
+}
+
+.conteinerTextarea:has(textarea:disabled) textarea {
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.conteinerTextarea:has(textarea:disabled) textarea::placeholder {
+  color: #999;
+}
+
+.conteinerTextarea:has(textarea:disabled) svg {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@keyframes waitingPulse {
+  0% { opacity: 0.85; }
+  50% { opacity: 1; }
+  100% { opacity: 0.85; }
+}
