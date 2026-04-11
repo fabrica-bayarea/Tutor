@@ -10,6 +10,7 @@ export type MessageFieldRef = {
   addMessage: (sender: "user" | "llm", content: string) => void;
   updateLastMessage: (newContent: string) => void;
   getAllMessages: () => Message[];
+  deleteAllMessages: () => void;
 };
 
 const MessageField = forwardRef<MessageFieldRef>((props, ref) => {

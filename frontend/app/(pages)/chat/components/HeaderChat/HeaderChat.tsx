@@ -64,10 +64,10 @@ export default function HeaderChat({
           </button>
           {navOpen && (
             <MenuMobile
-              onNovoChat={onNewChatClick}
-              onConfig={() => onNavItemClick?.("Configurações")}
-              onSair={() => onNavItemClick?.("Sair")}
-              onDash={() => onNavItemClick?.("Dashboard")}
+              onNovoChat={() => {onNewChatClick;toggleNav}}
+              onConfig={() => {onNavItemClick?.("Configurações");toggleNav}}
+              onSair={() => {onNavItemClick?.("Sair");toggleNav}}
+              onDash={() => {onNavItemClick?.("Dashboard");toggleNav}}
             />
           )}
         </section>

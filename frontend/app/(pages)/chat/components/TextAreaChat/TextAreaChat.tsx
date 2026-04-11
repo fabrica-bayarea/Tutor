@@ -5,7 +5,7 @@ interface TextAreaChatProps {
   isDisabled : boolean;
   value: string;
   onChange: (val: string) => void;
-  onSend: () => void;
+  onSend: (text: string)   => void;
   onPlusClick?: () => void;
 }
 
@@ -16,6 +16,12 @@ export default function TextAreaChat({
   onSend,
   onPlusClick,
 }: TextAreaChatProps) {
+
+
+  const handleSendClick = () => {
+      onSend(value);
+  };
+
   return (
     <section className={styles.conteinerTextarea}>
       <section className={styles.textareaMobile}>
@@ -29,7 +35,7 @@ export default function TextAreaChat({
             value={value}
             onChange={(e) => onChange(e.target.value)}
           />
-          <SendHorizontal size={24} onClick={onSend} />
+          <SendHorizontal size={24} onClick={handleSendClick}/>
         </article>
       </section>
 
@@ -41,7 +47,7 @@ export default function TextAreaChat({
         />
         <article>
           <Plus size={24} onClick={onPlusClick} />
-          <SendHorizontal size={24} onClick={onSend} />
+          <SendHorizontal size={24} onClick={handleSendClick} />
         </article>
       </section>
     </section>

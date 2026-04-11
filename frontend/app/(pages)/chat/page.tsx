@@ -10,18 +10,27 @@ import styles from "./page.module.css";
 
 export default function Home() {
     const messageFieldRef = useRef<MessageFieldRef>(null);
-    const [showSelectMaterias, setShowSelectMaterias] = useState(false);
+    const [showSelectMaterias, setShowSelectMaterias] = useState(true);
     const [text, setText] = useState("");
     const [isTextAreaDisabled, setTextAreaDisabled] = useState(false);
+    const [newChat, setNewChat] = useState(true);
+    const [materia, setMateria] = useState("");
 
-    const materias = { "id-mat-1": "Matemática", "id-mat-2": "História", };//buscar as matérias do aluno/professor aqui
+    const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};//buscar as matérias do aluno/professor aqui
 
     const handleMateriaChange = (id: string, nome: string) => {
+        setMateria(id);
         setShowSelectMaterias(false);
     };
 
+    useEffect(() => {
+        if(newChat) setShowSelectMaterias(true);
+    },[newChat])
+
     const handleNovoChat = () => {
-        console.log("Realizar sequência de novo chat");
+        messageFieldRef.current?.deleteAllMessages();
+        setNewChat(true);
+        setShowSelectMaterias(true);
     };
 
     const handleConfig = () => {
@@ -35,6 +44,37 @@ export default function Home() {
     const handleDash = () => {
         console.log("Abrir Dashboard");
     };
+
+    const handleSend = (text: string) => {
+
+        messageFieldRef.current?.addMessage("user",text);
+        setText("");
+        messageFieldRef.current?.addMessage("llm","...");
+
+        if(newChat){
+        socket.emit("nova_mensagem", {
+            id_usuario: "123",
+            id_materia: null,
+            mensagem: text,
+            historico: messageFieldRef.current?.getAllMessages(),
+            chat_novo: newChat,
+            id_chat: "123",
+            data_envio: "2026-03-22T19:20:24Z"
+        });
+        }else{ 
+        socket.emit("nova_mensagem", {
+            id_usuario: "123",
+            id_materia: materia,
+            mensagem: text,
+            historico: messageFieldRef.current?.getAllMessages(),
+            chat_novo: newChat,
+            id_chat: "123",
+            data_envio: "2026-03-22T19:20:24Z"
+        });
+        }
+
+        setNewChat(false);
+    }
 
     useEffect(() => {
         socket.on("processando", () => {
@@ -85,7 +125,7 @@ export default function Home() {
                 <MessageField ref={messageFieldRef} />
             </section>
 
-            {showSelectMaterias && Object.keys(materias).length > 1 && (
+            {showSelectMaterias && (
                 <SelectMateria materias={materias} onChange={handleMateriaChange} />
             )}
 
@@ -94,7 +134,7 @@ export default function Home() {
                     isDisabled={isTextAreaDisabled}
                     value={text}
                     onChange={setText}
-                    onSend={() => console.log("Enviar:", text)}
+                    onSend={() => handleSend(text)}
                 />
             </footer>
         </>
