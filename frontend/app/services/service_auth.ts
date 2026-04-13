@@ -9,7 +9,7 @@ export interface Usuario {
 
 export async function getCurrentUser(): Promise<Usuario | null> {
     try {
-        const response = await api.get("/usuarios/me");
+        const response = await api.get("/alunos/me");
         return response.data;
     } catch {
         return null;
@@ -18,7 +18,7 @@ export async function getCurrentUser(): Promise<Usuario | null> {
 
 export async function logout(): Promise<void> {
     try {
-        await api.post("/usuarios/logout");
+        await api.post("/alunos/logout");
     } catch (error) {
         console.error("Erro ao fazer logout:", error);
     }

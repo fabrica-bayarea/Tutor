@@ -1,7 +1,7 @@
 import api from "./api";
 import { InterfaceUsuario } from "../types";
 
-const alunos_url = "usuario";
+const alunos_url = "alunos";
 
 export async function criarAluno(matricula: string, nome: string, email: string, senha: string): Promise<InterfaceUsuario | null> {
   try {

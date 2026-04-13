@@ -21,7 +21,7 @@ export default function LoginForm() {
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const googleId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -173,7 +173,7 @@ export default function LoginForm() {
                     if (!window.google) return;
 
                     window.google.accounts.id.initialize({
-                        client_id: googleId,
+                        client_id: GOOGLE_CLIENT_ID,
                         callback: handleGoogleLogin,
                     });
 
