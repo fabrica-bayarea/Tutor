@@ -1,49 +1,14 @@
-import { jwtDecode } from 'jwt-decode';
+"use client";
 
-export interface TokenPayload {
-    user_id: string;
-    role: '1' | '2' | '3';
-    exp: number;
-}
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/AuthContext";
 
-export function getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-}
+export function useAuth() {
+    const context = useContext(AuthContext);
 
-export function getDecodedToken(): TokenPayload | null {
-    const token = getToken();
-    if (!token) return null;
-
-    try {
-        return jwtDecode<TokenPayload>(token);
-    } catch (error) {
-        console.error('Erro ao decodificar token:', error);
-        return null;
+    if (!context) {
+        throw new Error("useAuth deve ser usado dentro de um AuthProvider");
     }
-}
 
-export function isAuthenticated(): boolean {
-    const token = getDecodedToken();
-    if (!token) return false;
-
-    // Verifica se o token expirou
-    return token.exp * 1000 > Date.now();
-}
-
-export function getUserRole(): '1' | '2' | '3' | null {
-    const token = getDecodedToken();
-    return token?.role || null;
-}
-
-export function isStudent(): boolean {
-    return getUserRole() === '3';
-}
-
-export function isProfessor(): boolean {
-    return getUserRole() === '2';
-}
-
-export function isAdmin(): boolean {
-    return getUserRole() === '1';
+    return context;
 }
