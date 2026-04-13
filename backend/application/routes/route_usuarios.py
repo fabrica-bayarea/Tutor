@@ -70,60 +70,6 @@ def gerar_aluno():
     aluno = criar_aluno(matricula, nome, email, senha)
     return jsonify(aluno), 201
 
-@usuarios_bp.route('/login', methods=['POST'])
-def login_aluno():
-    """
-    Endpoint para logar um aluno.
-
-    Espera receber:
-    - `matricula`: str - o número de matrícula do aluno
-    - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo o token JWT e as informações do aluno logado.
-    ```json
-    {
-        "token": "token",
-        "aluno": {
-            "id": "id",
-            "matricula": "matricula",
-            "nome": "nome",
-            "email": "email",
-            "role": "role do usuario(1,2,3)"
-        }
-    }
-    ```
-    """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    senha = request.json.get('senha')
-    
-    if not matricula or not senha:
-        return jsonify({"error": "Parâmetros 'matricula' e 'senha' são obrigatórios"}), 400
-    
-    # Verifica se existe um aluno com esses dados
-    aluno = logar_aluno(matricula, senha)
-    if not aluno:
-        return jsonify({"error": "Matrícula ou senha inválidos"}), 401
-    
-    # Gera o token
-    token = gerar_token(aluno['id'], aluno['role'])
-
-    response = make_response(jsonify({
-        "aluno": aluno
-    }))
-
-    response.set_cookie(
-        "token",
-        token,
-        httponly=True,
-        secure=False,  
-        samesite="Lax",  
-        max_age=60 * 60 * 24,
-        path="/"
-    )
-
-    return response
-
 @usuarios_bp.route('/alterar', methods=['PUT'])
 @token_obrigatorio
 @apenas_admins
@@ -229,7 +175,7 @@ def login_google():
             httponly=True,
             secure=False,  
             samesite="Lax",
-            max_age=60 * 60 * 24,
+            max_age=60,
             path="/"
         )
 
@@ -238,3 +184,66 @@ def login_google():
     except Exception as e:
         print("ERRO GOOGLE LOGIN:", e)
         return jsonify({"error": "Token inválido"}), 401
+    
+@usuarios_bp.route('/login', methods=['POST'])
+def login_aluno():
+    """
+    Endpoint para logar um aluno.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `senha`: str - a senha do aluno
+    
+    Retorna um dicionário contendo o token JWT e as informações do aluno logado.
+    ```json
+    {
+        "token": "token",
+        "aluno": {
+            "id": "id",
+            "matricula": "matricula",
+            "nome": "nome",
+            "email": "email",
+            "role": "role do usuario(1,2,3)"
+        }
+    }
+    ```
+    """
+    # Verifica se os dados necessários estão presentes
+    matricula = request.json.get('matricula')
+    senha = request.json.get('senha')
+    
+    if not matricula or not senha:
+        return jsonify({"error": "Parâmetros 'matricula' e 'senha' são obrigatórios"}), 400
+    
+    # Verifica se existe um aluno com esses dados
+    aluno = logar_aluno(matricula, senha)
+    if not aluno:
+        return jsonify({"error": "Matrícula ou senha inválidos"}), 401
+    
+    # Gera o token
+    token = gerar_token(aluno['id'], aluno['role'])
+
+    response = make_response(jsonify({
+        "aluno": aluno
+    }))
+
+    response.set_cookie(
+        "token",
+        token,
+        httponly=True,
+        secure=False,  
+        samesite="Lax",  
+        max_age=60,
+        path="/"
+    )
+
+    return response
+
+@usuarios_bp.route('/me', methods=['GET'])
+@token_obrigatorio
+def me():
+    usuario = buscar_aluno(g.usuario_id)
+
+    if usuario == None: return jsonify({"error": "Usuário não encontrado"}), 404
+       
+    return jsonify(usuario)
