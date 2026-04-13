@@ -1,7 +1,5 @@
 import api from "./api";
-import { InterfaceUsuario, GooglePayload } from "../types";
-import * as jwt_decode from 'jwt-decode';
-
+import { InterfaceUsuario } from "../types";
 
 const alunos_url = "usuario";
 
@@ -32,12 +30,9 @@ export async function loginAluno(matricula: string, senha: string): Promise<Inte
         const response = await api.post(
             `${alunos_url}/login`,
             { matricula, senha },
-            { withCredentials: true } 
         );
 
         const aluno = response.data.aluno;
-
-        localStorage.setItem("aluno", JSON.stringify(aluno)); 
 
         return aluno;
     } catch (error) {
@@ -51,12 +46,9 @@ export async function loginAlunoGoogle(googleToken: string): Promise<InterfaceUs
         const response = await api.post(
             `${alunos_url}/login/google`,
             { token: googleToken },
-            { withCredentials: true }
         );
 
         const aluno = response.data.aluno;
-
-        localStorage.setItem("aluno", JSON.stringify(aluno)); 
 
         return aluno;
     } catch (error) {
