@@ -20,13 +20,11 @@ import application.models
 app = Flask(__name__)
 app.config["SECRET_KEY"] = Config.SECRET_KEY
 
-CORS(
-    app,
-    origins=["http://localhost:3000"],
-    supports_credentials=True,
-    allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-)
+CORS(app, 
+     resources={r"/*": {"origins": ["http://localhost:3000"]}},
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 @app.after_request
 def add_security_headers(response):
@@ -44,7 +42,7 @@ migrate = Migrate(app, db)
 
 
 app.register_blueprint(arquivos_bp, url_prefix="/arquivos")
-app.register_blueprint(usuarios_bp, url_prefix="/usuario")
+app.register_blueprint(usuarios_bp, url_prefix="/alunos")
 app.register_blueprint(turmas_bp, url_prefix="/turmas")
 app.register_blueprint(materias_bp, url_prefix="/materias")
 app.register_blueprint(chats_bp, url_prefix="/chats")

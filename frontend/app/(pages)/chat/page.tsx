@@ -7,6 +7,7 @@
     import SelectMateria from "./components/SelectMateria/SelectMateria";
     import HeaderChat from "./components/HeaderChat/HeaderChat";
     import styles from "./page.module.css";
+    import { useAuth } from "@/utils/auth";
 
     export default function Home() {
         const messageFieldRef = useRef<MessageFieldRef>(null);
@@ -17,6 +18,7 @@
         const [materia, setMateria] = useState("");
         const [nomeMateria, setNomeMateria] = useState("");
         const [chat,setChat] = useState("");
+        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();//usar com user?.id, user?.role, etc...
 
         const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};//buscar as matérias do aluno/professor aqui
 
@@ -50,16 +52,15 @@
         };
 
         const handleSend = (text: string) => {
-            setTextAreaDisabled(true)
             if(text.trim() == "") return;
-
+            setTextAreaDisabled(true)
             messageFieldRef.current?.addMessage("user",text);
             setText("");
             messageFieldRef.current?.addMessage("llm","...");
 
             socket.emit("nova_mensagem", {
-                id_usuario: materia,
-                id_materia: null,
+                id_usuario: user?.id,
+                id_materia: materia,
                 mensagem: text,
                 historico: messageFieldRef.current?.getAllMessages(),
                 chat_novo: newChat,

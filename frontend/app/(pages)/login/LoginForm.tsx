@@ -2,13 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import Script from 'next/script';
+import { useAuth } from '@/utils/auth';
 
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
-
-type UserType = 'comum' | 'admin';
 
 declare global {
   interface Window {
@@ -18,33 +16,31 @@ declare global {
 
 export default function LoginForm() {
     const router = useRouter();
-    const searchParams = useSearchParams();
-
-    const [userType, setUserType] = useState<UserType>('comum');
+    const { refreshUser } = useAuth();
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const googleId = "__GOOGLE_ID_PLACEHOLDER__";
+    const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-    // ----------- LOGIN COM FORMULÁRIO -----------
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
         setLoading(true);
-
+    
         try {
             let aluno = await loginAluno(matricula, senha);
-
+    
             if (!aluno) {
                 setErrorMessage("Credenciais inválidas");
-                setLoading(false);
                 return;
             }
+    
+            await refreshUser();
+    
             const destino = '/chat';
-
             router.push(destino);
-
+    
         } catch (error) {
             console.error('Erro no login:', error);
             setErrorMessage("Erro ao realizar login");
@@ -56,21 +52,21 @@ export default function LoginForm() {
     const handleGoogleLogin = async (response: any) => {
         try {
             setLoading(true);
-
+    
             const googleToken = response.credential;
-
+    
             const aluno = await loginAlunoGoogle(googleToken);
-
+    
             if (!aluno) {
                 setErrorMessage("Falha no login com Google");
-                setLoading(false);
                 return;
             }
-
+    
+            await refreshUser();
+    
             const destino = '/chat';
-
             router.push(destino);
-
+    
         } catch (error) {
             console.error("Erro no login Google:", error);
             setErrorMessage("Erro ao tentar login com Google");
@@ -177,7 +173,7 @@ export default function LoginForm() {
                     if (!window.google) return;
 
                     window.google.accounts.id.initialize({
-                        client_id: googleId,
+                        client_id: GOOGLE_CLIENT_ID,
                         callback: handleGoogleLogin,
                     });
 
