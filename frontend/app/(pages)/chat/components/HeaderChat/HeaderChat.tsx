@@ -7,11 +7,13 @@ interface HeaderChatProps {
   onNewChatClick?: () => void;
   onUserClick?: () => void;
   onNavItemClick?: (item: string) => void;
+  isAdmin?: boolean
 }
 
 export default function HeaderChat({
   onNewChatClick,
   onNavItemClick,
+  isAdmin = false,
 }: HeaderChatProps) {
   const [navOpen, setNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -45,9 +47,11 @@ export default function HeaderChat({
                 <a href="#config" onClick={() => onNavItemClick?.("Configurações")}>
                   <Bolt /> Configurações
                 </a>
+                {isAdmin && (
                 <a href="#dashboard" onClick={() => onNavItemClick?.("Dashboard")}>
-                  <ChartArea /> Dashboard
+                <ChartArea /> Dashboard
                 </a>
+                )}
                 <a href="#sair" onClick={() => onNavItemClick?.("Sair")}>
                   <Ban /> Sair
                 </a>
@@ -64,10 +68,11 @@ export default function HeaderChat({
           </button>
           {navOpen && (
             <MenuMobile
-              onNovoChat={() => {onNewChatClick;toggleNav}}
-              onConfig={() => {onNavItemClick?.("Configurações");toggleNav}}
-              onSair={() => {onNavItemClick?.("Sair");toggleNav}}
-              onDash={() => {onNavItemClick?.("Dashboard");toggleNav}}
+              onNovoChat={() => {onNewChatClick;toggleNav()}}
+              onConfig={() => {onNavItemClick?.("Configurações");toggleNav()}}
+              onSair={() => {onNavItemClick?.("Sair");toggleNav()}}
+              onDash={() => {onNavItemClick?.("Dashboard");toggleNav()}}
+              isAdmin={isAdmin}
             />
           )}
         </section>
