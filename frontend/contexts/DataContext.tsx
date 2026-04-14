@@ -23,15 +23,15 @@ interface DataContextType {
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export function DataProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [materias, setMaterias] = useState<materia[]>([]);
     const [turmas, setTurmas] = useState<turma[]>([]);
     const { user } = useAuth();
 
     async function getData(){
-        if (!user?.id) return;
-        setMaterias(await buscar_materias_usuario(user?.id));
-        setTurmas(await buscar_turmas_usuario(user?.id));
+        if (!user) return;
+        setMaterias(await buscar_materias_usuario());
+        setTurmas(await buscar_turmas_usuario());
     }
 
 
