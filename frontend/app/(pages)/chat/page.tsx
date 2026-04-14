@@ -24,6 +24,7 @@
         const { materias, turmas } = useData();
 
         const materiasMap = useMemo(() => {
+            if(materias.length === 0) return { "132123123124123": "Estatística" };
             return Object.fromEntries(
                 materias.map(m => [m.id.toString(), m.nome])
               );
