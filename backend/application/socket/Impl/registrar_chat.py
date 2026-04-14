@@ -24,4 +24,4 @@ def registrar_chat(id_usuario, id_materia, primeiro_titulo):
     except Exception as e:
         db.session.rollback()
         print(f"[Error] erro ao registrar chat: {e}")
-        return None
+        raise
