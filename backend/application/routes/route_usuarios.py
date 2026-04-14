@@ -4,7 +4,7 @@ Rotas para lidar com alunos.
 import os
 import secrets
 from application.config.database import db
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,g 
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
