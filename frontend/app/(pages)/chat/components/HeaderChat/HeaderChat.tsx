@@ -68,10 +68,11 @@ export default function HeaderChat({
           </button>
           {navOpen && (
             <MenuMobile
-              onNovoChat={() => {onNewChatClick;toggleNav()}}
+              onNovoChat={() => {onNewChatClick?.();toggleNav()}}
               onConfig={() => {onNavItemClick?.("Configurações");toggleNav()}}
               onSair={() => {onNavItemClick?.("Sair");toggleNav()}}
               onDash={() => {onNavItemClick?.("Dashboard");toggleNav()}}
+              onFechar={toggleNav}
               isAdmin={isAdmin}
             />
           )}
