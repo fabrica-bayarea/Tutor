@@ -9,6 +9,7 @@ interface MenuMobileProps {
   onConfig?: () => void;
   onSair?: () => void;
   isAdmin?: boolean;
+  onFechar?: () => void;
 }
 
 export default function MenuMobile({ onNovoChat, onDash, onConfig, onSair, isAdmin=false }: MenuMobileProps){    
@@ -22,7 +23,8 @@ export default function MenuMobile({ onNovoChat, onDash, onConfig, onSair, isAdm
                     <button onClick={onDash}><Bolt/>Dashboard</button>
                     )}
                     <button onClick={onConfig}><Bolt/>Configurações</button>
-                    <button onClick={onSair}><Ban/>Sair</button>
+                    <button onClick={onSair}><Ban/>Desconectar</button>
+                    <button onClick={onFechar}><Minimize2 />Fechar</button>
                 </article>
             </section>
         </>
