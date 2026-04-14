@@ -1,7 +1,5 @@
 from datetime import datetime
-from socket import SocketIO
-
-
+from flask_socketio import SocketIO
 
 def disparar_emit(socketio: SocketIO, evento: str, payload: dict, room: str | None = None):
     try:
