@@ -23,7 +23,7 @@ interface DataContextType {
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function DataProvider({ children }: { children: React.ReactNode }) {
     const [materias, setMaterias] = useState<materia[]>([]);
     const [turmas, setTurmas] = useState<turma[]>([]);
     const { user } = useAuth();
