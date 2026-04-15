@@ -1,4 +1,4 @@
-    "use client";
+"use client";
 
     import socket from "@/libs/socket";
     import { useEffect, useRef, useState } from "react";
@@ -18,7 +18,8 @@
         const [materia, setMateria] = useState("");
         const [nomeMateria, setNomeMateria] = useState("");
         const [chat,setChat] = useState("");
-        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();//usar com user?.id, user?.role, etc...
+        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();
+        const [respostaAtual, setRespostaAtual] = useState("");
 
         const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};//buscar as matérias do aluno/professor aqui
 
@@ -56,9 +57,9 @@
             setTextAreaDisabled(true)
             messageFieldRef.current?.addMessage("user",text);
             setText("");
-            messageFieldRef.current?.addMessage("llm","...");
+            messageFieldRef.current?.addMessage("llm","");
 
-            socket.emit("nova_mensagem", {
+            socket.emit("mensagem_inicial", {
                 id_usuario: user?.id,
                 id_materia: materia,
                 mensagem: text,
@@ -78,29 +79,35 @@
                 setTextAreaDisabled(true)
             });
 
-            socket.on("buscando_material", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando material semântico...");
-            });
-
-            socket.on("gerando_resposta", () => {
-                messageFieldRef.current?.updateLastMessage("Gerando resposta...");
+            socket.on("chunk_mensagem", (data: { data: any; }) => {
+                const chunk = data.data;
+            
+                setRespostaAtual((prev) => {
+                    const nova = prev + chunk;
+            
+                    messageFieldRef.current?.updateLastMessage(nova);
+            
+                    return nova;
+                });
             });
 
             socket.on("processo_completo", () => {
-                setTextAreaDisabled(false)
+                setTextAreaDisabled(false);
+                setRespostaAtual("");
             });
 
             socket.on("erro", () => {
                 messageFieldRef.current?.updateLastMessage("Não foi possível gerar sua resposta, tente novamente.");
-                setTextAreaDisabled(false)
+                setTextAreaDisabled(false);
+                setRespostaAtual("");
             });
             return () => {
             
                 socket.off("processando")
-                socket.off("buscando_material")
-                socket.off("gerando_resposta")
                 socket.off("processo_completo")
                 socket.off("erro")
+                socket.off("chunk_mensagem")
+                socket.off("processo_completo")
             }
         }, [])
 

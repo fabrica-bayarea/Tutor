@@ -19,3 +19,4 @@ google-auth-oauthlib
 google-auth-httplib2
 psycopg2-binary
 mcp
+httpx

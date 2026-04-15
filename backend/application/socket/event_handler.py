@@ -1,11 +1,10 @@
-from flask_socketio import SocketIO, emit, request
+from flask_socketio import emit, request
 from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.socket.Impl.validacao_emit import validacao_emit
 from application.socket.Impl.disparar_emit import disparar_emit
-from application.socket.Impl.gerar_resposta_llm import gerar_resposta_llm
-
-socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
+from application.mcp.server import call_tool_local
+from application.socket.socket_instance import socketio
 
 @socketio.on("connect")
 def handle_connect():
@@ -30,7 +29,6 @@ def maestro(data: dict[str, str]):
     chat_novo = data['chat_novo']
     data_envio = data['data_envio']
     mensagem = data['mensagem']
-    # sessao = data['sessao']
 
     # Verifica a necessidade de criar um chat novo
     if chat_novo:
@@ -41,7 +39,7 @@ def maestro(data: dict[str, str]):
     
     # Salva a pergunta no banco de dados
     try:
-        mensagem_id = registrar_mensagem(chat_id,usuario_id,sid,data_envio,mensagem) #adicionar a sessão ao paylaod
+        registrar_mensagem(chat_id,usuario_id,sid,data_envio,mensagem) #adicionar a sessão ao paylaod
     except Exception as e:
         return disparar_emit(socketio,"erro",{},sid)
     
@@ -51,20 +49,24 @@ def maestro(data: dict[str, str]):
     else:
         historico_formatado = ""
 
-    prompt_final = f"""Com base nas informações fornecidas nos trechos de documentos abaixo, responda ao comando do aluno.
-        Formate a resposta em markdown com tags relevantes para títulos, parágrafos, listas e etc.
-        <historico_chat>
-        # Comando do aluno. Use para responder ao aluno.
-        {historico_formatado}
-        </historico_chat>
-        <comando_usuario>
-        # Comando do usuario. Use para responder a ele.
-        {mensagem}
-        </comando_usuario>
-    """
+    #realizar busca semantica e gerar resposta com mcp aqui
+    executar_mcp_stream(materia_id, mensagem, historico_formatado, sid)
 
-    # Gerar a resposta
-    disparar_emit(socketio, 'gerando resposta',{}, sid)
-    gerar_resposta_llm(prompt_final,None,socketio,mensagem_id,chat_id,sid)
+def executar_mcp_stream(materia_id, mensagem, historico, sid):
+    try:
+        import asyncio
 
-    
+        asyncio.run(
+            call_tool_local(
+                "chat",
+                {
+                    "materia_id": materia_id,
+                    "mensagem": mensagem,
+                    "historico": historico,
+                    "sid": sid
+                }
+            )
+        )
+
+    except Exception as e:
+        socketio.emit("llm_error", {"erro": str(e)}, to=sid)
