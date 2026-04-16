@@ -12,7 +12,8 @@ from application.routes import (
     materias_bp,
     chats_bp,
     mensagens_bp,
-    vinculos_bp
+    vinculos_bp,
+    data_bp
 )
 
 import application.models
@@ -48,6 +49,7 @@ app.register_blueprint(materias_bp, url_prefix="/materias")
 app.register_blueprint(chats_bp, url_prefix="/chats")
 app.register_blueprint(mensagens_bp, url_prefix="/mensagens")
 app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
+app.register_blueprint(data_bp, url_prefix="/data")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,13 +1,15 @@
     "use client";
 
     import socket from "@/libs/socket";
-    import { useEffect, useRef, useState } from "react";
+    import { useEffect, useRef, useState, useMemo } from "react";
     import TextAreaChat from "./components/TextAreaChat/TextAreaChat";
     import MessageField, { MessageFieldRef } from "./components/MessageField/MessageField";
     import SelectMateria from "./components/SelectMateria/SelectMateria";
     import HeaderChat from "./components/HeaderChat/HeaderChat";
     import styles from "./page.module.css";
     import { useAuth } from "@/utils/auth";
+    import { useData } from "@/utils/data";
+
 
     export default function Home() {
         const messageFieldRef = useRef<MessageFieldRef>(null);
@@ -15,16 +17,24 @@
         const [text, setText] = useState("");
         const [isTextAreaDisabled, setTextAreaDisabled] = useState(false);
         const [newChat, setNewChat] = useState(true);
-        const [materia, setMateria] = useState("");
-        const [nomeMateria, setNomeMateria] = useState("");
+        const [materiaId, setMateriaId] = useState("");
+        const [materiaNome, setMateriaNome] = useState("");
         const [chat,setChat] = useState("");
-        const { user, isAdmin, isProfessor } = useAuth();
+        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();
+        const { materias, turmas } = useData();
 
-        const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};
+        const materiasMap = useMemo(() => {
+            if(materias.length === 0) return { "132123123124123": "Estatística" };
+            return Object.fromEntries(
+                materias.map(m => [m.id.toString(), m.nome])
+              );
+        }, [materias]);
 
+        useEffect(()=>{console.log(materiaId)},[materiaId]);
+                  
         const handleMateriaChange = (id: string, nome: string) => {
-            setMateria(id);
-            setNomeMateria(nome);
+            setMateriaId(id);
+            setMateriaNome(nome);
             setShowSelectMaterias(false);
         };
 
@@ -60,7 +70,7 @@
 
             socket.emit("nova_mensagem", {
                 id_usuario: user?.id,
-                id_materia: materia,
+                id_materia: materiaId,
                 mensagem: text,
                 historico: messageFieldRef.current?.getAllMessages(),
                 chat_novo: newChat,
@@ -123,11 +133,13 @@
                 </section>
 
                 {showSelectMaterias && (
-                    <SelectMateria materias={materias} onChange={handleMateriaChange} />
+                    <SelectMateria 
+                        materias={materiasMap} 
+                        onChange={handleMateriaChange} />
                 )}
 
                 <div className={styles.materiaBackground}>
-                    {nomeMateria}
+                    {materiaNome}
                 </div>
 
 
