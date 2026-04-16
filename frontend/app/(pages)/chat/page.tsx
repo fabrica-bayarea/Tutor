@@ -18,9 +18,9 @@
         const [materia, setMateria] = useState("");
         const [nomeMateria, setNomeMateria] = useState("");
         const [chat,setChat] = useState("");
-        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();//usar com user?.id, user?.role, etc...
+        const { user, isAdmin, isProfessor } = useAuth();
 
-        const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};//buscar as matérias do aluno/professor aqui
+        const materias = {"id-mat-1": "Matemática","id-mat-2": "Física"};
 
         const handleMateriaChange = (id: string, nome: string) => {
             setMateria(id);
@@ -114,6 +114,7 @@
                             if (item == "Configurações") handleConfig();
                             if (item == "Dashboard") handleDash();
                         }}
+                        isAdmin={isAdmin || isProfessor}
                     />
                 </header>
 
