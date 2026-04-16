@@ -36,7 +36,14 @@ async def call_tool(name: str, arguments: dict):
     raise ValueError("Tool não encontrada")
 
 async def main():
-    await orchestrator.preload_models()
+    
+    print("Inicializando modelos...")
+    try:
+        await orchestrator.wait_until_ready()
+    except Exception as e:
+        print(f"Falha no preload: {e}")
+        raise e
+    print("Sistema pronto!")
 
     async with stdio_server() as (read,write):
         await server.run(read,write,server.create_initialization_options())
