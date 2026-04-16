@@ -4,12 +4,12 @@ from mcp.types import Tool
 
 import asyncio
 
-from mcp.tools.chat_tool import get_chat_tool, handle_chat_stream
-from mcp.llm.model_registry import ModelRegistry
-from mcp.llm.orchestrator import ModelOrchestrator
-from mcp.llm.router import ModelRouter
-from mcp.llm.ollama_client import OllamaClient
-from mcp.pipeline.rag_pipeline import RAGPipeline
+from application.mcp.tools.chat_tool import get_chat_tool, handle_chat_stream
+from application.mcp.llm.model_registry import ModelRegistry
+from application.mcp.llm.orchestrator import ModelOrchestrator
+from application.mcp.llm.router import ModelRouter
+from application.mcp.llm.ollama_client import OllamaClient
+from application.mcp.pipeline.rag_pipeline import RAGPipeline
 from application.socket.socket_instance import socketio
 
 server = Server("multi-llm-server")

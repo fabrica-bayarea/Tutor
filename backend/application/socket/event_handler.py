@@ -1,4 +1,5 @@
-from flask_socketio import emit, request
+from flask_socketio import emit
+from flask import request
 from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.socket.Impl.validacao_emit import validacao_emit

@@ -1,7 +1,7 @@
-from mcp.llm.router import ModelRouter
-from mcp.llm.ollama_client import OllamaClient
-from mcp.tools.busca_semantica_tool import busca_semantica
-from mcp.core.prompt_builder import build_prompt
+from application.mcp.llm.router import ModelRouter
+from application.mcp.llm.ollama_client import OllamaClient
+from application.mcp.tools.busca_semantica_tool import busca_semantica
+from application.mcp.core.prompt_builder import build_prompt
 from application.models import Materia
 
 class RAGPipeline:
