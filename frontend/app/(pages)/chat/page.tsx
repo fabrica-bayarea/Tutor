@@ -27,7 +27,7 @@
         const materiasMap = useMemo(() => {
             if(materias.length === 0) return { "132123123124123": "Estatística" };
             return Object.fromEntries(
-                materias.map(m => [m.id.toString(), m.nome])
+                materias.map((m: any) => [m.id.toString(), m.nome])
               );
         }, [materias]);
 
@@ -92,7 +92,7 @@
             socket.on("chunk_mensagem", (data: { data: any; }) => {
                 const chunk = data.data;
             
-                setRespostaAtual((prev) => {
+                setRespostaAtual((prev: any) => {
                     const nova = prev + chunk;
             
                     messageFieldRef.current?.updateLastMessage(nova);
@@ -117,7 +117,6 @@
                 socket.off("processo_completo")
                 socket.off("erro")
                 socket.off("chunk_mensagem")
-                socket.off("processo_completo")
             }
         }, [])
 
