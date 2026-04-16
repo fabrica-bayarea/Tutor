@@ -30,7 +30,7 @@
               );
         }, [materias]);
 
-        useEffect(()=>{console.log(materiaId),[materiaId]};
+        useEffect(()=>{console.log(materiaId)},[materiaId]);
                   
         const handleMateriaChange = (id: string, nome: string) => {
             setMateriaId(id);

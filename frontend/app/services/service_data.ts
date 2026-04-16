@@ -5,7 +5,7 @@ const url = "data";
 
 export async function buscar_materias_usuario(){
     try {
-        const response: { data: InterfaceMateria[] } = await api.get(`/${url}/materias`);
+        const response: { data: InterfaceMateria[] } = await api.get(`/${url}/materias`, { withCredentials: true });
         return response.data;
     } catch (error) {
         console.error("Erro ao buscar as matérias:", error);
@@ -15,7 +15,7 @@ export async function buscar_materias_usuario(){
 
 export async function buscar_turmas_usuario(){
     try {
-        const response: { data: InterfaceTurma[] } = await api.get(`/${url}/turmas`);
+        const response: { data: InterfaceTurma[] } = await api.get(`/${url}/turmas`, { withCredentials: true });
         return response.data;
     } catch (error) {
         console.error("Erro ao buscar as turmas:", error);

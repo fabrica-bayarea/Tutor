@@ -5,12 +5,12 @@ import { buscar_materias_usuario, buscar_turmas_usuario } from "@/app/services/s
 import { useAuth } from "@/utils/auth";
 
 interface materia {
-    id: number,
+    id: string,
     nome: string
 }
 
 interface turma {
-    id: number,
+    id: string,
     codigo: string,
     semestre: string,
     turno: string
@@ -23,7 +23,7 @@ interface DataContextType {
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function DataProvider({ children }: { children: React.ReactNode }) {
     const [materias, setMaterias] = useState<materia[]>([]);
     const [turmas, setTurmas] = useState<turma[]>([]);
     const { user } = useAuth();
