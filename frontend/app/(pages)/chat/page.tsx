@@ -124,6 +124,7 @@
                             if (item == "Configurações") handleConfig();
                             if (item == "Dashboard") handleDash();
                         }}
+                        isAdmin={isAdmin || isProfessor}
                     />
                 </header>
 
