@@ -29,8 +29,6 @@
                 materias.map((m: any) => [m.id.toString(), m.nome])
               );
         }, [materias]);
-
-        useEffect(()=>{console.log(materiaId)},[materiaId]);
                   
         const handleMateriaChange = (id: string, nome: string) => {
             setMateriaId(id);
@@ -70,7 +68,7 @@
 
             socket.emit("mensagem_inicial", {
                 id_usuario: user?.id,
-                id_materia: materiaId,
+                materia_id: materiaId,
                 mensagem: text,
                 historico: messageFieldRef.current?.getAllMessages(),
                 chat_novo: newChat,
@@ -105,8 +103,13 @@
                 setRespostaAtual("");
             });
 
-            socket.on("erro", () => {
-                messageFieldRef.current?.updateLastMessage("Não foi possível gerar sua resposta, tente novamente.");
+            socket.on("erro", (data: { erro?: string }) => {
+                const mensagem = data?.erro || "Erro desconhecido";
+
+                messageFieldRef.current?.updateLastMessage(
+                    "Erro: " + mensagem
+                );
+
                 setTextAreaDisabled(false);
                 setRespostaAtual("");
             });

@@ -20,7 +20,7 @@ def maestro(data: dict[str, str]):
     try:
         validacao_emit(data)
     except Exception as e:
-        return disparar_emit(socketio,"erro",{},sid)
+        return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
     # Inicializa as variaveis com os dados do paylaod
     usuario_id = data['id_usuario']
@@ -36,13 +36,13 @@ def maestro(data: dict[str, str]):
         try:
             chat_id = registrar_chat(usuario_id,materia_id,"Teste")
         except Exception as e:
-            return disparar_emit(socketio,"erro",{},sid)
+            return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
     # Salva a pergunta no banco de dados
     try:
-        registrar_mensagem(chat_id,usuario_id,sid,data_envio,mensagem) #adicionar a sessão ao paylaod
+        registrar_mensagem(chat_id,usuario_id,None,data_envio,mensagem) 
     except Exception as e:
-        return disparar_emit(socketio,"erro",{},sid)
+        return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
     # Criando prompt final
     if historico_mensagens is not None:

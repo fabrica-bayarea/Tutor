@@ -29,7 +29,7 @@ def validacao_emit(json_emit: dict[str, Any]):
     if "id_usuario" not in json_emit or not _is_valid_uuid_(json_emit["id_usuario"]): 
         erros.append("id_usuario inválido.")
     
-    if "id_materia" not in json_emit or not _is_valid_uuid_(json_emit["id_materia"]):
+    if "materia_id" not in json_emit or not _is_valid_uuid_(json_emit["materia_id"]):
         erros.append("id_materia inválido.")
     
     if "mensagem" not in json_emit or not isinstance(json_emit["mensagem"], str) or not json_emit["mensagem"].strip():
