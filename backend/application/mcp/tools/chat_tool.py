@@ -10,9 +10,11 @@ def get_chat_tool():
                 "materia_id": {"type": "string"},
                 "mensagem": {"type": "string"},
                 "historico": {"type": "string"},
-                "sid": {"type": "string"}
+                "sid": {"type": "string"},
+                "model": {"type":"string"},
+                "materia": {"type":"string"}
             },
-            "required": ["materia_id", "mensagem","sid"]
+            "required": ["materia_id", "mensagem","sid","model"]
         }
     )
 
@@ -21,7 +23,9 @@ async def handle_chat_stream(arguments, pipeline, socketio):
     mensagem = arguments["mensagem"]
     historico = arguments.get("historico", "")
     sid = arguments["sid"]
+    model = arguments["model"]
+    materia = arguments["materia"]
 
-    await pipeline.run_stream(materia_id, mensagem, historico,socketio, sid)
+    await pipeline.run_stream(materia_id, mensagem, historico,socketio, sid, model, materia)
 
     return [TextContent(type="text", text="stream iniciado")]
