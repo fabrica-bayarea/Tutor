@@ -2,6 +2,7 @@ from typing import List
 from application.config.database import db
 from application.config.vector_database import collection
 from application.models import ArquivoTurmaMateria
+from application.socket.Impl.disparar_emit import disparar_emit
 
 def obter_arquivos_por_materia(materia_id:str) -> List[str]:
 
@@ -42,14 +43,17 @@ def formatar_para_rag(chunks:List[str]) -> List[str]:
     
     return resultado
 
-async def busca_semantica(materia_id:str,query:str) -> List[str]:
+async def busca_semantica(materia_id:str,query:str,sid,socketio) -> List[str]:
     
+    disparar_emit(socketio, 'buscando_arquivos',{}, sid)
     arquivos_ids = obter_arquivos_por_materia(materia_id)
 
     if not arquivos_ids: return []
 
+    disparar_emit(socketio, 'buscando_vetores',{}, sid)
     chunks = buscar_no_vector_db(query,arquivos_ids)
 
+    disparar_emit(socketio, 'formatando_chunks',{}, sid)
     chunks = formatar_para_rag(chunks)
 
     return chunks
