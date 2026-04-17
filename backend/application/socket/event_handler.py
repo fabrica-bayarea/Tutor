@@ -6,6 +6,7 @@ from application.socket.Impl.validacao_emit import validacao_emit
 from application.socket.Impl.disparar_emit import disparar_emit
 from application.mcp.server import call_tool_local
 from application.socket.socket_instance import socketio
+from threading import Thread
 
 @socketio.on("connect")
 def handle_connect():
@@ -51,23 +52,34 @@ def maestro(data: dict[str, str]):
         historico_formatado = ""
 
     #realizar busca semantica e gerar resposta com mcp aqui
-    executar_mcp_stream(materia_id, mensagem, historico_formatado, sid)
+    model = "ollama3"
+    materia = "Matemática"
+    socketio.start_background_task(_mcp_background_task, materia_id, mensagem, historico_formatado, sid, model, materia)
 
-def executar_mcp_stream(materia_id, mensagem, historico, sid):
+def _mcp_background_task(materia_id, mensagem, historico, sid, model, materia):
     try:
         import asyncio
 
-        asyncio.run(
-            call_tool_local(
-                "chat",
-                {
-                    "materia_id": materia_id,
-                    "mensagem": mensagem,
-                    "historico": historico,
-                    "sid": sid
-                }
-            )
+        coro = call_tool_local(
+            "chat",
+            {
+                "materia_id": materia_id,
+                "mensagem": mensagem,
+                "historico": historico,
+                "sid": sid,
+                "model": model,
+                "materia": materia
+            }
         )
+
+        def runner():
+            try:
+                asyncio.run(coro)
+            except Exception as e:
+                socketio.emit("llm_error", {"erro": str(e)}, to=sid)
+
+        t = Thread(target=runner, daemon=True)
+        t.start()
 
     except Exception as e:
         socketio.emit("llm_error", {"erro": str(e)}, to=sid)
