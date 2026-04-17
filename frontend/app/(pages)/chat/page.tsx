@@ -86,6 +86,22 @@
                 setTextAreaDisabled(true)
             });
 
+            socket.on("buscando_arquivos", () => {
+                messageFieldRef.current?.updateLastMessage("Buscando arquivos...");
+            });
+
+            socket.on("buscando_vetores", () => {
+                messageFieldRef.current?.updateLastMessage("Buscando vetores...");
+            });
+
+            socket.on("formatando_chunks", () => {
+                messageFieldRef.current?.updateLastMessage("Formatando chunks...");
+            });
+
+            socket.on("construindo_prompt", () => {
+                messageFieldRef.current?.updateLastMessage("Construindo prompt...");
+            });
+
             socket.on("chunk_mensagem", (data: { data: any; }) => {
                 const chunk = data.data;
             
@@ -114,8 +130,11 @@
                 setRespostaAtual("");
             });
             return () => {
-            
                 socket.off("processando")
+                socket.off("buscando_arquivos")
+                socket.off("buscando_vetores")
+                socket.off("formatando_chunks")
+                socket.off("construindo_prompt")
                 socket.off("processo_completo")
                 socket.off("erro")
                 socket.off("chunk_mensagem")
