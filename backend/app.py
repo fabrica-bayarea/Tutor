@@ -5,7 +5,6 @@ from flask_cors import CORS
 from application.config.config import Config
 from application.config.database import init_db, db
 from application.socket.socket_instance import socketio
-import application.socket.event_handler
 
 from application.routes import (
     arquivos_bp,
@@ -23,6 +22,7 @@ import application.models
 app = Flask(__name__)
 app.config["SECRET_KEY"] = Config.SECRET_KEY
 socketio.init_app(app)
+asgi_app = socketio.ASGIApp(app)
 
 CORS(app, 
      resources={r"/*": {"origins": ["http://localhost:3000"]}},
