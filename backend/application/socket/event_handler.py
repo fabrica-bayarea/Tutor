@@ -16,11 +16,11 @@ async def maestro(data: dict[str, str]):
     sid = request.sid
 
     # Realiza uma validação dos dados do payload recebido:
-    disparar_emit(socketio, 'processando',{}, sid)
+    await disparar_emit(socketio, 'processando',{}, sid)
     try:
         validacao_emit(data)
     except Exception as e:
-        return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
+        return await disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
     # Inicializa as variaveis com os dados do paylaod
     usuario_id = data['id_usuario']
