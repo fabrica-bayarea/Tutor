@@ -34,13 +34,13 @@ async def maestro(data: dict[str, str]):
     # Verifica a necessidade de criar um chat novo
     if chat_novo:
         try:
-            chat_id = registrar_chat(usuario_id,materia_id,f"{usuario_id}-ChatTeste")
+            chat_id = await registrar_chat(usuario_id,materia_id,f"{usuario_id}-ChatTeste")
         except Exception as e:
             return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
     # Salva a pergunta no banco de dados
     try:
-        registrar_mensagem(chat_id,usuario_id,None,data_envio,mensagem) 
+        await registrar_mensagem(chat_id,usuario_id,None,data_envio,mensagem) 
     except Exception as e:
         return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
