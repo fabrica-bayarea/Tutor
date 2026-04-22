@@ -37,17 +37,6 @@ def validacao_emit(json_emit: dict[str, Any]):
 
     if "historico" not in json_emit or not isinstance(json_emit["historico"], list):
         erros.append("historico deve ser uma lista.")
-    else:
-        for i, msg in enumerate(json_emit["historico"]):
-            if not isinstance(msg, dict):
-                erros.append(f"historico[{i}] deve ser objeto.")
-                continue
-            
-            if msg.get("sender") not in ["user", "llm"]:
-                erros.append(f"historico[{i}].sender inválido.")
-            
-            if not isinstance(msg.get("content"), str):
-                erros.append(f"historico[{i}].content inválido.")
 
     if "chat_novo" not in json_emit or not isinstance(json_emit["chat_novo"], bool):
         erros.append("chat_novo deve ser boolean.")
