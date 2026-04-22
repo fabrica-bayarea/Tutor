@@ -2,7 +2,7 @@ from application.config.database import db
 from application.models.model_mensagem import Mensagem
 from datetime import datetime
 
-def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
+async def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
     try:
         if not conteudo:
             print(f"[Warning] problema ao registrar mesnagem, conteudo vazio")
@@ -19,7 +19,7 @@ def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
         )
 
         db.session.add(nova_mensagem)
-        db.session.commit()
+        await db.session.commit()
 
         return nova_mensagem.id
 
