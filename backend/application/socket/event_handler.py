@@ -13,7 +13,7 @@ def handle_connect():
     emit("connection-confirmation", {"data": "Conexão estabelecida"})
 
 @socketio.on('mensagem_inicial')
-def maestro(data: dict[str, str]):
+async def maestro(data: dict[str, str]):
     sid = request.sid
 
     # Realiza uma validação dos dados do payload recebido:
@@ -26,16 +26,16 @@ def maestro(data: dict[str, str]):
     # Inicializa as variaveis com os dados do paylaod
     usuario_id = data['id_usuario']
     materia_id = data['materia_id']
-    chat_id = data['id_chat']
+    mensagem = data['mensagem']
     historico_mensagens = data['historico']
     chat_novo = data['chat_novo']
+    chat_id = data['id_chat']
     data_envio = data['data_envio']
-    mensagem = data['mensagem']
 
     # Verifica a necessidade de criar um chat novo
     if chat_novo:
         try:
-            chat_id = registrar_chat(usuario_id,materia_id,"Teste")
+            chat_id = registrar_chat(usuario_id,materia_id,f"{usuario_id}-ChatTeste")
         except Exception as e:
             return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
     
@@ -51,35 +51,20 @@ def maestro(data: dict[str, str]):
     else:
         historico_formatado = ""
 
-    #realizar busca semantica e gerar resposta com mcp aqui
+    # Posteriormente esta variavel será substituida pela lógica de busca de modelo por matéria.
     model = "ollama3"
+
+    # Hardset matéria para develop
     materia = "Matemática"
-    socketio.start_background_task(_mcp_background_task, materia_id, mensagem, historico_formatado, sid, model, materia)
 
-def _mcp_background_task(materia_id, mensagem, historico, sid, model, materia):
-    try:
-        import asyncio
-
-        coro = call_tool_local(
-            "chat",
-            {
-                "materia_id": materia_id,
-                "mensagem": mensagem,
-                "historico": historico,
-                "sid": sid,
-                "model": model,
-                "materia": materia
-            }
-        )
-
-        def runner():
-            try:
-                asyncio.run(coro)
-            except Exception as e:
-                socketio.emit("llm_error", {"erro": str(e)}, to=sid)
-
-        t = Thread(target=runner, daemon=True)
-        t.start()
-
-    except Exception as e:
-        socketio.emit("llm_error", {"erro": str(e)}, to=sid)
+    await call_tool_local(
+        "chat",
+        {
+            "materia_id": materia_id,
+            "mensagem": mensagem,
+            "historico": historico_formatado,
+            "sid": sid,
+            "model": model,
+            "materia": materia
+        }
+    )
