@@ -10,7 +10,7 @@ Guia de configuração para os ambientes de desenvolvimento e produção do proj
 - **LLM:** Integração com modelos de linguagem via [Ollama](https://ollama.com/).
 - **Ambiente:** Totalmente containerizado com [Docker](https://www.docker.com/).
 - **Orquestração:** Deploy em [Kubernetes](https://kubernetes.io/) para simulação de produção.
-- 
+
 ### Fluxo de instalação
 
 1. **Download do Docker Desktop**  
@@ -46,8 +46,7 @@ Guia de configuração para os ambientes de desenvolvimento e produção do proj
 ## Pré requisitos
 
 - **Git**  
-- **Docker Desktop** (recomendado com Kubernetes ativado se for usar a parte de orquestração)  
-- **kubectl** (se for usar Kubernetes)
+- **Docker Desktop** (recomendado com Kubernetes ativado se for usar a parte de orquestração)
 
 ---
 
@@ -97,3 +96,6 @@ Crie os arquivos de ambiente conforme necessário:
    docker exec -it <ollama-container> /bin/sh
    ollama pull ollama3
    ```
+
+4. Acessar o frontend local
+   - Vá até o link localhost:3000/
