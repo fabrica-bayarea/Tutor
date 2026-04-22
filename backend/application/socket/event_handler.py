@@ -6,7 +6,6 @@ from application.socket.Impl.validacao_emit import validacao_emit
 from application.socket.Impl.disparar_emit import disparar_emit
 from application.mcp.server import call_tool_local
 from application.socket.socket_instance import socketio
-from threading import Thread
 
 @socketio.on("connect")
 def handle_connect():
