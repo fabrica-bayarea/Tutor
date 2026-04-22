@@ -1,7 +1,7 @@
 from application.models.model_chat import Chat
 from application.config.database import db
 
-def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
+async def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
     try: 
         titulo = primeiro_titulo.strip().replace("\n", " ")
         titulo = " ".join(titulo.split())
@@ -17,7 +17,7 @@ def registrar_chat(id_usuario, id_materia, primeiro_titulo):
         )
 
         db.session.add(novo_chat)
-        db.session.commit()
+        await db.session.commit()
 
         return novo_chat.id
 
