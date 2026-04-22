@@ -1,31 +1,16 @@
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool
 
 import asyncio
 
-from application.mcp.tools.chat_tool import get_chat_tool, handle_chat_stream
-from application.mcp.llm.model_registry import ModelRegistry
-from application.mcp.llm.orchestrator import ModelOrchestrator
-from application.mcp.llm.router import ModelRouter
+from application.mcp.tools.chat_tool import handle_chat_stream
 from application.mcp.llm.ollama_client import OllamaClient
 from application.mcp.pipeline.rag_pipeline import RAGPipeline
 from application.socket.socket_instance import socketio
 
 server = Server("multi-llm-server")
-
-registry = ModelRegistry()
-
-registry.register("llama3", {"provider":"ollama", "model_name":"llama3"})
-
-orchestrator = ModelOrchestrator(registry)
-router = ModelRouter(registry)
 ollama = OllamaClient()
-pipeline = RAGPipeline(router,registry,ollama)
-
-@server.list_tools()
-async def list_tools() -> list[Tool]:
-    return [get_chat_tool()]
+pipeline = RAGPipeline(ollama)
 
 @server.call_tool()
 async def call_tool(name: str, arguments: dict):
@@ -36,17 +21,10 @@ async def call_tool(name: str, arguments: dict):
     raise ValueError("Tool não encontrada")
 
 async def main():
-    
-    print("Inicializando modelos...")
-    try:
-        await orchestrator.wait_until_ready()
-    except Exception as e:
-        print(f"Falha no preload: {e}")
-        raise e
-    print("Sistema pronto!")
-
     async with stdio_server() as (read,write):
         await server.run(read,write,server.create_initialization_options())
+        print("Server MCP pronto!")
+
 
 async def call_tool_local(name: str, arguments: dict):
     return await call_tool(name, arguments)
