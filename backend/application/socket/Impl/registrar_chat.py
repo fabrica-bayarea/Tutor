@@ -1,7 +1,7 @@
 from application.models.model_chat import Chat
 from application.config.database import db
 
-async def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
+def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
     try: 
         titulo = primeiro_titulo.strip().replace("\n", " ")
         titulo = " ".join(titulo.split())
