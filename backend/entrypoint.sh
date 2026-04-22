@@ -15,16 +15,6 @@ done
 
 echo "Banco de dados conectado com sucesso!"
 
-echo "Aguardando Ollama em $OLLAMA_HOST..."
-
-while ! nc -z ollama-service 11434; do
-  echo "Ollama ainda não disponível. Aguardando..."
-  sleep 2
-done
-
-echo "Ollama está disponível!"
-
-
 # Aplica as migrações do Flask-Migrate
 echo "Aplicando as migrações do banco de dados..."
 flask db upgrade
