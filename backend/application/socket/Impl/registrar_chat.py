@@ -17,7 +17,7 @@ async def registrar_chat(id_usuario, id_materia, primeiro_titulo):
         )
 
         db.session.add(novo_chat)
-        await db.session.commit()
+        db.session.commit()
 
         return novo_chat.id
 
