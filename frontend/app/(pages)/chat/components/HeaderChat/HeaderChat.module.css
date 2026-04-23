@@ -35,9 +35,10 @@
     flex-direction: row;
     padding: 0.3rem 0.7rem;
     align-items: center;
-    border: 1px solid black;
+    border: 1px solid white;
     background-color: transparent;
     border-radius: 14px;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.2);
 }
 
 .headerDesktop > article > button:hover{
