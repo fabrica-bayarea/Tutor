@@ -24,6 +24,7 @@ def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
         return nova_mensagem.id
 
     except Exception as e:
+        traceback.print_exc()
         db.session.rollback()
         print(f"[Error] erro ao persistir mensagem: {e}")
         raise

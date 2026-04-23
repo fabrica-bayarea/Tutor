@@ -55,7 +55,7 @@ const MessageField = forwardRef<MessageFieldRef>((props, ref) => {
             key={index}
             className={msg.sender === "user" ? styles.MessageUser : styles.MessageLLM}
           >
-            <p>{msg.content}</p>
+            <p className={styles.MessageP}>{msg.content}</p>
           </article>
         ))}
       </section>

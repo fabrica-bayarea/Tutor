@@ -6,6 +6,8 @@ from application.config.config import Config
 from application.config.database import init_db, db
 from application.socket.socket_instance import socketio
 
+import application.socket.event_handler
+
 from application.routes import (
     arquivos_bp,
     usuarios_bp,
@@ -17,12 +19,10 @@ from application.routes import (
     data_bp
 )
 
-import application.models
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = Config.SECRET_KEY
+
 socketio.init_app(app)
-asgi_app = socketio.ASGIApp(app)
 
 CORS(app, 
      resources={r"/*": {"origins": ["http://localhost:3000"]}},
@@ -55,4 +55,4 @@ app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 app.register_blueprint(data_bp, url_prefix="/data")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5000)

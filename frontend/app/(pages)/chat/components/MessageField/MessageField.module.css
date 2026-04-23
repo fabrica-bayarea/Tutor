@@ -42,6 +42,10 @@
   margin-right: auto;
 }
 
+.MessageP {
+  text-align: justify;
+}
+
 @media(width >= 768px){
   .MessageConteiner{
       width: 55%;

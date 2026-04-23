@@ -78,12 +78,19 @@
 
             setNewChat(false);
             setChat("idDoChat")
-        }
-
+            }
         useEffect(() => {
+            if (!socket.connected) {
+                socket.connect();
+            }
+
+            socket.on("connection-confirmation", (data) => {
+                console.log("Servidor confirmou conexão:", data);
+            });
+
             socket.on("processando", () => {
                 messageFieldRef.current?.updateLastMessage("Mensagem em processamento...");
-                setTextAreaDisabled(true)
+                setTextAreaDisabled(true);
             });
 
             socket.on("buscando_arquivos", () => {
@@ -102,14 +109,12 @@
                 messageFieldRef.current?.updateLastMessage("Construindo prompt...");
             });
 
-            socket.on("chunk_mensagem", (data: { data: any; }) => {
+            socket.on("chunk_mensagem", (data: { data: any }) => {
                 const chunk = data.data;
-            
-                setRespostaAtual((prev: any) => {
+
+                setRespostaAtual((prev) => {
                     const nova = prev + chunk;
-            
                     messageFieldRef.current?.updateLastMessage(nova);
-            
                     return nova;
                 });
             });
@@ -122,22 +127,20 @@
             socket.on("erro", (data: { erro?: string }) => {
                 const mensagem = data?.erro || "Erro desconhecido";
 
-                messageFieldRef.current?.updateLastMessage(
-                    "Erro: " + mensagem
-                );
-
+                messageFieldRef.current?.updateLastMessage("Erro: " + mensagem);
                 setTextAreaDisabled(false);
                 setRespostaAtual("");
             });
             return () => {
-                socket.off("processando")
-                socket.off("buscando_arquivos")
-                socket.off("buscando_vetores")
-                socket.off("formatando_chunks")
-                socket.off("construindo_prompt")
-                socket.off("processo_completo")
-                socket.off("erro")
-                socket.off("chunk_mensagem")
+                socket.off("connection-confirmation");
+                socket.off("processando");
+                socket.off("buscando_arquivos");
+                socket.off("buscando_vetores");
+                socket.off("formatando_chunks");
+                socket.off("construindo_prompt");
+                socket.off("processo_completo");
+                socket.off("erro");
+                socket.off("chunk_mensagem");
             }
         }, [])
 

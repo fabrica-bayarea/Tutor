@@ -12,10 +12,10 @@ class RAGPipeline:
 
         contexto = await busca_semantica(materia_id,pergunta,sid,socketio)
 
-        await disparar_emit(socketio, 'construindo_prompt',{}, room=sid)
+        disparar_emit(socketio, 'construindo_prompt',{}, room=sid)
         prompt = build_prompt(materia, contexto, historico, pergunta)
 
         async for chunk in self.ollama.stream_generate(model,prompt):
-            await disparar_emit(socketio, "chunk_mensagem",{"data": chunk}, room=sid)
+            disparar_emit(socketio, "chunk_mensagem",{"data": chunk}, room=sid)
 
-        await disparar_emit(socketio,"processo_completo",{"status":"done"}, room=sid)
+        disparar_emit(socketio,"processo_completo",{"status":"done"}, room=sid)
