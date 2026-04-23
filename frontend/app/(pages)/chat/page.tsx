@@ -84,7 +84,7 @@
                 socket.connect();
             }
 
-            socket.on("connection-confirmation", (data) => {
+            socket.on("connection-confirmation", (data: any) => {
                 console.log("Servidor confirmou conexão:", data);
             });
 
@@ -112,16 +112,17 @@
             socket.on("chunk_mensagem", (data: { data: any }) => {
                 const chunk = data.data;
 
-                setRespostaAtual((prev) => {
+                setRespostaAtual((prev: any) => {
                     const nova = prev + chunk;
                     messageFieldRef.current?.updateLastMessage(nova);
                     return nova;
                 });
             });
 
-            socket.on("processo_completo", () => {
+            socket.on("processo_completo", (data: {chatId: string}) => {
                 setTextAreaDisabled(false);
                 setRespostaAtual("");
+                setChat(data.chatId)
             });
 
             socket.on("erro", (data: { erro?: string }) => {
