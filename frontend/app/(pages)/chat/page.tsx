@@ -150,6 +150,7 @@
             <>
                 <header className={styles.headerFixo}>
                     <HeaderChat
+                        isDisabled={isTextAreaDisabled}
                         onNewChatClick={handleNovoChat}
                         onNavItemClick={(item) => {
                             if (item === "Sair") handleSair();
