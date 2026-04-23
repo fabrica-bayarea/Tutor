@@ -45,6 +45,7 @@
             setNewChat(true);
             setShowSelectMaterias(true);
             setTextAreaDisabled(false);
+            setChat("");
         };
 
         const handleConfig = () => {
