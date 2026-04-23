@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import MenuMobile from "../MenuMobile/MenuMobile";
 
 interface HeaderChatProps {
+  isDisabled: boolean;
   onNewChatClick?: () => void;
   onUserClick?: () => void;
   onNavItemClick?: (item: string) => void;
@@ -14,6 +15,7 @@ export default function HeaderChat({
   onNewChatClick,
   onNavItemClick,
   isAdmin = false,
+  isDisabled,
 }: HeaderChatProps) {
   const [navOpen, setNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -33,7 +35,7 @@ export default function HeaderChat({
         <section className={styles.headerDesktop}>
           <article>
             <h3>Tutor AI</h3>
-            <button onClick={onNewChatClick}>
+            <button onClick={onNewChatClick} disabled={isDisabled}>
               <MessageCircleMore />
               <p>Novo Chat</p>
             </button>
@@ -63,7 +65,7 @@ export default function HeaderChat({
 
       {isMobile && (
         <section className={styles.headerMobile}>
-          <button onClick={toggleNav}>
+          <button onClick={toggleNav} disabled={isDisabled}>
             <ChevronDown />
           </button>
           {navOpen && (
