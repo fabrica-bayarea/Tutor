@@ -17,5 +17,3 @@ class RAGPipeline:
 
         async for chunk in self.ollama.stream_generate(model,prompt):
             disparar_emit(socketio, "chunk_mensagem",{"data": chunk}, room=sid)
-
-        disparar_emit(socketio,"processo_completo",{"status":"done"}, room=sid)
