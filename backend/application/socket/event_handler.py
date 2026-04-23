@@ -43,7 +43,8 @@ async def _processar_mensagem_async(data, sid):
     mensagem = data['mensagem']
     historico_mensagens = data.get('historico')
     chat_novo = data['chat_novo']
-    chat_id = data['id_chat']
+    if not chat_novo: chat_id = data['id_chat']
+    else: chat_id = None
     data_envio = data['data_envio']
 
     if chat_novo:
@@ -81,3 +82,5 @@ async def _processar_mensagem_async(data, sid):
     except Exception as e:
         traceback.print_exc()
         return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
+
+    disparar_emit(socketio,"processo_completo",{"chatId":chat_id}, room=sid)
