@@ -19,7 +19,6 @@ class OllamaClient:
                 }
             ) as response:
 
-                # 🔥 garante erro explícito se API falhar
                 if response.status_code != 200:
                     text = await response.aread()
                     raise RuntimeError(
@@ -34,7 +33,6 @@ class OllamaClient:
 
                     buffer += chunk.decode("utf-8", errors="ignore")
 
-                    # NDJSON = linhas separadas por \n
                     while "\n" in buffer:
                         line, buffer = buffer.split("\n", 1)
                         line = line.strip()
@@ -48,15 +46,12 @@ class OllamaClient:
                             print(f"[Ollama parse warning] {line} | {e}")
                             continue
 
-                        # 🔥 stream de resposta
                         if "response" in data:
                             yield data["response"]
 
-                        # 🔥 finalização segura
                         if data.get("done"):
                             return
 
-                # 🔥 flush final (caso não tenha newline no último chunk)
                 if buffer.strip():
                     try:
                         data = json.loads(buffer)
