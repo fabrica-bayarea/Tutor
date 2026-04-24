@@ -57,12 +57,16 @@
     border: 1px solid white;
     border-radius: 20px;
     gap: 0.5rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 10px rgba(0,0,0,0.2);
 }
 
 .textareaDeskTop > textarea{
     border: transparent;
     resize: none;
+}
+
+.textareaDeskTop:has(textarea:disabled){
+    background-color: #f5f5f5;
 }
 
 .textareaDeskTop > textarea:focus {

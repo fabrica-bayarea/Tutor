@@ -78,7 +78,6 @@
             });
 
             setNewChat(false);
-            setChat("idDoChat")
             }
         useEffect(() => {
             if (!socket.connected) {

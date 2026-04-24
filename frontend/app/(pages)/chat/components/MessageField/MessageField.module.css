@@ -31,19 +31,17 @@
   border: 1px solid white;
   border-radius: 20px 20px 0px 20px;
   padding: 1rem;
-  margin-left: auto;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  margin: 1rem 1rem 0rem auto;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 
 .MessageLLM{
   background-color: white;
-  display: flex;
-  max-width: 90%;
+  max-width: 100%;
   border: 1px solid white;
   border-radius: 20px 20px 20px 0px;
   padding: 1rem;
   margin-right: auto;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
 
 .MessageP {
@@ -55,9 +53,6 @@
       width: 55%;
   }
   .MessageUser{
-      max-width: 45%;
-  }
-  .MessageLLM{
       max-width: 45%;
   }
 }

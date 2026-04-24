@@ -1,5 +1,6 @@
 from application.models.model_chat import Chat
 from application.config.database import db
+import traceback
 
 def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
     try: 

@@ -56,7 +56,7 @@ const MessageField = forwardRef<MessageFieldRef>((props, ref) => {
             key={index}
             className={msg.sender === "user" ? styles.MessageUser : styles.MessageLLM}
           >
-            <ReactMarkdown className={styles.MessageP}>{msg.content}</ReactMarkdown>
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </article>
         ))}
       </section>

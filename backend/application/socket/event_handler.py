@@ -1,6 +1,7 @@
 import asyncio
 from flask_socketio import emit
 from flask import request, current_app
+import traceback
 
 from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem

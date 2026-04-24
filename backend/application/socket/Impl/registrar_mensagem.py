@@ -1,6 +1,7 @@
 from application.config.database import db
 from application.models.model_mensagem import Mensagem
 from datetime import datetime
+import traceback
 
 def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
     try:
