@@ -1,8 +1,8 @@
 from datetime import datetime
 import uuid
+from typing import Any
 
-
-def _is_valid_uuid_(value: any): 
+def _is_valid_uuid_(value: Any): 
     try:
         uuid.UUID(str(value))
         return True
@@ -10,7 +10,7 @@ def _is_valid_uuid_(value: any):
         return False
     
 
-def _is_valid_iso_date_(value: any): 
+def _is_valid_iso_date_(value: Any): 
     if isinstance(value, datetime): 
         return True
     
@@ -23,44 +23,30 @@ def _is_valid_iso_date_(value: any):
     return False
 
 
-def validacao_emit(json_emit: dict[str, any]): 
+def validacao_emit(json_emit: dict[str, Any]): 
     erros = []
 
-    # id_usuario
     if "id_usuario" not in json_emit or not _is_valid_uuid_(json_emit["id_usuario"]): 
-        erros.append(f"id_usuario: '{json_emit.get('id_usuario')}'. deve ser um UUID válido.")
+        erros.append("id_usuario inválido.")
     
-    # id_materia
-    if "id_materia" not in json_emit or not _is_valid_uuid_(json_emit["id_materia"]):
-        erros.append(f"id_materia: '{json_emit.get('id_materia')}'. deve ser um UUID válido.")
+    if "materia_id" not in json_emit or not _is_valid_uuid_(json_emit["materia_id"]):
+        erros.append("id_materia inválido.")
     
-    #mensagem
     if "mensagem" not in json_emit or not isinstance(json_emit["mensagem"], str) or not json_emit["mensagem"].strip():
-        erros.append(f"A menssgem: '{json_emit.get('mensagem')}'. Deve ser uma String e não pode estar vazia ou conter apenas espaços.")
-    
-    #histórico
-    if "historico" not in json_emit or not isinstance(json_emit["historico"], dict) or not json_emit["historico"]:
-        erros.append("historico deve ser um dicionário não vazio.")
+        erros.append("mensagem inválida.")
 
-    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("user", [])):
-        erros.append("historico.user deve conter apenas strings.")
+    if "historico" not in json_emit or not isinstance(json_emit["historico"], list):
+        erros.append("historico deve ser uma lista.")
 
-    if not all(isinstance(msg, str) for msg in json_emit["historico"].get("lmm", [])):
-        erros.append("historico.lmm deve conter apenas strings.")
-
-    #chat_novo
     if "chat_novo" not in json_emit or not isinstance(json_emit["chat_novo"], bool):
-        erros.append("chat_novo deve ser estritamente um valor Booleano (true/false).")
-    
-    #id_chat
-    if "id_chat" not in json_emit or not _is_valid_uuid_(json_emit["id_chat"]):
-        erros.append(f"id_chat: '{json_emit.get('id_usuario')}' deve ser um UUID válido.")
-    
-    #data_envio
+        erros.append("chat_novo deve ser boolean.")
+
+    if not json_emit.get("chat_novo"):
+        if "id_chat" not in json_emit or not _is_valid_uuid_(json_emit["id_chat"]):
+            erros.append("id_chat inválido.")
+
     if "data_envio" not in json_emit or not _is_valid_iso_date_(json_emit["data_envio"]):
-        erros.append("data_envio deve validar se o formato corresponde a uma data válida (ISO 8601 ou objeto Date).")
-    
-    return {
-        "Valido": len(erros) == 0,
-        "Invalido": erros
-    }
+        erros.append("data_envio inválido.")
+
+    if erros:
+        raise ValueError(erros)

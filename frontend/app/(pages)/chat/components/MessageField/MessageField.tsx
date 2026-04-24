@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
 import styles from "./MessageField.module.css";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   sender: "user" | "llm";
@@ -55,7 +56,7 @@ const MessageField = forwardRef<MessageFieldRef>((props, ref) => {
             key={index}
             className={msg.sender === "user" ? styles.MessageUser : styles.MessageLLM}
           >
-            <p>{msg.content}</p>
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </article>
         ))}
       </section>

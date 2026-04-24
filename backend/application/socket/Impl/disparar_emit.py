@@ -1,7 +1,7 @@
 from datetime import datetime
-from socket import SocketIO
-
-
+from flask_socketio import SocketIO
+import traceback
+import uuid
 
 def disparar_emit(socketio: SocketIO, evento: str, payload: dict, room: str | None = None):
     try:
@@ -9,7 +9,17 @@ def disparar_emit(socketio: SocketIO, evento: str, payload: dict, room: str | No
             print(f"[Socket Error] payload não é um dicionario")
             return
         
-        payload_seguro = { **payload, "timestamp": datetime.now().isoformat() }
+        def preparar_dados(obj):
+            if isinstance(obj, dict):
+                return {k: preparar_dados(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [preparar_dados(i) for i in obj]
+            elif isinstance(obj, uuid.UUID):
+                return str(obj)
+            return obj
+            
+        dados_limpos = preparar_dados(payload)
+        payload_seguro = { **dados_limpos, "timestamp": datetime.now().isoformat() }
         
         if room: 
             socketio.emit(evento, payload_seguro, room=room)
@@ -18,4 +28,5 @@ def disparar_emit(socketio: SocketIO, evento: str, payload: dict, room: str | No
 
         print(f"[Socket Emit] evento: {evento} | room: {room}")
     except Exception as e:
-       print(f"[Socket Error] falha ao emitir '{evento}': {str(e)}")
+        traceback.print_exc()
+        print(f"[Socket Error] falha ao emitir '{evento}': {str(e)}")

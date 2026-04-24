@@ -34,4 +34,4 @@ RUN chmod +x ./entrypoint.sh
 # Use o caminho relativo direto ou absoluto
 ENTRYPOINT ["/app/entrypoint.sh"]
 # Comando padrão para rodar a aplicação
-CMD ["gunicorn", "--worker-class=geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "--workers=1", "--bind=0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "-k", "geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "-w", "1", "app:app", "--bind", "0.0.0.0:5000"]

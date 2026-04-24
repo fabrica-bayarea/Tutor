@@ -1,4 +1,4 @@
-    "use client";
+"use client";
 
     import socket from "@/libs/socket";
     import { useEffect, useRef, useState, useMemo } from "react";
@@ -21,16 +21,14 @@
         const [materiaNome, setMateriaNome] = useState("");
         const [chat,setChat] = useState("");
         const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();
+        const [respostaAtual, setRespostaAtual] = useState("");
         const { materias, turmas } = useData();
 
         const materiasMap = useMemo(() => {
-            if(materias.length === 0) return { "132123123124123": "Estatística" };
             return Object.fromEntries(
-                materias.map(m => [m.id.toString(), m.nome])
+                materias.map((m: any) => [m.id.toString(), m.nome])
               );
         }, [materias]);
-
-        useEffect(()=>{console.log(materiaId)},[materiaId]);
                   
         const handleMateriaChange = (id: string, nome: string) => {
             setMateriaId(id);
@@ -47,6 +45,7 @@
             setNewChat(true);
             setShowSelectMaterias(true);
             setTextAreaDisabled(false);
+            setChat("");
         };
 
         const handleConfig = () => {
@@ -66,11 +65,11 @@
             setTextAreaDisabled(true)
             messageFieldRef.current?.addMessage("user",text);
             setText("");
-            messageFieldRef.current?.addMessage("llm","...");
+            messageFieldRef.current?.addMessage("llm","");
 
-            socket.emit("nova_mensagem", {
+            socket.emit("mensagem_inicial", {
                 id_usuario: user?.id,
-                id_materia: materiaId,
+                materia_id: materiaId,
                 mensagem: text,
                 historico: messageFieldRef.current?.getAllMessages(),
                 chat_novo: newChat,
@@ -79,38 +78,70 @@
             });
 
             setNewChat(false);
-            setChat("idDoChat")
-        }
-
+            }
         useEffect(() => {
+            if (!socket.connected) {
+                socket.connect();
+            }
+
+            socket.on("connection-confirmation", (data: any) => {
+                console.log("Servidor confirmou conexão:", data);
+            });
+
             socket.on("processando", () => {
                 messageFieldRef.current?.updateLastMessage("Mensagem em processamento...");
-                setTextAreaDisabled(true)
+                setTextAreaDisabled(true);
             });
 
-            socket.on("buscando_material", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando material semântico...");
+            socket.on("buscando_arquivos", () => {
+                messageFieldRef.current?.updateLastMessage("Buscando arquivos...");
             });
 
-            socket.on("gerando_resposta", () => {
-                messageFieldRef.current?.updateLastMessage("Gerando resposta...");
+            socket.on("buscando_vetores", () => {
+                messageFieldRef.current?.updateLastMessage("Buscando vetores...");
             });
 
-            socket.on("processo_completo", () => {
-                setTextAreaDisabled(false)
+            socket.on("formatando_chunks", () => {
+                messageFieldRef.current?.updateLastMessage("Formatando chunks...");
             });
 
-            socket.on("erro", () => {
-                messageFieldRef.current?.updateLastMessage("Não foi possível gerar sua resposta, tente novamente.");
-                setTextAreaDisabled(false)
+            socket.on("construindo_prompt", () => {
+                messageFieldRef.current?.updateLastMessage("Construindo prompt...");
+            });
+
+            socket.on("chunk_mensagem", (data: { data: any }) => {
+                const chunk = data.data;
+
+                setRespostaAtual((prev: any) => {
+                    const nova = prev + chunk;
+                    messageFieldRef.current?.updateLastMessage(nova);
+                    return nova;
+                });
+            });
+
+            socket.on("processo_completo", (data: {chatId: string}) => {
+                setTextAreaDisabled(false);
+                setRespostaAtual("");
+                setChat(data.chatId)
+            });
+
+            socket.on("erro", (data: { erro?: string }) => {
+                const mensagem = data?.erro || "Erro desconhecido";
+
+                messageFieldRef.current?.updateLastMessage("Erro: " + mensagem);
+                setTextAreaDisabled(false);
+                setRespostaAtual("");
             });
             return () => {
-            
-                socket.off("processando")
-                socket.off("buscando_material")
-                socket.off("gerando_resposta")
-                socket.off("processo_completo")
-                socket.off("erro")
+                socket.off("connection-confirmation");
+                socket.off("processando");
+                socket.off("buscando_arquivos");
+                socket.off("buscando_vetores");
+                socket.off("formatando_chunks");
+                socket.off("construindo_prompt");
+                socket.off("processo_completo");
+                socket.off("erro");
+                socket.off("chunk_mensagem");
             }
         }, [])
 
@@ -118,6 +149,7 @@
             <>
                 <header className={styles.headerFixo}>
                     <HeaderChat
+                        isDisabled={isTextAreaDisabled}
                         onNewChatClick={handleNovoChat}
                         onNavItemClick={(item) => {
                             if (item === "Sair") handleSair();

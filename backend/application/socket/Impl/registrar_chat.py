@@ -1,5 +1,6 @@
 from application.models.model_chat import Chat
 from application.config.database import db
+import traceback
 
 def registrar_chat(id_usuario, id_materia, primeiro_titulo): 
     try: 
@@ -22,6 +23,7 @@ def registrar_chat(id_usuario, id_materia, primeiro_titulo):
         return novo_chat.id
 
     except Exception as e:
+        traceback.print_exc()
         db.session.rollback()
         print(f"[Error] erro ao registrar chat: {e}")
-        return None
+        raise

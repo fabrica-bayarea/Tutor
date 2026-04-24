@@ -1,13 +1,16 @@
 from application.config.database import db
 from application.models.model_mensagem import Mensagem
-
+from datetime import datetime
+import traceback
 
 def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
     try:
         if not conteudo:
             print(f"[Warning] problema ao registrar mesnagem, conteudo vazio")
-            return
+            raise ValueError("Conteúdo da mensagem vazio")
         
+        data_de_envio = datetime.fromisoformat(data_de_envio.replace("Z", "+00:00"))
+
         nova_mensagem = Mensagem(
             chat_id=id_chat,
             sessao_id=sessao_id,
@@ -22,6 +25,7 @@ def registrar_mensagem(id_chat, usuario_id, sessao_id, data_de_envio, conteudo):
         return nova_mensagem.id
 
     except Exception as e:
+        traceback.print_exc()
         db.session.rollback()
         print(f"[Error] erro ao persistir mensagem: {e}")
-        return None
+        raise

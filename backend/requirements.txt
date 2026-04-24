@@ -4,8 +4,6 @@ flask-cors
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-SocketIO
-gevent
-gevent-websocket
 PyJWT
 chromadb
 docling
@@ -13,9 +11,12 @@ openai-whisper
 selenium
 webdriver-manager
 ollama
-gunicorn
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
 psycopg2-binary
 mcp
+httpx
+gunicorn
+gevent
+gevent-websocket

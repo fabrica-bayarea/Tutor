@@ -25,21 +25,27 @@
 }
 
 .MessageUser{
+  background-color: white;
   display: flex;
   max-width: 75%;
-  border: 1px solid black;
+  border: 1px solid white;
   border-radius: 20px 20px 0px 20px;
   padding: 1rem;
-  margin-left: auto;
+  margin: 1rem 1rem 0rem auto;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
 }
 
 .MessageLLM{
-  display: flex;
-  max-width: 75%;
-  border: 1px solid black;
+  background-color: white;
+  max-width: 100%;
+  border: 1px solid white;
   border-radius: 20px 20px 20px 0px;
   padding: 1rem;
   margin-right: auto;
+}
+
+.MessageP {
+  text-align: justify;
 }
 
 @media(width >= 768px){
@@ -47,9 +53,6 @@
       width: 55%;
   }
   .MessageUser{
-      max-width: 45%;
-  }
-  .MessageLLM{
       max-width: 45%;
   }
 }
