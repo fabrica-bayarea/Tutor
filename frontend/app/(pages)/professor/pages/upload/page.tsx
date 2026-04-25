@@ -6,11 +6,11 @@ import Select from 'react-select';
 import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
 import { postLinks } from '@/app/services/service_link';
 import { uploadArquivos, uploadLinks, uploadTextos } from '@/app/services/service_arquivo';
-import SourceUpload from '../components/SourceUpload/SourceUpload';
+import SourceUpload from '../../components/SourceUpload/SourceUpload';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
-import UserButton from '../../../components/UserButton/userButton';
+import UserButton from '../../../../components/UserButton/userButton';
 
 function ExtratorWindow() {
     const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);

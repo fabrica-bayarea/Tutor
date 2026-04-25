@@ -98,7 +98,7 @@
             });
 
             socket.on("gerando_resposta", () => {
-                messageFieldRef.current?.updateLastMessage("Gerando resposta...");
+                messageFieldRef.current?.updateLastMessage("Gerando...");
             });
 
             socket.on("chunk_mensagem", (data: { data: any }) => {

@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import { ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Shapes, Funnel, Car} from 'lucide-react';
-import { InterfaceUsuario } from '../../../types';
-import BarraDeProgresso from '../components/BarraDeProgresso/BarraDeProgresso';
+import { InterfaceUsuario } from '../../../../types';
+import BarraDeProgresso from '../../components/BarraDeProgresso/BarraDeProgresso';
 import Select from 'react-select';
-import CardPequeno from '../components/CardPequeno/CardPequeno';
-import CardMedio from '../components/CardMedio/CardMedio';
+import CardPequeno from '../../components/CardPequeno/CardPequeno';
+import CardMedio from '../../components/CardMedio/CardMedio';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceUsuario>({

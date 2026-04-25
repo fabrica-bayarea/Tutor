@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
-import Button from '../../../../../components/Button/Button';
+import Button from '../../../../../../components/Button/Button';
 import IconButton from '@/app/components/IconButton/IconButton';
-import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceArquivo, InterfaceArquivoTurmaMateria } from '../../../../../../types';
 import { ArrowLeft, Download, File, Play, Music, Text, Pencil, Plus, SquareArrowOutUpRight, Trash2 } from 'lucide-react';
-import { obterTurma } from '../../../../../services/service_turma';
-import { obterMateria } from '../../../../../services/service_materia';
-import { obterVinculosArquivoTurmaMateria } from '../../../../../services/service_vinculos';
-import { obterArquivo, obterArquivoDownload, deletarArquivo } from '../../../../../services/service_arquivo';
-import { deletarVinculoArquivoTurmaMateria } from '../../../../../services/service_vinculos';
+import { obterTurma } from '../../../../../../services/service_turma';
+import { obterMateria } from '../../../../../../services/service_materia';
+import { obterVinculosArquivoTurmaMateria } from '../../../../../../services/service_vinculos';
+import { obterArquivo, obterArquivoDownload, deletarArquivo } from '../../../../../../services/service_arquivo';
+import { deletarVinculoArquivoTurmaMateria } from '../../../../../../services/service_vinculos';
 import { TIPOS_ARQUIVO } from '@/constants';
 
 export default function Materia() {

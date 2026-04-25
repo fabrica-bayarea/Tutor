@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import CardMateria from '../components/CardMateria/CardMateria';
+import CardMateria from '../../components/CardMateria/CardMateria';
 
-import { InterfaceUsuario, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '../../../types';
+import { InterfaceUsuario, InterfaceMateria, InterfaceTurma, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '../../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';

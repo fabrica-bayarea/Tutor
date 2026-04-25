@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import styles from './page.module.css';
 
-import Button from '../../../../../components/Button/Button';
-import CardMateria from '../../../components/CardMateria/CardMateria';
+import Button from '../../../../../../components/Button/Button';
+import CardMateria from '../../../../components/CardMateria/CardMateria';
 import { ArrowLeft, ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Brain, GraduationCap, ChevronRight } from 'lucide-react';
-import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceProfessorTurmaMateria } from '../../../../../types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceProfessorTurmaMateria } from '../../../../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
-import BarraDeProgresso from '../../../components/BarraDeProgresso/BarraDeProgresso';
-import CardPequeno from '../../../components/CardPequeno/CardPequeno';
-import CardMedio from '../../../components/CardMedio/CardMedio';
+import BarraDeProgresso from '../../../../components/BarraDeProgresso/BarraDeProgresso';
+import CardPequeno from '../../../../components/CardPequeno/CardPequeno';
+import CardMedio from '../../../../components/CardMedio/CardMedio';
 
 export default function Turma() {
     const params = useParams();

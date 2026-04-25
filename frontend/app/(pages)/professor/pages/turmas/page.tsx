@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
-import CardTurma from '../components/CardTurma/CardTurma';
+import CardTurma from '../../components/CardTurma/CardTurma';
 
-import { InterfaceUsuario, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../../types';
+import { InterfaceUsuario, InterfaceTurma, InterfaceProfessorTurmaMateria } from '../../../../types';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 
