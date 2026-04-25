@@ -1,16 +1,19 @@
 import asyncio
+import traceback
+
 from flask_socketio import emit
 from flask import request, current_app
-import traceback
+
+from application.socket.socket_instance import socketio
 
 from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.socket.Impl.validacao_emit import validacao_emit
 from application.socket.Impl.disparar_emit import disparar_emit
-from application.mcp.server import executar_chat
-from application.socket.socket_instance import socketio
-from application.mcp.tools.busca_semantica_tool import busca_semantica
-from application.mcp.tools.chat_tool import handle_chat_stream
+from application.socket.Impl.busca_semantica import busca_semantica
+from application.socket.Impl.prompt_builder import build_prompt
+
+from application.socket.Classes.MCP_pipeline import MCPPipeline
 
 @socketio.on("connect")
 def handle_connect():
@@ -65,23 +68,35 @@ async def _processar_mensagem_async(data, sid):
         "\n".join(f"{m['sender']}: {m['content']}" for m in historico_mensagens)
         if historico_mensagens else ""
     )
-
+    
     model = "llama3"
     materia = "Matemática"
 
+    disparar_emit(socketio, 'buscando_arquivos', {}, sid)
     try:
-        await executar_chat(
-            {
-                "materia_id": materia_id,
-                "mensagem": mensagem,
-                "historico": historico_formatado,
-                "sid": sid,
-                "model": model,
-                "materia": materia
-            }
-        )
+        contexto_vetorial = await busca_semantica(materia_id,mensagem)
     except Exception as e:
         traceback.print_exc()
         return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
 
-    disparar_emit(socketio,"processo_completo",{"chatId":chat_id}, room=sid)
+    prompt = build_prompt(materia,contexto_vetorial,historico_formatado,mensagem)
+
+    disparar_emit(socketio, 'validando_pergunta', {}, sid)
+    try:
+        valido = await MCP.valid_stream(prompt)
+        if not valido:
+            disparar_emit(socketio,"chunk_mensagem",{"data":"A mensagem enviada não pode ser respondida por falta de material ou inconsistência com o tema da matéria."}, room=sid)
+            return disparar_emit(socketio,"processo_completo",{"chatId":chat_id}, room=sid)
+    except Exception as e:
+        traceback.print_exc()
+        return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
+
+    disparar_emit(socketio, 'gerando_resposta', {}, sid)
+    try:
+        async for chunk in MCP.run_stream(prompt,model):
+            disparar_emit(socketio, 'chunk_mensagem', {"data":chunk}, sid)    
+    except Exception as e:
+        traceback.print_exc()
+        return disparar_emit(socketio, "erro", {"erro": str(e)}, sid)
+
+    return disparar_emit(socketio,"processo_completo",{"chatId":chat_id}, room=sid)

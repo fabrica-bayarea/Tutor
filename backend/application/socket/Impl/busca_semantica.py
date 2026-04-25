@@ -45,10 +45,8 @@ def formatar_para_rag(chunks:List[str]) -> List[str]:
     
     return resultado
 
-async def busca_semantica(materia_id:str,query:str,sid,socketio) -> List[str]:
+async def busca_semantica(materia_id:str,query:str) -> List[str]:
     
-    disparar_emit(socketio, 'buscando_arquivos',{}, room=sid)
-
     arquivos_ids = await asyncio.to_thread(
         obter_arquivos_por_materia,
         materia_id
@@ -56,8 +54,6 @@ async def busca_semantica(materia_id:str,query:str,sid,socketio) -> List[str]:
 
     if not arquivos_ids: return ""
 
-    disparar_emit(socketio, 'buscando_vetores',{}, room=sid)
     chunks = await asyncio.to_thread(buscar_no_vector_db(query,arquivos_ids))
 
-    disparar_emit(socketio, 'formatando_chunks',{}, room=sid)
     return formatar_para_rag(chunks)

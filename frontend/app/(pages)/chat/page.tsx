@@ -94,19 +94,11 @@
             });
 
             socket.on("buscando_arquivos", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando arquivos...");
+                messageFieldRef.current?.updateLastMessage("Realizando busca semântica...");
             });
 
-            socket.on("buscando_vetores", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando vetores...");
-            });
-
-            socket.on("formatando_chunks", () => {
-                messageFieldRef.current?.updateLastMessage("Formatando chunks...");
-            });
-
-            socket.on("construindo_prompt", () => {
-                messageFieldRef.current?.updateLastMessage("Construindo prompt...");
+            socket.on("gerando_resposta", () => {
+                messageFieldRef.current?.updateLastMessage("Gerando resposta...");
             });
 
             socket.on("chunk_mensagem", (data: { data: any }) => {
