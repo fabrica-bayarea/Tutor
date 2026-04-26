@@ -1,0 +1,15 @@
+.mainSection{
+    display: flex;
+    flex: 1;
+    height: 100vh;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    background-color: antiquewhite;
+}
+
+@media(width >= 768px){
+    .mainSection{
+        flex-direction: row;
+    }
+}

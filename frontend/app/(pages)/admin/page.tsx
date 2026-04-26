@@ -4,8 +4,8 @@ import LayoutAdmin from "./layout";
 
 export default function Home() {
     return (
-        <LayoutAdmin>
-            <></>
-        </LayoutAdmin>
+        <>
+            <h1>teste</h1>
+        </>
     );
 }
