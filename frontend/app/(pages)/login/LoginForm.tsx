@@ -16,7 +16,7 @@ declare global {
 
 export default function LoginForm() {
     const router = useRouter();
-    const { refreshUser } = useAuth();
+    const { refreshUser, isStudent, isProfessor, isAdmin } = useAuth();
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -38,7 +38,11 @@ export default function LoginForm() {
     
             await refreshUser();
     
-            const destino = '/chat';
+            let destino = "";
+            if(isAdmin) destino = "/admin";
+            else if(isProfessor) destino = "/professor"
+            else if(isStudent) destino = "/chat"
+
             router.push(destino);
     
         } catch (error) {
@@ -64,7 +68,11 @@ export default function LoginForm() {
     
             await refreshUser();
     
-            const destino = '/chat';
+            let destino = "";
+            if(isAdmin) destino = "/admin";
+            else if(isProfessor) destino = "/professor"
+            else if(isStudent) destino = "/chat"
+
             router.push(destino);
     
         } catch (error) {
