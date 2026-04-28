@@ -44,10 +44,13 @@
 - O formulário de cadastro de aluno deve conter os campos: Nome completo, Matrícula, E-mail.
 - O sistema envia automaticamente um link de convite para o e-mail do aluno ao concluir o cadastro.
 - Ao concluir o cadastro, exibir confirmação e opção de cadastrar outro aluno ou voltar à listagem.
+- A listagem de alunos exibe uma caixa de pesquisa (acima da tabela) e paginação navegável (abaixo da tabela), com botões "Anterior", números de página e "Próximo".
 
 ### Requisitos Não Funcionais
 
 - O cadastro deve ser confirmado em no máximo 5 segundos após o envio do formulário.
+- A listagem de alunos deve usar **paginação no servidor (server-side)**: cada página é buscada na base de dados sob demanda, evitando carregar todos os alunos de uma só vez no cliente.
+- A **caixa de pesquisa** da listagem deve filtrar alunos já cadastrados por **nome, matrícula ou e-mail**, executando a consulta diretamente na base de dados (não filtra apenas no cliente).
 
 ### Pré-requisitos
 
@@ -59,6 +62,8 @@
 - [ ] Matrícula ou e-mail duplicados são rejeitados com mensagem explicativa.
 - [ ] Aluno cadastrado aparece na listagem de usuários com status ativo.
 - [ ] Aluno recebe e-mail com link de convite e consegue criar sua senha e acessar a plataforma.
+- [ ] A listagem de alunos exibe paginação navegável; cada página é carregada da base de dados sob demanda.
+- [ ] A caixa de pesquisa filtra a listagem por nome, matrícula ou e-mail consultando a base de dados.
 
 ---
 
