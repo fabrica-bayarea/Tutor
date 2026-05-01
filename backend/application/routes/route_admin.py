@@ -6,8 +6,10 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno
+from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno
 import secrets
+from application.config.database import db
+from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -116,3 +118,20 @@ def gerar_aluno():
     # Cria o aluno
     aluno = criar_aluno(matricula, nome, email, senha)
     return jsonify(aluno), 201
+
+
+@admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
+def deletar_usuario(id):
+
+    aluno = desativar_aluno(id)
+
+    if not aluno:
+        return jsonify({"error": "Usuario não encontrado"}), 404
+
+    return jsonify({
+        "Usuario:": aluno.nome,
+        "Matricula:": aluno.matricula,
+        "Data de desativação: ": datetime.now(),
+        "mensagem": "Desativado com sucesso"
+    }), 200
+

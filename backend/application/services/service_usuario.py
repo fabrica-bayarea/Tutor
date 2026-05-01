@@ -108,3 +108,23 @@ def alterar_aluno(matricula: str, role: str):
     
     return aluno.to_dict()
 
+def desativar_aluno(aluno_id: uuid.UUID ):
+    """
+    Função responsavel por desativar aluno do banco de dados.
+    
+    Espera receber:
+    - `id: ` uuid.UUID - id do aluno que sera desativado
+
+    Retorna uma mensagem mostrando se o aluno foi alterado ou erro se caso não encontrado
+    """
+
+    aluno = Usuario.query.get(aluno_id)
+
+    if not aluno:
+        return None
+    
+    aluno.status = RoleEnum.INATIVO.name
+    db.session.commit()
+
+    return aluno
+
