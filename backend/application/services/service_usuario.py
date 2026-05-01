@@ -21,7 +21,7 @@ def criar_aluno(matricula: str, nome: str, email: str, senha: str) -> dict[str, 
         email=email,
         senha=senha,
         role=RoleEnum.ALUNO,
-        status="Ativo"
+        status=RoleEnum.ATIVO
     )
     db.session.add(aluno)
     db.session.commit()

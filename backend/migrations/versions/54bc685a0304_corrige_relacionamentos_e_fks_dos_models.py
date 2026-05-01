@@ -44,6 +44,7 @@ def upgrade():
     sa.Column('email', sa.String(length=64), nullable=False),
     sa.Column('senha', sa.String(length=128), nullable=False),
     sa.Column('role', sa.Enum('ADMIN', 'PROFESSOR', 'ALUNO', name='roleenum', native_enum=False), nullable=False),
+    sa.Column('status', sa.Enum('Ativo', 'Inativo', native_enum=False), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('usuario', schema=None) as batch_op:
