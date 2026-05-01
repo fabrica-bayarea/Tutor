@@ -11,7 +11,7 @@ import secrets
 
 admin_bp = Blueprint('admin', __name__)
 
-@admin_bp.route('/usuarios/buscar', methods=['GET'])
+@admin_bp.route('/usuarios/all', methods=['GET'])
 def listar_todos_usuarios():
     try:
         page = request.args.get('page', 1, type=int)
