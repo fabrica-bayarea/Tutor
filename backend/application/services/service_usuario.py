@@ -130,11 +130,14 @@ def desativar_aluno(aluno_id: uuid.UUID ):
 
 def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, email_novo:str, status_novo: str,  role_nova: str):
     """
-    Função atômica, responsável por alterar a role de um usuario no PostgreSQL.
+    Função atômica, responsável por alterar um usuario no PostgreSQL.
 
     Espera receber:
+    - `nome`: str - o nome novo do aluno
     - `matricula`: str - o número de matrícula do aluno
-    - `role`: str - role do usuario
+    - `role`: str - role novo do usuario
+    - `email`: str - email novo do aluno
+    - `status`: str - status novo do aluno
 
     Retorna um dicionário com os dados do usuario alterado.
     """
@@ -143,7 +146,7 @@ def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, ema
     if not aluno:
         return None  # Se não encontrar, retorna None
     
-    
+
     aluno.matricula = matricula_nova
     aluno.role = role_nova
     aluno.nome = nome_novo
@@ -153,4 +156,17 @@ def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, ema
     
     db.session.commit()
     
+    return aluno.to_dict()
+
+def reativar_aluno(id: uuid.UUID, status_novo: str):
+
+    aluno = Usuario.query.filter_by(id=id).first()
+
+    if not aluno:
+        return None  # Se não encontrar, retorna None
+    
+    aluno.status = status_novo
+
+    db.session.commit()
+
     return aluno.to_dict()

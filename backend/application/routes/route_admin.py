@@ -6,7 +6,7 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id
+from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno
 import secrets
 from application.config.database import db
 from datetime import datetime
@@ -165,3 +165,21 @@ def atualizar_aluno_por_id(id):
     aluno_novo = alterar_aluno_por_id(id, matricula, nome, email, status, role)
 
     return jsonify(aluno_novo), 200
+
+
+@admin_bp.route("/usuarios/<uuid:id>/reativar", methods=['PATCH'])
+def reativar_usuario(id):
+
+    status = request.json.get('status')
+
+    if status not in ["ATIVO", "INATIVO"]:
+        return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
+    
+    aluno_existente = buscar_aluno(id)
+
+    if not aluno_existente:
+        return jsonify({"error: Usuario não encontrado"}), 404
+    
+    aluno_status_novo = reativar_aluno(id, status)
+
+    return jsonify(aluno_status_novo), 200
