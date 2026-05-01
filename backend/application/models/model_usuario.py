@@ -16,6 +16,7 @@ class Usuario(db.Model):
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
     senha = db.Column(db.String(128), nullable=False)
     role = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
+    status = db.Column(db.String(10), nullable=False)
 
     turmas_matriculadas = db.relationship('AlunoTurma', back_populates='aluno', cascade='all, delete-orphan')
     turmas_materias = db.relationship('ProfessorTurmaMateria', back_populates='professor', cascade='all, delete-orphan')
@@ -32,5 +33,6 @@ class Usuario(db.Model):
             'matricula': self.matricula,
             'nome': self.nome,
             'email': self.email,
-            'role': str(self.role)
+            'role': str(self.role),
+            'status': self.status
         }

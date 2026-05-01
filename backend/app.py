@@ -16,7 +16,8 @@ from application.routes import (
     chats_bp,
     mensagens_bp,
     vinculos_bp,
-    data_bp
+    data_bp,
+    admin_bp
 )
 
 app = Flask(__name__)
@@ -53,6 +54,7 @@ app.register_blueprint(chats_bp, url_prefix="/chats")
 app.register_blueprint(mensagens_bp, url_prefix="/mensagens")
 app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 app.register_blueprint(data_bp, url_prefix="/data")
+app.register_blueprint(admin_bp, url_prefix="/admin")
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
