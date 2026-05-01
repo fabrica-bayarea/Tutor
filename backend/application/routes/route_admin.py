@@ -6,7 +6,7 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno
+from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
 import secrets
 from application.config.database import db
 from datetime import datetime
@@ -15,28 +15,39 @@ admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/usuarios/all', methods=['GET'])
 def listar_todos_usuarios():
+    """
+    Endpoint para listar usuarios
+
+    Espera receber algum desses ou nenhum:
+    - `matricula`: str - o número de matrícula do aluno
+    - `nome`: str - o nome do aluno
+    - `email`: str - o email do aluno
+    - `status`: str - o status do aluno
+    - `role`: str - a role do aluno
+    
+    Retorna um dicionário contendo as informações do aluno(s)
+    ```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+        "status": "status do usuario"
+    }
+    ```
+    """
     try:
         page = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', type=int)
 
-        filtros = {
-            Usuario.nome: request.args.get('nome'),
-            Usuario.matricula: request.args.get('matricula'),
-            Usuario.role: request.args.get('role'),
-            Usuario.status: request.args.get('status'),
-            Turma.codigo: request.args.get('turma')
-        }
-
-        query = Usuario.query
-
-        for campo, valor in filtros.items():
-            if valor:
-                if campo in [Usuario.nome, Usuario.matricula, Turma.codigo]:
-                    query = query.filter(campo.ilike(f"%{valor}%"))
-                else:
-                    query = query.filter(campo == valor)
-
-        query = query.order_by(Usuario.nome.asc())
+        query = buscar_alunos_por_filtro(
+            nome = request.args.get('nome'),
+            matricula = request.args.get('matricula'),
+            role = request.args.get('role'),
+            status = request.args.get('status'),
+            turma =request.args.get('turma')
+        )
 
         if limit:
             pagination = query.paginate(page=page, per_page=limit, error_out=False)
@@ -122,7 +133,22 @@ def gerar_aluno():
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
 def deletar_usuario(id):
+    """
+    Endpoint para deletar(Inativar) usuario por id
 
+    Espera receber algum desses ou nenhum:
+    - `id`: str - O uuid do aluno
+    
+    Retorna um dicionário contendo as informações do aluno(s)
+    ```json
+    {
+        "Data de desativação: ": "data da hora da desativação do aluno",
+        "Matricula:": "matricula do aluno",
+        "Usuario:": "nome do aluno",
+        "mensagem": "Desativado com sucesso"
+    }
+    ```
+    """
     aluno = desativar_aluno(id)
 
     if not aluno:
@@ -135,8 +161,28 @@ def deletar_usuario(id):
         "mensagem": "Desativado com sucesso"
     }), 200
 
+
+
 @admin_bp.route("/usuarios/<uuid:id>", methods=['GET'])
 def buscar_alunos_por_id(id):
+    """
+    Endpoint para buscar usuario por id
+
+    Espera receber algum desses ou nenhum:
+    - `id`: str - O uuid do aluno
+    
+    Retorna um dicionário contendo as informações do aluno(s)
+    ```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+        "status": "status do usuario"
+    }
+    ```
+    """
     aluno = buscar_aluno(id)
 
     return jsonify(aluno), 200
@@ -144,7 +190,28 @@ def buscar_alunos_por_id(id):
 
 @admin_bp.route("/usuarios/<uuid:id>", methods=['PUT'])
 def atualizar_aluno_por_id(id):
+    """
+    Endpoint para atualizar usuario por id
 
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `nome`: str - o nome do aluno
+    - `email`: str - o email do aluno
+    - `status`: str - o status do aluno
+    - `role`: str - a role do aluno
+    
+    Retorna um dicionário contendo as informações do aluno(s)
+    ```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+        "status": "status do usuario"
+    }
+    ```
+    """
     matricula = request.json.get('matricula')
     nome = request.json.get('nome')
     email = request.json.get('email')
@@ -167,12 +234,30 @@ def atualizar_aluno_por_id(id):
     return jsonify(aluno_novo), 200
 
 
+
 @admin_bp.route("/usuarios/<uuid:id>/reativar", methods=['PATCH'])
 def reativar_usuario(id):
+    """
+    Endpoint para reativar usuario por id
 
+    Espera receber:
+    - `id`: str - O uuid do aluno
+    
+    Retorna um dicionário contendo as informações do aluno(s)
+    ```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+        "status": "status do usuario"
+    }
+    ```
+    """
     status = request.json.get('status')
 
-    if status not in ["ATIVO", "INATIVO"]:
+    if status not in ["ATIVO"]:
         return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
     
     aluno_existente = buscar_aluno(id)
@@ -180,6 +265,12 @@ def reativar_usuario(id):
     if not aluno_existente:
         return jsonify({"error: Usuario não encontrado"}), 404
     
-    aluno_status_novo = reativar_aluno(id, status)
+    aluno = reativar_aluno(id, status)
 
-    return jsonify(aluno_status_novo), 200
+    return jsonify({
+        "Usuario:": aluno["nome"],
+        "Matricula:": aluno["matricula"],
+        "Data de reativação: ": datetime.now(),
+        "mensagem": "Ativado com sucesso"
+    }), 200
+

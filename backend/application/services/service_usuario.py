@@ -1,5 +1,5 @@
 import uuid
-from application.models import Usuario
+from application.models import Usuario, AlunoTurma
 from application.config.database import db
 from application.models.model_usuario import RoleEnum
 
@@ -159,7 +159,15 @@ def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, ema
     return aluno.to_dict()
 
 def reativar_aluno(id: uuid.UUID, status_novo: str):
+    """
+    Função atômica, responsável por reativar um usuario no PostgreSQL.
 
+    Espera receber:
+    - `id: ` uuid.UUID - id do aluno que sera ativado
+    - `status`: str - status novo do aluno
+
+    Retorna um dicionário informando que o usuario foi alterado.
+    """
     aluno = Usuario.query.filter_by(id=id).first()
 
     if not aluno:
@@ -170,3 +178,40 @@ def reativar_aluno(id: uuid.UUID, status_novo: str):
     db.session.commit()
 
     return aluno.to_dict()
+
+
+def buscar_alunos_por_filtro(nome: str, matricula: str, turma: str, role: str, status: str):
+    """
+    Função atômica, responsável por buscar os usuarios no PostgreSQL dada ou não um determinado parametro.
+
+    Espera receber:
+    - `nome`: str - o nome  do aluno
+    - `matricula`: str - o número de matrícula do aluno
+    - `role`: str - role  do usuario
+    - `email`: str - email  do aluno
+    - `status`: str - status  do aluno
+
+    Retorna uma lista de alunos encontrados
+    """
+    query = Usuario.query
+
+    if turma:
+        query = query.join(AlunoTurma)
+
+    if nome:
+        query = query.filter(Usuario.nome.ilike(f"%{nome}%"))
+
+    if matricula:
+        query = query.filter(Usuario.matricula.ilike(f"%{matricula}%"))
+
+    if turma:
+        query = query.filter(AlunoTurma.turma.ilike(f"%{turma}%"))
+
+    if role:
+        query = query.filter(Usuario.role == role)
+
+    if status:
+        query = query.filter(Usuario.status == status)
+
+    
+    return query.order_by(Usuario.nome.asc())
