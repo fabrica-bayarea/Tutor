@@ -7,7 +7,7 @@ class RoleEnum(enum.Enum):
     PROFESSOR = 2
     ALUNO = 3
     ATIVO = 4
-    Inativo = 5
+    INATIVO = 5
 
 class Usuario(db.Model):
     __tablename__ = 'usuario'
