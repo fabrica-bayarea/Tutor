@@ -128,3 +128,29 @@ def desativar_aluno(aluno_id: uuid.UUID ):
 
     return aluno
 
+def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, email_novo:str, status_novo: str,  role_nova: str):
+    """
+    Função atômica, responsável por alterar a role de um usuario no PostgreSQL.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `role`: str - role do usuario
+
+    Retorna um dicionário com os dados do usuario alterado.
+    """
+    aluno = Usuario.query.filter_by(id=id).first()
+    
+    if not aluno:
+        return None  # Se não encontrar, retorna None
+    
+    
+    aluno.matricula = matricula_nova
+    aluno.role = role_nova
+    aluno.nome = nome_novo
+    aluno.email = email_novo
+    aluno.status = status_novo
+
+    
+    db.session.commit()
+    
+    return aluno.to_dict()
