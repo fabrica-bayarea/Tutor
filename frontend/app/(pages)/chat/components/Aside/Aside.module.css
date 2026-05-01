@@ -1,0 +1,93 @@
+.navAside{
+    display: none;
+    flex-direction: column;
+    width: 15%;
+    min-width: 12rem;
+    background-color: white;
+    padding: 1.5rem;
+    box-shadow: inset 0rem 1px 9px rgba(0,0,0,0.2);
+    gap: 1.5rem;
+}
+
+@media(width >= 768px){
+    .navAside{
+        display: flex;
+    }
+}
+
+.sectionTitle{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.sectionButton{
+    display: flex;
+    height: 2.5rem;
+}
+
+.sectionButton > button{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 8px;
+    background-color: #F5F5F5;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.sectionButton > button:hover{
+    background-color: #0c948c;
+    color: rgba(255, 255, 255, 1);
+}
+
+.sectionSubTitle{
+    display: flex;
+    flex-direction: row;
+}
+
+.sectionSubTitle > p{
+    color: #A3A3A3;
+    font-weight: 600px;
+    font-size: 11px;
+}
+
+.sectionLink{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0 0 1rem;
+}
+
+.linkChatAntigo{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 3.6rem;
+    align-items: left;
+    gap: 0.5rem;
+    padding: 16px 8px;
+    border-radius: 16px;
+}
+
+.linkChatAntigo:hover{
+    background-color: #0c948c;
+}
+
+.titleLink{
+    font-size: 14px;
+    font-weight: 500;
+    color: black;
+}
+
+.subTitleLink{
+    font-size: 12px;
+    font-weight: 400;
+    color: #A3A3A3;
+}
+
+.linkChatAntigo:hover > p{
+    color: rgba(255, 255, 255, 1);
+}

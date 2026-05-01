@@ -1,8 +1,21 @@
-.pageContainer {
+.mainSection{
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 100%;
+    flex: 1;
     height: 100vh;
-    overflow: hidden;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+@media(width >= 768px){
+    .mainSection{
+        flex-direction: row;
+    }
+}
+
+.pageMediaSection{
+    display: flex;
+    flex: 1;
+    height: 100vh;
 }
