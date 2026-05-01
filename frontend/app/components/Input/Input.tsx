@@ -7,6 +7,7 @@ import styles from './Input.module.css';
 type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> & {
     label?: string;
     error?: string;
+    invalid?: boolean;
     helperText?: string;
     containerClassName?: string;
 };
@@ -15,6 +16,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     {
         label,
         error,
+        invalid,
         helperText,
         id,
         type = 'text',
@@ -30,6 +32,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     const isPassword = type === 'password';
     const [revealed, setRevealed] = useState(false);
     const effectiveType = isPassword && revealed ? 'text' : type;
+    const hasError = !!error || !!invalid;
 
     return (
         <div className={`${styles.wrapper} ${containerClassName ?? ''}`}>
@@ -40,7 +43,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             )}
 
             <div
-                className={`${styles.field} ${error ? styles.fieldError : ''} ${
+                className={`${styles.field} ${hasError ? styles.fieldError : ''} ${
                     disabled ? styles.fieldDisabled : ''
                 }`}
             >
@@ -49,7 +52,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
                     id={inputId}
                     type={effectiveType}
                     disabled={disabled}
-                    aria-invalid={!!error}
+                    aria-invalid={hasError}
                     aria-describedby={error || helperText ? `${inputId}-desc` : undefined}
                     className={`${styles.input} ${className ?? ''}`}
                     {...rest}
