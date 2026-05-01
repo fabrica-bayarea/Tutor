@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { useAuth } from '@/utils/auth';
 
 import styles from './page.module.css';
-import { loginAluno, loginAlunoGoogle } from '@/app/services/service_aluno';
+import { loginAluno, loginAlunoGoogle, LoginErrorCode } from '@/app/services/service_aluno';
 import { BookMarked } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import Input from '@/app/components/Input/Input';
 import Button from '@/app/components/Button/Button';
+import Toast from '@/app/components/Toast/Toast';
 
 declare global {
   interface Window {
@@ -20,12 +21,40 @@ declare global {
 
 function LoginContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { refreshUser, isStudent, isProfessor, isAdmin } = useAuth();
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [showSessionExpiredToast, setShowSessionExpiredToast] = useState<boolean>(false);
     const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+    useEffect(() => {
+        if (searchParams?.get('returnTo')) {
+            setShowSessionExpiredToast(true);
+        }
+    }, [searchParams]);
+
+    const messageForError = (code: LoginErrorCode): string => {
+        switch (code) {
+            case "deactivated":
+                return "Sua conta está desativada. Entre em contato com o administrador da sua instituição para reativá-la.";
+            case "invalid_credentials":
+                return "Matrícula ou senha incorretos. Verifique e tente novamente.";
+            default:
+                return "Erro ao realizar login. Tente novamente em instantes.";
+        }
+    };
+
+    const redirectAfterLogin = () => {
+        let destino = "";
+        if (isAdmin) destino = "/admin";
+        else if (isProfessor) destino = "/professor";
+        else if (isStudent) destino = "/chat";
+
+        router.push(destino);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,21 +62,15 @@ function LoginContent() {
         setLoading(true);
 
         try {
-            let aluno = await loginAluno(matricula, senha);
+            const result = await loginAluno(matricula, senha);
 
-            if (!aluno) {
-                setErrorMessage("Credenciais inválidas");
+            if (!result.ok) {
+                setErrorMessage(messageForError(result.error));
                 return;
             }
 
             await refreshUser();
-
-            let destino = "";
-            if(isAdmin) destino = "/admin";
-            else if(isProfessor) destino = "/professor"
-            else if(isStudent) destino = "/chat"
-
-            router.push(destino);
+            redirectAfterLogin();
 
         } catch (error) {
             console.error('Erro no login:', error);
@@ -62,22 +85,15 @@ function LoginContent() {
             setLoading(true);
 
             const googleToken = response.credential;
+            const result = await loginAlunoGoogle(googleToken);
 
-            const aluno = await loginAlunoGoogle(googleToken);
-
-            if (!aluno) {
-                setErrorMessage("Falha no login com Google");
+            if (!result.ok) {
+                setErrorMessage(messageForError(result.error));
                 return;
             }
 
             await refreshUser();
-
-            let destino = "";
-            if(isAdmin) destino = "/admin";
-            else if(isProfessor) destino = "/professor"
-            else if(isStudent) destino = "/chat"
-
-            router.push(destino);
+            redirectAfterLogin();
 
         } catch (error) {
             console.error("Erro no login Google:", error);
@@ -113,6 +129,7 @@ function LoginContent() {
                     value={matricula}
                     onChange={(e) => setMatricula(e.target.value)}
                     disabled={loading}
+                    invalid={!!errorMessage}
                 />
 
                 <Input
@@ -124,7 +141,7 @@ function LoginContent() {
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                     disabled={loading}
-                    error={errorMessage ?? undefined}
+                    invalid={!!errorMessage}
                 />
 
                 <a className={styles.forgotPasswordLink} href="#">
@@ -190,6 +207,22 @@ function LoginContent() {
                     );
                 }}
             />
+
+            {errorMessage && (
+                <Toast
+                    message={errorMessage}
+                    type="error"
+                    onClose={() => setErrorMessage(null)}
+                />
+            )}
+
+            {showSessionExpiredToast && !errorMessage && (
+                <Toast
+                    message="Sua sessão expirou. Por favor, faça login novamente."
+                    type="error"
+                    onClose={() => setShowSessionExpiredToast(false)}
+                />
+            )}
 
         </div>
     );
