@@ -34,10 +34,19 @@
   margin: 1rem 1rem 0rem auto;
 }
 
+.MessageUser > p{
+  color: white;
+}
+
+
+.MessageUser > h1{
+  color: white;
+}
+
 .MessageLLM{
-  background-color: white;
+  background-color: #f5f5f5;
   max-width: 100%;
-  border: 1px solid white;
+  border: 1px solid #f5f5f5;
   border-radius: 20px 20px 20px 0px;
   padding: 1rem;
   margin-right: auto;
@@ -51,7 +60,12 @@
   .MessageConteiner{
       width: 100%;
   }
+  
   .MessageUser{
       max-width: 45%;
+  }
+
+  .MessageLLM{
+    margin: 0 auto 0 6rem;
   }
 }

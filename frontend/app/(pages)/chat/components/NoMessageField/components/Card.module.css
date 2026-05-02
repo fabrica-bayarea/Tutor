@@ -1,0 +1,33 @@
+.buttonSection{
+  display: flex;
+  flex-direction: row;
+  padding: 16px;
+  border: 1px solid rgba(229, 229, 229, 1);
+  border-radius: 12px;
+  gap: 1rem;
+  background-color: #f5f5f5;
+  align-items: center;
+  max-width: 21rem;
+}
+
+.buttonSection > section{
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.buttonTitle{
+  font-size: 16px;
+}
+
+.buttonSubTitle{
+  font-size: 12px;
+  color: rgba(163, 163, 163, 1);
+}
+
+@media(width >= 768px){
+    .buttonSection{
+        background-color: rgba(245, 245, 245, 1);
+        max-width: 17rem;
+    }
+}
