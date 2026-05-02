@@ -5,7 +5,7 @@
     min-width: 12rem;
     background-color: white;
     padding: 1.5rem;
-    box-shadow: inset 0rem 1px 9px rgba(0,0,0,0.2);
+    border: 1px solid rgba(229, 229, 229, 1);
     gap: 1.5rem;
 }
 
@@ -32,7 +32,7 @@
     flex: 1;
     align-items: center;
     gap: 8px;
-    padding: 16px 8px;
+    padding: 10px 12px;
     background-color: #F5F5F5;
     border-radius: 8px;
     font-weight: 500;

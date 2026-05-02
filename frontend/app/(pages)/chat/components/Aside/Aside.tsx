@@ -1,7 +1,5 @@
 import { MessageSquare, BookOpen} from "lucide-react";
 import styles from "./Aside.module.css"
-import { article, section } from "framer-motion/client";
-import { useEffect, useState } from "react";
 
 
 interface ChatInterface {
@@ -22,14 +20,17 @@ export default function Aside({links}:AsideProps){
                 <h1>Tutor</h1>
             </section>
             <section className={styles.sectionButton}>
-                <button><MessageSquare  size={14} color="gray"/>Novo Chat</button>
+                <button>
+                    <MessageSquare  size={14} color="gray"/>
+                    Novo Chat
+                </button>
             </section>
             <section className={styles.sectionSubTitle}>
                 <p>RECENTES</p>
             </section>
             <section className={styles.sectionLink}>
                 {links.map((chat:any,index:number)=>(
-                    <a key={index} className={styles.linkChatAntigo} href={`/pages/${chat.id}/historico`}>
+                    <a key={index} className={styles.linkChatAntigo} href={`chat/${chat.id}/historico`}>
                         <p className={styles.titleLink}>{chat.nome}</p>
                         <p className={styles.subTitleLink}>{chat.materia}</p>
                     </a>

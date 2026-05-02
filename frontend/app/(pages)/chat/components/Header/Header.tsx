@@ -1,0 +1,33 @@
+import styles from "./Header.module.css"
+import { useEffect, useState } from "react"
+import { User, Bell, Menu } from "lucide-react";
+import { useAuth } from "@/utils/auth";
+import { useData } from "@/utils/data";
+
+
+interface HeaderInterface {
+    isSelectInactive: boolean,
+}
+
+export default function Header({isSelectInactive}:HeaderInterface){
+    const { user } = useAuth();
+    const { materias } = useData();
+
+    return(
+        <section className={styles.headerConteiner}>
+            <section className={styles.headerSectionUserMobileMenu}>
+                <Menu size={24}/>
+            </section>
+            <select name="" id="" disabled={isSelectInactive} className={styles.selectMateria}>
+                {Object.entries(materias).map((materia:any,index)=>(
+                    <option key={index}>{materia?.nome}</option>
+                ))}
+            </select>
+            <section className={styles.headerSectionUser}>
+                <p>ADM - {user?.nome}</p>
+                <button className={styles.bellButton}><Bell size={20} color="white"/></button>
+                <button className={styles.userButton}><User size={20} color="#0F766E"/></button>
+            </section>
+        </section>
+    )
+}

@@ -22,7 +22,7 @@ export default function AlunoLayout({ children }: { children: React.ReactNode })
 
     return (
         <section className={styles.mainSection}>
-            <Aside/>
+            <Aside links={[{"id":"1","materia":"Matemática","nome":"Quanto é 1 mais um?"}]}/>
             <section className={styles.pageMediaSection}>
                 {children}    
             </section>
