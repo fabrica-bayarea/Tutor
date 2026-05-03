@@ -4,12 +4,13 @@
     justify-content: space-between;
     padding: 0 0.6rem;
     height: 3rem;
-    margin: 1rem;
+    margin: 1rem 1rem .5rem 1rem;
     background-color: transparent;
-    border: 1px solid rgba(163, 163, 163, 1);
     border-radius: 24px;
     align-items: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
+
 
 .textAreaSection > textarea{
     display: flex;
@@ -42,6 +43,11 @@
     width: 36px;
     border-radius: 18px;    
 }
+
+.textAreaSection > button:disabled{
+    background-color: rgba(163, 163, 163, 1);
+}
+
 
 @media(width >= 768px){
     .textAreaSection{

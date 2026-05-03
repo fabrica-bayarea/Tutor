@@ -1,6 +1,6 @@
 import { SendHorizonal } from "lucide-react"
 import styles from "./TextArea.module.css"
-import { useState } from "react";
+import { useRef } from "react";
 
 interface TextAreaProps {
   isDisabled: boolean;
@@ -32,7 +32,7 @@ export default function TextArea({isDisabled, value, onChange, onSend}: TextArea
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             />
-            <button onClick={handleSendClick}><SendHorizonal color="white" size={14}/></button>
+            <button onClick={handleSendClick} disabled={isDisabled}><SendHorizonal color="white" size={14}/></button>
         </section>
     )
 }

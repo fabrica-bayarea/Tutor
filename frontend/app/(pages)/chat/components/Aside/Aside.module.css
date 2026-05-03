@@ -22,6 +22,12 @@
     align-items: center;
 }
 
+.iconTitle{
+    color: gray;
+    height: 20px;
+    width: 20px;
+}
+
 .sectionButton{
     display: flex;
     height: 2.5rem;
@@ -41,6 +47,10 @@
 .sectionButton > button:hover{
     background-color: #0c948c;
     color: rgba(255, 255, 255, 1);
+}
+
+.sectionButton > button:hover > .iconTitle{
+    color: white;
 }
 
 .sectionSubTitle{
@@ -67,9 +77,11 @@
     flex-direction: column;
     height: 3.6rem;
     align-items: left;
+    text-align: left;
     gap: 0.5rem;
     padding: 16px 8px;
     border-radius: 16px;
+    background-color: transparent;
 }
 
 .linkChatAntigo:hover{

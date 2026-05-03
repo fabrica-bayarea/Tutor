@@ -24,9 +24,47 @@
   -ms-overflow-style: none;
 }
 
+.MessageUser *{
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+.MessageLLM * {
+  margin: 0;
+  padding: 0;
+}
+
+.MessageUser p + p,
+.MessageLLM p + p {
+  margin-top: 0.5rem;
+}
+
+.MessageLLM ul,
+.MessageLLM ol {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.MessageUser ul,
+.MessageUser ol {
+  padding: 1rem;
+}
+
+.MessageLLM li + li {
+  margin-top: 0.25rem;
+}
+
+.MessageLLM h1, .MessageLLM h2, .MessageLLM h3 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
 .MessageUser{
   background-color: rgba(13, 148, 136, 1);
   display: flex;
+  flex-direction: column;
   max-width: 75%;
   border: 1px solid rgba(13, 148, 136, 1);
   border-radius: 16px 16px 0px 16px;
@@ -34,26 +72,15 @@
   margin: 1rem 1rem 0rem auto;
 }
 
-.MessageUser > p{
-  color: white;
-}
-
-
-.MessageUser > h1{
-  color: white;
-}
-
 .MessageLLM{
+  display: flex;
+  flex-direction: column;
   background-color: #f5f5f5;
   max-width: 100%;
   border: 1px solid #f5f5f5;
   border-radius: 20px 20px 20px 0px;
   padding: 1rem;
   margin-right: auto;
-}
-
-.MessageP {
-  text-align: justify;
 }
 
 @media(width >= 768px){

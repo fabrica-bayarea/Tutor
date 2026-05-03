@@ -15,6 +15,13 @@
     height: 100vh;
 }
 
+.pageMediaSection >section{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100vh;
+}
+
 @media(width >= 768px){
     .mainSection{
         flex-direction: row;

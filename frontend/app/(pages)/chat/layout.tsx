@@ -1,30 +1,26 @@
 'use client';
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import styles from "./layout.module.css"
-import { InterfaceUsuario } from "../../types"
 import Aside from "./components/Aside/Aside";
+import { useRouter } from "next/navigation";
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {
-    const [aluno, setAluno] = useState<InterfaceUsuario | null>(null)
+    const [chatKey, setChatKey] = useState(0)
+    const router = useRouter()
 
-    useEffect(() => {
-        const alunoData = localStorage.getItem("aluno")
-        if (alunoData) {
-            try {
-                const parsed = JSON.parse(alunoData)
-                setAluno(parsed)
-            } catch (err) {
-                console.error("Erro ao parsear aluno:", err)
-            }
-        }
-    }, [])
+    const handleNewChat = ()=>{
+        setChatKey(prev => prev + 1)
+        router.push("/chat")
+    }
 
     return (
         <section className={styles.mainSection}>
-            <Aside links={[{"id":"1","materia":"Matemática","nome":"Quanto é 1 mais um?"}]}/>
+            <Aside links={[{"id":"1","materia":"Matemática","nome":"Quanto é 1 mais um?"}]}  onNewChat={handleNewChat}/>
             <section className={styles.pageMediaSection}>
-                {children}    
+                <section key={chatKey}>
+                    {children}    
+                </section>
             </section>
         </section>
     )
