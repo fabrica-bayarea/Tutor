@@ -10,6 +10,7 @@ import { promptDeep, promptExam, promptQuestion, promptSummarize } from "./utils
 import ErrorField from "./components/ErrorField/ErrorField";
 import { useData } from "@/utils/data";
 import { useAuth } from "@/utils/auth";
+import styles from "./page.module.css"
 
 export default function Chat(){
     const messageFieldRef = useRef<MessageFieldRef>(null);
@@ -20,6 +21,7 @@ export default function Chat(){
     const [permitido, setPermitido] = useState(true);
     const { user } = useAuth();
     const { materias } = useData();
+
 
     const handleSend = () => {
         if (text.trim() === '') return;
@@ -43,6 +45,7 @@ export default function Chat(){
     }, [temMensagem, mensagemPendente]);
 
     useEffect(() => {
+        materias.push({"id":"1","nome":"teste"});
         messageFieldRef.current?.deleteAllMessages();
         setTemMensagem(false);
         setText("");
@@ -54,23 +57,36 @@ export default function Chat(){
     
     return(
         <>
-
-            <Header isSelectInactive={temMensagem} materiaName=""/>
-            { temMensagem 
-            ? <MessageField ref={messageFieldRef}/> 
-            : <NoMessageField
-                onAskQuestion={() => {setText(promptQuestion)}}
-                onSummarize={() => {setText(promptSummarize)}}
-                onPrepareExam={() => {setText(promptExam)}}
-                onDeepDive={() => {setText(promptDeep);}}
-            />}
-            <TextArea
-                value={text}
-                onChange={setText}
-                onSend={handleSend}
-                isDisabled={!podeEnviarMensagem}
-            />
-            <ErrorField temErro={!podeEnviarMensagem}/>
+            <Header isSelectInactive={temMensagem && (materias && materias.length > 0)} materiaName=""/>
+            {materias && materias.length > 0 && (
+            temMensagem
+                ? <MessageField ref={messageFieldRef}/> 
+                : <NoMessageField
+                    onAskQuestion={() => {setText(promptQuestion)}}
+                    onSummarize={() => {setText(promptSummarize)}}
+                    onPrepareExam={() => {setText(promptExam)}}
+                    onDeepDive={() => {setText(promptDeep);}}
+                />
+            )}
+            {materias && materias.length > 0 && (
+                <TextArea
+                    value={text}
+                    onChange={setText}
+                    onSend={handleSend}
+                    isDisabled={!podeEnviarMensagem}
+                />
+            )}
+            {materias && materias.length > 0 && (
+                <ErrorField temErro={!podeEnviarMensagem}/>
+            )}
+            {materias && materias.length <= 0 && (
+                <section className={styles.noMateriaSection}>
+                    <section>
+                        <p>Você ainda não está matriculado em nenhuma matéria.</p>
+                        <p>Entre em contato com a coordenação.</p>
+                    </section>
+                </section>
+            )}
         </>
     )
 }

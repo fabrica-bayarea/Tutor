@@ -5,6 +5,7 @@ import styles from "./Aside.module.css"
 import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
 import { LayoutContext } from "@/contexts/LayoutContext";
+import { useData } from "@/utils/data";
 
 interface ChatInterface {
     "id": string,
@@ -20,6 +21,7 @@ interface AsideProps {
 export default function Aside({links, onNewChat}:AsideProps){
     const router = useRouter();
     const { isMenuMobileAberto, setIsMenuAbertoMobile } = useContext(LayoutContext)!;
+    const { materias } = useData();
    
     useEffect(() => {
         const handleResize = () => {
@@ -44,15 +46,23 @@ export default function Aside({links, onNewChat}:AsideProps){
                 <BookOpen color="#0D9488" />
                 <h1>Tutor</h1>
             </section>
+
+            {materias && materias.length > 0 && (
             <section className={styles.sectionButton}>
                 <button onClick={onNewChat} type="submit">
                     <MessageSquare  className={styles.iconTitle}/>
                     Novo Chat
                 </button>
             </section>
+            )}
+
+            {materias && materias.length > 0 && (
             <section className={styles.sectionSubTitle}>
                 <p>RECENTES</p>
             </section>
+            )}
+
+            {materias && materias.length > 0 && (
             <section className={styles.sectionLink}>
                 {links.map((chat:any,index:number)=>(
                     <button key={index} className={styles.linkChatAntigo} onClick={()=>{handleLink(chat.id)}}>
@@ -61,9 +71,12 @@ export default function Aside({links, onNewChat}:AsideProps){
                     </button>
                 ))}
             </section>
+            )}
+
             <section className={styles.buttonClose}>
                 <button onClick={() => setIsMenuAbertoMobile(false)}><X size={20} color="gray"/></button>
             </section>
+
         </nav>
     )
 }
