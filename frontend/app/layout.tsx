@@ -4,6 +4,7 @@ import "./globals.css";
 import { ModalProvider } from "../contexts/contextModal";
 import { AuthProvider } from "../contexts/AuthContext";
 import { DataProvider } from "../contexts/DataContext";
+import { LayoutProvider } from "@/contexts/LayoutContext";
 
 export const metadata: Metadata = {
     title: "Tutor",
@@ -16,6 +17,7 @@ export default function RootLayout({
     return (
         <html lang="pt-br">
             <body>
+                <LayoutProvider>
                 <AuthProvider>
                 <DataProvider>
                 <ModalProvider>
@@ -23,6 +25,7 @@ export default function RootLayout({
                 </ModalProvider>
                 </DataProvider>
                 </AuthProvider>
+                </LayoutProvider>
             </body>
         </html>
     );

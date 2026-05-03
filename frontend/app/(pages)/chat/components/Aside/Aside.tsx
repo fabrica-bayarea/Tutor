@@ -1,8 +1,10 @@
 "use client"
 
-import { MessageSquare, BookOpen} from "lucide-react";
+import { MessageSquare, BookOpen, X} from "lucide-react";
 import styles from "./Aside.module.css"
 import { useRouter } from "next/navigation";
+import { useContext, useEffect } from "react";
+import { LayoutContext } from "@/contexts/LayoutContext";
 
 interface ChatInterface {
     "id": string,
@@ -17,10 +19,27 @@ interface AsideProps {
 
 export default function Aside({links, onNewChat}:AsideProps){
     const router = useRouter();
-    
+    const { isMenuMobileAberto, setIsMenuAbertoMobile } = useContext(LayoutContext)!;
+   
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMenuAbertoMobile(true);
+            }
+        };
 
+        handleResize(); 
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+
+    const handleLink = (id:string) => {
+        if (window.innerWidth <= 768) setIsMenuAbertoMobile(false)
+        router.push(`/chat/${id}/historico`)
+    }
     return (
-        <nav className={styles.navAside}>
+        <nav className={isMenuMobileAberto ? styles.navAside : styles.navAsideHidden}>
             <section className={styles.sectionTitle}>
                 <BookOpen color="#0D9488" />
                 <h1>Tutor</h1>
@@ -36,11 +55,14 @@ export default function Aside({links, onNewChat}:AsideProps){
             </section>
             <section className={styles.sectionLink}>
                 {links.map((chat:any,index:number)=>(
-                    <button key={index} className={styles.linkChatAntigo} onClick={()=>{router.push(`/chat/${chat.id}/historico`)}}>
+                    <button key={index} className={styles.linkChatAntigo} onClick={()=>{handleLink(chat.id)}}>
                         <p className={styles.titleLink}>{chat.nome}</p>
                         <p className={styles.subTitleLink}>{chat.materia}</p>
                     </button>
                 ))}
+            </section>
+            <section className={styles.buttonClose}>
+                <button onClick={() => setIsMenuAbertoMobile(false)}><X size={20} color="gray"/></button>
             </section>
         </nav>
     )

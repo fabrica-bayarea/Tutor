@@ -1,16 +1,19 @@
 'use client';
 
-import { useState } from "react"
+import { useContext, useState } from "react"
 import styles from "./layout.module.css"
 import Aside from "./components/Aside/Aside";
 import { useRouter } from "next/navigation";
+import { LayoutContext } from "@/contexts/LayoutContext";
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {
     const [chatKey, setChatKey] = useState(0)
     const router = useRouter()
+    const { isMenuMobileAberto, setIsMenuAbertoMobile } = useContext(LayoutContext)!;
 
     const handleNewChat = ()=>{
         setChatKey(prev => prev + 1)
+        if (window.innerWidth <= 768) setIsMenuAbertoMobile(false)
         router.push("/chat")
     }
 

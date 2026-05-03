@@ -1,10 +1,9 @@
 import styles from "./Header.module.css"
-import { useEffect, useState } from "react"
 import { User, Bell, Menu } from "lucide-react";
 import { useAuth } from "@/utils/auth";
 import { useData } from "@/utils/data";
-import { select } from "framer-motion/client";
-
+import { useContext } from "react";
+import { LayoutContext } from "@/contexts/LayoutContext";
 
 interface HeaderInterface {
     isSelectInactive: boolean,
@@ -14,11 +13,12 @@ interface HeaderInterface {
 export default function Header({isSelectInactive, materiaName}:HeaderInterface){
     const { user } = useAuth();
     const { materias } = useData();
-
+    const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
+    
     return(
         <section className={styles.headerConteiner}>
             <section className={styles.headerSectionUserMobileMenu}>
-                <Menu size={24}/>
+                <Menu size={24} onClick={() => setIsMenuAbertoMobile(true)}/>
             </section>
             {materiaName !== "" ? 
                 <select name="" id="" disabled={isSelectInactive} className={styles.selectMateria}>

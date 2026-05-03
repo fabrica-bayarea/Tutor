@@ -1,5 +1,12 @@
 .navAside{
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+
+    display: flex;
     flex-direction: column;
     width: 15%;
     min-width: 12rem;
@@ -9,10 +16,19 @@
     gap: 1.5rem;
 }
 
-@media(width >= 768px){
-    .navAside{
-        display: flex;
-    }
+.buttonClose{
+    display: flex;
+    justify-content: flex-start;
+
+}
+
+.buttonClose > button{
+    background-color: transparent;
+    border: none;
+}
+
+.navAsideHidden {
+  display: none;
 }
 
 .sectionTitle{
@@ -102,4 +118,23 @@
 
 .linkChatAntigo:hover > p{
     color: rgba(255, 255, 255, 1);
+}
+
+@media(width >= 768px){
+    .navAside{
+        position: relative;
+        
+        display: flex;
+        flex-direction: column;
+        width: 15%;
+        min-width: 12rem;
+        background-color: white;
+        padding: 1.5rem;
+        border: 1px solid rgba(229, 229, 229, 1);
+        gap: 1.5rem;
+    }
+
+    .buttonClose{
+        display: none;
+    }
 }
