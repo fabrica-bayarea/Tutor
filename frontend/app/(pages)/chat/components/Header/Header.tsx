@@ -6,35 +6,54 @@ import { useContext } from "react";
 import { LayoutContext } from "@/contexts/LayoutContext";
 
 interface HeaderInterface {
-    isSelectInactive: boolean,
-    materiaName: string
+    isSelectInactive: boolean;
+    materiaName: string;
+    onMateriaChange?: (materiaId: string) => void;
 }
 
-export default function Header({isSelectInactive, materiaName}:HeaderInterface){
+export default function Header({ isSelectInactive, materiaName, onMateriaChange }: HeaderInterface) {
     const { user } = useAuth();
     const { materias } = useData();
     const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
-    
-    return(
+
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedIndex = e.target.selectedIndex;
+        const selectedMateria = materias[selectedIndex];
+        if (selectedMateria && onMateriaChange) {
+            onMateriaChange(selectedMateria.id);
+        }
+    };
+
+    return (
         <section className={styles.headerConteiner}>
             <section className={styles.headerSectionUserMobileMenu}>
-                <Menu size={24} onClick={() => setIsMenuAbertoMobile(true)}/>
+                <Menu size={24} onClick={() => setIsMenuAbertoMobile(true)} />
             </section>
-            {materiaName !== "" ? 
-                <select name="" id="" disabled={isSelectInactive} className={styles.selectMateria}>
+            {materiaName !== "" ?
+                <select
+                    disabled={isSelectInactive}
+                    className={styles.selectMateria}
+                    onChange={handleSelectChange}
+                >
                     <option>{materiaName}</option>
                 </select>
-            :
-                <select name="" id="" disabled={isSelectInactive} className={styles.selectMateria}>
-                    {Object.entries(materias).map((materia:any,index)=>(
-                        <option key={index}>{materia?.nome}</option>
+                :
+                <select
+                    disabled={isSelectInactive}
+                    className={styles.selectMateria}
+                    onChange={handleSelectChange}
+                >
+                    {materias.map((materia, index) => (
+                        <option key={index} value={materia.id}>
+                            {materia.nome}
+                        </option>
                     ))}
-                </select>            
+                </select>
             }
             <section className={styles.headerSectionUser}>
                 <p>ADM - {user?.nome}</p>
-                <button className={styles.bellButton}><Bell size={20} color="white"/></button>
-                <button className={styles.userButton}><User size={20} color="#0F766E"/></button>
+                <button className={styles.bellButton}><Bell size={20} color="white" /></button>
+                <button className={styles.userButton}><User size={20} color="#0F766E" /></button>
             </section>
         </section>
     )
