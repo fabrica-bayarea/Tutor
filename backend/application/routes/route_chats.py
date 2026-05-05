@@ -58,3 +58,12 @@ def delete_chat(chat_id: str):
         return jsonify(deletado)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@chats_bp.route('/chat/<uuid:chat_id>/materia', methods=['GET'])
+@token_obrigatorio
+def get_materia_id(chat_id):
+    materia_id = obter_materia_id_por_chat(chat_id)
+    if not materia_id:
+        return jsonify({'error': 'Chat não encontrado'}), 404
+    
+    return jsonify({'materia_id': materia_id})
