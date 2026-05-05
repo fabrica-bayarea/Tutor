@@ -63,7 +63,8 @@ async def _processar_mensagem_async(data, sid):
     
     if(contexto_vetorial == ''): 
         resposta_erro = "Não encontrei informações confiáveis ou contexto suficiente para responder à sua pergunta de forma precisa. Isto ocorre quando o material disponibilizado pela base de conhecimento é insuficiente para geração da resposta."
-        return disparar_emit(socketio,"processo_completo",{"chatId":chat_id,"resposta_completa":resposta_erro}, room=sid)
+        disparar_emit(socketio,"resposta_finalizada",{"resposta":resposta_erro}, room=sid)
+        return disparar_emit(socketio,"processo_completo",{"chatId":chat_id,"resposta_completa":resposta_completa}, room=sid)
 
     # PERSISTÊNCIA/CRIAÇÃO DO CHAT(CASO HAJA NECESSIDADE)
     if chat_novo:
