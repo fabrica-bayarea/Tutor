@@ -9,3 +9,4 @@ venv.bak/
 node_modules/
 docs_full/
 .claude
+.idea/
