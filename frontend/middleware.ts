@@ -35,7 +35,7 @@ export function middleware(request: NextRequest) {
 
   // if (routeType === 'admin' && isAdmin) allowed = true;
   // if (routeType === 'professor' && isProfessor) allowed = true;
-  // if (routeType === 'chat' && isStudent) allowed = true;
+  // if (routeType === 'chat' && (isStudent || isAdmin)) allowed = true;
 
   // if (!allowed) {
   //   const unauthorizedUrl = new URL('/unauthorized', request.url);
