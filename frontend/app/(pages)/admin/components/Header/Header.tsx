@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./Header.module.css"
 import { User, Bell, Menu } from "lucide-react";
 import UrlChanfro from "./components/UrlChanfro";

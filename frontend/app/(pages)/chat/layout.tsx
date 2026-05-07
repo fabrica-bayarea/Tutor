@@ -8,13 +8,20 @@ import { LayoutContext } from "@/contexts/LayoutContext";
 import { obterChats, obterMateriaId } from "@/app/services/service_chat";
 import { useAuth } from "@/utils/auth";
 import { obterMateria } from "@/app/services/service_materia";
+import { InterfaceMateria } from "@/app/types";
+
+interface InterfaceChatLink {
+    id: string;
+    materia: string;
+    nome: string;
+}
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {
     const [chatKey, setChatKey] = useState(0)
     const router = useRouter()
     const { isMenuMobileAberto, setIsMenuAbertoMobile } = useContext(LayoutContext)!;
     const { user } = useAuth();
-    const [chatLinks, setChatLinks] = useState([]);
+    const [chatLinks, setChatLinks] = useState<InterfaceChatLink[]>([]);
 
     const handleNewChat = ()=>{
         setChatKey((prev: number) => prev + 1)
@@ -32,7 +39,7 @@ export default function AlunoLayout({ children }: { children: React.ReactNode })
             limitedChats.map(async (el) => {
                 const materiaId = await obterMateriaId(el.id);
                 const materiaNome = await obterMateria(materiaId);
-                return { id: el.id, materia: materiaNome, nome: el.nome };
+                return { id: el.id, materia: materiaNome.nome, nome: el.nome };
             })
         );
 

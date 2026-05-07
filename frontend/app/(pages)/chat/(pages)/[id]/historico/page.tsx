@@ -16,7 +16,7 @@ export default function Historico(){
     const messageFieldRef = useRef<MessageFieldRef>(null);
     const [materia, setMateria] = useState("")
 
-    useEffect(async ()=>{
+    useEffect(()=>{
         const carregarDados = async () => {
             let idMateria = await obterMateriaId(id);
             let registro_materia = await obterMateria(idMateria);
@@ -24,7 +24,7 @@ export default function Historico(){
 
             let messages = await obterMensagens(id);
             messages.forEach((el) => {
-                messageFieldRef.current?.addMessage(el["sender_type"], el["conteudo"]);
+                messageFieldRef.current?.addMessage(el["sender_type"] as "user" | "llm", el["conteudo"]);
             });
         };
 
