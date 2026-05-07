@@ -2,15 +2,43 @@ from functools import wraps
 from flask import request, jsonify, g
 from .jwt_handler import validar_token
 
+TOKENS_INVALIDADOS = set()
+
+def extrair_token():
+
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header and auth_header.startswith("Bearer "):
+        return auth_header.split(" ")[1]
+
+    token_cookie = request.cookies.get("token")
+
+    if token_cookie:
+        return token_cookie
+
+    return None
+
+
+def invalidar_token(token):
+    TOKENS_INVALIDADOS.add(token)
+
+
+def token_invalido(token):
+    return token in TOKENS_INVALIDADOS
+
+
 def token_obrigatorio(f):
     """
     Decorador personalizado que verifica se um token JWT válido foi enviado numa requisição.
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        token = request.cookies.get("token")
+        token = extrair_token()
         if not token:
             return jsonify({"error": "Token ausente"}), 401
+        
+        if token_invalido(token):
+            return jsonify({"Error": "Token invalido"}), 401
         
         payload = validar_token(token)
         if not payload:

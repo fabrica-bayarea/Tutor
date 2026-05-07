@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import token_obrigatorio
+from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token
 from application.services.service_usuario import buscar_aluno, logar_aluno
 from application.models import Usuario
 
@@ -226,3 +226,20 @@ def me():
         return jsonify({"error": "Usuário não encontrado"}), 404
 
     return jsonify(usuario)
+
+
+@usuarios_bp.route('/encerrar-sessao', methods=['POST'])
+@token_obrigatorio
+def encerrarr_sessao():
+
+    token = extrair_token()
+
+    invalidar_token(token)
+
+    response = jsonify({
+        "mensagem": "Sessão encerrada com sucesso"
+    })
+
+    response.delete_cookie("token")
+
+    return response, 200
