@@ -234,3 +234,22 @@ def buscar_alunos_por_filtro(nome: str, matricula: str, turma: str, role: str, s
 
     
     return query.order_by(Usuario.nome.asc())
+
+def validar_token_convite(token: str) -> tuple[dict | None, str]:
+    """
+    Valida um token de convite de primeiro acesso.
+
+    Espera receber:
+    - `token`: str - token UUID a ser validado
+
+    Retorna uma tupla com:
+    - dicionário com dados básicos do usuário se o token for válido, None caso contrário
+    - status: 'valido' | 'utilizado_ou_inexistente'
+    """
+    registro = TokenConvite.query.filter_by(token=token).first()
+
+    if not registro or registro.used:
+        return None, 'utilizado_ou_inexistente'
+
+    usuario = registro.usuario
+    return {'nome': usuario.nome, 'email': usuario.email}, 'valido'
