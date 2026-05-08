@@ -6,10 +6,11 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
+from application.services.service_usuario import criar_usuario, criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
 import secrets
 from application.config.database import db
 from datetime import datetime
+from application.libs.email_sender import enviar_email_convite
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -78,57 +79,58 @@ def listar_todos_usuarios():
 
 
     
-@admin_bp.route('usuarios/criar', methods=['POST'])
+@admin_bp.route('/usuarios/criar', methods=['POST'])
 def gerar_aluno():
     """
-    Endpoint para criar um aluno.
+    Endpoint para criar um usuário e disparar e-mail de convite.
 
     Espera receber:
-    - `matricula`: str - o número de matrícula do aluno
-    - `nome`: str - o nome do aluno
-    - `email`: str - o email do aluno
-    - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo as informações do aluno criado.
-    ```json
+    - `matricula`: str - o número de matrícula do usuário
+    - `nome`: str - o nome do usuário
+    - `email`: str - o e-mail institucional do usuário
+    - `via_google`: bool (opcional) - se True, ignora o fluxo de convite por e-mail
+
+    Retorna um dicionário contendo as informações do usuário criado.
+```json
     {
         "id": "id",
         "matricula": "matricula",
         "nome": "nome",
         "email": "email",
-        "role": "role do usuario"
+        "role": "role do usuario",
+        "status": "status do usuario"
     }
-    ```
+```
     """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    nome = request.json.get('nome')
-    email = request.json.get('email')
+    dados = request.get_json(silent=True) or {}
+
+    matricula = dados.get('matricula')
+    nome = dados.get('nome')
+    email = dados.get('email')
+    via_google = dados.get('via_google', False)
+
+    if not matricula or not nome or not email:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
-    
-    if not matricula or not nome or not email:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
-    
+
     existente = Usuario.query.filter(
         (Usuario.matricula == matricula) | (Usuario.email == email)
     ).first()
 
     if existente:
         return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
-    
-    senha = secrets.token_hex(4)
 
-    # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email)
-    if aluno_existe:
-        print('ca')
-        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
-    
-    # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha)
-    return jsonify(aluno), 201
+    usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
+
+    if not via_google and token:
+        try:
+            enviar_email_convite(email, nome, token)
+        except Exception as e:
+            current_app.logger.error(f"Erro ao enviar e-mail de convite para {email}: {e}")
+
+    return jsonify(usuario_dict), 201
 
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
