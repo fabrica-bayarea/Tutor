@@ -5,6 +5,7 @@ import uuid as uuid_lib
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.model_token_convite import TokenConvite
+import re
 
 def criar_usuario(
     matricula: str,
@@ -253,3 +254,22 @@ def validar_token_convite(token: str) -> tuple[dict | None, str]:
 
     usuario = registro.usuario
     return {'nome': usuario.nome, 'email': usuario.email}, 'valido'
+
+def _validar_forca_senha(senha: str) -> str | None:
+    """
+    Valida os critérios mínimos de força da senha.
+
+    Espera receber:
+    - `senha`: str - senha a ser validada
+
+    Retorna uma mensagem de erro explicativa se a senha for fraca, None se aprovada.
+    """
+    if len(senha) < 8:
+        return "A senha deve ter no mínimo 8 caracteres."
+    if not re.search(r'[A-Z]', senha):
+        return "A senha deve conter ao menos uma letra maiúscula."
+    if not re.search(r'[a-z]', senha):
+        return "A senha deve conter ao menos uma letra minúscula."
+    if not re.search(r'[0-9]', senha):
+        return "A senha deve conter ao menos um número."
+    return None
