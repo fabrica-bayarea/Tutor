@@ -1,15 +1,20 @@
 import uuid
 from application.models import Usuario, AlunoTurma
 from application.config.database import db
+from application.models.model_usuario import RoleEnum
 
 
-def buscar_aluno(
-    aluno_id: uuid.UUID = None,
-    matricula: str = None,
-    nome: str = None,
-    email: str = None,
-    role: str = None
-) -> dict[str, str] | None:
+def criar_aluno(matricula: str, nome: str, email: str, senha: str) -> dict[str, str] | None:
+    """
+    Função atômica, responsável por criar um aluno no PostgreSQL.
+
+    Espera receber:
+    - `matricula`: str - o número de matrícula do aluno
+    - `nome`: str - o nome do aluno
+    - `email`: str - o email do aluno
+    - `senha`: str - a senha do aluno
+
+    Retorna um dicionário com os dados do aluno criado.
     """
     aluno = Usuario(
         matricula=matricula,
