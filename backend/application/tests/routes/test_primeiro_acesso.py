@@ -6,280 +6,329 @@ Cobre os critérios de aceitação de:
 - GET  /auth/invite/validate/<token>
 - POST /admin/usuarios/recriar_senha
 """
-import uuid
+import sys
+from unittest.mock import MagicMock, patch
 import pytest
-from unittest.mock import patch
-from werkzeug.security import generate_password_hash, check_password_hash
 
-from application import create_app  # ajuste o import se necessário
-from application.config.database import db
-from application.models.model_usuario import Usuario, RoleEnum
-from application.models.model_token_convite import TokenConvite
+sys.modules["application.config.vector_database"] = MagicMock()
+sys.modules["chromadb"] = MagicMock()
+sys.modules["ollama"] = MagicMock()
+sys.modules["application.socket.socket_instance"] = MagicMock()
+sys.modules["application.socket.event_handler"] = MagicMock()
+
+from app import app
 
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
-@pytest.fixture(scope='session')
-def app():
-    """Cria a aplicação Flask em modo de teste com banco SQLite em memória."""
-    app = create_app({
-        'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
-        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-        'SECRET_KEY': 'chave-de-teste',
-    })
-
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.drop_all()
-
-
-@pytest.fixture(autouse=True)
-def limpar_banco(app):
-    """Limpa as tabelas relevantes antes de cada teste para garantir isolamento."""
-    with app.app_context():
-        yield
-        db.session.rollback()
-        TokenConvite.query.delete()
-        Usuario.query.delete()
-        db.session.commit()
-
-
 @pytest.fixture
-def client(app):
-    """Cliente HTTP de teste do Flask."""
-    return app.test_client()
+def client():
+    app.config["TESTING"] = True
+    with app.test_client() as client:
+        yield client
 
 
-@pytest.fixture
-def usuario_base(app):
-    """Cria e persiste um usuário padrão para uso nos testes."""
-    with app.app_context():
-        usuario = Usuario(
-            matricula='20240001',
-            nome='Usuário Teste',
-            email='teste@iesb.edu.br',
-            senha=generate_password_hash('SenhaAleatoria123'),
-            role=RoleEnum.ALUNO,
-            status=RoleEnum.ATIVO,
-        )
-        db.session.add(usuario)
-        db.session.commit()
-        return str(usuario.id)
+PAYLOAD_CRIAR = {
+    "matricula": "20240099",
+    "nome": "Novo Aluno",
+    "email": "novo@iesb.edu.br",
+}
 
+USUARIO_DICT = {
+    "id": "uuid-fake-123",
+    "matricula": "20240099",
+    "nome": "Novo Aluno",
+    "email": "novo@iesb.edu.br",
+    "role": "RoleEnum.ALUNO",
+    "status": "RoleEnum.ATIVO",
+}
 
-@pytest.fixture
-def token_valido(app, usuario_base):
-    """Cria um token de convite válido (used=False) vinculado ao usuário base."""
-    with app.app_context():
-        token_str = str(uuid.uuid4())
-        token = TokenConvite(
-            token=token_str,
-            usuario_id=uuid.UUID(usuario_base),
-            used=False,
-        )
-        db.session.add(token)
-        db.session.commit()
-        return token_str
-
-
-@pytest.fixture
-def token_usado(app, usuario_base):
-    """Cria um token de convite já utilizado (used=True) vinculado ao usuário base."""
-    with app.app_context():
-        token_str = str(uuid.uuid4())
-        token = TokenConvite(
-            token=token_str,
-            usuario_id=uuid.UUID(usuario_base),
-            used=True,
-        )
-        db.session.add(token)
-        db.session.commit()
-        return token_str
+TOKEN_FAKE = "token-uuid-fake"
 
 
 # ---------------------------------------------------------------------------
-# POST /admin/usuarios/criar
+# POST /admin/usuarios/criar — testes de rota
 # ---------------------------------------------------------------------------
 
 class TestCriarUsuario:
-    """Critérios de aceitação — POST /admin/usuarios/criar"""
 
-    PAYLOAD = {
-        'matricula': '20240099',
-        'nome': 'Novo Aluno',
-        'email': 'novo@iesb.edu.br',
-    }
-
-    @patch('application.routes.route_admin.enviar_email_convite')
-    def test_retorna_201_em_caso_de_sucesso(self, mock_email, client):
+    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.criar_usuario")
+    @patch("application.routes.route_admin.Usuario")
+    def test_retorna_201_em_caso_de_sucesso(self, mock_usuario, mock_criar, mock_email, client):
         """Retorna 201 Created ao criar usuário com dados válidos."""
-        resposta = client.post('/admin/usuarios/criar', json=self.PAYLOAD)
+        mock_usuario.query.filter.return_value.first.return_value = None
+        mock_criar.return_value = (USUARIO_DICT, TOKEN_FAKE)
 
-        assert resposta.status_code == 201
+        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
 
-    @patch('application.routes.route_admin.enviar_email_convite')
-    def test_senha_persistida_com_hash(self, mock_email, app, client):
-        """Cria o usuário com senha hasheada — nunca em texto puro."""
-        client.post('/admin/usuarios/criar', json=self.PAYLOAD)
+        assert response.status_code == 201
 
-        with app.app_context():
-            usuario = Usuario.query.filter_by(email=self.PAYLOAD['email']).first()
+    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.criar_usuario")
+    @patch("application.routes.route_admin.Usuario")
+    def test_dispara_email_com_dados_e_token_corretos(self, mock_usuario, mock_criar, mock_email, client):
+        """Dispara o e-mail de convite com e-mail, nome e token corretos."""
+        mock_usuario.query.filter.return_value.first.return_value = None
+        mock_criar.return_value = (USUARIO_DICT, TOKEN_FAKE)
 
-        assert usuario is not None
-        # A senha não pode ser uma string simples legível
-        assert usuario.senha != self.PAYLOAD.get('senha', '')
-        # Deve ser reconhecida como hash pelo werkzeug
-        assert usuario.senha.startswith(('pbkdf2:', 'scrypt:', '$2b$'))
+        client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
 
-    @patch('application.routes.route_admin.enviar_email_convite')
-    def test_token_gerado_com_used_false(self, mock_email, app, client):
-        """Gera um token único vinculado ao usuário e marcado como used=False."""
-        client.post('/admin/usuarios/criar', json=self.PAYLOAD)
+        mock_email.assert_called_once_with(
+            PAYLOAD_CRIAR["email"],
+            PAYLOAD_CRIAR["nome"],
+            TOKEN_FAKE,
+        )
 
-        with app.app_context():
-            usuario = Usuario.query.filter_by(email=self.PAYLOAD['email']).first()
-            token = TokenConvite.query.filter_by(usuario_id=usuario.id).first()
+    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.criar_usuario")
+    @patch("application.routes.route_admin.Usuario")
+    def test_nao_dispara_email_para_usuario_via_google(self, mock_usuario, mock_criar, mock_email, client):
+        """Não dispara e-mail de convite quando via_google=True."""
+        mock_usuario.query.filter.return_value.first.return_value = None
+        mock_criar.return_value = (USUARIO_DICT, None)
 
-        assert token is not None
-        assert token.used is False
-        assert token.usuario_id == usuario.id
+        client.post("/admin/usuarios/criar", json={**PAYLOAD_CRIAR, "via_google": True})
 
-    @patch('application.routes.route_admin.enviar_email_convite')
-    def test_email_convite_disparado_ao_final_do_cadastro(self, mock_email, client):
-        """Dispara o e-mail de convite com o link de redefinição ao criar o usuário."""
-        client.post('/admin/usuarios/criar', json=self.PAYLOAD)
+        mock_email.assert_not_called()
 
-        mock_email.assert_called_once()
-        args = mock_email.call_args[0]
-        assert args[0] == self.PAYLOAD['email']   # destinatário correto
-        assert args[1] == self.PAYLOAD['nome']     # nome correto
+    @patch("application.routes.route_admin.Usuario")
+    def test_email_fora_do_dominio_retorna_400(self, mock_usuario, client):
+        """Rejeita e-mail fora do domínio @iesb.edu.br com 400."""
+        payload = {**PAYLOAD_CRIAR, "email": "aluno@gmail.com"}
 
-    def test_nao_dispara_email_para_usuario_via_google(self, client):
-        """Não dispara o fluxo de convite para usuários cadastrados via Google."""
-        payload = {**self.PAYLOAD, 'via_google': True}
+        response = client.post("/admin/usuarios/criar", json=payload)
 
-        with patch('application.routes.route_admin.enviar_email_convite') as mock_email:
-            client.post('/admin/usuarios/criar', json=payload)
-            mock_email.assert_not_called()
+        assert response.status_code == 400
+
+    @patch("application.routes.route_admin.Usuario")
+    def test_usuario_duplicado_retorna_409(self, mock_usuario, client):
+        """Retorna 409 quando matrícula ou e-mail já existem no banco."""
+        mock_usuario.query.filter.return_value.first.return_value = MagicMock()
+
+        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
+
+        assert response.status_code == 409
 
 
 # ---------------------------------------------------------------------------
-# GET /auth/invite/validate/<token>
+# POST /admin/usuarios/criar — testes de serviço
+# ---------------------------------------------------------------------------
+
+class TestServiceCriarUsuario:
+
+    @patch("application.services.service_usuario.db")
+    @patch("application.services.service_usuario.TokenConvite")
+    @patch("application.services.service_usuario.generate_password_hash")
+    @patch("application.services.service_usuario.Usuario")
+    def test_senha_gerada_com_hash_aplicado(self, mock_usuario_cls, mock_hash, mock_token_cls, mock_db):
+        """Cria o usuário com hash aplicado sobre a senha aleatória gerada."""
+        from application.services.service_usuario import criar_usuario
+
+        mock_hash.return_value = "senha_hasheada"
+        usuario_mock = MagicMock()
+        usuario_mock.id = "uuid-fake"
+        usuario_mock.to_dict.return_value = USUARIO_DICT
+        mock_usuario_cls.return_value = usuario_mock
+
+        criar_usuario("20240099", "Novo Aluno", "novo@iesb.edu.br")
+
+        mock_hash.assert_called_once()
+        assert mock_usuario_cls.call_args.kwargs["senha"] == "senha_hasheada"
+
+    @patch("application.services.service_usuario.db")
+    @patch("application.services.service_usuario.TokenConvite")
+    @patch("application.services.service_usuario.generate_password_hash")
+    @patch("application.services.service_usuario.Usuario")
+    def test_token_gerado_vinculado_ao_usuario_com_used_false(self, mock_usuario_cls, mock_hash, mock_token_cls, mock_db):
+        """Gera token único vinculado ao usuário e marcado como used=False."""
+        from application.services.service_usuario import criar_usuario
+
+        usuario_mock = MagicMock()
+        usuario_mock.id = "uuid-fake"
+        usuario_mock.to_dict.return_value = USUARIO_DICT
+        mock_usuario_cls.return_value = usuario_mock
+
+        _, token_str = criar_usuario("20240099", "Novo Aluno", "novo@iesb.edu.br")
+
+        assert token_str is not None
+        assert mock_token_cls.call_args.kwargs["used"] is False
+        assert mock_token_cls.call_args.kwargs["usuario_id"] == "uuid-fake"
+
+
+# ---------------------------------------------------------------------------
+# GET /auth/invite/validate/<token> — testes de rota
 # ---------------------------------------------------------------------------
 
 class TestValidarTokenConvite:
-    """Critérios de aceitação — GET /auth/invite/validate/<token>"""
 
-    def test_token_valido_retorna_200_com_dados_do_usuario(self, client, token_valido):
-        """Retorna 200 OK com dados básicos do usuário quando token existe e used=False."""
-        resposta = client.get(f'/auth/invite/validate/{token_valido}')
-        dados = resposta.get_json()
+    @patch("application.routes.route_auth.validar_token_convite")
+    def test_token_valido_retorna_200_com_dados_do_usuario(self, mock_validar, client):
+        """Retorna 200 OK com nome e e-mail do usuário quando token existe e used=False."""
+        mock_validar.return_value = (
+            {"nome": "Novo Aluno", "email": "novo@iesb.edu.br"},
+            "valido",
+        )
 
-        assert resposta.status_code == 200
-        assert 'nome' in dados
-        assert 'email' in dados
+        response = client.get(f"/auth/invite/validate/{TOKEN_FAKE}")
+        dados = response.get_json()
 
-    def test_token_ja_utilizado_retorna_410(self, client, token_usado):
-        """Retorna 410 Gone quando o token já foi utilizado (used=True)."""
-        resposta = client.get(f'/auth/invite/validate/{token_usado}')
-        dados = resposta.get_json()
+        assert response.status_code == 200
+        assert "nome" in dados
+        assert "email" in dados
 
-        assert resposta.status_code == 410
-        assert 'orientacao' in dados
-        assert 'Esqueci minha senha' in dados['orientacao']
+    @patch("application.routes.route_auth.validar_token_convite")
+    def test_token_ja_utilizado_retorna_410_com_orientacao(self, mock_validar, client):
+        """Retorna 410 Gone com orientação para 'Esqueci minha senha' quando token já foi usado."""
+        mock_validar.return_value = (None, "utilizado_ou_inexistente")
 
-    def test_token_inexistente_retorna_410(self, client):
-        """Retorna 410 Gone quando o token não existe no banco."""
-        token_falso = str(uuid.uuid4())
-        resposta = client.get(f'/auth/invite/validate/{token_falso}')
-        dados = resposta.get_json()
+        response = client.get(f"/auth/invite/validate/{TOKEN_FAKE}")
+        dados = response.get_json()
 
-        assert resposta.status_code == 410
-        assert 'orientacao' in dados
-        assert 'Esqueci minha senha' in dados['orientacao']
+        assert response.status_code == 410
+        assert "Esqueci minha senha" in dados.get("orientacao", "")
+
+    @patch("application.routes.route_auth.validar_token_convite")
+    def test_token_inexistente_retorna_410_com_orientacao(self, mock_validar, client):
+        """Retorna 410 Gone com orientação para 'Esqueci minha senha' quando token não existe."""
+        mock_validar.return_value = (None, "utilizado_ou_inexistente")
+
+        response = client.get("/auth/invite/validate/token-inexistente")
+        dados = response.get_json()
+
+        assert response.status_code == 410
+        assert "Esqueci minha senha" in dados.get("orientacao", "")
 
 
 # ---------------------------------------------------------------------------
-# POST /admin/usuarios/recriar_senha
+# POST /admin/usuarios/recriar_senha — testes de rota
 # ---------------------------------------------------------------------------
 
 class TestRecriarSenha:
-    """Critérios de aceitação — POST /admin/usuarios/recriar_senha"""
 
-    URL = '/admin/usuarios/recriar_senha'
+    URL = "/admin/usuarios/recriar_senha"
 
-    def _payload(self, token, password='Senha@Valida1', confirmation=None):
+    def _payload(self, token=TOKEN_FAKE, password="Senha@Valida1", confirmation=None):
         return {
-            'token': token,
-            'password': password,
-            'passwordConfirmation': confirmation if confirmation is not None else password,
+            "token": token,
+            "password": password,
+            "passwordConfirmation": confirmation if confirmation is not None else password,
         }
 
-    # --- Validação de confirmação de senha ---
-
-    def test_senhas_diferentes_retornam_400(self, client, token_valido):
+    def test_senhas_diferentes_retornam_400(self, client):
         """Rejeita com 400 quando password e passwordConfirmation não coincidem."""
-        payload = self._payload(token_valido, password='Senha@Valida1', confirmation='Diferente@2')
-        resposta = client.post(self.URL, json=payload)
+        response = client.post(self.URL, json=self._payload(
+            password="Senha@Valida1",
+            confirmation="Diferente@2",
+        ))
 
-        assert resposta.status_code == 400
-        assert 'não coincidem' in resposta.get_json().get('error', '')
+        assert response.status_code == 400
+        assert "não coincidem" in response.get_json().get("error", "")
 
-    # --- Validação de força da senha ---
-
-    @pytest.mark.parametrize('senha_fraca,trecho_esperado', [
-        ('Ab1',         'mínimo'),       # muito curta
-        ('semaiuscula1','maiúscula'),    # sem maiúscula
-        ('SEMMINUSCULA1','minúscula'),   # sem minúscula
-        ('SemNumero',  'número'),        # sem número
+    @pytest.mark.parametrize("senha_fraca,trecho_esperado", [
+        ("Ab1",           "mínimo"),
+        ("semaiuscula1",  "maiúscula"),
+        ("SEMMINUSCULA1", "minúscula"),
+        ("SemNumero",     "número"),
     ])
-    def test_senha_fraca_retorna_400_com_mensagem(self, client, token_valido, senha_fraca, trecho_esperado):
-        """Rejeita senhas fracas com 400 e mensagem explicativa adequada."""
-        payload = self._payload(token_valido, password=senha_fraca, confirmation=senha_fraca)
-        resposta = client.post(self.URL, json=payload)
-        dados = resposta.get_json()
+    def test_senha_fraca_retorna_400_com_mensagem_explicativa(self, client, senha_fraca, trecho_esperado):
+        """Rejeita senhas que não atendam aos critérios mínimos com 400 e mensagem explicativa."""
+        response = client.post(self.URL, json=self._payload(
+            password=senha_fraca,
+            confirmation=senha_fraca,
+        ))
 
-        assert resposta.status_code == 400
-        assert trecho_esperado in dados.get('error', '')
+        assert response.status_code == 400
+        assert trecho_esperado in response.get_json().get("error", "")
 
-    # --- Persistência e segurança ---
+    @patch("application.routes.route_admin.gerar_token")
+    @patch("application.routes.route_admin.definir_senha_primeiro_acesso")
+    def test_sucesso_retorna_200(self, mock_definir, mock_jwt, client):
+        """Retorna 200 OK após definir a senha com sucesso."""
+        mock_definir.return_value = USUARIO_DICT
+        mock_jwt.return_value = "jwt-fake"
 
-    def test_senha_sobrescrita_com_hash(self, app, client, token_valido, usuario_base):
-        """Sobrescreve a senha aleatória com a nova senha aplicando hash."""
-        nova_senha = 'NovaSenha@99'
-        client.post(self.URL, json=self._payload(token_valido, password=nova_senha))
+        response = client.post(self.URL, json=self._payload())
 
-        with app.app_context():
-            usuario = Usuario.query.get(uuid.UUID(usuario_base))
+        assert response.status_code == 200
 
-        assert check_password_hash(usuario.senha, nova_senha)
+    @patch("application.routes.route_admin.gerar_token")
+    @patch("application.routes.route_admin.definir_senha_primeiro_acesso")
+    def test_sucesso_inicia_sessao_com_cookie_jwt(self, mock_definir, mock_jwt, client):
+        """Retorna cookie JWT de sessão após definir a senha com sucesso."""
+        mock_definir.return_value = USUARIO_DICT
+        mock_jwt.return_value = "jwt-fake"
 
-    def test_token_marcado_como_used_true(self, app, client, token_valido):
+        response = client.post(self.URL, json=self._payload())
+
+        assert "token" in response.headers.get("Set-Cookie", "")
+
+    @patch("application.routes.route_admin.definir_senha_primeiro_acesso")
+    def test_token_invalido_ou_ja_usado_retorna_410(self, mock_definir, client):
+        """Retorna 410 Gone quando o token é inválido ou já foi utilizado."""
+        mock_definir.return_value = None
+
+        response = client.post(self.URL, json=self._payload())
+
+        assert response.status_code == 410
+
+
+# ---------------------------------------------------------------------------
+# POST /admin/usuarios/recriar_senha — testes de serviço
+# ---------------------------------------------------------------------------
+
+class TestServiceDefinirSenha:
+
+    @patch("application.services.service_usuario.db")
+    @patch("application.services.service_usuario.generate_password_hash")
+    @patch("application.services.service_usuario.TokenConvite")
+    def test_senha_sobrescrita_com_hash(self, mock_token_cls, mock_hash, mock_db):
+        """Sobrescreve a senha aleatória com a nova senha hasheada."""
+        from application.services.service_usuario import definir_senha_primeiro_acesso
+
+        mock_hash.return_value = "nova_senha_hasheada"
+        usuario_mock = MagicMock()
+        usuario_mock.to_dict.return_value = USUARIO_DICT
+        token_mock = MagicMock()
+        token_mock.used = False
+        token_mock.usuario = usuario_mock
+        mock_token_cls.query.filter_by.return_value.first.return_value = token_mock
+
+        definir_senha_primeiro_acesso(TOKEN_FAKE, "NovaSenha@99")
+
+        mock_hash.assert_called_once_with("NovaSenha@99")
+        assert usuario_mock.senha == "nova_senha_hasheada"
+
+    @patch("application.services.service_usuario.db")
+    @patch("application.services.service_usuario.generate_password_hash")
+    @patch("application.services.service_usuario.TokenConvite")
+    def test_token_marcado_como_used_true_apos_uso(self, mock_token_cls, mock_hash, mock_db):
         """Marca o token como used=True após uso bem-sucedido."""
-        client.post(self.URL, json=self._payload(token_valido))
+        from application.services.service_usuario import definir_senha_primeiro_acesso
 
-        with app.app_context():
-            token = TokenConvite.query.filter_by(token=token_valido).first()
+        usuario_mock = MagicMock()
+        usuario_mock.to_dict.return_value = USUARIO_DICT
+        token_mock = MagicMock()
+        token_mock.used = False
+        token_mock.usuario = usuario_mock
+        mock_token_cls.query.filter_by.return_value.first.return_value = token_mock
 
-        assert token.used is True
+        definir_senha_primeiro_acesso(TOKEN_FAKE, "NovaSenha@99")
 
-    def test_retorna_200_com_cookie_de_sessao(self, client, token_valido):
-        """Retorna 200 OK e define o cookie de sessão JWT após criar a senha."""
-        resposta = client.post(self.URL, json=self._payload(token_valido))
+        assert token_mock.used is True
 
-        assert resposta.status_code == 200
-        assert 'token' in resposta.headers.get('Set-Cookie', '')
+    @patch("application.services.service_usuario.db")
+    @patch("application.services.service_usuario.TokenConvite")
+    def test_token_reutilizado_retorna_none(self, mock_token_cls, mock_db):
+        """Token não pode ser reutilizado — retorna None quando used=True."""
+        from application.services.service_usuario import definir_senha_primeiro_acesso
 
-    def test_token_nao_pode_ser_reutilizado(self, client, token_valido):
-        """Token não pode ser reutilizado após uso bem-sucedido."""
-        payload = self._payload(token_valido)
+        token_mock = MagicMock()
+        token_mock.used = True
+        mock_token_cls.query.filter_by.return_value.first.return_value = token_mock
 
-        primeira = client.post(self.URL, json=payload)
-        segunda = client.post(self.URL, json=payload)
+        resultado = definir_senha_primeiro_acesso(TOKEN_FAKE, "NovaSenha@99")
 
-        assert primeira.status_code == 200
-        assert segunda.status_code == 410
+        assert resultado is None
