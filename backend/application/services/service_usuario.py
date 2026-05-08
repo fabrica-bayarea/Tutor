@@ -122,8 +122,10 @@ def logar_aluno(matricula: str, senha: str) -> dict[str, str] | None:
     """
     aluno = Usuario.query.filter_by(matricula=matricula).first()
 
-    if aluno and aluno.senha == senha:
+    if aluno and check_password_hash(aluno.senha, senha):
         return aluno.to_dict()
+
+    return None
 
 def desativar_aluno(aluno_id: uuid.UUID ):
     """
