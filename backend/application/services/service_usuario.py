@@ -273,3 +273,27 @@ def _validar_forca_senha(senha: str) -> str | None:
     if not re.search(r'[0-9]', senha):
         return "A senha deve conter ao menos um número."
     return None
+
+def definir_senha_primeiro_acesso(token: str, password: str) -> dict | None:
+    """
+    Revalida o token, aplica hash na nova senha e marca o token como utilizado.
+
+    Espera receber:
+    - `token`: str - token UUID de convite
+    - `password`: str - nova senha já validada
+
+    Retorna um dicionário com os dados do usuário se bem-sucedido,
+    None se o token for inválido ou já utilizado.
+    """
+    registro = TokenConvite.query.filter_by(token=token).first()
+
+    if not registro or registro.used:
+        return None
+
+    usuario = registro.usuario
+    usuario.senha = generate_password_hash(password)
+    registro.used = True
+
+    db.session.commit()
+
+    return usuario.to_dict()
