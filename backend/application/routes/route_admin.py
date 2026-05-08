@@ -6,7 +6,7 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_usuario, criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
+from application.services.service_usuario import (criar_usuario, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro)
 import secrets
 from application.config.database import db
 from datetime import datetime
@@ -347,7 +347,7 @@ def recriar_senha():
 
     response = make_response(jsonify({
         "usuario": usuario_dict,
-        ##"redirect": f"/painel/{role_slug}"
+        "redirect": f"/painel/{role_slug}"
     }), 200)
 
     response.set_cookie(
