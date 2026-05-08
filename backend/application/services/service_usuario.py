@@ -1,6 +1,57 @@
 import uuid
 from application.models import Usuario, AlunoTurma
 from application.config.database import db
+import uuid as uuid_lib
+import secrets
+from werkzeug.security import generate_password_hash, check_password_hash
+from application.models.model_token_convite import TokenConvite
+
+def criar_usuario(
+    matricula: str,
+    nome: str,
+    email: str,
+    via_google: bool = False
+) -> tuple[dict, str | None]:
+    """
+    Cria um novo usuário no banco com senha aleatória hasheada.
+    Gera um token de convite vinculado ao usuário se não for via Google.
+
+    Espera receber:
+    - `matricula`: str - matrícula do usuário
+    - `nome`: str - nome do usuário
+    - `email`: str - e-mail do usuário
+    - `via_google`: bool - indica se o usuário autenticará via Google (padrão: False)
+
+    Retorna uma tupla com:
+    - dicionário com os dados do usuário criado
+    - token de convite (str) ou None se via_google=True
+    """
+    senha_aleatoria = secrets.token_hex(16)
+    senha_hash = generate_password_hash(senha_aleatoria)
+
+    usuario = Usuario(
+        matricula=matricula,
+        nome=nome,
+        email=email,
+        senha=senha_hash,
+        role=RoleEnum.ALUNO,
+        status=RoleEnum.ATIVO
+    )
+    db.session.add(usuario)
+    db.session.flush()  # garante o ID antes do commit
+
+    token_str = None
+    if not via_google:
+        token_str = str(uuid_lib.uuid4())
+        token = TokenConvite(
+            token=token_str,
+            usuario_id=usuario.id,
+            used=False
+        )
+        db.session.add(token)
+
+    db.session.commit()
+    return usuario.to_dict(), token_str
 
 
 def buscar_aluno(
