@@ -10,7 +10,7 @@ def buscar_aluno(
     email: str = None,
     role: str = None
 ) -> dict[str, str] | None:
-    """
+    
     aluno = Usuario(
         matricula=matricula,
         nome=nome,
