@@ -11,6 +11,9 @@ import secrets
 from application.config.database import db
 from datetime import datetime
 from application.libs.email_sender import enviar_email_convite
+from flask import make_response
+from application.auth.jwt_handler import gerar_token
+from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -276,3 +279,85 @@ def reativar_usuario(id):
         "mensagem": "Ativado com sucesso"
     }), 200
 
+@admin_bp.route('/usuarios/recriar_senha', methods=['POST'])
+def recriar_senha():
+    """
+    Endpoint para definir a senha no primeiro acesso via token de convite.
+
+    Espera receber no body:
+    - `token`: str - token UUID recebido por e-mail
+    - `password`: str - nova senha escolhida pelo usuário
+    - `passwordConfirmation`: str - confirmação da nova senha
+
+    Regras:
+    - Token deve existir e estar marcado como used: false.
+    - password e passwordConfirmation devem ser idênticos.
+    - Senha deve ter no mínimo 8 caracteres, uma maiúscula, uma minúscula e um número.
+    - Após uso bem-sucedido, o token é marcado como used: true e não pode ser reutilizado.
+
+    Retorna:
+    - `200 OK` com cookie JWT de sessão e dados do usuário.
+    - `400 Bad Request` se as senhas não coincidirem ou não atenderem aos critérios.
+    - `410 Gone` se o token for inválido ou já utilizado.
+
+```json
+    // 200 OK
+    {
+        "usuario": {
+            "id": "id",
+            "matricula": "matricula",
+            "nome": "nome",
+            "email": "email",
+            "role": "role do usuario",
+            "status": "status do usuario"
+        },
+        "redirect": "/painel/aluno"
+    }
+```
+    """
+    dados = request.get_json(silent=True) or {}
+
+    token = dados.get('token')
+    password = dados.get('password')
+    password_confirmation = dados.get('passwordConfirmation')
+
+    if not token or not password or not password_confirmation:
+        return jsonify({
+            "error": "Parâmetros 'token', 'password' e 'passwordConfirmation' são obrigatórios."
+        }), 400
+
+    if password != password_confirmation:
+        return jsonify({"error": "As senhas não coincidem."}), 400
+
+    erro_forca = _validar_forca_senha(password)
+    if erro_forca:
+        return jsonify({"error": erro_forca}), 400
+
+    usuario_dict = definir_senha_primeiro_acesso(token, password)
+
+    if not usuario_dict:
+        return jsonify({
+            "error": "Este link já foi utilizado ou é inválido.",
+            "orientacao": "Utilize a opção 'Esqueci minha senha' para redefinir seu acesso."
+        }), 410
+
+    token_jwt = gerar_token(usuario_dict['id'], usuario_dict['role'])
+
+    role_slug = usuario_dict['role'].split('.')[-1].lower()  # ex: "RoleEnum.ALUNO" → "aluno"
+
+    response = make_response(jsonify({
+        "usuario": usuario_dict,
+        ##"redirect": f"/painel/{role_slug}"
+    }), 200)
+
+    response.set_cookie(
+        "token",
+        token_jwt,
+        httponly=True,
+        secure=False,
+        samesite="Lax",
+        max_age=60,
+        path="/"
+    )
+
+    return response
