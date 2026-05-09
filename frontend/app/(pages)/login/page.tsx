@@ -22,7 +22,7 @@ declare global {
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { refreshUser, isStudent, isProfessor, isAdmin } = useAuth();
+    const { refreshUser } = useAuth();
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -47,11 +47,14 @@ function LoginContent() {
         }
     };
 
-    const redirectAfterLogin = () => {
-        let destino = "";
-        if (isAdmin) destino = "/admin";
-        else if (isProfessor) destino = "/professor";
-        else if (isStudent) destino = "/chat";
+    const redirectAfterLogin = (role: string | undefined) => {
+        const returnTo = searchParams?.get('returnTo');
+        let destino = "/login";
+        if (role === '1') destino = "/admin";
+        else if (role === '2') destino = "/professor";
+        else if (role === '3') destino = "/chat";
+
+        if (returnTo && returnTo.startsWith('/')) destino = returnTo;
 
         router.push(destino);
     };
@@ -69,8 +72,8 @@ function LoginContent() {
                 return;
             }
 
-            await refreshUser();
-            redirectAfterLogin();
+            const usuario = await refreshUser();
+            redirectAfterLogin(usuario?.role ?? result.aluno.role);
 
         } catch (error) {
             console.error('Erro no login:', error);
@@ -92,8 +95,8 @@ function LoginContent() {
                 return;
             }
 
-            await refreshUser();
-            redirectAfterLogin();
+            const usuario = await refreshUser();
+            redirectAfterLogin(usuario?.role ?? result.aluno.role);
 
         } catch (error) {
             console.error("Erro no login Google:", error);
