@@ -42,11 +42,14 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+        NEXT_PUBLIC_API_URL_RUNTIME: ${NEXT_PUBLIC_API_URL_RUNTIME}
       dockerfile: Dockerfile
     container_name: tutor_frontend_prod
     restart: always
     env_file:
-      - ./frontend/.env.local
+      - ./frontend/.env
     depends_on:
       - backend
     ports:

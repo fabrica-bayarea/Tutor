@@ -26,29 +26,28 @@ def upgrade():
     )
     with op.batch_alter_table('token_convite', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_token_convite_token'), ['token'], unique=True)
-
-    with op.batch_alter_table('usuario', schema=None) as batch_op:
-        batch_op.alter_column(          # <-- alter_column, não add_column
-            'status',
-            existing_type=sa.Enum('Ativo', 'Inativo', native_enum=False),
-            type_=sa.Enum('ADMIN', 'PROFESSOR', 'ALUNO', 'ATIVO', 'INATIVO',
-                          name='roleenum', native_enum=False),
-            existing_nullable=False,
-            server_default='ATIVO'
-        )
-
-
+ 
+    op.alter_column(
+        'usuario',
+        'status',
+        existing_type=sa.String(length=9),
+        type_=sa.String(length=10),
+        existing_nullable=False,
+        server_default='ATIVO'
+    )
+ 
+ 
 def downgrade():
-    with op.batch_alter_table('usuario', schema=None) as batch_op:
-        batch_op.alter_column(          # <-- revertendo para o tipo original
-            'status',
-            existing_type=sa.Enum('ADMIN', 'PROFESSOR', 'ALUNO', 'ATIVO', 'INATIVO',
-                                  name='roleenum', native_enum=False),
-            type_=sa.Enum('Ativo', 'Inativo', native_enum=False),
-            existing_nullable=False
-        )
-
+    op.alter_column(
+        'usuario',
+        'status',
+        existing_type=sa.String(length=10),
+        type_=sa.String(length=9),
+        existing_nullable=False
+    )
+ 
     with op.batch_alter_table('token_convite', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_token_convite_token'))
-
+ 
     op.drop_table('token_convite')
+ 
