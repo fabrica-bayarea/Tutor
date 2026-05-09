@@ -1,0 +1,37 @@
+.errorFieldFooter{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: .4rem;
+}
+
+.errorFieldFooter > span{
+    color: rgba(163, 163, 163, 1);
+    font-size: 11px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.errorFieldFooter > section{
+    display: flex;
+    height: 2rem;
+    width: 16rem;
+    padding: 0 0 0 .5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(229, 102, 51, 1);
+    background-color: rgba(255, 237, 224, 1);
+    align-items: center;
+    gap: .4rem;
+}
+
+.errorFieldFooter > section > p{
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(229, 102, 51, 1);
+}
+
+@media(width >=768px){
+    .errorFieldFooter > section{
+        width: 22rem;
+    }
+}

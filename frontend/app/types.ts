@@ -32,6 +32,7 @@ export interface InterfaceMensagem {
     chat_id: string;
     sessao_id?: string;
     sender_id: string;
+    sender_type: string;
     conteudo: string;
     data_envio: Date;
 }

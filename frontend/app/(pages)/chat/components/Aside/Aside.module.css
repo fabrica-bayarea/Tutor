@@ -1,0 +1,141 @@
+.navAside{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    width: 15%;
+    min-width: 12rem;
+    background-color: white;
+    padding: 1.5rem;
+    border: 1px solid rgba(229, 229, 229, 1);
+    gap: 1.5rem;
+}
+
+.buttonClose{
+    display: flex;
+    justify-content: flex-start;
+
+}
+
+.buttonClose > button{
+    background-color: transparent;
+    border: none;
+}
+
+.navAsideHidden {
+  display: none;
+}
+
+.sectionTitle{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.iconTitle{
+    color: gray;
+    height: 20px;
+    width: 20px;
+}
+
+.sectionButton{
+    display: flex;
+    height: 2.5rem;
+}
+
+.sectionButton > button{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background-color: #F5F5F5;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.sectionButton > button:hover{
+    background-color: #0c948c;
+    color: rgba(255, 255, 255, 1);
+}
+
+.sectionButton > button:hover > .iconTitle{
+    color: white;
+}
+
+.sectionSubTitle{
+    display: flex;
+    flex-direction: row;
+}
+
+.sectionSubTitle > p{
+    color: #A3A3A3;
+    font-weight: 600px;
+    font-size: 11px;
+}
+
+.sectionLink{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0 0 1rem;
+}
+
+.linkChatAntigo{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 3.6rem;
+    align-items: left;
+    text-align: left;
+    gap: 0.5rem;
+    padding: 16px 8px;
+    border-radius: 16px;
+    background-color: transparent;
+}
+
+.linkChatAntigo:hover{
+    background-color: #0c948c;
+}
+
+.titleLink{
+    font-size: 14px;
+    font-weight: 500;
+    color: black;
+}
+
+.subTitleLink{
+    font-size: 12px;
+    font-weight: 400;
+    color: #A3A3A3;
+}
+
+.linkChatAntigo:hover > p{
+    color: rgba(255, 255, 255, 1);
+}
+
+@media(width >= 768px){
+    .navAside{
+        position: relative;
+        
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        min-width: 17.5rem;
+        background-color: white;
+        padding: 1.5rem;
+        border: 1px solid rgba(229, 229, 229, 1);
+        gap: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    .buttonClose{
+        display: none;
+    }
+}
