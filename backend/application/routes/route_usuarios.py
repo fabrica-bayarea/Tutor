@@ -1,17 +1,15 @@
 """
-Rotas para lidar com alunos.
+Rotas para lidar com usuários.
 """
 import os
-import secrets
 from application.config.database import db
-from flask import Blueprint, request, jsonify,g 
+from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import apenas_admins, token_obrigatorio
-from application.services.service_usuario import criar_aluno, buscar_aluno, logar_aluno, alterar_aluno
+from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token
+from application.services.service_usuario import buscar_aluno, logar_aluno
 from application.models import Usuario
-from application.models.model_usuario import RoleEnum  
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -20,115 +18,77 @@ from flask import make_response
 dotenv_path = Path(__file__).resolve().parents[2] / ".env"
 load_dotenv(dotenv_path)
 
+DOMINIO_INSTITUCIONAL = "@iesb.edu.br"
+
 usuarios_bp = Blueprint('alunos', __name__)
 
-@usuarios_bp.route('/criar', methods=['POST'])
-def gerar_aluno():
-    """
-    Endpoint para criar um aluno.
 
-    Espera receber:
-    - `matricula`: str - o número de matrícula do aluno
-    - `nome`: str - o nome do aluno
-    - `email`: str - o email do aluno
-    - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo as informações do aluno criado.
-    ```json
-    {
-        "id": "id",
-        "matricula": "matricula",
-        "nome": "nome",
-        "email": "email",
-        "role": "role do usuario"
-    }
-    ```
-    """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    nome = request.json.get('nome')
-    email = request.json.get('email')
-    senha = request.json.get('senha')
-    
-    if not matricula or not nome or not email or not senha:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
-    
-    existente = Usuario.query.filter(
-        (Usuario.matricula == matricula) | (Usuario.email == email)
-    ).first()
-
-    if existente:
-        return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
-
-    # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email)
-    if aluno_existe:
-        print('ca')
-        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
-    
-    # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha)
-    return jsonify(aluno), 201
-
-@usuarios_bp.route('/alterar', methods=['PUT'])
-@token_obrigatorio
-@apenas_admins
-def elegerUsuario():
-    """
-    Endpoint para editar um usuario.
-
-    Espera receber:
-    - `matricula`: str - o número de matrícula do usuario
-    - `role`: str - role nova do usuario
-    
-    Retorna um dicionário contendo as informações do aluno alterado.
-    ```json
-    {
-        "id": "id",
-        "matricula": "matricula",
-        "nome": "nome",
-        "email": "email",
-        "role": "role do usuario"
-    }
-    ```
-    """
-
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    role = request.json.get('role')
-
-        
-    if not matricula or not role:
-        return jsonify({"error": "Parâmetros 'matricula' e 'role' são obrigatórios"}), 400
-
-    aluno_existe = buscar_aluno(matricula=matricula)
-
-    if not aluno_existe:
-        return jsonify({"error": "Matrícula não encontrada"}), 404
-
-    aluno = alterar_aluno(matricula,role)
-    return jsonify(aluno), 200        
-
-@usuarios_bp.route('/buscar',methods=['GET'])
+@usuarios_bp.route('/buscar', methods=['GET'])
 def buscarUsuario():
+    """
+    Endpoint para buscar um usuário.
 
-    matricula = request.json.get('matricula')
-    nome: request.json.get('nome')
-    email: request.json.get('email')
-    role = request.json.get('role')
+    Aceita parâmetros via query string ou body JSON:
+    - `matricula`: str - o número de matrícula do usuário
+    - `nome`: str - o nome do usuário
+    - `email`: str - o email do usuário
+    - `role`: str - a role do usuário
+
+    Retorna um dicionário contendo as informações do usuário encontrado.
+```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+    }
+```
+    """
+    body = request.get_json(silent=True) or {}
+
+    matricula = request.args.get('matricula') or body.get('matricula')
+    nome = request.args.get('nome') or body.get('nome')
+    email = request.args.get('email') or body.get('email')
+    role = request.args.get('role') or body.get('role')
 
     if not matricula and not role and not nome and not email:
         return jsonify({"error": "Parâmetros de busca são obrigatórios"}), 422
-    
-    aluno = buscar_aluno(matricula=matricula,nome=nome,email=email,role=role)
+
+    aluno = buscar_aluno(matricula=matricula, nome=nome, email=email, role=role)
 
     if not aluno:
         return jsonify({"error": "Usuário não encontrado"}), 404
 
     return jsonify(aluno), 200
 
+
 @usuarios_bp.route('/login/google', methods=['POST'])
 def login_google():
+    """
+    Endpoint para autenticação via Google OAuth2.
+
+    Espera receber:
+    - `token`: str - o token de ID do Google
+
+    Regras:
+    - Não realiza criação de novos usuários.
+    - Apenas autentica usuários já existentes no banco.
+    - Restringe login ao domínio institucional @iesb.edu.br.
+
+    Retorna um cookie HTTP-only com o JWT e os dados do usuário autenticado.
+```json
+    {
+        "aluno": {
+            "id": "id",
+            "matricula": "matricula",
+            "nome": "nome",
+            "email": "email",
+            "role": "role do usuario"
+        }
+    }
+```
+    """
     data = request.json
     token = data.get('token')
 
@@ -140,31 +100,30 @@ def login_google():
             token,
             grequests.Request(),
             os.getenv("GOOGLE_CLIENT_ID"),
-            clock_skew_in_seconds=10 
+            clock_skew_in_seconds=10
         )
 
         email = idinfo.get('email')
-        nome = idinfo.get('name')
-        sub = idinfo.get('sub')
 
         if not email:
             return jsonify({"error": "Email não encontrado no token"}), 401
 
+        # Restrição ao domínio institucional
+        if not email.endswith(DOMINIO_INSTITUCIONAL):
+            return jsonify({
+                "error": f"Acesso restrito ao domínio {DOMINIO_INSTITUCIONAL}"
+            }), 403
+
+        # Busca o usuário existente — não cria novo
         aluno = Usuario.query.filter_by(email=email).first()
 
         if not aluno:
-            aluno = Usuario(
-                matricula=f"G{sub[-8:]}",
-                nome=nome,
-                email=email,
-                senha=secrets.token_urlsafe(16),
-                role=RoleEnum.ALUNO
-            )
-            db.session.add(aluno)
-            db.session.commit()
+            return jsonify({
+                "error": "Usuário não cadastrado. Entre em contato com a instituição."
+            }), 404
 
         token_jwt = gerar_token(aluno.id, aluno.role.value)
-        
+
         response = make_response(jsonify({
             "aluno": aluno.to_dict()
         }))
@@ -173,7 +132,7 @@ def login_google():
             "token",
             token_jwt,
             httponly=True,
-            secure=False,  
+            secure=False,
             samesite="Lax",
             max_age=60,
             path="/"
@@ -181,23 +140,28 @@ def login_google():
 
         return response
 
+    except ValueError as e:
+        # Captura erros específicos de validação do token Google
+        print("ERRO GOOGLE LOGIN - Token inválido:", e)
+        return jsonify({"error": "Token inválido ou expirado"}), 401
+
     except Exception as e:
-        print("ERRO GOOGLE LOGIN:", e)
-        return jsonify({"error": "Token inválido"}), 401
-    
+        print("ERRO GOOGLE LOGIN - Erro inesperado:", e)
+        return jsonify({"error": "Erro interno ao processar login"}), 500
+
+
 @usuarios_bp.route('/login', methods=['POST'])
 def login_aluno():
     """
-    Endpoint para logar um aluno.
+    Endpoint para logar um aluno com matrícula e senha.
 
     Espera receber:
     - `matricula`: str - o número de matrícula do aluno
     - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo o token JWT e as informações do aluno logado.
-    ```json
+
+    Retorna um cookie HTTP-only com o JWT e os dados do aluno logado.
+```json
     {
-        "token": "token",
         "aluno": {
             "id": "id",
             "matricula": "matricula",
@@ -206,21 +170,18 @@ def login_aluno():
             "role": "role do usuario(1,2,3)"
         }
     }
-    ```
+```
     """
-    # Verifica se os dados necessários estão presentes
     matricula = request.json.get('matricula')
     senha = request.json.get('senha')
-    
+
     if not matricula or not senha:
         return jsonify({"error": "Parâmetros 'matricula' e 'senha' são obrigatórios"}), 400
-    
-    # Verifica se existe um aluno com esses dados
+
     aluno = logar_aluno(matricula, senha)
     if not aluno:
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
-    
-    # Gera o token
+
     token = gerar_token(aluno['id'], aluno['role'])
 
     response = make_response(jsonify({
@@ -231,19 +192,54 @@ def login_aluno():
         "token",
         token,
         httponly=True,
-        secure=False,  
-        samesite="Lax",  
+        secure=False,
+        samesite="Lax",
         max_age=60,
         path="/"
     )
 
     return response
 
+
 @usuarios_bp.route('/me', methods=['GET'])
 @token_obrigatorio
 def me():
+    """
+    Endpoint para retornar os dados do usuário autenticado.
+
+    Requer cookie HTTP-only com token JWT válido.
+
+    Retorna um dicionário contendo as informações do usuário logado.
+```json
+    {
+        "id": "id",
+        "matricula": "matricula",
+        "nome": "nome",
+        "email": "email",
+        "role": "role do usuario"
+    }
+```
+    """
     usuario = buscar_aluno(g.usuario_id)
 
-    if usuario == None: return jsonify({"error": "Usuário não encontrado"}), 404
-       
+    if usuario is None:
+        return jsonify({"error": "Usuário não encontrado"}), 404
+
     return jsonify(usuario)
+
+
+@usuarios_bp.route('/encerrar-sessao', methods=['POST'])
+@token_obrigatorio
+def encerrarr_sessao():
+
+    token = extrair_token()
+
+    invalidar_token(token)
+
+    response = jsonify({
+        "mensagem": "Sessão encerrada com sucesso"
+    })
+
+    response.delete_cookie("token")
+
+    return response, 200

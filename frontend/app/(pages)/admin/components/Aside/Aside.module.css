@@ -1,0 +1,63 @@
+.navAside{
+    display: none;
+    flex-direction: column;
+    width: 15%;
+    min-width: 12rem;
+    background-color: white;
+    padding: 1.5rem;
+    box-shadow: inset 0rem 1px 9px rgba(0,0,0,0.2);
+    gap: 1.5rem;
+}
+
+@media(width >= 768px){
+    .navAside{
+        display: flex;
+    }
+}
+
+.sectionTitle{
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.sectionSubTitle{
+    display: flex;
+    flex-direction: row;
+}
+
+.sectionSubTitle > p{
+    color: #A3A3A3;
+    font-weight: 600px;
+    font-size: 11px;
+}
+
+.sectionLink{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0 0 1rem;
+}
+
+.sectionLink > a{
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0rem;
+    font-size: 14px;
+    font-weight: 400px;
+}
+
+.sectionLink > a:hover{
+    background-color: #F0FDFA;
+    color: #0D9488;
+}
+
+.sectionLink > a:hover > section{
+    width: 0.2rem;
+    height: 1rem;
+    background-color: #0D9488;
+}

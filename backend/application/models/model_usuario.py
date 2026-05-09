@@ -6,6 +6,8 @@ class RoleEnum(enum.Enum):
     ADMIN = 1
     PROFESSOR = 2
     ALUNO = 3
+    ATIVO = 4
+    INATIVO = 5
 
 class Usuario(db.Model):
     __tablename__ = 'usuario'
@@ -14,8 +16,9 @@ class Usuario(db.Model):
     matricula = db.Column(db.String(10), nullable=False, unique=True, index=True)
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    senha = db.Column(db.String(128), nullable=False)
+    senha = db.Column(db.String(256), nullable=False)
     role = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
+    status = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
 
     turmas_matriculadas = db.relationship('AlunoTurma', back_populates='aluno', cascade='all, delete-orphan')
     turmas_materias = db.relationship('ProfessorTurmaMateria', back_populates='professor', cascade='all, delete-orphan')
@@ -32,5 +35,6 @@ class Usuario(db.Model):
             'matricula': self.matricula,
             'nome': self.nome,
             'email': self.email,
-            'role': str(self.role)
+            'role': str(self.role),
+            'status': str(self.status)
         }

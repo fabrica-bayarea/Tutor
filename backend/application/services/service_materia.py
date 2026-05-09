@@ -36,3 +36,19 @@ def buscar_codigo_materia_por_id(id_materia: uuid.UUID) -> str | None:
     """
     materia = Materia.query.filter_by(id=id_materia).first()
     return materia.codigo if materia else None
+
+def buscar_llm_materia_por_id(id_materia: uuid.UUID) -> str | None:
+        """
+        Busca o nome da LLM associada a uma matéria pelo ID da matéria.
+
+        :param materia_id: UUID da matéria
+        :return: Nome da LLM ou None se não houver associação
+        """
+        materia = Materia.query.filter_by(id=id_materia).first()
+        if not materia:
+            return None
+        
+        if materia.llm:
+            return materia.llm.nome  
+        
+        return None

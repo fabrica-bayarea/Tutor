@@ -1,188 +1,198 @@
-"use client";
+"use client"
 
-    import socket from "@/libs/socket";
-    import { useEffect, useRef, useState, useMemo } from "react";
-    import TextAreaChat from "./components/TextAreaChat/TextAreaChat";
-    import MessageField, { MessageFieldRef } from "./components/MessageField/MessageField";
-    import SelectMateria from "./components/SelectMateria/SelectMateria";
-    import HeaderChat from "./components/HeaderChat/HeaderChat";
-    import styles from "./page.module.css";
-    import { useAuth } from "@/utils/auth";
-    import { useData } from "@/utils/data";
+import { useEffect, useRef, useState } from "react";
+import Header from "./components/Header/Header"
+import MessageField, { MessageFieldRef } from "./components/MessageField/MessageField"
+import TextArea from "./components/TextArea/TextArea"
+import NoMessageField from "./components/NoMessageField/NoMessageField";
 
+import { promptDeep, promptExam, promptQuestion, promptSummarize } from "./utils/prompts";
+import ErrorField from "./components/ErrorField/ErrorField";
+import { useData } from "@/utils/data";
+import { useAuth } from "@/utils/auth";
+import styles from "./page.module.css"
+import socket from "../../../libs/socket";
 
-    export default function Home() {
-        const messageFieldRef = useRef<MessageFieldRef>(null);
-        const [showSelectMaterias, setShowSelectMaterias] = useState(true);
-        const [text, setText] = useState("");
-        const [isTextAreaDisabled, setTextAreaDisabled] = useState(false);
-        const [newChat, setNewChat] = useState(true);
-        const [materiaId, setMateriaId] = useState("");
-        const [materiaNome, setMateriaNome] = useState("");
-        const [chat,setChat] = useState("");
-        const { user, loading, isAuthenticated, isStudent, isProfessor, isAdmin } = useAuth();
-        const [respostaAtual, setRespostaAtual] = useState("");
-        const { materias, turmas } = useData();
+type SocketEvento =
+    | "processando"
+    | "buscando_arquivos"
+    | "gerando_resposta"
+    | "chunk_resposta"
+    | "resposta_finalizada"
+    | "processo_completo"
+    | "erro"
+    | null;
 
-        const materiasMap = useMemo(() => {
-            return Object.fromEntries(
-                materias.map((m: any) => [m.id.toString(), m.nome])
-              );
-        }, [materias]);
-                  
-        const handleMateriaChange = (id: string, nome: string) => {
-            setMateriaId(id);
-            setMateriaNome(nome);
-            setShowSelectMaterias(false);
-        };
+export default function Chat() {
+    const messageFieldRef = useRef<MessageFieldRef>(null);
+    const [temMensagem, setTemMensagem] = useState(false);
+    const [text, setText] = useState("");
+    const [podeEnviarMensagem, setPodeEnviarMensagem] = useState(true);
+    const [mensagemPendente, setMensagemPendente] = useState("");
+    const [permitido, setPermitido] = useState(true);
+    const [eventoAtual, setEventoAtual] = useState<SocketEvento>(null);
+    const [chatId, setChatId] = useState<string | null>(null);
+    const [materiaIdSelecionada, setMateriaIdSelecionada] = useState<string>("");
 
-        useEffect(() => {
-            if(newChat) setShowSelectMaterias(true);
-        },[newChat])
+    // Flag para saber se já foi criada a bolha da LLM no MessageField
+    const llmBolhaCriada = useRef(false);
 
-        const handleNovoChat = () => {
-            messageFieldRef.current?.deleteAllMessages();
-            setNewChat(true);
-            setShowSelectMaterias(true);
-            setTextAreaDisabled(false);
-            setChat("");
-        };
+    const { user } = useAuth();
+    const { materias } = useData();
 
-        const handleConfig = () => {
-            console.log("Abrir configurações");
-        };
+    // Inicializa o materia_id com a primeira matéria disponível
+    useEffect(() => {
+        if (materias && materias.length > 0 && !materiaIdSelecionada) {
+            setMateriaIdSelecionada(materias[0].id);
+        }
+    }, [materias]);
 
-        const handleSair = () => {
-            console.log("Encerrar sessão");
-        };
+    // Registro dos listeners do socket
+    useEffect(() => {
+        socket.connect();
 
-        const handleDash = () => {
-            console.log("Abrir Dashboard");
-        };
+        socket.on("processando", () => {
+            setEventoAtual("processando");
+        });
 
-        const handleSend = (text: string) => {
-            if(text.trim() == "") return;
-            setTextAreaDisabled(true)
-            messageFieldRef.current?.addMessage("user",text);
-            setText("");
-            messageFieldRef.current?.addMessage("llm","");
+        socket.on("buscando_arquivos", () => {
+            setEventoAtual("buscando_arquivos");
+        });
 
-            socket.emit("mensagem_inicial", {
-                id_usuario: user?.id,
-                materia_id: materiaId,
-                mensagem: text,
-                historico: messageFieldRef.current?.getAllMessages(),
-                chat_novo: newChat,
-                id_chat: newChat ? null : chat,
-                data_envio: "2026-03-22T19:20:24Z"
-            });
+        socket.on("gerando_resposta", () => {
+            setEventoAtual("gerando_resposta");
+            messageFieldRef.current?.addMessage("llm", "");
+            llmBolhaCriada.current = true;
+        });
 
-            setNewChat(false);
+        socket.on("chunk_resposta", (data: { chunk: string }) => {
+            setEventoAtual("chunk_resposta");
+            if (!llmBolhaCriada.current) {
+                messageFieldRef.current?.addMessage("llm", data.chunk);
+                llmBolhaCriada.current = true;
+            } else {
+                const mensagens = messageFieldRef.current?.getAllMessages() ?? [];
+                const ultimoConteudo = mensagens[mensagens.length - 1]?.content ?? "";
+                messageFieldRef.current?.updateLastMessage(ultimoConteudo + data.chunk);
             }
-        useEffect(() => {
-            if (!socket.connected) {
-                socket.connect();
-            }
+        });
 
-            socket.on("connection-confirmation", (data: any) => {
-                console.log("Servidor confirmou conexão:", data);
-            });
+        socket.on("resposta_finalizada", (data: { resposta: string }) => {
+            setEventoAtual("resposta_finalizada");
+            messageFieldRef.current?.updateLastMessage(data.resposta);
+            llmBolhaCriada.current = false;
+        });
 
-            socket.on("processando", () => {
-                messageFieldRef.current?.updateLastMessage("Mensagem em processamento...");
-                setTextAreaDisabled(true);
-            });
+        socket.on("processo_completo", (data: { chatId: string; resposta_completa: string }) => {
+            setEventoAtual(null);
+            setChatId(data.chatId);
+            setPodeEnviarMensagem(true);
+        });
 
-            socket.on("buscando_arquivos", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando arquivos...");
-            });
+        socket.on("erro", (data: { erro: string }) => {
+            setEventoAtual("erro");
+            llmBolhaCriada.current = false;
+            setPodeEnviarMensagem(true);
+            console.error("[Socket erro]", data.erro);
+        });
 
-            socket.on("buscando_vetores", () => {
-                messageFieldRef.current?.updateLastMessage("Buscando vetores...");
-            });
+        return () => {
+            socket.off("processando");
+            socket.off("buscando_arquivos");
+            socket.off("gerando_resposta");
+            socket.off("chunk_resposta");
+            socket.off("resposta_finalizada");
+            socket.off("processo_completo");
+            socket.off("erro");
+            socket.disconnect();
+        };
+    }, []);
 
-            socket.on("formatando_chunks", () => {
-                messageFieldRef.current?.updateLastMessage("Formatando chunks...");
-            });
+    const handleSend = () => {
+        if (text.trim() === "" || !podeEnviarMensagem) return;
+        if (!materiaIdSelecionada) return;
 
-            socket.on("construindo_prompt", () => {
-                messageFieldRef.current?.updateLastMessage("Construindo prompt...");
-            });
+        const historico = messageFieldRef.current?.getAllMessages() ?? [];
 
-            socket.on("chunk_mensagem", (data: { data: any }) => {
-                const chunk = data.data;
+        const payload = {
+            id_usuario: user?.id,
+            materia_id: materiaIdSelecionada,
+            mensagem: text,
+            historico: historico ?? [],
+            chat_novo: chatId === null,
+            id_chat: chatId ?? undefined,
+            data_envio: new Date().toISOString(),
+        };
 
-                setRespostaAtual((prev: any) => {
-                    const nova = prev + chunk;
-                    messageFieldRef.current?.updateLastMessage(nova);
-                    return nova;
-                });
-            });
+        if (!temMensagem) {
+            setMensagemPendente(text);
+            setTemMensagem(true);
+        } else {
+            messageFieldRef.current?.addMessage("user", text);
+        }
 
-            socket.on("processo_completo", (data: {chatId: string}) => {
-                setTextAreaDisabled(false);
-                setRespostaAtual("");
-                setChat(data.chatId)
-            });
+        setText("");
+        setPodeEnviarMensagem(false);
+        llmBolhaCriada.current = false;
 
-            socket.on("erro", (data: { erro?: string }) => {
-                const mensagem = data?.erro || "Erro desconhecido";
+        socket.emit("mensagem_inicial", payload);
+    };
 
-                messageFieldRef.current?.updateLastMessage("Erro: " + mensagem);
-                setTextAreaDisabled(false);
-                setRespostaAtual("");
-            });
-            return () => {
-                socket.off("connection-confirmation");
-                socket.off("processando");
-                socket.off("buscando_arquivos");
-                socket.off("buscando_vetores");
-                socket.off("formatando_chunks");
-                socket.off("construindo_prompt");
-                socket.off("processo_completo");
-                socket.off("erro");
-                socket.off("chunk_mensagem");
-            }
-        }, [])
+    useEffect(() => {
+        if (temMensagem && mensagemPendente) {
+            messageFieldRef.current?.addMessage("user", mensagemPendente);
+            setMensagemPendente("");
+        }
+    }, [temMensagem, mensagemPendente]);
 
-        return (
-            <>
-                <header className={styles.headerFixo}>
-                    <HeaderChat
-                        isDisabled={isTextAreaDisabled}
-                        onNewChatClick={handleNovoChat}
-                        onNavItemClick={(item) => {
-                            if (item === "Sair") handleSair();
-                            if (item == "Configurações") handleConfig();
-                            if (item == "Dashboard") handleDash();
-                        }}
-                        isAdmin={isAdmin || isProfessor}
+    useEffect(() => {
+        messageFieldRef.current?.deleteAllMessages();
+        setTemMensagem(false);
+        setText("");
+        setPodeEnviarMensagem(true);
+        setChatId(null);
+        llmBolhaCriada.current = false;
+        if (materias == null) {
+            setPermitido(false);
+        }
+    }, []);
+
+    return (
+        <>
+            <Header
+                isSelectInactive={temMensagem && (materias && materias.length > 0)}
+                materiaName=""
+                onMateriaChange={(id) => setMateriaIdSelecionada(id)}
+            />
+            {materias && materias.length > 0 && (
+                temMensagem
+                    ? <MessageField ref={messageFieldRef} />
+                    : <NoMessageField
+                        onAskQuestion={() => { setText(promptQuestion) }}
+                        onSummarize={() => { setText(promptSummarize) }}
+                        onPrepareExam={() => { setText(promptExam) }}
+                        onDeepDive={() => { setText(promptDeep); }}
                     />
-                </header>
-
-                <section className={styles.conteinerMensagens}>
-                    <MessageField ref={messageFieldRef} />
+            )}
+            {materias && materias.length > 0 && (
+                <TextArea
+                    value={text}
+                    onChange={setText}
+                    onSend={handleSend}
+                    isDisabled={!podeEnviarMensagem}
+                />
+            )}
+            {materias && materias.length > 0 && (
+                <ErrorField temErro={!podeEnviarMensagem} />
+            )}
+            {materias && materias.length <= 0 && (
+                <section className={styles.noMateriaSection}>
+                    <section>
+                        <p>Você ainda não está matriculado em nenhuma matéria.</p>
+                        <p>Entre em contato com a coordenação.</p>
+                    </section>
                 </section>
-
-                {showSelectMaterias && (
-                    <SelectMateria 
-                        materias={materiasMap} 
-                        onChange={handleMateriaChange} />
-                )}
-
-                <div className={styles.materiaBackground}>
-                    {materiaNome}
-                </div>
-
-
-                <footer className={styles.footerFixo}>
-                    <TextAreaChat
-                        isDisabled={isTextAreaDisabled}
-                        value={text}
-                        onChange={setText}
-                        onSend={() => handleSend(text)}
-                    />
-                </footer>
-            </>
-        );
-    }
+            )}
+        </>
+    )
+}

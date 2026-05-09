@@ -1,0 +1,82 @@
+services:
+  postgres-service:
+    image: postgres:16-alpine
+    container_name: tutor_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: tutor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tutor"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: tutor_ollama_dev
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data_dev:/root/.ollama
+    profiles: ["llm"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: tutor_backend_dev
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - FLASK_APP=app:app
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=http://ollama-service:11434
+      - DB_HOST=postgres-service
+    depends_on:
+      postgres-service:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - backend_pycache:/app/__pycache__
+    entrypoint: ["/app/entrypoint.sh"]
+    command: ["flask", "run", "--host=0.0.0.0", "--port=5000", "--debug"]
+
+  frontend:
+    image: node:20-alpine
+    container_name: tutor_frontend_dev
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - ./frontend/.env.local
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_TELEMETRY_DISABLED=1
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next_cache:/app/.next
+    command: sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
+
+volumes:
+  postgres_data_dev:
+  ollama_data_dev:
+  backend_pycache:
+  frontend_node_modules:
+  frontend_next_cache:

@@ -1,14 +1,14 @@
+import { ButtonHTMLAttributes } from 'react';
 import styles from './Button.module.css';
 
-interface ButtonProps {
+type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
     style?: 'filled' | 'text';
     icon?: React.ReactNode;
     label: string;
     isDisabled?: boolean;
-    action?: 'default' | 'danger';
-    onClick?: () => void;
-    props?: React.ButtonHTMLAttributes<HTMLButtonElement>
-}
+    action?: 'default' | 'primary' | 'secondary' | 'danger';
+    fullWidth?: boolean;
+};
 
 export default function Button({
     style = 'text',
@@ -16,26 +16,39 @@ export default function Button({
     label,
     onClick,
     isDisabled,
+    disabled,
     action = 'default',
-    ...props
+    fullWidth = false,
+    className,
+    type = 'button',
+    ...rest
 }: ButtonProps) {
-    const buttonClass = `
-        ${styles.buttonContainer}
-        ${style === 'filled' ? styles.filled : styles.text}
-        ${action === 'danger' ? styles.danger : ''}
-    `.trim();
+    const buttonClass = [
+        styles.buttonContainer,
+        style === 'filled' ? styles.filled : styles.text,
+        action === 'danger' ? styles.danger : '',
+        action === 'primary' ? styles.primary : '',
+        action === 'secondary' ? styles.secondary : '',
+        fullWidth ? styles.fullWidth : '',
+        className ?? '',
+    ]
+        .filter(Boolean)
+        .join(' ');
 
-    const buttonStateLayerClass = `
-        ${styles.buttonStateLayer}
-        ${icon ? styles.iconButton : ''}
-    `.trim();
+    const buttonStateLayerClass = [
+        styles.buttonStateLayer,
+        icon ? styles.iconButton : '',
+    ]
+        .filter(Boolean)
+        .join(' ');
 
     return (
         <button
+            type={type}
             className={buttonClass}
             onClick={onClick}
-            disabled={isDisabled}
-            {...props}
+            disabled={isDisabled ?? disabled}
+            {...rest}
         >
             <div className={buttonStateLayerClass}>
                 {icon}

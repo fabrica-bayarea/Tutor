@@ -8,6 +8,21 @@
     padding: 0;
     overflow: hidden;
     background-color: transparent; /* valor neutro por padrão */
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.buttonContainer:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.fullWidth .buttonStateLayer {
+    width: 100%;
+    justify-content: center;
 }
 
 /* Variantes de estilo */
@@ -34,6 +49,50 @@
 .text.danger span,
 .text.danger svg {
     color: #D92F35;
+}
+
+/* Primary: filled */
+.filled.primary {
+    background-color: #4d9b8d;
+}
+.filled.primary span,
+.filled.primary svg {
+    color: #ffffff;
+}
+.filled.primary .buttonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Primary: text */
+.text.primary span,
+.text.primary svg {
+    color: #4d9b8d;
+}
+.text.primary .buttonStateLayer:hover {
+    background-color: rgba(77, 155, 141, 0.08);
+}
+
+/* Secondary: filled */
+.filled.secondary {
+    background-color: #ffffff;
+    border-color: #000000;
+    border-width: 2px;
+}
+.filled.secondary span,
+.filled.secondary svg {
+    color: #000000;
+}
+.filled.secondary .buttonStateLayer:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Secondary: text */
+.text.secondary span,
+.text.secondary svg {
+    color: #ffffff;
+}
+.text.secondary .buttonStateLayer:hover {
+    background-color: rgba(77, 155, 141, 0.08);
 }
 
 /* ------------------------- */

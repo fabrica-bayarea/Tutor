@@ -10,7 +10,7 @@ interface AuthContextType {
     isStudent: boolean;
     isProfessor: boolean;
     isAdmin: boolean;
-    refreshUser: () => Promise<void>;
+    refreshUser: () => Promise<Usuario | null>;
     logout: () => Promise<void>;
 }
 
@@ -20,19 +20,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<Usuario | null>(null);
     const [loading, setLoading] = useState(true);
 
-    async function loadUser() {
+    async function loadUser(): Promise<Usuario | null> {
         setLoading(true);
         const data = await getCurrentUser();
         setUser(data);
         setLoading(false);
+        return data;
     }
 
     useEffect(() => {
         loadUser();
     }, []);
 
-    async function refreshUser() {
-        await loadUser();
+    async function refreshUser(): Promise<Usuario | null> {
+        return await loadUser();
     }
 
     async function logout() {

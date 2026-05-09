@@ -32,3 +32,13 @@ export async function deletarChat(chat_id: string) {
         throw error;
     }
 }
+
+export async function obterMateriaId(chat_id: string) {
+    try {
+        const response: { data: { materia_id: string } } = await api.get(`/${chats_url}/chat/${chat_id}/materia`);
+        return response.data.materia_id;
+    } catch (error) {
+        console.error("Erro ao buscar materia_id:", error);
+        throw error;
+    }
+}
