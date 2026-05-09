@@ -9,6 +9,14 @@ export type TableColumn<T> = {
     align?: "left" | "center" | "right";
     width?: string;
     render?: (row: T, index: number) => React.ReactNode;
+    /**
+     * Como a coluna se comporta no layout de card (mobile).
+     * - "stacked": empilha o conteúdo sem mostrar o label da coluna (ex: bloco de identidade).
+     * - "inline": mostra "Label: valor" (padrão).
+     * - "actions": fica no canto superior direito do card, sem label.
+     * - "hidden": não aparece no card.
+     */
+    mobileVariant?: "stacked" | "inline" | "actions" | "hidden";
 };
 
 type TableProps<T> = {
@@ -26,6 +34,9 @@ export default function Table<T extends Record<string, any>>({
     emptyMessage = "Nenhum registro encontrado.",
     className,
 }: TableProps<T>) {
+    const renderCellContent = (col: TableColumn<T>, row: T, index: number) =>
+        col.render ? col.render(row, index) : (row[col.key] as React.ReactNode);
+
     return (
         <div className={`${styles.tableWrapper} ${className ?? ""}`}>
             <table className={styles.table}>
@@ -47,23 +58,39 @@ export default function Table<T extends Record<string, any>>({
                 <tbody>
                     {data.length === 0 ? (
                         <tr>
-                            <td colSpan={columns.length} className={styles.emptyCell}>
+                            <td
+                                colSpan={columns.length}
+                                className={styles.emptyCell}
+                            >
                                 {emptyMessage}
                             </td>
                         </tr>
                     ) : (
                         data.map((row, index) => (
                             <tr key={rowKey ? rowKey(row, index) : index}>
-                                {columns.map((col) => (
-                                    <td
-                                        key={col.key}
-                                        style={{ textAlign: col.align ?? "left" }}
-                                    >
-                                        {col.render
-                                            ? col.render(row, index)
-                                            : (row[col.key] as React.ReactNode)}
-                                    </td>
-                                ))}
+                                {columns.map((col) => {
+                                    const variant = col.mobileVariant ?? "inline";
+                                    return (
+                                        <td
+                                            key={col.key}
+                                            data-label={col.title}
+                                            data-variant={variant}
+                                            style={{ textAlign: col.align ?? "left" }}
+                                            className={
+                                                variant === "hidden"
+                                                    ? styles.mobileHidden
+                                                    : undefined
+                                            }
+                                        >
+                                            <span className={styles.cellLabel}>
+                                                {col.title}
+                                            </span>
+                                            <span className={styles.cellValue}>
+                                                {renderCellContent(col, row, index)}
+                                            </span>
+                                        </td>
+                                    );
+                                })}
                             </tr>
                         ))
                     )}

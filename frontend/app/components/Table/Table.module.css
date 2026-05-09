@@ -44,6 +44,11 @@
     vertical-align: middle;
 }
 
+/* No desktop, o label da célula fica oculto (o thead já cumpre esse papel) */
+.cellLabel {
+    display: none;
+}
+
 .emptyCell {
     text-align: center !important;
     color: #6b7280;
@@ -52,9 +57,79 @@
 }
 
 @media (max-width: 640px) {
-    .table th,
+    .tableWrapper {
+        border: none;
+        background-color: transparent;
+        overflow-x: visible;
+    }
+
+    .table {
+        display: block;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody {
+        display: block;
+    }
+
+    .table tbody tr {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        padding-right: 80px;
+        margin-bottom: 12px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .table tbody tr:hover {
+        background-color: #ffffff;
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
     .table td {
-        padding: 10px 12px;
-        font-size: 12px;
+        display: block;
+        padding: 0;
+        text-align: left !important;
+        font-size: 14px;
+    }
+
+    .cellLabel {
+        display: none !important;
+    }
+
+    .table td[data-variant="stacked"] .cellValue {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .table td[data-variant="actions"] {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobileHidden {
+        display: none !important;
+    }
+
+    .emptyCell {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px !important;
     }
 }
