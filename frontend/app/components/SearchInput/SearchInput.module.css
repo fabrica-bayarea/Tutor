@@ -3,6 +3,9 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     background-color: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
@@ -21,7 +24,9 @@
 }
 
 .wrapper .input {
-    flex: 1;
+    flex: 1 1 0;
+    width: 100%;
+    min-width: 0;
     border: none;
     outline: none;
     background: transparent;
