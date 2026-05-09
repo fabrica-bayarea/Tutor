@@ -10,3 +10,5 @@ from .model_arquivo_turma_materia import ArquivoTurmaMateria
 from .model_aluno_turma import AlunoTurma
 from .model_sessao import Sessao
 from .model_llm import LLM
+from .model_usuario import Usuario, RoleEnum 
+from .model_aluno_turma import AlunoTurma

@@ -6,10 +6,14 @@ from application.auth.auth_decorators import token_obrigatorio
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
+from application.services.service_usuario import (criar_usuario, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro)
 import secrets
 from application.config.database import db
 from datetime import datetime
+from application.libs.email_sender import enviar_email_convite
+from flask import make_response
+from application.auth.jwt_handler import gerar_token
+from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -78,57 +82,58 @@ def listar_todos_usuarios():
 
 
     
-@admin_bp.route('usuarios/criar', methods=['POST'])
+@admin_bp.route('/usuarios/criar', methods=['POST'])
 def gerar_aluno():
     """
-    Endpoint para criar um aluno.
+    Endpoint para criar um usuário e disparar e-mail de convite.
 
     Espera receber:
-    - `matricula`: str - o número de matrícula do aluno
-    - `nome`: str - o nome do aluno
-    - `email`: str - o email do aluno
-    - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo as informações do aluno criado.
-    ```json
+    - `matricula`: str - o número de matrícula do usuário
+    - `nome`: str - o nome do usuário
+    - `email`: str - o e-mail institucional do usuário
+    - `via_google`: bool (opcional) - se True, ignora o fluxo de convite por e-mail
+
+    Retorna um dicionário contendo as informações do usuário criado.
+```json
     {
         "id": "id",
         "matricula": "matricula",
         "nome": "nome",
         "email": "email",
-        "role": "role do usuario"
+        "role": "role do usuario",
+        "status": "status do usuario"
     }
-    ```
+```
     """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    nome = request.json.get('nome')
-    email = request.json.get('email')
+    dados = request.get_json(silent=True) or {}
+
+    matricula = dados.get('matricula')
+    nome = dados.get('nome')
+    email = dados.get('email')
+    via_google = dados.get('via_google', False)
+
+    if not matricula or not nome or not email:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
-    
-    if not matricula or not nome or not email:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
-    
+
     existente = Usuario.query.filter(
         (Usuario.matricula == matricula) | (Usuario.email == email)
     ).first()
 
     if existente:
         return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
-    
-    senha = secrets.token_hex(4)
 
-    # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email)
-    if aluno_existe:
-        print('ca')
-        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
-    
-    # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha)
-    return jsonify(aluno), 201
+    usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
+
+    if not via_google and token:
+        try:
+            enviar_email_convite(email, nome, token)
+        except Exception as e:
+            current_app.logger.error(f"Erro ao enviar e-mail de convite para {email}: {e}")
+
+    return jsonify(usuario_dict), 201
 
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
@@ -274,3 +279,85 @@ def reativar_usuario(id):
         "mensagem": "Ativado com sucesso"
     }), 200
 
+@admin_bp.route('/usuarios/recriar_senha', methods=['POST'])
+def recriar_senha():
+    """
+    Endpoint para definir a senha no primeiro acesso via token de convite.
+
+    Espera receber no body:
+    - `token`: str - token UUID recebido por e-mail
+    - `password`: str - nova senha escolhida pelo usuário
+    - `passwordConfirmation`: str - confirmação da nova senha
+
+    Regras:
+    - Token deve existir e estar marcado como used: false.
+    - password e passwordConfirmation devem ser idênticos.
+    - Senha deve ter no mínimo 8 caracteres, uma maiúscula, uma minúscula e um número.
+    - Após uso bem-sucedido, o token é marcado como used: true e não pode ser reutilizado.
+
+    Retorna:
+    - `200 OK` com cookie JWT de sessão e dados do usuário.
+    - `400 Bad Request` se as senhas não coincidirem ou não atenderem aos critérios.
+    - `410 Gone` se o token for inválido ou já utilizado.
+
+```json
+    // 200 OK
+    {
+        "usuario": {
+            "id": "id",
+            "matricula": "matricula",
+            "nome": "nome",
+            "email": "email",
+            "role": "role do usuario",
+            "status": "status do usuario"
+        },
+        "redirect": "/painel/aluno"
+    }
+```
+    """
+    dados = request.get_json(silent=True) or {}
+
+    token = dados.get('token')
+    password = dados.get('password')
+    password_confirmation = dados.get('passwordConfirmation')
+
+    if not token or not password or not password_confirmation:
+        return jsonify({
+            "error": "Parâmetros 'token', 'password' e 'passwordConfirmation' são obrigatórios."
+        }), 400
+
+    if password != password_confirmation:
+        return jsonify({"error": "As senhas não coincidem."}), 400
+
+    erro_forca = _validar_forca_senha(password)
+    if erro_forca:
+        return jsonify({"error": erro_forca}), 400
+
+    usuario_dict = definir_senha_primeiro_acesso(token, password)
+
+    if not usuario_dict:
+        return jsonify({
+            "error": "Este link já foi utilizado ou é inválido.",
+            "orientacao": "Utilize a opção 'Esqueci minha senha' para redefinir seu acesso."
+        }), 410
+
+    token_jwt = gerar_token(usuario_dict['id'], usuario_dict['role'])
+
+    role_slug = usuario_dict['role'].split('.')[-1].lower()  # ex: "RoleEnum.ALUNO" → "aluno"
+
+    response = make_response(jsonify({
+        "usuario": usuario_dict,
+        "redirect": f"/painel/{role_slug}"
+    }), 200)
+
+    response.set_cookie(
+        "token",
+        token_jwt,
+        httponly=True,
+        secure=False,
+        samesite="Lax",
+        max_age=60,
+        path="/"
+    )
+
+    return response
