@@ -26,7 +26,7 @@ def enviar_email_convite(destinatario_email: str, destinatario_nome: str, token:
 
     Lança exceção em caso de falha no envio.
     """
-    link = f"{FRONTEND_URL}/primeiro-acesso?token={token}"
+    link = f"{FRONTEND_URL}/login/AlterarSenha?token={token}"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Bem-vindo! Crie sua senha de acesso"

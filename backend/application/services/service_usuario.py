@@ -172,6 +172,7 @@ def definir_senha_primeiro_acesso(token: str, password: str) -> dict | None:
     return usuario.to_dict()
 
 
+
 def _validar_forca_senha(senha: str) -> str | None:
     """Critérios: 8+ chars, Maiúscula, Minúscula e Número."""
     if len(senha) < 8:
