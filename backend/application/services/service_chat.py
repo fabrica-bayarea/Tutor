@@ -103,4 +103,4 @@ def obter_materia_id_por_chat(chat_id):
     chat = Chat.query.get(chat_id)
     if not chat:
         return None
-    return str
+    return str(chat.materia_id)

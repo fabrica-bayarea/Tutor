@@ -12,7 +12,7 @@ class Materia(db.Model):
     turmas = db.relationship('TurmaMateria', back_populates='materia', cascade='all, delete-orphan')
     arquivos = db.relationship('ArquivoTurmaMateria', back_populates='materia')
     chats = db.relationship('Chat', back_populates='materia', cascade='all, delete-orphan')
-    llm_id = db.Column(db.String, db.ForeignKey("llm.model_id"), nullable=True)
+    llm_id = db.Column(db.String, db.ForeignKey("llm.id"), nullable=True)
     llm = db.relationship("LLM", backref="materias")
 
     def to_dict(self):

@@ -7,6 +7,7 @@ Para as demais operações CRUD, usamos endpoints REST.
 from flask import Blueprint, request, jsonify, g
 from application.auth.auth_decorators import token_obrigatorio
 from application.services.service_chat import buscar_chats, buscar_chat, atualizar_chat, deletar_chat
+from application.services.service_chat import obter_materia_id_por_chat
 
 chats_bp = Blueprint('chats', __name__)
 

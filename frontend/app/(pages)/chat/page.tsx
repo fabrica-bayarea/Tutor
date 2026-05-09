@@ -118,7 +118,7 @@ export default function Chat() {
             id_usuario: user?.id,
             materia_id: materiaIdSelecionada,
             mensagem: text,
-            historico: historico.length > 0 ? historico : null,
+            historico: historico ?? [],
             chat_novo: chatId === null,
             id_chat: chatId ?? undefined,
             data_envio: new Date().toISOString(),

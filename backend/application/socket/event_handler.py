@@ -61,15 +61,16 @@ async def _processar_mensagem_async(data, sid):
         traceback.print_exc()
         return disparar_emit(socketio, "erro", {"erro": str(e)}, room=sid)
     
-    if(contexto_vetorial == ''): 
-        resposta_erro = "Não encontrei informações confiáveis ou contexto suficiente para responder à sua pergunta de forma precisa. Isto ocorre quando o material disponibilizado pela base de conhecimento é insuficiente para geração da resposta."
-        disparar_emit(socketio,"resposta_finalizada",{"resposta":resposta_erro}, room=sid)
-        return disparar_emit(socketio,"processo_completo",{"chatId":chat_id,"resposta_completa":resposta_erro}, room=sid)
+    # if(contexto_vetorial == ''): 
+    #     resposta_erro = "Não encontrei informações confiáveis ou contexto suficiente para responder à sua pergunta de forma precisa. Isto ocorre quando o material disponibilizado pela base de conhecimento é insuficiente para geração da resposta."
+    #     disparar_emit(socketio,"resposta_finalizada",{"resposta":resposta_erro}, room=sid)
+    #     return disparar_emit(socketio,"processo_completo",{"chatId":chat_id,"resposta_completa":resposta_erro}, room=sid)
 
     # PERSISTÊNCIA/CRIAÇÃO DO CHAT(CASO HAJA NECESSIDADE)
+    nome = " ".join(mensagem.split()[:3])
     if chat_novo:
         try:
-            chat_id = registrar_chat(usuario_id, materia_id, f"{usuario_id}-ChatTeste")
+            chat_id = registrar_chat(usuario_id, materia_id, f"{nome}...")
         except Exception as e:
             traceback.print_exc()
             return disparar_emit(socketio, "erro", {"erro": str(e)}, room=sid)

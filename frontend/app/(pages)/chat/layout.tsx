@@ -25,6 +25,7 @@ export default function AlunoLayout({ children }: { children: React.ReactNode })
 
     const handleNewChat = ()=>{
         setChatKey((prev: number) => prev + 1)
+        getData()
         if (window.innerWidth <= 768) setIsMenuAbertoMobile(false)
         router.push("/chat")
     }
