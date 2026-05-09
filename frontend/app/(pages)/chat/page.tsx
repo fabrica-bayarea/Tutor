@@ -185,7 +185,7 @@ export default function Chat() {
             {materias && materias.length > 0 && (
                 <ErrorField temErro={!podeEnviarMensagem} />
             )}
-            {materias && materias.length <= 0 && (
+            {materias == null && (
                 <section className={styles.noMateriaSection}>
                     <section>
                         <p>Você ainda não está matriculado em nenhuma matéria.</p>

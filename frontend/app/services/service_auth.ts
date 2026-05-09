@@ -18,7 +18,7 @@ export async function getCurrentUser(): Promise<Usuario | null> {
 
 export async function logout(): Promise<void> {
     try {
-        await api.post("/alunos/logout", {withCredentials: true});
+        await api.post("/alunos/encerrar-sessao", {}, { withCredentials: true });
     } catch (error) {
         console.error("Erro ao fazer logout:", error);
     }

@@ -4,8 +4,11 @@ import styles from "./Header.module.css"
 import { User, Bell, Menu } from "lucide-react";
 import { useAuth } from "@/utils/auth";
 import { useData } from "@/utils/data";
+import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { LayoutContext } from "@/contexts/LayoutContext";
+import HeaderUserIcon from "@/app/components/HeaderUserIcon/HeaderUserIcon";
+import { logout } from "@/app/services/service_auth";
 
 interface HeaderInterface {
     isSelectInactive: boolean;
@@ -16,6 +19,7 @@ interface HeaderInterface {
 export default function Header({ isSelectInactive, materiaName, onMateriaChange }: HeaderInterface) {
     const { user } = useAuth();
     const { materias } = useData();
+    const router = useRouter();
     const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -25,6 +29,13 @@ export default function Header({ isSelectInactive, materiaName, onMateriaChange 
             onMateriaChange(selectedMateria.id);
         }
     };
+
+    
+    const handleSair = () => {
+        logout();
+        router.push("/login")
+    }
+    
 
     return (
         <section className={styles.headerConteiner}>
@@ -45,17 +56,17 @@ export default function Header({ isSelectInactive, materiaName, onMateriaChange 
                     className={styles.selectMateria}
                     onChange={handleSelectChange}
                 >
-                    {materias.map((materia, index) => (
+                    {materias &&( materias.map((materia, index) => (
                         <option key={index} value={materia.id}>
                             {materia.nome}
                         </option>
-                    ))}
+                    )))}
                 </select>
             }
             <section className={styles.headerSectionUser}>
                 <p>ADM - {user?.nome}</p>
                 <button className={styles.bellButton}><Bell size={20} color="white" /></button>
-                <button className={styles.userButton}><User size={20} color="#0F766E" /></button>
+                <HeaderUserIcon onConfiguracoes={()=>{console.log("config")}} onSair={handleSair}/>
             </section>
         </section>
     )
