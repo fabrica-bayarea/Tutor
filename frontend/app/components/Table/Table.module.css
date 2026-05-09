@@ -1,0 +1,135 @@
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.table thead tr {
+    background-color: #f0fdfa;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 13px;
+    color: #0f766e;
+    text-align: left;
+    padding: 14px 16px;
+    border: none;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    background-color: #ffffff;
+    border-top: 1px solid #f1f5f9;
+    transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table td {
+    padding: 14px 16px;
+    border: none;
+    font-size: 13px;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+/* No desktop, o label da célula fica oculto (o thead já cumpre esse papel) */
+.cellLabel {
+    display: none;
+}
+
+.emptyCell {
+    text-align: center !important;
+    color: #6b7280;
+    padding: 32px 16px !important;
+    font-size: 13px;
+}
+
+@media (max-width: 640px) {
+    .tableWrapper {
+        border: none;
+        background-color: transparent;
+        overflow-x: visible;
+    }
+
+    .table {
+        display: block;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody {
+        display: block;
+    }
+
+    .table tbody tr {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px;
+        padding-right: 80px;
+        margin-bottom: 12px;
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .table tbody tr:hover {
+        background-color: #ffffff;
+    }
+
+    .table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .table td {
+        display: block;
+        padding: 0;
+        text-align: left !important;
+        font-size: 14px;
+    }
+
+    .cellLabel {
+        display: none !important;
+    }
+
+    .table td[data-variant="stacked"] .cellValue {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .table td[data-variant="actions"] {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobileHidden {
+        display: none !important;
+    }
+
+    .emptyCell {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px !important;
+    }
+}
