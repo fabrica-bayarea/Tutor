@@ -1,0 +1,432 @@
+name: Security Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+permissions: read-all
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # =========================================================
+  # CODEQL (SAST)
+  # =========================================================
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - javascript
+          - python
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # =====================================================
+      # NODE
+      # =====================================================
+      - name: Setup Node.js
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Front-end dependencies
+        if: matrix.language == 'javascript'
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install Back-end Node dependencies
+        if: matrix.language == 'javascript'
+        working-directory: ./backend
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+
+      # =====================================================
+      # PYTHON
+      # =====================================================
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      # =====================================================
+      # CODEQL
+      # =====================================================
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
+          output: codeql-results
+
+      # =====================================================
+      # SECURITY GATE CODEQL
+      # =====================================================
+      - name: Check High/Critical vulnerabilities
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+          SARIF_FILE=$(find codeql-results -name "*.sarif" | head -1)
+
+          if [ -z "$SARIF_FILE" ]; then
+            echo "❌ No SARIF file found"
+            exit 1
+          fi
+
+          COUNT=$(jq '
+            [
+              .runs[].results[]? as $result
+              |
+              (
+                .runs[].tool.driver.rules[]?,
+                .runs[].tool.extensions[]?.rules[]?
+              )
+              |
+              select(.id == $result.ruleId)
+              |
+              (.properties["security-severity"] // "0")
+              |
+              tonumber
+              |
+              select(. >= 7)
+            ] | length
+          ' "$SARIF_FILE")
+
+          echo "High/Critical vulnerabilities: $COUNT"
+
+          if [ "$COUNT" -gt 0 ]; then
+            echo "❌ Security Gate failed"
+            exit 1
+          fi
+
+          echo "✅ CodeQL passed"
+
+  # =========================================================
+  # SECURITY ANALYSIS
+  # =========================================================
+  security:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    timeout-minutes: 50
+
+    steps:
+
+      # =====================================================
+      # CHECKOUT
+      # =====================================================
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # =====================================================
+      # NODE
+      # =====================================================
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # =====================================================
+      # PYTHON
+      # =====================================================
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # =====================================================
+      # CACHE
+      # =====================================================
+      - name: Cache Front-end node_modules
+        uses: actions/cache@v4
+        with:
+          path: ./frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: Cache Back-end node_modules
+        uses: actions/cache@v4
+        with:
+          path: ./backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # =====================================================
+      # INSTALL DEPENDENCIES
+      # =====================================================
+      - name: Install Front-end dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install Back-end Node dependencies
+        working-directory: ./backend
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+
+      - name: Install Python dependencies
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      # =====================================================
+      # TESTS
+      # =====================================================
+      - name: Run Front-end tests
+        working-directory: ./frontend
+        run: npm test --if-present
+
+      - name: Run Back-end tests
+        working-directory: ./backend
+        run: npm test --if-present
+
+      # =====================================================
+      # NPM AUDIT
+      # =====================================================
+      - name: Front-end npm audit
+        continue-on-error: true
+        working-directory: ./frontend
+        run: npm audit --audit-level=high
+
+      - name: Back-end npm audit
+        continue-on-error: true
+        working-directory: ./backend
+        run: |
+          if [ -f package.json ]; then
+            npm audit --audit-level=high
+          fi
+
+      # =====================================================
+      # PYTHON SECURITY
+      # =====================================================
+      - name: Install Python security tools
+        run: |
+          pip install pip-audit bandit
+
+      - name: pip-audit
+        id: pipaudit
+        continue-on-error: true
+        working-directory: ./backend
+        run: |
+          if [ -f requirements.txt ]; then
+            pip-audit
+          fi
+
+      - name: Bandit Scan
+        id: bandit
+        continue-on-error: true
+        run: |
+          bandit -r ./backend \
+            -f sarif \
+            -o bandit.sarif || true
+
+      - name: Upload Bandit SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: bandit.sarif
+          category: bandit
+
+      # =====================================================
+      # SEMGREP
+      # =====================================================
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep
+        id: semgrep
+        continue-on-error: true
+        run: |
+          semgrep scan \
+            --config=auto \
+            --sarif \
+            --output=semgrep.sarif \
+            .
+
+      - name: Upload Semgrep SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+      # =====================================================
+      # DOCKER SECURITY
+      # =====================================================
+      - name: Build Docker image
+        run: |
+          docker build -t app-security-test .
+
+      - name: Trivy Docker Scan
+        id: trivy
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: app-security-test
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          vuln-type: os,library
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+      # =====================================================
+      # KUBERNETES SECURITY
+      # =====================================================
+      - name: KubeLinter Scan
+        id: kubelinter
+        continue-on-error: true
+        uses: stackrox/kube-linter-action@v1
+        with:
+          directory: .
+
+      # =====================================================
+      # SECRET SCANNING
+      # =====================================================
+      - name: Gitleaks Scan
+        id: gitleaks
+        continue-on-error: true
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # =====================================================
+      # SONARCLOUD
+      # =====================================================
+      - name: SonarCloud Scan
+        id: sonar
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >
+            -Dsonar.projectKey=fabrica-bayarea_Tutor
+            -Dsonar.organization=fabrica-bayarea
+            -Dsonar.sources=backend,frontend
+            -Dsonar.tests=backend/tests,frontend
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+            -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.qualitygate.wait=true
+
+      # =====================================================
+      # DEPENDENCY REVIEW
+      # =====================================================
+      - name: Dependency Review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+
+      # =====================================================
+      # FINAL SECURITY GATE
+      # =====================================================
+      - name: Security Gate
+        if: always()
+        shell: bash
+        run: |
+          FAILED=0
+
+          if [ "${{ steps.semgrep.outcome }}" = "failure" ]; then
+            echo "❌ Semgrep detected vulnerabilities"
+            FAILED=1
+          fi
+
+          if [ "${{ steps.bandit.outcome }}" = "failure" ]; then
+            echo "❌ Bandit detected Python vulnerabilities"
+            FAILED=1
+          fi
+
+          if [ "${{ steps.trivy.outcome }}" = "failure" ]; then
+            echo "❌ Trivy detected Docker vulnerabilities"
+            FAILED=1
+          fi
+
+          if [ "${{ steps.kubelinter.outcome }}" = "failure" ]; then
+            echo "❌ KubeLinter detected Kubernetes issues"
+            FAILED=1
+          fi
+
+          if [ "${{ steps.gitleaks.outcome }}" = "failure" ]; then
+            echo "❌ Gitleaks detected secrets"
+            FAILED=1
+          fi
+
+          if [ "${{ steps.sonar.outcome }}" != "success" ]; then
+            echo "❌ SonarCloud Quality Gate failed"
+            FAILED=1
+          fi
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo "❌ Security pipeline failed"
+            exit 1
+          fi
+
+          echo "✅ Security pipeline approved"
