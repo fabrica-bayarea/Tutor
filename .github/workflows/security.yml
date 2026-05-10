@@ -344,14 +344,20 @@ jobs:
           directory: ./k8s
           # sem config: usa defaults do kube-linter
 
-      # =====================================================
+# =====================================================
       # SECRET SCANNING — CLI gratuita (sem licença)
       # =====================================================
       - name: Gitleaks Scan
         id: gitleaks
         continue-on-error: true
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_$(uname -s | tr '[:upper:]' '[:lower:]')_x64.tar.gz \
+          GITLEAKS_VERSION=$(curl -sSL \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
+            | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          curl -sSL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_${OS}_x64.tar.gz" \
             | tar -xz gitleaks
           ./gitleaks detect \
             --source . \
@@ -378,7 +384,7 @@ jobs:
       - name: SonarCloud Scan
         id: sonar
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -387,7 +393,7 @@ jobs:
             -Dsonar.projectKey=fabrica-bayarea_Tutor
             -Dsonar.organization=fabrica-bayarea
             -Dsonar.sources=backend/application,frontend/app
-            -Dsonar.tests=backend/tests
+            -Dsonar.tests=backend/application/tests
             -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
