@@ -394,7 +394,7 @@ jobs:
             -Dsonar.organization=fabrica-bayarea
             -Dsonar.sources=backend/application,frontend/app
             -Dsonar.tests=backend/application/tests
-            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**,**/tests/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
