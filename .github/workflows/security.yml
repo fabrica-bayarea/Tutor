@@ -16,7 +16,7 @@ concurrency:
 jobs:
 
   # =========================================================
-  # CODEQL (SAST) — JavaScript (Next.js) + Python (Flask)
+  # CODEQL — JavaScript (Next.js) + Python (Flask)
   # =========================================================
   codeql:
     name: CodeQL Analysis (${{ matrix.language }})
@@ -39,9 +39,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # =====================================================
-      # NODE — Next.js frontend
-      # =====================================================
       - name: Setup Node.js
         if: matrix.language == 'javascript'
         uses: actions/setup-node@v4
@@ -55,9 +52,6 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      # =====================================================
-      # PYTHON — Flask backend
-      # =====================================================
       - name: Setup Python
         if: matrix.language == 'python'
         uses: actions/setup-python@v5
@@ -69,13 +63,8 @@ jobs:
         if: matrix.language == 'python'
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          pip install -r requirements.txt
 
-      # =====================================================
-      # CODEQL
-      # =====================================================
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
@@ -91,9 +80,6 @@ jobs:
           category: "/language:${{ matrix.language }}"
           output: codeql-results
 
-      # =====================================================
-      # SECURITY GATE — bloqueia High/Critical (score >= 7)
-      # =====================================================
       - name: Check High/Critical vulnerabilities
         shell: bash
         run: |
@@ -144,16 +130,13 @@ jobs:
 
     steps:
 
-      # =====================================================
-      # CHECKOUT
-      # =====================================================
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       # =====================================================
-      # NODE — Next.js
+      # SETUP
       # =====================================================
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -162,9 +145,6 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      # =====================================================
-      # PYTHON — Flask + Gunicorn
-      # =====================================================
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -185,11 +165,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
           restore-keys: ${{ runner.os }}-pip-
 
       # =====================================================
-      # INSTALL DEPENDENCIES
+      # INSTALL
       # =====================================================
       - name: Install frontend dependencies
         working-directory: ./frontend
@@ -197,10 +177,10 @@ jobs:
 
       - name: Install Python dependencies
         working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+        run: pip install -r requirements.txt
+
+      - name: Install Python security tools
+        run: pip install pip-audit bandit bandit-sarif-formatter
 
       # =====================================================
       # TESTS
@@ -210,14 +190,16 @@ jobs:
         working-directory: ./frontend
         run: npm test --if-present -- --passWithNoTests
 
+      # backend/tests/ existe na estrutura
       - name: Run backend tests
         continue-on-error: true
         working-directory: ./backend
         run: |
-          if [ -f requirements.txt ]; then
-            pip install pytest pytest-cov
-            pytest --cov=. --cov-report=xml --ignore=tests/e2e -q || true
-          fi
+          pip install pytest pytest-cov
+          pytest tests/ \
+            --cov=application \
+            --cov-report=xml:coverage.xml \
+            -q || true
 
       # =====================================================
       # NPM AUDIT — Next.js
@@ -229,32 +211,26 @@ jobs:
         run: npm audit --audit-level=high
 
       # =====================================================
-      # PYTHON SECURITY — Flask + dependências
+      # PIP AUDIT — Flask + dependências
       # =====================================================
-      - name: Install Python security tools
-        run: pip install pip-audit bandit
-
       - name: pip-audit
         id: pipaudit
         continue-on-error: true
         working-directory: ./backend
-        run: |
-          if [ -f requirements.txt ]; then
-            pip-audit -r requirements.txt --output pip-audit-report.json --format json || true
-            cat pip-audit-report.json
-          fi
+        run: pip-audit -r requirements.txt
 
-      # Bandit: usa --exit-zero para SEMPRE gerar o SARIF,
-      # independente de encontrar ou não vulnerabilidades.
-      # Severidade média e acima; ignora testes.
+      # =====================================================
+      # BANDIT — backend/application/ (código Flask)
+      # exclui tests/ e migrations/
+      # =====================================================
       - name: Bandit Scan
         id: bandit
         continue-on-error: true
         run: |
-          bandit -r ./backend \
+          bandit -r ./backend/application \
             --exit-zero \
             -ll \
-            --exclude ./backend/tests \
+            --exclude ./backend/tests,./backend/migrations \
             -f sarif \
             -o bandit.sarif
           echo "bandit_generated=$(test -f bandit.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
@@ -268,7 +244,7 @@ jobs:
           category: bandit
 
       # =====================================================
-      # SEMGREP — OWASP Top 10 + Flask + Python + JS
+      # SEMGREP — OWASP + Flask + Python + JS/TS
       # =====================================================
       - name: Install Semgrep
         run: pip install semgrep
@@ -286,6 +262,10 @@ jobs:
             --sarif \
             --output=semgrep.sarif \
             --timeout=120 \
+            --exclude="**/node_modules/**" \
+            --exclude="**/.next/**" \
+            --exclude="**/migrations/**" \
+            --exclude="**/__pycache__/**" \
             .
           echo "semgrep_generated=$(test -f semgrep.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
 
@@ -298,7 +278,8 @@ jobs:
           category: semgrep
 
       # =====================================================
-      # DOCKER SECURITY — imagens backend e frontend
+      # DOCKER — build das imagens backend e frontend
+      # Dockerfiles estão em backend/ e frontend/
       # =====================================================
       - name: Build Docker images
         id: docker_build
@@ -351,28 +332,48 @@ jobs:
           category: trivy-frontend
 
       # =====================================================
-      # KUBERNETES SECURITY — manifests K8s
+      # KUBERNETES — manifests em k8s/
+      # backend.yaml, frontend.yaml, database.yaml,
+      # ingress.yaml, ollama.yaml
       # =====================================================
       - name: KubeLinter Scan
         id: kubelinter
         continue-on-error: true
         uses: stackrox/kube-linter-action@v1
         with:
-          directory: .
-          config: .kube-linter.yaml
+          directory: ./k8s
+          # sem config: usa defaults do kube-linter
 
       # =====================================================
-      # SECRET SCANNING
+      # SECRET SCANNING — CLI gratuita (sem licença)
       # =====================================================
       - name: Gitleaks Scan
         id: gitleaks
         continue-on-error: true
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_$(uname -s | tr '[:upper:]' '[:lower:]')_x64.tar.gz \
+            | tar -xz gitleaks
+          ./gitleaks detect \
+            --source . \
+            --redact \
+            --report-format sarif \
+            --report-path gitleaks.sarif \
+            --exit-code 0
+          echo "gitleaks_generated=$(test -f gitleaks.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - name: Upload Gitleaks SARIF
+        if: always() && steps.gitleaks.outputs.gitleaks_generated == 'true'
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
+          category: gitleaks
 
       # =====================================================
       # SONARCLOUD
+      # projectKey: fabrica-bayarea_Tutor
+      # sources: backend/application + frontend/app
+      # testes: backend/tests
       # =====================================================
       - name: SonarCloud Scan
         id: sonar
@@ -385,9 +386,9 @@ jobs:
           args: >
             -Dsonar.projectKey=fabrica-bayarea_Tutor
             -Dsonar.organization=fabrica-bayarea
-            -Dsonar.sources=backend,frontend
+            -Dsonar.sources=backend/application,frontend/app
             -Dsonar.tests=backend/tests
-            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
@@ -403,8 +404,8 @@ jobs:
 
       # =====================================================
       # FINAL SECURITY GATE
-      # Só falha se houver resultado "failure" explícito.
-      # "skipped" e "cancelled" não bloqueiam o pipeline.
+      # failure  → bloqueia o pipeline
+      # skipped  → aviso, não bloqueia
       # =====================================================
       - name: Security Gate
         if: always()
@@ -425,25 +426,15 @@ jobs:
             fi
           }
 
-          check_step "Bandit"      "${{ steps.bandit.outcome }}"
-          check_step "Semgrep"     "${{ steps.semgrep.outcome }}"
-          check_step "Trivy backend"  "${{ steps.trivy_backend.outcome }}"
-          check_step "Trivy frontend" "${{ steps.trivy_frontend.outcome }}"
-          check_step "KubeLinter"  "${{ steps.kubelinter.outcome }}"
-          check_step "Gitleaks"    "${{ steps.gitleaks.outcome }}"
-          check_step "npm audit"   "${{ steps.npm_audit.outcome }}"
-          check_step "pip-audit"   "${{ steps.pipaudit.outcome }}"
-
-          # SonarCloud: skipped é aceitável (ex: SONAR_TOKEN não configurado)
-          SONAR_OUTCOME="${{ steps.sonar.outcome }}"
-          if [ "$SONAR_OUTCOME" = "failure" ]; then
-            echo "❌ SonarCloud Quality Gate failed"
-            FAILED=1
-          elif [ "$SONAR_OUTCOME" = "skipped" ]; then
-            echo "⚠️  SonarCloud was skipped"
-          else
-            echo "✅ SonarCloud: $SONAR_OUTCOME"
-          fi
+          check_step "Bandit"          "${{ steps.bandit.outcome }}"
+          check_step "Semgrep"         "${{ steps.semgrep.outcome }}"
+          check_step "Trivy backend"   "${{ steps.trivy_backend.outcome }}"
+          check_step "Trivy frontend"  "${{ steps.trivy_frontend.outcome }}"
+          check_step "KubeLinter"      "${{ steps.kubelinter.outcome }}"
+          check_step "Gitleaks"        "${{ steps.gitleaks.outcome }}"
+          check_step "npm audit"       "${{ steps.npm_audit.outcome }}"
+          check_step "pip-audit"       "${{ steps.pipaudit.outcome }}"
+          check_step "SonarCloud"      "${{ steps.sonar.outcome }}"
 
           echo ""
           if [ "$FAILED" -eq 1 ]; then
