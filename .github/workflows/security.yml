@@ -239,7 +239,10 @@ jobs:
 
       - name: Run Back-end tests
         working-directory: ./backend
-        run: npm test --if-present
+        run: |
+          if [ -f package.json ]; then
+            npm test --if-present
+          fi
 
       # =====================================================
       # NPM AUDIT
@@ -314,16 +317,17 @@ jobs:
       # =====================================================
       # DOCKER SECURITY
       # =====================================================
-      - name: Build Docker image
+      - name: Build Docker images
         run: |
-          docker build -t app-security-test .
+          docker build -t app-backend-test ./backend
+          docker build -t app-frontend-test ./frontend
 
       - name: Trivy Docker Scan
         id: trivy
         continue-on-error: true
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: app-security-test
+          image-ref: app-backend-test
           format: sarif
           output: trivy-results.sarif
           severity: HIGH,CRITICAL
