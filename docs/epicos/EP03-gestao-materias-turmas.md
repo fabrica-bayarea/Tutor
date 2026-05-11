@@ -3,8 +3,6 @@
 
 | Versão | Data | Descrição | Autor |
 |--------|-----------|---------------|-----------|
-
-| 1.2 Sprint 2 | 19/04/2026 | | Patricia Pereira Martins |
 | 1.3 Sprint 3 | 10/05/2026 | Cadastro, edição e desativação de matéria US-10 e US-10b, Cadastro de turma US-11, Associação de matéria a turma US-12, Vinculação de professor a turma e matéria US-13 e Matrícula de aluno em turma US-14 | Patricia Pereira Martins |
 
 ---
