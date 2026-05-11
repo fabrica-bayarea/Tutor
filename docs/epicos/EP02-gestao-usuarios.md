@@ -1,8 +1,10 @@
 > **Documento de Requisitos**
 > **Projeto Tutor**
-> **Responsável:** Patricia Pereira Martins – Time de Requisitos e Testes
-> **Data:** Abril/2026
-> **Versão:** 1.2 - Sprint 2
+
+| Versão | Data | Descrição | Autor |
+|--------|-----------|---------------|-----------|
+| 1.2 Sprint 2 | 19/04/2026 | Criação das histórias de usuário US-08 e US-09 | Patricia Pereira Martins |
+| 1.3 Sprint 3 | 08/05/2026 | Criação das histórias de usuário US-07 | Patricia Pereira Martins |
 
 ---
 
@@ -15,6 +17,52 @@
 **Protótipo:** [Design System](https://www.figma.com/design/5MClPpSqI9R42MPCwTcDzH/Tutor----Sprint-2?node-id=258-2&p=f&t=ukWioTEjrb08WqKU-0)
 
 **Protótipo Sprint 2 — Gestão de Usuários:** [Gestão de Usuários](https://www.figma.com/design/5MClPpSqI9R42MPCwTcDzH/Tutor----Sprint-2?node-id=239-5&p=f&t=ukWioTEjrb08WqKU-0)
+
+**Protótipo Sprint 3 — Gestão de Usuários:** [Gestão de Usuários](https://www.figma.com/design/zmoOcbWpUlzlRtJMoqwjPC/Tutor----Sprint-3?node-id=239-4&p=f&t=YQYt419AlJk2mdgq-0)
+
+---
+
+## US-07 — Cadastro de professor
+
+**Como** administrador,
+**quero** cadastrar um professor na plataforma informando seus dados básicos,
+**para que** ele possa acessar a plataforma, gerenciar materiais para a IA responder as perguntas dos alunos.
+
+### Regras de Negócio
+
+- Apenas o administrador pode cadastrar professores.
+- O professor recebe automaticamente o perfil "Professor" no cadastro.
+- Ao ser cadastrado, o professor recebe um link de convite por e-mail para criar sua própria senha antes do primeiro acesso.
+- Um professor pode ser vinculado a uma ou mais matérias após o cadastro.
+- A matrícula e o e-mail informados devem ser únicos na plataforma — não é possível ter dois usuários com a mesma matrícula ou mesmo e-mail.
+
+### Regras de Validação
+
+- Nome completo é obrigatório. 
+- Matrícula institucional é obrigatória e deve ser única na plataforma.
+- E-mail institucional é obrigatório, deve ser único na plataforma e ter formato válido (ex: nome@instituição.br).
+- Caso a matrícula já exista, exibir: _"Esta matrícula já está em uso por outro usuário."_
+- Caso o e-mail já exista, exibir: _"Este e-mail já está em uso por outro usuário."_
+
+### Regras de Interface
+
+- O formulário de cadastro de professor deve conter os campos: Nome completo, Matrícula, E-mail.
+- Ao concluir o cadastro, exibir confirmação e opção de cadastrar outro professor ou voltar à listagem.
+
+### Requisitos Não Funcionais
+
+- O cadastro deve ser confirmado em no máximo 5 segundos após o envio do formulário.
+
+### Pré-requisitos
+
+- O administrador deve estar autenticado.
+
+### Critérios de Aceitação
+
+- [ ] Administrador consegue cadastrar um professor preenchendo os campos obrigatórios.
+- [ ] Matrícula ou e-mail duplicados são rejeitados com mensagem explicativa.
+- [ ] Professor cadastrado aparece na listagem de usuários com status ativo.
+- [ ] Professor recebe e-mail com link de convite e consegue criar sua senha e acessar a plataforma.
 
 ---
 
