@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import FormularioAluno from "../../../../../components/FormularioAluno/FormularioAluno";
+import FormularioAluno from "../../../components/FormularioAluno/FormularioAluno";
 
 function EditarAlunoContent() {
     const searchParams = useSearchParams();

@@ -6,43 +6,44 @@
 }
 
 .label {
-    font-size: 0.875rem;
+    font-size: 12px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #737373;
 }
 
 .field {
     display: flex;
     align-items: center;
     width: 100%;
-    background-color: #ececec;
-    border-radius: 10px;
-    transition: outline 0.15s ease-out, background-color 0.15s ease-out;
-    outline: 1px solid transparent;
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    min-height: 40px;
+    transition: border-color 0.15s ease;
     box-sizing: border-box;
 }
 
 .field:hover {
-    outline: 1px solid rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.3);
 }
 
 .field:focus-within {
-    outline: 1px solid rgba(0, 0, 0, 0.5);
+    border-color: #0d9488;
 }
 
 .fieldError {
-    outline: 1px solid #d33b3b !important;
-    background-color: #fdecec;
+    border-color: #dc2626 !important;
+    background-color: #fef2f2;
 }
 
 .fieldDisabled {
-    background-color: #f1f1f1;
+    background-color: #f2f2f2;
     cursor: not-allowed;
     opacity: 0.7;
 }
 
 .fieldDisabled:hover {
-    outline: 1px solid transparent;
+    border-color: #e5e5e5;
 }
 
 .input,
@@ -55,22 +56,31 @@
     border: none !important;
     outline: none !important;
     background: transparent;
-    padding: 0.75rem;
-    font-size: 1rem;
-    color: #1a1a1a;
+    padding: 0 0.75rem;
+    font-size: 14px;
+    color: #262626;
     width: 100%;
     box-sizing: border-box;
     border-radius: 0;
     overflow: visible;
+    height: 38px;
 }
 
 .input:disabled {
     cursor: not-allowed;
-    color: #6b6b6b;
+    color: #737373;
 }
 
 .input::placeholder {
     color: #999999;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+    -webkit-text-fill-color: #262626;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .toggleBtn {
@@ -79,14 +89,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding:  0 0.25rem 0 0;
-    color: #6b6b6b;
+    padding: 0 0.5rem 0 0;
+    color: #737373;
     cursor: pointer;
     border-radius: 6px;
 }
 
 .toggleBtn:hover:not(:disabled) {
-    color: #1a1a1a;
+    color: #262626;
 }
 
 .toggleBtn:disabled {
@@ -95,11 +105,11 @@
 }
 
 .helperText {
-    font-size: 0.8rem;
-    color: rgba(0, 0, 0, 0.55);
+    font-size: 12px;
+    color: #737373;
 }
 
 .errorText {
-    font-size: 0.8rem;
-    color: #d33b3b;
+    font-size: 12px;
+    color: #dc2626;
 }

@@ -16,6 +16,7 @@ type ModalProps = {
     closeOnBackdrop?: boolean;
     closeOnEsc?: boolean;
     width?: string;
+    accent?: boolean;
     className?: string;
 };
 
@@ -30,6 +31,7 @@ export default function Modal({
     closeOnBackdrop = true,
     closeOnEsc = true,
     width,
+    accent = false,
     className,
 }: ModalProps) {
     useEffect(() => {
@@ -64,6 +66,7 @@ export default function Modal({
                 style={width ? { maxWidth: width } : undefined}
                 onClick={(e) => e.stopPropagation()}
             >
+                {accent && <div className={styles.accent} />}
                 {(title || icon || showCloseButton) && (
                     <div className={styles.header}>
                         <div className={styles.titleGroup}>

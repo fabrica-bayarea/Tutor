@@ -13,16 +13,17 @@
     padding: 2rem 1rem;
     position: relative;
     z-index: 1;
+    background-color: #fafafa;
 }
 
 .aside {
     position: sticky;
     top: 0;
     align-self: flex-start;
-    width: 45%;
+    width: 560px;
     height: 100vh;
     max-height: 100vh;
-    background-color: #4d9b8d;
+    background-color: #0d9488;
     color: #ffffff;
     padding: 3rem 3rem 4rem;
     overflow: hidden;
@@ -64,7 +65,7 @@
 }
 
 .asideLogo svg {
-    color: #e07a3b;
+    color: #f97316;
 }
 
 .asideBrandName {
@@ -74,7 +75,7 @@
 
 .asideTitle {
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.25;
     margin: 0;
 }
@@ -105,7 +106,7 @@
 .asideCircleBottom {
     position: absolute;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.2);
     z-index: 1;
     pointer-events: none;
 }

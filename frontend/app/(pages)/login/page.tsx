@@ -7,7 +7,7 @@ import { useAuth } from '@/utils/auth';
 
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle, LoginErrorCode } from '@/app/services/service_aluno';
-import { BookMarked } from 'lucide-react';
+import TutorLogoIcon from '@/app/components/TutorLogoIcon';
 import { FcGoogle } from 'react-icons/fc';
 import Input from '@/app/components/Input/Input';
 import Button from '@/app/components/Button/Button';
@@ -112,8 +112,8 @@ function LoginContent() {
         <div className={styles.contentContainer}>
 
             <div className={styles.brandHeader}>
-                <div className={styles.asideLogo}>
-                    <BookMarked size={22} strokeWidth={2.4} />
+                <div className={styles.cardLogo}>
+                    <TutorLogoIcon size={22} />
                 </div>
                 <span className={styles.asideBrandName}>Tutor</span>
             </div>
@@ -129,6 +129,7 @@ function LoginContent() {
                     label="Matrícula"
                     type="text"
                     required
+                    maxLength={20}
                     value={matricula}
                     onChange={(e) => setMatricula(e.target.value)}
                     disabled={loading}
@@ -141,6 +142,7 @@ function LoginContent() {
                     label="Senha"
                     type="password"
                     required
+                    maxLength={30}
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                     disabled={loading}
@@ -155,6 +157,7 @@ function LoginContent() {
                     type="submit"
                     style="filled"
                     action="primary"
+                    size="lg"
                     fullWidth
                     label={loading ? "Entrando..." : "Entrar"}
                     isDisabled={isDisabled}
@@ -169,8 +172,8 @@ function LoginContent() {
                 <div className={styles.googleBtnWrapper}>
                     <Button
                         type="button"
-                        style="filled"
-                        action="secondary"
+                        style="ghost"
+                        size="lg"
                         fullWidth
                         icon={<FcGoogle size={20} />}
                         label="Continuar com Google"

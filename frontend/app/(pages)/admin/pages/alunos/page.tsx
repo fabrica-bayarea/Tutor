@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash2, RotateCw, Plus, AlertTriangle } from "lucide-react";
 import styles from "./page.module.css";
 import Table, { TableColumn } from "../../../../components/Table/Table";
-import ColorButton from "../../../../components/ColorButton/ColorButton";
+import Button from "../../../../components/Button/Button";
 import SearchInput from "../../../../components/SearchInput/SearchInput";
 import Pagination from "../../../../components/Pagination/Pagination";
 import Modal from "../../../../components/Modal/Modal";
@@ -189,14 +189,13 @@ export default function Alunos() {
     return (
         <div className={styles.cadastro}>
             <div className={styles.buttonContainer}>
-                <ColorButton
-                    backgroundColor="#0d9488"
-                    color="#ffffff"
+                <Button
+                    style="filled"
+                    action="primary"
+                    icon={<Plus size={16} />}
+                    label="Novo Aluno"
                     onClick={() => router.push("/admin/pages/alunos/novoAluno")}
-                >
-                    <Plus size={16} />
-                    Novo Aluno
-                </ColorButton>
+                />
             </div>
 
             <div className={styles.searchRow}>
@@ -231,21 +230,17 @@ export default function Alunos() {
                 icon={<AlertTriangle size={20} color="#d02b29" />}
                 footer={
                     <>
-                        <ColorButton
-                            backgroundColor="#ffffff"
-                            color="#1f2937"
+                        <Button
+                            style="ghost"
+                            label="Cancelar"
                             onClick={() => setAlunoParaDesativar(null)}
-                            style={{ border: "1px solid #e5e7eb" }}
-                        >
-                            Cancelar
-                        </ColorButton>
-                        <ColorButton
-                            backgroundColor="#d02b29"
-                            color="#ffffff"
+                        />
+                        <Button
+                            style="filled"
+                            action="danger"
+                            label="Desativar aluno"
                             onClick={confirmarDesativacao}
-                        >
-                            Desativar aluno
-                        </ColorButton>
+                        />
                     </>
                 }
             >

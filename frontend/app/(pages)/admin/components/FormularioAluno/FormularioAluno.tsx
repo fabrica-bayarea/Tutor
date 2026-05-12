@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { criarAluno } from "../../services/service_aluno";
+import { criarAluno } from "../../../../services/service_aluno";
 import styles from "./formulario.aluno.module.css";
 
 interface FormularioAlunoProps {

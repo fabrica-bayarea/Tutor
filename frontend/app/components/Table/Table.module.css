@@ -3,7 +3,7 @@
     overflow-x: auto;
     background-color: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e5e5e5;
 }
 
 .table {
@@ -13,7 +13,7 @@
 }
 
 .table thead tr {
-    background-color: #f0fdfa;
+    background-color: #f7f7f7;
 }
 
 .table th {
@@ -27,13 +27,13 @@
 }
 
 .table tbody tr {
-    background-color: #ffffff;
-    border-top: 1px solid #f1f5f9;
+    background-color: #fafafa;
+    border-top: 1px solid #e5e5e5;
     transition: background-color 0.15s ease;
 }
 
 .table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: #f2f2f2;
 }
 
 .table td {
@@ -84,7 +84,7 @@
         padding-right: 80px;
         margin-bottom: 12px;
         background-color: #ffffff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e5e5e5;
         border-radius: 12px;
     }
 
@@ -128,7 +128,7 @@
 
     .emptyCell {
         background-color: #ffffff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e5e5e5;
         border-radius: 12px;
         padding: 24px !important;
     }

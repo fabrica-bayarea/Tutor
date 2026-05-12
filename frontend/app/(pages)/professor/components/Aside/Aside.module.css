@@ -2,102 +2,39 @@
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    width: 18rem;
-    min-width: 10rem;
+    width: 240px;
+    min-width: 200px;
     height: 100%;
-    padding: 1rem;
-    background-color: #f2f2f2;
-    border-right: 2px solid rgb(0, 0, 0);
+    padding: 1rem 0.75rem;
+    background-color: #fafafa;
+    border-right: 1px solid #e5e5e5;
     box-sizing: border-box;
 }
-.expanded {
-    width: 320px;
 
-    transition: width ease-out 0.15s;
-}
-.collapsed {
-    width: fit-content;
-    
-    transition: width ease-out 0.15s;
+.sectionTitle {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0 0.5rem 0.5rem;
 }
 
-/* .asideContainer > div {
-    display: flex;
-    width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-} */
-
-.widthButton {
-    display: flex;
-    width: 100%;
-    padding: 1rem 0;
-    justify-content: flex-end;
-    color: gray;
+.sectionTitle h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
 }
 
 .asideMainButtons {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    gap: 0.25rem;
-    padding: 1rem 0;
+    gap: 2px;
 }
 
-/* .chatList {
+.asideFooter {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
-    gap: 1rem;
-    padding: 1rem 0 0 0;
-} */
-
-.asideOtrButton{
-    background-color: transparent;
-    margin-bottom: 0.5rem;
-}
-
-.otrButton{
-    display: flex;
-    font-weight: normal;
-    font-size: 15px;
-    flex-direction: row;
-    width: 100%;
-    justify-content: start;
-    align-items: center;
-    gap: .5rem;
-    padding: .5rem;
-    border-radius: 10px;
-    background-color: #f2f2f2;
-    border: 2px solid gray;
-}
-
-.otrButton:hover{
-    background-color: rgb(0,0,0,0.1);
-}
-
-.divAsideOtrButtons{
-    margin-top: 2rem;
-}
-
-.asideCriarChatButton{
-    background-color: transparent;
-    margin-bottom: .5rem;
-}
-
-.newChatButton{
-    display: flex;
-    font-weight: normal;
-    font-size: 15px;
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    gap: .5rem;
-    padding: .5rem;
-    border-radius: 10px;
-    background-color: #f2f2f2;
-}
-.newChatButton:hover{
-    background-color: rgb(0,0,0,0.1);
+    gap: 2px;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e5e5;
 }
