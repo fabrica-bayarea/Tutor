@@ -122,7 +122,7 @@ def login_google():
                 "error": "Usuário não cadastrado. Entre em contato com a instituição."
             }), 404
 
-        token_jwt = gerar_token(aluno.id, aluno.role.value)
+        token_jwt = gerar_token(aluno.id, aluno.role.name)
 
         response = make_response(jsonify({
             "aluno": aluno.to_dict()
@@ -134,7 +134,7 @@ def login_google():
             httponly=True,
             secure=False,
             samesite="Lax",
-            max_age=60,
+            max_age=60 * 60,
             path="/"
         )
 

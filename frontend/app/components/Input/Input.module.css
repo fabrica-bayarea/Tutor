@@ -21,6 +21,7 @@
     min-height: 40px;
     transition: border-color 0.15s ease;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .field:hover {
@@ -33,7 +34,6 @@
 
 .fieldError {
     border-color: #dc2626 !important;
-    background-color: #fef2f2;
 }
 
 .fieldDisabled {

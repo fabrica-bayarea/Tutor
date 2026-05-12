@@ -1,4 +1,5 @@
 import api from "./api";
+import { Role } from "@/utils/roles";
 import { InterfaceUsuario } from "../types";
 
 const alunos_url = "alunos";
@@ -9,7 +10,7 @@ export async function listarAlunos(): Promise<AlunoBackend[]> {
     try {
         const response = await api.get(`admin/usuarios/all`);
         const usuarios: AlunoBackend[] = response.data?.usuarios ?? [];
-        return usuarios.filter((u) => u.role === "3");
+        return usuarios.filter((u) => u.role === Role.ALUNO);
     } catch (error) {
         console.error("Erro ao listar alunos:", error);
         return [];

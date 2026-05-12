@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { Role } from "@/utils/roles";
 import { getCurrentUser, logout as logoutService, Usuario } from "@/app/services/service_auth";
 
 interface AuthContextType {
@@ -47,9 +48,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 user,
                 loading,
                 isAuthenticated: !!user,
-                isStudent: user?.role === '3',
-                isProfessor: user?.role === '2',
-                isAdmin: user?.role === '1',
+                isStudent: user?.role === Role.ALUNO,
+                isProfessor: user?.role === Role.PROFESSOR,
+                isAdmin: user?.role === Role.ADMIN,
                 refreshUser,
                 logout
             }}

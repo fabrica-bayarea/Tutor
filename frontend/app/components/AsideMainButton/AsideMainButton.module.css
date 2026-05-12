@@ -18,7 +18,8 @@
     justify-content: flex-start;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem;
+    height: 40px;
+    padding: 0 12px;
 
     transition: background-color ease-out 0.15s;
 }
@@ -33,7 +34,9 @@
     width: fit-content;
 }
 .asideMainButtonLabel {
+    font-size: 13px;
     font-weight: 400;
+    color: #737373;
 }
 
 .selected {

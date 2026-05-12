@@ -1,10 +1,11 @@
 import api from "@/app/services/api";
+import { RoleType } from "@/utils/roles";
 
 export interface Usuario {
     id: string;
     nome: string;
     email: string;
-    role: '1' | '2' | '3';
+    role: RoleType;
 }
 
 export interface DadosTokenValido {

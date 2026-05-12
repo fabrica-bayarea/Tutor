@@ -8,6 +8,7 @@ import { useAuth } from '@/utils/auth';
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle, LoginErrorCode } from '@/app/services/service_aluno';
 import TutorLogoIcon from '@/app/components/TutorLogoIcon';
+import { homeForRole } from '@/utils/roles';
 import { FcGoogle } from 'react-icons/fc';
 import Input from '@/app/components/Input/Input';
 import Button from '@/app/components/Button/Button';
@@ -27,6 +28,7 @@ function LoginContent() {
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [inputsInvalid, setInputsInvalid] = useState<boolean>(false);
     const [showSessionExpiredToast, setShowSessionExpiredToast] = useState<boolean>(false);
     const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -49,34 +51,32 @@ function LoginContent() {
 
     const redirectAfterLogin = (role: string | undefined) => {
         const returnTo = searchParams?.get('returnTo');
-        let destino = "/login";
-        if (role === '1') destino = "/admin";
-        else if (role === '2') destino = "/professor";
-        else if (role === '3') destino = "/chat";
-
+        let destino = homeForRole(role);
         if (returnTo && returnTo.startsWith('/')) destino = returnTo;
-
         router.push(destino);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
+        setInputsInvalid(false);
         setLoading(true);
 
         try {
             const result = await loginAluno(matricula, senha);
 
             if (!result.ok) {
+                setInputsInvalid(true);
                 setErrorMessage(messageForError(result.error));
                 return;
             }
 
-            const usuario = await refreshUser();
-            redirectAfterLogin(usuario?.role ?? result.aluno.role);
+            redirectAfterLogin(result.aluno.role);
+            refreshUser();
 
         } catch (error) {
             console.error('Erro no login:', error);
+            setInputsInvalid(true);
             setErrorMessage("Erro ao realizar login");
         } finally {
             setLoading(false);
@@ -91,15 +91,17 @@ function LoginContent() {
             const result = await loginAlunoGoogle(googleToken);
 
             if (!result.ok) {
+                setInputsInvalid(true);
                 setErrorMessage(messageForError(result.error));
                 return;
             }
 
-            const usuario = await refreshUser();
-            redirectAfterLogin(usuario?.role ?? result.aluno.role);
+            redirectAfterLogin(result.aluno.role);
+            refreshUser();
 
         } catch (error) {
             console.error("Erro no login Google:", error);
+            setInputsInvalid(true);
             setErrorMessage("Erro ao tentar login com Google");
         } finally {
             setLoading(false);
@@ -131,9 +133,9 @@ function LoginContent() {
                     required
                     maxLength={20}
                     value={matricula}
-                    onChange={(e) => setMatricula(e.target.value)}
+                    onChange={(e) => { setMatricula(e.target.value); setInputsInvalid(false); }}
                     disabled={loading}
-                    invalid={!!errorMessage}
+                    invalid={inputsInvalid}
                 />
 
                 <Input
@@ -144,9 +146,9 @@ function LoginContent() {
                     required
                     maxLength={30}
                     value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
+                    onChange={(e) => { setSenha(e.target.value); setInputsInvalid(false); }}
                     disabled={loading}
-                    invalid={!!errorMessage}
+                    invalid={inputsInvalid}
                 />
 
                 <a className={styles.forgotPasswordLink} href="#">
