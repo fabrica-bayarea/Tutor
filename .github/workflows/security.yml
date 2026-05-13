@@ -338,6 +338,7 @@ jobs:
       # =====================================================
       - name: KubeLinter Scan
         id: kubelinter
+        if: ${{ hashFiles('k8s/**/*.yaml') != '' }}
         continue-on-error: true
         uses: stackrox/kube-linter-action@v1
         with:
