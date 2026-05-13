@@ -22,6 +22,13 @@ spec:
             port: 11434
           initialDelaySeconds: 5
           periodSeconds: 5
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+          limits:
+            cpu: "2"
+            memory: 
 
 ---
 apiVersion: v1
