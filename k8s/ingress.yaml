@@ -9,18 +9,15 @@ spec:
   - host: tutor.local
     http:
       paths:
-      # Backend: todas as requisições começando com /api
-      - path: /api
-        pathType: Prefix
+      - path: /api(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: backend-service
             port:
               number: 5000
-
-      # Frontend: tudo que não for /api
-      - path: /
-        pathType: Prefix
+      - path: /()(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: frontend-service
