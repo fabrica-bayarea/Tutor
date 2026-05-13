@@ -36,5 +36,5 @@ class Usuario(db.Model):
             'nome': self.nome,
             'email': self.email,
             'role': self.role.name,
-            'status': str(self.status)
+            'status': self.status.name
         }

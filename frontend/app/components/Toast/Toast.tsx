@@ -12,6 +12,7 @@ type ToastProps = {
     duration?: number;
     icon?: React.ReactNode;
     onClose: () => void;
+    standalone?: boolean; // false = sem position:fixed (usado no ToastContainer)
 };
 
 const defaultIcons: Record<ToastType, React.ReactNode> = {
@@ -26,6 +27,7 @@ export default function Toast({
     duration = 5000,
     icon,
     onClose,
+    standalone = true,
 }: ToastProps) {
     useEffect(() => {
         if (duration <= 0) return;
@@ -34,7 +36,11 @@ export default function Toast({
     }, [duration, onClose]);
 
     return (
-        <div className={`${styles.toast} ${styles[type]}`} role="alert" aria-live="polite">
+        <div
+            className={`${styles.toast} ${styles[type]} ${standalone ? '' : styles.inline}`}
+            role="alert"
+            aria-live="polite"
+        >
             <span className={styles.icon}>{icon ?? defaultIcons[type]}</span>
             <span className={styles.message}>{message}</span>
         </div>

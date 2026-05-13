@@ -1,7 +1,7 @@
 .nav {
     display: flex;
     align-items: stretch;
-    height: 40px;
+    height: 100%;
     gap: 0;
 }
 
@@ -9,16 +9,17 @@
     display: flex;
     align-items: center;
     position: relative;
-    height: 40px;
+    height: 100%;
     padding: 0 20px 0 28px;
-    /* Chevron shape via clip-path */
     clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 0% 100%, 12px 50%);
+    /* sem sobreposição → 12px notch cria a separação visual natural */
+    margin-left: 0;
 }
 
-/* First item has no left indent */
 .item:first-child {
     padding-left: 16px;
     clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 0% 100%);
+    margin-left: 0;
 }
 
 .previous {
@@ -46,6 +47,12 @@
 .active .link {
     font-weight: 600;
     color: #ffffff;
+}
+
+/* globals.css aplica color: #1a1a1a em todo span — força herança para preservar as cores do módulo */
+.link span,
+.link svg {
+    color: inherit;
 }
 
 .previous .link:hover {

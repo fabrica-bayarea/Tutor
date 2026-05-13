@@ -27,6 +27,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
                     <div
                         key={index}
                         className={[styles.item, isActive ? styles.active : styles.previous].join(' ')}
+                        style={index > 0 ? { marginLeft: '3px' } : undefined}
                         aria-current={isActive ? 'page' : undefined}
                     >
                         {!isActive && item.href ? (

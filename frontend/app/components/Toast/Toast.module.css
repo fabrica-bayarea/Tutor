@@ -57,6 +57,17 @@
     color: #ffffff;
 }
 
+/* Usado pelo ToastContainer — sem position:fixed próprio */
+.inline {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+    width: 100%;
+    max-width: 400px;
+}
+
 @keyframes slideUp {
     from {
         opacity: 0;

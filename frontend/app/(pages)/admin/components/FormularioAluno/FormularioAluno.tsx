@@ -2,11 +2,13 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { criarAluno } from "../../../../services/service_aluno";
+import { criarAluno, atualizarAluno } from "../../../../services/service_aluno";
+import { useToast } from "@/contexts/ToastContext";
 import styles from "./formulario.aluno.module.css";
 
 interface FormularioAlunoProps {
     mode: string;
+    initialId?: string;
     initialNome?: string;
     initialMatricula?: string;
     initialEmail?: string;
@@ -35,11 +37,13 @@ function emailValido(email: string): boolean {
 
 export default function FormularioAluno({
     mode,
+    initialId = "",
     initialNome = "",
     initialMatricula = "",
     initialEmail = "",
 }: FormularioAlunoProps) {
     const router = useRouter();
+    const { addToast } = useToast();
     const isEdit = mode === "editarAluno";
     const textoBotao = isEdit ? "Salvar" : "Criar";
 
@@ -75,6 +79,22 @@ export default function FormularioAluno({
         setErros({});
         setSubmitting(true);
 
+        if (isEdit) {
+            const resultado = await atualizarAluno(initialId, initialMatricula, nome.trim(), email.trim());
+            setSubmitting(false);
+            if (resultado.ok) {
+                addToast("Dados atualizados com sucesso.", "success");
+                router.push("/admin/pages/alunos");
+                return;
+            }
+            if (resultado.status === 409) {
+                setErros({ email: "E-mail já cadastrado." });
+                return;
+            }
+            setErros({ geral: resultado.message });
+            return;
+        }
+
         const resultado = await criarAluno(
             matricula.trim(),
             nome.trim(),
@@ -85,6 +105,7 @@ export default function FormularioAluno({
         setSubmitting(false);
 
         if (resultado.ok) {
+            addToast("Aluno cadastrado com sucesso.", "success");
             router.push("/admin/pages/alunos");
             return;
         }

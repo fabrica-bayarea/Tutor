@@ -1,8 +1,8 @@
 import { GraduationCap, MessageCircle, BarChart3 } from 'lucide-react';
 import TutorLogoIcon from '@/app/components/TutorLogoIcon';
-import styles from './layout.module.css';
+import styles from '../alterar-senha/layout.module.css';
 
-export default function LoginLayout({ children }: { children: React.ReactNode }) {
+export default function EsqueciSenhaLayout({ children }: { children: React.ReactNode }) {
     return (
         <main className={styles.pageContainer}>
             <aside className={styles.aside}>

@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { BookMarked, ShieldCheck } from 'lucide-react';
 
 import styles from './alterarSenha.module.css';
 import Input from '@/app/components/Input/Input';
 import Button from '@/app/components/Button/Button';
 import Toast from '@/app/components/Toast/Toast';
+import TutorLogoIcon from '@/app/components/TutorLogoIcon';
 import { criarSenha } from '@/app/services/service_auth';
 
 interface RegrasSenha {
@@ -44,9 +44,7 @@ function AlterarSenha() {
     const [token, setToken] = useState<string>('');
     const [novaSenha, setNovaSenha] = useState<string>('');
     const [confirmacaoSenha, setConfirmacaoSenha] = useState<string>('');
-    const [mostrarNovaSenha, setMostrarNovaSenha] = useState<boolean>(false);
-    const [mostrarConfirmacao, setMostrarConfirmacao] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
+const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [tokenInvalido, setTokenInvalido] = useState<boolean>(false);
 
@@ -103,68 +101,40 @@ function AlterarSenha() {
         <div className={styles.contentContainer}>
 
             <div className={styles.brandHeader}>
-                <div className={styles.asideLogo}>
-                    <BookMarked size={22} strokeWidth={2.4} />
-                </div>
-                <span className={styles.asideBrandName}>Tutor</span>
+                <TutorLogoIcon size={28} color="#f97316" />
+                <span className={styles.brandName}>Tutor</span>
             </div>
 
-            <div className={styles.iconWrapper}>
-                <ShieldCheck size={28} strokeWidth={2} className={styles.pageIcon} />
-            </div>
-
-            <h2 className={styles.welcomeTitle}>Criar sua senha</h2>
+            <h2 className={styles.welcomeTitle}>Defina sua senha</h2>
             <p className={styles.welcomeSubtitle}>
-                Defina uma senha segura para acessar a plataforma.
+                Escolha uma senha segura para acessar a plataforma.
             </p>
 
             <form className={styles.formContainer} onSubmit={handleSubmit}>
 
-                <div className={styles.inputPasswordWrapper}>
-                    <Input
-                        id="novaSenha"
-                        name="novaSenha"
-                        label="Nova senha"
-                        type={mostrarNovaSenha ? 'text' : 'password'}
-                        required
-                        value={novaSenha}
-                        onChange={(e) => setNovaSenha(e.target.value)}
-                        disabled={loading || tokenInvalido}
-                        invalid={!!errorMessage && !senhaValida}
-                    />
-                    <button
-                        type="button"
-                        className={styles.toggleSenha}
-                        onClick={() => setMostrarNovaSenha((v) => !v)}
-                        aria-label={mostrarNovaSenha ? 'Ocultar senha' : 'Mostrar senha'}
-                        tabIndex={-1}
-                    >
-                        {mostrarNovaSenha ? '🙈' : '👁️'}
-                    </button>
-                </div>
+                <Input
+                    id="novaSenha"
+                    name="novaSenha"
+                    label="Nova senha"
+                    type="password"
+                    required
+                    value={novaSenha}
+                    onChange={(e) => setNovaSenha(e.target.value)}
+                    disabled={loading || tokenInvalido}
+                    invalid={!!errorMessage && !senhaValida}
+                />
 
-                <div className={styles.inputPasswordWrapper}>
-                    <Input
-                        id="confirmacaoSenha"
-                        name="confirmacaoSenha"
-                        label="Confirmar senha"
-                        type={mostrarConfirmacao ? 'text' : 'password'}
-                        required
-                        value={confirmacaoSenha}
-                        onChange={(e) => setConfirmacaoSenha(e.target.value)}
-                        disabled={loading || tokenInvalido}
-                        invalid={confirmacaoSenha.length > 0 && !regras.senhasIguais}
-                    />
-                    <button
-                        type="button"
-                        className={styles.toggleSenha}
-                        onClick={() => setMostrarConfirmacao((v) => !v)}
-                        aria-label={mostrarConfirmacao ? 'Ocultar senha' : 'Mostrar senha'}
-                        tabIndex={-1}
-                    >
-                        {mostrarConfirmacao ? '🙈' : '👁️'}
-                    </button>
-                </div>
+                <Input
+                    id="confirmacaoSenha"
+                    name="confirmacaoSenha"
+                    label="Confirmar nova senha"
+                    type="password"
+                    required
+                    value={confirmacaoSenha}
+                    onChange={(e) => setConfirmacaoSenha(e.target.value)}
+                    disabled={loading || tokenInvalido}
+                    invalid={confirmacaoSenha.length > 0 && !regras.senhasIguais}
+                />
 
                 {/* Indicadores de requisitos da senha */}
                 {novaSenha.length > 0 && (
@@ -184,7 +154,7 @@ function AlterarSenha() {
                     style="filled"
                     action="primary"
                     fullWidth
-                    label={loading ? 'Criando senha...' : 'Criar senha'}
+                    label={loading ? 'Aguarde...' : 'Definir senha e entrar'}
                     isDisabled={isDisabled || tokenInvalido}
                 />
 

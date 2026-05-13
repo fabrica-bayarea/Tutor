@@ -4,7 +4,7 @@ import { InterfaceUsuario } from "../types";
 
 const alunos_url = "alunos";
 
-export type AlunoBackend = InterfaceUsuario & { status?: string };
+export type AlunoBackend = InterfaceUsuario;
 
 export async function listarAlunos(): Promise<AlunoBackend[]> {
     try {
@@ -42,6 +42,54 @@ export async function criarAluno(
         const message =
             error?.response?.data?.error ?? "Erro ao criar o aluno.";
         return { ok: false, status, message };
+    }
+}
+
+export type AtualizarAlunoResultado =
+    | { ok: true; aluno: InterfaceUsuario }
+    | { ok: false; status: number; message: string };
+
+export async function atualizarAluno(
+    id: string,
+    matricula: string,
+    nome: string,
+    email: string
+): Promise<AtualizarAlunoResultado> {
+    try {
+        const response = await api.put(
+            `admin/usuarios/${id}`,
+            { matricula, nome, email, role: "ALUNO", status: "ATIVO" },
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        );
+        return { ok: true, aluno: response.data };
+    } catch (error: any) {
+        const status = error?.response?.status ?? 0;
+        const message = error?.response?.data?.error ?? "Erro ao atualizar o aluno.";
+        return { ok: false, status, message };
+    }
+}
+
+export async function desativarAluno(id: string): Promise<{ ok: boolean; message?: string }> {
+    try {
+        await api.delete(`admin/usuarios/delete/${id}`, { withCredentials: true });
+        return { ok: true };
+    } catch (error: any) {
+        const message = error?.response?.data?.error ?? "Erro ao desativar o aluno.";
+        return { ok: false, message };
+    }
+}
+
+export async function reativarAluno(id: string): Promise<{ ok: boolean; message?: string }> {
+    try {
+        await api.patch(
+            `admin/usuarios/${id}/reativar`,
+            { status: "ATIVO" },
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        );
+        return { ok: true };
+    } catch (error: any) {
+        const message = error?.response?.data?.error ?? "Erro ao reativar o aluno.";
+        return { ok: false, message };
     }
 }
 

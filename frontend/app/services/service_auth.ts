@@ -21,6 +21,17 @@ export type CriarSenhaResultado =
     | { ok: true }
     | { ok: false; status: number; message: string };
     
+export async function solicitarRecuperacaoSenha(email: string): Promise<{ ok: boolean }> {
+    try {
+        await api.post("/auth/forgot-password", { email }, {
+            headers: { "Content-Type": "application/json" },
+        });
+        return { ok: true };
+    } catch {
+        return { ok: true }; // always ok — security: don't reveal if email exists
+    }
+}
+
 export async function getCurrentUser(): Promise<Usuario | null> {
     try {
         const response = await api.get("/alunos/me", {withCredentials: true});

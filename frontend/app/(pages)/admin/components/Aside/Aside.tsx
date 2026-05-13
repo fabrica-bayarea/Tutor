@@ -26,6 +26,9 @@ export default function Aside() {
                 <TutorLogoIcon size={20} color="#0f766e" />
                 <h1>Tutor</h1>
             </section>
+            <section className={styles.sectionSubTitle}>
+                <p>NAVEGAÇÃO</p>
+            </section>
             <section className={styles.sectionLink}>
                 {navItems.map((item) => (
                     <AsideMainButton

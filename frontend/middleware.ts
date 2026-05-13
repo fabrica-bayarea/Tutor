@@ -12,7 +12,7 @@ function getRoleFromToken(token: string): string | null {
     }
 }
 
-const PUBLIC_ROUTES = ['/login', '/alterar-senha', '/token-validate'];
+const PUBLIC_ROUTES = ['/login', '/alterar-senha', '/token-validate', '/esqueci-senha'];
 
 export function middleware(request: NextRequest) {
     const token = request.cookies.get("token")?.value;

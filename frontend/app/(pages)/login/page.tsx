@@ -151,7 +151,7 @@ function LoginContent() {
                     invalid={inputsInvalid}
                 />
 
-                <a className={styles.forgotPasswordLink} href="#">
+                <a className={styles.forgotPasswordLink} href="/esqueci-senha">
                     Esqueci minha senha
                 </a>
 

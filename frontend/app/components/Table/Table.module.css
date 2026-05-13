@@ -1,6 +1,6 @@
 .tableWrapper {
     width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
     background-color: #ffffff;
     border-radius: 12px;
     border: 1px solid #e5e5e5;
@@ -13,13 +13,13 @@
 }
 
 .table thead tr {
-    background-color: #f7f7f7;
+    background-color: #0d9488;
 }
 
 .table th {
     font-weight: 600;
     font-size: 13px;
-    color: #0f766e;
+    color: #ffffff;
     text-align: left;
     padding: 14px 16px;
     border: none;
@@ -27,13 +27,13 @@
 }
 
 .table tbody tr {
-    background-color: #fafafa;
+    background-color: #ffffff;
     border-top: 1px solid #e5e5e5;
     transition: background-color 0.15s ease;
 }
 
 .table tbody tr:hover {
-    background-color: #f2f2f2;
+    background-color: #f0fdfa;
 }
 
 .table td {
