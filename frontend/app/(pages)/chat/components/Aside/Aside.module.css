@@ -61,12 +61,12 @@
 }
 
 .sectionButton > button:hover{
-    background-color: #0c948c;
-    color: rgba(255, 255, 255, 1);
+    background-color: #0d9488;
+    color: #ffffff;
 }
 
 .sectionButton > button:hover > .iconTitle{
-    color: white;
+    color: #ffffff;
 }
 
 .sectionSubTitle{
@@ -101,7 +101,7 @@
 }
 
 .linkChatAntigo:hover{
-    background-color: #0c948c;
+    background-color: #f0fdfa;
 }
 
 .titleLink{
@@ -117,7 +117,7 @@
 }
 
 .linkChatAntigo:hover > p{
-    color: rgba(255, 255, 255, 1);
+    color: #0f766e;
 }
 
 @media(width >= 768px){

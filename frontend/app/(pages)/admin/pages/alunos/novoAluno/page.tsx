@@ -1,4 +1,4 @@
-import FormularioAluno from "../../../../../components/FormularioAluno/FormularioAluno";
+import FormularioAluno from "../../../components/FormularioAluno/FormularioAluno";
 
 export default function NovoAluno() {
     return (

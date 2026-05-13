@@ -9,7 +9,7 @@ export default function AsideMainButton({
 }: {
     icon: React.ReactNode;
     label: string;
-    isCollapsed: boolean;
+    isCollapsed?: boolean;
     isSelected?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
     return (

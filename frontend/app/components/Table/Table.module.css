@@ -1,9 +1,9 @@
 .tableWrapper {
     width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
     background-color: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e5e5e5;
 }
 
 .table {
@@ -13,13 +13,13 @@
 }
 
 .table thead tr {
-    background-color: #f0fdfa;
+    background-color: #0d9488;
 }
 
 .table th {
     font-weight: 600;
     font-size: 13px;
-    color: #0f766e;
+    color: #ffffff;
     text-align: left;
     padding: 14px 16px;
     border: none;
@@ -28,12 +28,12 @@
 
 .table tbody tr {
     background-color: #ffffff;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid #e5e5e5;
     transition: background-color 0.15s ease;
 }
 
 .table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: #f0fdfa;
 }
 
 .table td {
@@ -84,7 +84,7 @@
         padding-right: 80px;
         margin-bottom: 12px;
         background-color: #ffffff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e5e5e5;
         border-radius: 12px;
     }
 
@@ -100,17 +100,40 @@
         display: block;
         padding: 0;
         text-align: left !important;
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .cellLabel {
-        display: none !important;
+        display: none;
     }
 
+    /* Nome ou campo primário: sem label, negrito */
     .table td[data-variant="stacked"] .cellValue {
-        display: flex;
-        flex-direction: column;
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: #262626;
+    }
+
+    /* Campos secundários: exibe label + valor na mesma linha */
+    .table td[data-variant="inline"] {
+        display: flex !important;
+        flex-direction: row;
+        align-items: baseline;
         gap: 4px;
+    }
+
+    .table td[data-variant="inline"] .cellLabel {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: #737373;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .table td[data-variant="inline"] .cellLabel::after {
+        content: ":";
     }
 
     .table td[data-variant="actions"] {
@@ -128,7 +151,7 @@
 
     .emptyCell {
         background-color: #ffffff;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #e5e5e5;
         border-radius: 12px;
         padding: 24px !important;
     }

@@ -99,14 +99,6 @@
         margin: 16px;
     }
 
-    .tableArea table tbody tr td:last-child:not(:first-child) {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        padding: 0;
-        text-align: right;
-    }
-
     .actions {
         display: inline-flex;
         align-items: center;

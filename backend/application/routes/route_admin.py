@@ -356,7 +356,7 @@ def recriar_senha():
         httponly=True,
         secure=False,
         samesite="Lax",
-        max_age=60,
+        max_age=60 * 60,
         path="/"
     )
 

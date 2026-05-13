@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash2, RotateCw, Plus, AlertTriangle } from "lucide-react";
 import styles from "./page.module.css";
 import Table, { TableColumn } from "../../../../components/Table/Table";
-import ColorButton from "../../../../components/ColorButton/ColorButton";
+import Button from "../../../../components/Button/Button";
 import SearchInput from "../../../../components/SearchInput/SearchInput";
 import Pagination from "../../../../components/Pagination/Pagination";
 import Modal from "../../../../components/Modal/Modal";
-import { listarAlunos } from "../../../../services/service_aluno";
+import { listarAlunos, desativarAluno, reativarAluno } from "../../../../services/service_aluno";
+import { Status } from "@/utils/roles";
+import { useToast } from "@/contexts/ToastContext";
 
 type AlunoStatus = "Ativo" | "Desativado";
 
@@ -25,10 +27,9 @@ const ROW_HEIGHT = 49;
 const HEADER_HEIGHT = 47;
 const MIN_PAGE_SIZE = 1;
 
-const STATUS_ATIVO = "4";
-
 export default function Alunos() {
     const router = useRouter();
+    const { addToast } = useToast();
     const [alunos, setAlunos] = useState<Aluno[]>([]);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
@@ -47,7 +48,7 @@ export default function Alunos() {
                     nome: u.nome,
                     matricula: u.matricula,
                     email: u.email,
-                    status: u.status === STATUS_ATIVO ? "Ativo" : "Desativado",
+                    status: u.status === Status.ATIVO ? "Ativo" : "Desativado",
                 }))
             );
         })();
@@ -113,24 +114,32 @@ export default function Alunos() {
         setAlunoParaDesativar(aluno);
     }
 
-    function confirmarDesativacao() {
+    async function confirmarDesativacao() {
         if (!alunoParaDesativar) return;
-        setAlunos((prev) =>
-            prev.map((a) =>
-                a.id === alunoParaDesativar.id ? { ...a, status: "Desativado" } : a
-            )
-        );
+        const resultado = await desativarAluno(alunoParaDesativar.id);
+        if (resultado.ok) {
+            setAlunos((prev) =>
+                prev.map((a) =>
+                    a.id === alunoParaDesativar.id ? { ...a, status: "Desativado" } : a
+                )
+            );
+            addToast("Aluno desativado.", "success");
+        }
         setAlunoParaDesativar(null);
     }
 
-    function handleReactivate(aluno: Aluno) {
-        setAlunos((prev) =>
-            prev.map((a) => (a.id === aluno.id ? { ...a, status: "Ativo" } : a))
-        );
+    async function handleReactivate(aluno: Aluno) {
+        const resultado = await reativarAluno(aluno.id);
+        if (resultado.ok) {
+            setAlunos((prev) =>
+                prev.map((a) => (a.id === aluno.id ? { ...a, status: "Ativo" } : a))
+            );
+            addToast("Aluno reativado.", "success");
+        }
     }
 
     const columns: TableColumn<Aluno>[] = [
-        { key: "nome", title: "Nome" },
+        { key: "nome", title: "Nome", mobileVariant: "stacked" },
         { key: "matricula", title: "Matrícula" },
         { key: "email", title: "E-mail" },
         {
@@ -150,6 +159,7 @@ export default function Alunos() {
             key: "acoes",
             title: "Ações",
             align: "right",
+            mobileVariant: "actions",
             render: (row) => (
                 <div className={styles.actions}>
                     {row.status === "Ativo" ? (
@@ -189,14 +199,13 @@ export default function Alunos() {
     return (
         <div className={styles.cadastro}>
             <div className={styles.buttonContainer}>
-                <ColorButton
-                    backgroundColor="#0d9488"
-                    color="#ffffff"
+                <Button
+                    style="filled"
+                    action="primary"
+                    icon={<Plus size={16} />}
+                    label="Novo Aluno"
                     onClick={() => router.push("/admin/pages/alunos/novoAluno")}
-                >
-                    <Plus size={16} />
-                    Novo Aluno
-                </ColorButton>
+                />
             </div>
 
             <div className={styles.searchRow}>
@@ -229,23 +238,20 @@ export default function Alunos() {
                 onClose={() => setAlunoParaDesativar(null)}
                 title="Desativar usuário"
                 icon={<AlertTriangle size={20} color="#d02b29" />}
+                accentColor="#d02b29"
                 footer={
                     <>
-                        <ColorButton
-                            backgroundColor="#ffffff"
-                            color="#1f2937"
+                        <Button
+                            style="ghost"
+                            label="Cancelar"
                             onClick={() => setAlunoParaDesativar(null)}
-                            style={{ border: "1px solid #e5e7eb" }}
-                        >
-                            Cancelar
-                        </ColorButton>
-                        <ColorButton
-                            backgroundColor="#d02b29"
-                            color="#ffffff"
+                        />
+                        <Button
+                            style="filled"
+                            action="danger"
+                            label="Desativar aluno"
                             onClick={confirmarDesativacao}
-                        >
-                            Desativar aluno
-                        </ColorButton>
+                        />
                     </>
                 }
             >

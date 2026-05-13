@@ -4,6 +4,7 @@ export interface InterfaceUsuario {
     nome: string;
     email: string;
     role: string;
+    status?: string;
     token?: string;
 }
 

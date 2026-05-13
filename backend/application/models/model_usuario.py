@@ -35,6 +35,6 @@ class Usuario(db.Model):
             'matricula': self.matricula,
             'nome': self.nome,
             'email': self.email,
-            'role': str(self.role),
-            'status': str(self.status)
+            'role': self.role.name,
+            'status': self.status.name
         }

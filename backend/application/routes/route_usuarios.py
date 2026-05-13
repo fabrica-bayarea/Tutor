@@ -122,7 +122,10 @@ def login_google():
                 "error": "Usuário não cadastrado. Entre em contato com a instituição."
             }), 404
 
-        token_jwt = gerar_token(aluno.id, aluno.role.value)
+        if aluno.status.name != 'ATIVO':
+            return jsonify({"error": "Conta desativada. Entre em contato com a instituição."}), 403
+
+        token_jwt = gerar_token(aluno.id, aluno.role.name)
 
         response = make_response(jsonify({
             "aluno": aluno.to_dict()
@@ -134,7 +137,7 @@ def login_google():
             httponly=True,
             secure=False,
             samesite="Lax",
-            max_age=60,
+            max_age=60 * 60,
             path="/"
         )
 
@@ -182,6 +185,9 @@ def login_aluno():
     if not aluno:
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
 
+    if aluno.get('status') != 'ATIVO':
+        return jsonify({"error": "Conta desativada. Entre em contato com a instituição."}), 403
+
     token = gerar_token(aluno['id'], aluno['role'])
 
     response = make_response(jsonify({
@@ -194,7 +200,7 @@ def login_aluno():
         httponly=True,
         secure=False,
         samesite="Lax",
-        max_age=60,
+        max_age=60 * 60,
         path="/"
     )
 

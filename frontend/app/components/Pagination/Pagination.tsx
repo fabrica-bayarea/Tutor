@@ -32,8 +32,6 @@ export default function Pagination({
     onPageChange,
     siblingCount = 1,
 }: PaginationProps) {
-    if (totalPages <= 1) return null;
-
     const pages = buildPageList(currentPage, totalPages, siblingCount);
     const canPrev = currentPage > 1;
     const canNext = currentPage < totalPages;

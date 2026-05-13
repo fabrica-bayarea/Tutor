@@ -1,3 +1,9 @@
+.accent {
+    height: 4px;
+    background-color: #0d9488;
+    margin: -1px -1px 0;
+}
+
 .backdrop {
     position: fixed;
     inset: 0;
