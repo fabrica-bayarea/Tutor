@@ -3,9 +3,11 @@
 import styles from "./Header.module.css"
 import { Bell, Menu, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/utils/auth';
+import { LayoutContext } from '@/contexts/LayoutContext';
+import { Role } from '@/utils/roles';
 import HeaderUserIcon from "@/app/components/HeaderUserIcon/HeaderUserIcon";
 import Breadcrumb from "@/app/components/Breadcrumb/Breadcrumb";
 import { logout } from "@/app/services/service_auth";
@@ -17,10 +19,17 @@ function slugToLabel(slug: string): string {
         .trim();
 }
 
+const roleLabel: Record<string, string> = {
+    [Role.ADMIN]:     'Administrador',
+    [Role.PROFESSOR]: 'Professor',
+    [Role.ALUNO]:     'Aluno',
+};
+
 export default function Header(){
     const { user } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+    const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
     const [caminho, setCaminho] = useState("");
 
     const segments = (pathname ?? '').split('/').filter(s => s !== '' && s !== 'admin' && s !== 'pages');
@@ -51,10 +60,10 @@ export default function Header(){
             </div>
             <section className={styles.headerSectionUser}>
                 <section className={styles.headerSectionUserMobileMenu}>
-                    <Menu size={24}/>
+                    <Menu size={24} style={{ cursor: 'pointer' }} onClick={() => setIsMenuAbertoMobile(true)} />
                     <p>{caminho}</p>
                 </section>
-                <p>ADM - {user?.nome}</p>
+                <p>{user?.role ? roleLabel[user.role] ?? user.role : ''} - {user?.nome}</p>
                 <button className={styles.bellButton}><Bell size={20} color="white"/></button>
                 <HeaderUserIcon onConfiguracoes={()=>{console.log("config")}} onSair={handleSair}/>
             </section>

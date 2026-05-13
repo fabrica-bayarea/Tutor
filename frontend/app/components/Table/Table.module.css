@@ -100,17 +100,40 @@
         display: block;
         padding: 0;
         text-align: left !important;
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .cellLabel {
-        display: none !important;
+        display: none;
     }
 
+    /* Nome ou campo primário: sem label, negrito */
     .table td[data-variant="stacked"] .cellValue {
-        display: flex;
-        flex-direction: column;
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: #262626;
+    }
+
+    /* Campos secundários: exibe label + valor na mesma linha */
+    .table td[data-variant="inline"] {
+        display: flex !important;
+        flex-direction: row;
+        align-items: baseline;
         gap: 4px;
+    }
+
+    .table td[data-variant="inline"] .cellLabel {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: #737373;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .table td[data-variant="inline"] .cellLabel::after {
+        content: ":";
     }
 
     .table td[data-variant="actions"] {

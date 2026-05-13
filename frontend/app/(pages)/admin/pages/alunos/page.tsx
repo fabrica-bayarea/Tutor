@@ -139,7 +139,7 @@ export default function Alunos() {
     }
 
     const columns: TableColumn<Aluno>[] = [
-        { key: "nome", title: "Nome" },
+        { key: "nome", title: "Nome", mobileVariant: "stacked" },
         { key: "matricula", title: "Matrícula" },
         { key: "email", title: "E-mail" },
         {
@@ -159,6 +159,7 @@ export default function Alunos() {
             key: "acoes",
             title: "Ações",
             align: "right",
+            mobileVariant: "actions",
             render: (row) => (
                 <div className={styles.actions}>
                     {row.status === "Ativo" ? (
