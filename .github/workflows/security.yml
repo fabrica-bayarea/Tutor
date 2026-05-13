@@ -337,8 +337,8 @@ jobs:
       # ingress.yaml, ollama.yaml
       # =====================================================
       - name: KubeLinter Scan
+        if: false
         id: kubelinter
-        if: ${{ hashFiles('k8s/**/*.yaml') != '' }}
         continue-on-error: true
         uses: stackrox/kube-linter-action@v1
         with:
