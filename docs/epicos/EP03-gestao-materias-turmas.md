@@ -9,7 +9,7 @@
 
 # EP-03 — Gestão de Matérias e Turmas
 
-**Descrição:** Permite ao administrador organizar a estrutura acadêmica da plataforma. Matérias e turmas são cadastradas de forma independente e depois associadas. O professor é vinculado ao par turma+matéria — ou seja, leciona uma matéria específica para uma turma específica. O aluno é matriculado na turma e automaticamente tem acesso a todas as matérias daquela turma (turma fechada).
+**Descrição:** Permite ao administrador organizar a estrutura acadêmica da plataforma. Matérias e turmas são cadastradas de forma independente e depois associadas. O professor vinculado a matéria e depois a turma — ou seja, leciona uma matéria específica para uma turma ou várias turmas. O aluno é matriculado na turma e automaticamente tem acesso a todas as matérias daquela turma (turma fechada).
 
 **Personas:** Administrador
 
@@ -190,13 +190,14 @@
 ## US-13 — Vinculação de professor a turma e matéria
 
 **Como** administrador,
-**quero** vincular um professor ao par turma+matéria,
-**para que** fique registrado que aquele professor leciona aquela disciplina para aquela turma específica, e que ele possa gerenciar os materiais e receber perguntas escalonadas dos alunos.
+**quero** vincular um professor a uma matéria e depois e a uma ou várias turmas,
+**para que** fique registrado que aquele professor leciona aquela disciplina a uma turma, e que ele possa gerenciar os materiais e receber perguntas escalonadas dos alunos.
 
 ### Regras de Negócio
 
 - Apenas o administrador pode realizar esse vínculo.
-- O vínculo é triplo: **professor + turma + matéria** — significa "Professor X leciona Matéria Y para a Turma Z".
+- O vínculo é duplo **professor + matéria** - significa "Professor X leciona Matéria Y".
+- Depois o vínculo é triplo: **professor + turma + matéria** — significa "Professor X leciona Matéria Y para a Turma Z".
 - Um professor pode lecionar a mesma matéria para turmas diferentes.
 - Um professor pode lecionar matérias diferentes para a mesma turma.
 - Mais de um professor pode lecionar a mesma matéria para a mesma turma.
