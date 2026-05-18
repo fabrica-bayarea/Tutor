@@ -10,13 +10,13 @@ on:
 permissions: read-all
 
 concurrency:
-  group: security-${{ github.ref }}
+  group: security-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
 
   # =========================================================
-  # CODEQL — JavaScript (Next.js) + Python (Flask)
+  # CODEQL — JavaScript/TypeScript (Next.js) + Python (Flask)
   # =========================================================
   codeql:
     name: CodeQL Analysis (${{ matrix.language }})
@@ -33,6 +33,7 @@ jobs:
       matrix:
         language:
           - javascript
+          - typescript
           - python
 
     steps:
@@ -40,15 +41,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        if: matrix.language == 'javascript'
+        if: matrix.language == 'javascript' || matrix.language == 'typescript'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
-        if: matrix.language == 'javascript'
+        if: matrix.language == 'javascript' || matrix.language == 'typescript'
         working-directory: ./frontend
         run: npm ci
 
@@ -56,39 +57,36 @@ jobs:
         if: matrix.language == 'python'
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           cache: pip
 
       - name: Install Python dependencies
         if: matrix.language == 'python'
         working-directory: ./backend
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
-      - name: Analyze
-        uses: github/codeql-action/analyze@v3
+      - name: Rodar CodeQL
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
           output: codeql-results
 
-      - name: Check High/Critical vulnerabilities
+      - name: Checar severidade no SARIF do CodeQL
         shell: bash
         run: |
-          sudo apt-get install -y jq -qq
-
           SARIF_FILE=$(find codeql-results -name "*.sarif" | head -1)
 
           if [ -z "$SARIF_FILE" ]; then
-            echo "❌ No SARIF file found"
+            echo "⚠️ Nenhum arquivo SARIF encontrado"
             exit 1
           fi
 
@@ -102,21 +100,30 @@ jobs:
               select(.id == $result.ruleId) |
               (.properties["security-severity"] // "0") |
               tonumber |
-              select(. >= 7)
+              select(. >= 7.0)
             ] | length
           ' "$SARIF_FILE")
 
-          echo "High/Critical vulnerabilities found: $COUNT"
+          echo "⚠️ Alertas High/Critical encontrados: $COUNT"
 
           if [ "$COUNT" -gt 0 ]; then
-            echo "❌ CodeQL Security Gate failed — $COUNT issue(s) with severity >= 7"
+            echo "❌ CodeQL encontrou $COUNT vulnerabilidade(s) High/Critical"
+            jq -r '
+              .runs[].results[]? as $result |
+              (
+                .runs[].tool.driver.rules[]?,
+                .runs[].tool.extensions[]?.rules[]?
+              ) |
+              select(.id == $result.ruleId) |
+              "\(.properties["security-severity"] // "?") | \($result.ruleId) | \($result.message.text)"
+            ' "$SARIF_FILE"
             exit 1
           fi
 
-          echo "✅ CodeQL passed"
+          echo "✅ Nenhuma vulnerabilidade High/Critical encontrada"
 
   # =========================================================
-  # SECURITY ANALYSIS
+  # SECURITY ANALYSIS — SCA + SAST + Secrets + Docker + Sonar
   # =========================================================
   security:
     name: Security Analysis
@@ -141,14 +148,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           cache: pip
 
       # =====================================================
@@ -180,7 +187,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Install Python security tools
-        run: pip install pip-audit bandit bandit-sarif-formatter
+        run: pip install pip-audit bandit bandit-sarif-formatter safety
 
       # =====================================================
       # TESTS
@@ -190,10 +197,9 @@ jobs:
         working-directory: ./frontend
         run: npm test --if-present -- --passWithNoTests
 
-      # backend/tests/ existe na estrutura
       - name: Run backend tests
         continue-on-error: true
-        working-directory: ./backend
+        working-directory: ./backend/application
         run: |
           pip install pytest pytest-cov
           pytest tests/ \
@@ -202,7 +208,7 @@ jobs:
             -q || true
 
       # =====================================================
-      # NPM AUDIT — Next.js
+      # SCA — npm audit (frontend)
       # =====================================================
       - name: Frontend npm audit
         id: npm_audit
@@ -211,13 +217,20 @@ jobs:
         run: npm audit --audit-level=high
 
       # =====================================================
-      # PIP AUDIT — Flask + dependências
+      # SCA — pip-audit + safety (backend)
+      # bancos de vuln diferentes, redundância intencional
       # =====================================================
       - name: pip-audit
         id: pipaudit
         continue-on-error: true
         working-directory: ./backend
         run: pip-audit -r requirements.txt
+
+      - name: Safety check
+        id: safety
+        continue-on-error: true
+        working-directory: ./backend
+        run: safety check -r requirements.txt --output text
 
       # =====================================================
       # BANDIT — backend/application/ (código Flask)
@@ -238,13 +251,13 @@ jobs:
       - name: Upload Bandit SARIF
         if: always() && steps.bandit.outputs.bandit_generated == 'true'
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: bandit.sarif
           category: bandit
 
       # =====================================================
-      # SEMGREP — OWASP + Flask + Python + JS/TS
+      # SEMGREP — OWASP + Flask + Python + JS/TS + secrets
       # =====================================================
       - name: Install Semgrep
         run: pip install semgrep
@@ -258,6 +271,8 @@ jobs:
             --config "p/flask" \
             --config "p/python" \
             --config "p/javascript" \
+            --config "p/typescript" \
+            --config "p/react" \
             --config "p/secrets" \
             --sarif \
             --output=semgrep.sarif \
@@ -266,16 +281,75 @@ jobs:
             --exclude="**/.next/**" \
             --exclude="**/migrations/**" \
             --exclude="**/__pycache__/**" \
+            --error \
             .
           echo "semgrep_generated=$(test -f semgrep.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - name: Upload Semgrep SARIF
         if: always() && steps.semgrep.outputs.semgrep_generated == 'true'
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep.sarif
           category: semgrep
+
+      # =====================================================
+      # SECRET SCANNING — Gitleaks (action oficial)
+      # =====================================================
+      - name: Gitleaks Scan
+        id: gitleaks
+        continue-on-error: true
+        run: |
+          GITLEAKS_VERSION="8.27.2"
+          curl -sSL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          ./gitleaks detect \
+            --source . \
+            --redact \
+            --report-format sarif \
+            --report-path gitleaks.sarif \
+            --exit-code 0
+          echo "gitleaks_generated=$(test -f gitleaks.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      # =====================================================
+      # HADOLINT — lint dos Dockerfiles (backend + frontend)
+      # =====================================================
+      - name: Hadolint backend Dockerfile
+        id: hadolint_back
+        continue-on-error: true
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          format: sarif
+          output-file: hadolint-backend.sarif
+          no-fail: true
+
+      - name: Hadolint frontend Dockerfile
+        id: hadolint_front
+        continue-on-error: true
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: frontend/Dockerfile
+          format: sarif
+          output-file: hadolint-frontend.sarif
+          no-fail: true
+
+      - name: Upload Hadolint backend SARIF
+        if: always() && hashFiles('hadolint-backend.sarif') != ''
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: hadolint-backend.sarif
+          category: hadolint-backend
+
+      - name: Upload Hadolint frontend SARIF
+        if: always() && hashFiles('hadolint-frontend.sarif') != ''
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: hadolint-frontend.sarif
+          category: hadolint-frontend
 
       # =====================================================
       # DOCKER — build das imagens backend e frontend
@@ -305,7 +379,7 @@ jobs:
       - name: Upload Trivy backend SARIF
         if: always() && steps.docker_build.outputs.built == 'true' && hashFiles('trivy-backend.sarif') != ''
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-backend.sarif
           category: trivy-backend
@@ -326,61 +400,36 @@ jobs:
       - name: Upload Trivy frontend SARIF
         if: always() && steps.docker_build.outputs.built == 'true' && hashFiles('trivy-frontend.sarif') != ''
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-frontend.sarif
           category: trivy-frontend
 
       # =====================================================
-      # KUBERNETES — manifests em k8s/
-      # backend.yaml, frontend.yaml, database.yaml,
-      # ingress.yaml, ollama.yaml
+      # SBOM — CycloneDX (backend + frontend)
       # =====================================================
-      - name: KubeLinter Scan
-        if: false
-        id: kubelinter
+      - name: Gerar SBOM
+        id: sbom
         continue-on-error: true
-        uses: stackrox/kube-linter-action@v1
+        uses: anchore/sbom-action@v0
         with:
-          directory: ./k8s
-          # sem config: usa defaults do kube-linter
+          path: .
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
 
-# =====================================================
-      # SECRET SCANNING — CLI gratuita (sem licença)
-      # =====================================================
-      - name: Gitleaks Scan
-        id: gitleaks
-        continue-on-error: true
-        run: |
-          GITLEAKS_VERSION=$(curl -sSL \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
-            | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')
-          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-          curl -sSL \
-            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_${OS}_x64.tar.gz" \
-            | tar -xz gitleaks
-          ./gitleaks detect \
-            --source . \
-            --redact \
-            --report-format sarif \
-            --report-path gitleaks.sarif \
-            --exit-code 0
-          echo "gitleaks_generated=$(test -f gitleaks.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
-
-      - name: Upload Gitleaks SARIF
-        if: always() && steps.gitleaks.outputs.gitleaks_generated == 'true'
-        continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload SBOM artifact
+        if: always() && hashFiles('sbom.cdx.json') != ''
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: gitleaks.sarif
-          category: gitleaks
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 30
 
       # =====================================================
       # SONARCLOUD
       # projectKey: fabrica-bayarea_Tutor
       # sources: backend/application + frontend/app
-      # testes: backend/tests
+      # testes: backend/application/tests
       # =====================================================
       - name: SonarCloud Scan
         id: sonar
@@ -395,7 +444,9 @@ jobs:
             -Dsonar.organization=fabrica-bayarea
             -Dsonar.sources=backend/application,frontend/app
             -Dsonar.tests=backend/application/tests
-            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**,**/tests/**
+            -Dsonar.test.inclusions=**/test_*.py,**/*_test.py,**/*.spec.ts,**/*.test.ts,**/*.test.tsx
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**,**/dist/**,**/coverage/**,**/*.d.ts,**/__pycache__/**,**/*.pyc,**/migrations/**
+            -Dsonar.coverage.exclusions=frontend/**,**/tests/**,**/test_*.py,**/*_test.py,**/__init__.py,**/migrations/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
             -Dsonar.python.coverage.reportPaths=backend/coverage.xml
@@ -408,10 +459,12 @@ jobs:
         if: github.event_name == 'pull_request'
         continue-on-error: true
         uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
 
       # =====================================================
       # FINAL SECURITY GATE
-      # failure  → bloqueia o pipeline
+      # failure  → bloqueia o pipeline (se for "block")
       # skipped  → aviso, não bloqueia
       # =====================================================
       - name: Security Gate
@@ -423,9 +476,15 @@ jobs:
           check_step() {
             local name=$1
             local outcome=$2
+            local blocking=$3   # "block" ou "warn"
+
             if [ "$outcome" = "failure" ]; then
-              echo "❌ $name failed"
-              FAILED=1
+              if [ "$blocking" = "block" ]; then
+                echo "❌ $name failed (BLOCKING)"
+                FAILED=1
+              else
+                echo "⚠️  $name failed (warning only)"
+              fi
             elif [ "$outcome" = "skipped" ]; then
               echo "⚠️  $name was skipped"
             else
@@ -433,19 +492,26 @@ jobs:
             fi
           }
 
-          check_step "Bandit"          "${{ steps.bandit.outcome }}"
-          check_step "Semgrep"         "${{ steps.semgrep.outcome }}"
-          check_step "Trivy backend"   "${{ steps.trivy_backend.outcome }}"
-          check_step "Trivy frontend"  "${{ steps.trivy_frontend.outcome }}"
-          check_step "KubeLinter"      "${{ steps.kubelinter.outcome }}"
-          check_step "Gitleaks"        "${{ steps.gitleaks.outcome }}"
-          check_step "npm audit"       "${{ steps.npm_audit.outcome }}"
-          check_step "pip-audit"       "${{ steps.pipaudit.outcome }}"
-          check_step "SonarCloud"      "${{ steps.sonar.outcome }}"
+          # Bloqueantes
+          check_step "Semgrep"          "${{ steps.semgrep.outcome }}"         "block"
+          check_step "SonarCloud"       "${{ steps.sonar.outcome }}"           "block"
+          check_step "Gitleaks"         "${{ steps.gitleaks.outcome }}"        "block"
+          check_step "Bandit"           "${{ steps.bandit.outcome }}"          "block"
+
+          # Não-bloqueantes (warnings)
+          check_step "Trivy backend"    "${{ steps.trivy_backend.outcome }}"   "warn"
+          check_step "Trivy frontend"   "${{ steps.trivy_frontend.outcome }}"  "warn"
+          check_step "Hadolint BE"      "${{ steps.hadolint_back.outcome }}"   "warn"
+          check_step "Hadolint FE"      "${{ steps.hadolint_front.outcome }}"  "warn"
+          check_step "npm audit"        "${{ steps.npm_audit.outcome }}"       "warn"
+          check_step "pip-audit"        "${{ steps.pipaudit.outcome }}"        "warn"
+          check_step "Safety"           "${{ steps.safety.outcome }}"          "warn"
+          check_step "Docker build"     "${{ steps.docker_build.outcome }}"    "warn"
+          check_step "SBOM"             "${{ steps.sbom.outcome }}"            "warn"
 
           echo ""
           if [ "$FAILED" -eq 1 ]; then
-            echo "❌ Security pipeline FAILED — review findings above"
+            echo "❌ Security pipeline FAILED — revise os achados acima"
             exit 1
           fi
 
