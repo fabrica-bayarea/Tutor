@@ -265,7 +265,10 @@ jobs:
       - name: Run Semgrep
         id: semgrep
         continue-on-error: true
+        shell: bash
         run: |
+          set +e
+
           semgrep scan \
             --config "p/owasp-top-ten" \
             --config "p/flask" \
@@ -283,7 +286,18 @@ jobs:
             --exclude="**/__pycache__/**" \
             --error \
             .
-          echo "semgrep_generated=$(test -f semgrep.sarif && echo true || echo false)" >> $GITHUB_OUTPUT
+
+          EXIT_CODE=$?
+
+          echo "semgrep_exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          if [ -f semgrep.sarif ]; then
+            echo "semgrep_generated=true" >> $GITHUB_OUTPUT
+          else
+            echo "semgrep_generated=false" >> $GITHUB_OUTPUT
+          fi
+
+          exit 0
 
       - name: Upload Semgrep SARIF
         if: always() && steps.semgrep.outputs.semgrep_generated == 'true'
@@ -492,13 +506,31 @@ jobs:
             fi
           }
 
+          # =================================================
+          # Semgrep (tratamento especial via exit code)
+          # =================================================
+          SEMGREP_EXIT="${{ steps.semgrep.outputs.semgrep_exit_code }}"
+
+          if [ -z "$SEMGREP_EXIT" ]; then
+            echo "❌ Semgrep exit code missing (BLOCKING)"
+            FAILED=1
+          elif [ "$SEMGREP_EXIT" != "0" ]; then
+            echo "❌ Semgrep failed (BLOCKING)"
+            FAILED=1
+          else
+            echo "✅ Semgrep passed"
+          fi
+
+          # =================================================
           # Bloqueantes
-          check_step "Semgrep"          "${{ steps.semgrep.outcome }}"         "block"
+          # =================================================
           check_step "SonarCloud"       "${{ steps.sonar.outcome }}"           "block"
           check_step "Gitleaks"         "${{ steps.gitleaks.outcome }}"        "block"
           check_step "Bandit"           "${{ steps.bandit.outcome }}"          "block"
 
+          # =================================================
           # Não-bloqueantes (warnings)
+          # =================================================
           check_step "Trivy backend"    "${{ steps.trivy_backend.outcome }}"   "warn"
           check_step "Trivy frontend"   "${{ steps.trivy_frontend.outcome }}"  "warn"
           check_step "Hadolint BE"      "${{ steps.hadolint_back.outcome }}"   "warn"
@@ -510,6 +542,7 @@ jobs:
           check_step "SBOM"             "${{ steps.sbom.outcome }}"            "warn"
 
           echo ""
+
           if [ "$FAILED" -eq 1 ]; then
             echo "❌ Security pipeline FAILED — revise os achados acima"
             exit 1
