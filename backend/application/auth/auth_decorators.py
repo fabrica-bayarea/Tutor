@@ -2,6 +2,7 @@ from functools import wraps
 from flask import request, jsonify, g
 from .jwt_handler import validar_token
 
+
 TOKENS_INVALIDADOS = set()
 
 def extrair_token():
@@ -55,9 +56,15 @@ def apenas_admins(f):
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role != '1':
+
+        if (
+            not hasattr(g, "usuario_role") or
+            g.usuario_role != "ADMIN"
+        ):
             return jsonify({"error": "Acesso negado"}), 403
+
         return f(*args, **kwargs)
+
     return wrapper
 
 def apenas_professores(f):

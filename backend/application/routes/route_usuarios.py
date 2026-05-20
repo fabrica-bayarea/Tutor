@@ -7,8 +7,8 @@ from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token
-from application.services.service_usuario import buscar_aluno, logar_aluno
+from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token, apenas_admins
+from application.services.service_usuario import buscar_aluno, logar_aluno, buscar_professor
 from application.models import Usuario
 
 from pathlib import Path
@@ -249,3 +249,39 @@ def encerrarr_sessao():
     response.delete_cookie("token")
 
     return response, 200
+
+
+@usuarios_bp.route('/professors', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
+def buscarProfessores():
+
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+    
+    professor = buscar_professor(nome = request.args.get('nome'), matricula = request.args.get('matricula'),)
+    
+    if limit:
+            pagination = professor.paginate(page=page, per_page=limit, error_out=False)
+
+            return jsonify({
+                "success": True,
+                "Professores": [p.to_dict() for p in pagination.items],
+                "pagination": {
+                    "page": pagination.page,
+                    "pages": pagination.pages,
+                    "total": pagination.total
+                    }
+            }), 200
+    
+
+    professor = professor.all()
+
+    if not professor:
+        return jsonify({"Error": "Professor não encontrado"}), 404
+    
+    return jsonify({
+        "success": True,
+        "Professores": [p.to_dict() for p in professor],
+        "total": len(professor)
+        }), 200

@@ -3,7 +3,7 @@ import re
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models.model_usuario import Usuario, RoleEnum 
+from application.models.model_usuario import Usuario, RoleEnum
 from application.models.model_aluno_turma import AlunoTurma
 from application.models.model_token_convite import TokenConvite
 from application.config.database import db
@@ -184,3 +184,22 @@ def _validar_forca_senha(senha: str) -> str | None:
     if not re.search(r'[0-9]', senha):
         return "A senha deve conter ao menos um número."
     return None
+
+
+def buscar_professor(nome: str = None, matricula: str = None):
+
+    query = Usuario.query.filter(
+        Usuario.role == RoleEnum.PROFESSOR
+    )
+
+    if nome:
+        query = query.filter(
+            Usuario.nome.ilike(f"%{nome}%")
+        )
+
+    if matricula:
+        query = query.filter(
+            Usuario.matricula.ilike(f"%{matricula}%")
+        )
+
+    return query
