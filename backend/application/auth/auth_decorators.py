@@ -1,7 +1,6 @@
 from functools import wraps
 from flask import request, jsonify, g
 from .jwt_handler import validar_token
-from application.models.model_usuario import  RoleEnum
 
 
 TOKENS_INVALIDADOS = set()
