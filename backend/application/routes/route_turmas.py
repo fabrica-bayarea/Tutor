@@ -3,7 +3,7 @@ Rotas para lidar com turmas.
 """
 from flask import Blueprint, jsonify, current_app, request
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
-from application.services.service_turma import buscar_turma_por_id, getAllTurmas, createTurma
+from application.services.service_turma import buscar_turma_por_id, getAllTurmas, createTurma, updateTurma
 from application.models.model_turma import Turma
 import uuid
 
@@ -97,3 +97,34 @@ def gerar_turmas():
 
 
     return jsonify(turma_dict), 201
+
+
+
+@turmas_bp.route('/admin/turma/<uuid:id>', methods=['PATCH'])
+@token_obrigatorio
+@apenas_admins
+def atualizar_turmas(id):
+
+    codigo = request.json.get('codigo')
+    semestre = request.json.get('semestre')
+    turno = request.json.get('turno')
+    status = request.json.get('status')
+
+    if not codigo or not semestre or not turno:
+        return jsonify({"Error": "Parâmetros 'codigo', 'semestre' e 'turno' são obrigatórios"}), 400
+    
+    if turno not in ["Noturno", "Matutino"]: 
+        return jsonify({"Error": "Turno deve ser ou Matutino ou Noturno"}), 400
+
+    
+    if status not in ["ATIVO", "INATIVO"]:
+        return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
+
+    turma_existente = buscar_turma_por_id(id)
+
+    if not turma_existente:
+        return jsonify({"Error": "Turma não econtrada"}), 404
+    
+    turma_nova = updateTurma(id,codigo,semestre,turno,status)
+
+    return jsonify(turma_nova), 200

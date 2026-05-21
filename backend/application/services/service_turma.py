@@ -74,3 +74,20 @@ def createTurma(codigo: str, semestre: str, turno: str):
 
     db.session.commit()
     return turma.to_dict()
+
+
+def updateTurma(id: uuid.uuid4, codigo_novo: str, semestre_novo: str, turno_novo: str, status_novo: str):
+
+    turma = Turma.query.get(id)
+
+    if not Turma:
+        return None
+    
+    turma.codigo = codigo_novo
+    turma.semestre = semestre_novo
+    turma.turno = turno_novo
+    turma.status = status_novo
+
+    db.session.commit()
+
+    return turma.to_dict()
