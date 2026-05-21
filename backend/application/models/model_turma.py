@@ -31,5 +31,6 @@ class Turma(db.Model):
             'id': str(self.id),
             'codigo': self.codigo,
             'semestre': self.semestre,
-            'turno': self.turno
+            'turno': self.turno,
+            'status': self.status.name
         }
