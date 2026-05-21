@@ -4,7 +4,7 @@ Rotas para lidar com turmas.
 from flask import Blueprint, jsonify, current_app, request
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
 from application.services.service_turma import buscar_turma_por_id, getAllTurmas, createTurma, updateTurma, deleteTurma
-from application.models.model_turma import Turma, TurnoEnum
+from application.models.model_turma import Turma
 import uuid
 from datetime import datetime
 
