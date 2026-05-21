@@ -1,5 +1,10 @@
 from application.config.database import db
 import uuid
+from enum import Enum
+
+class StatusTurmaEnum(Enum):
+    ATIVO = "ATIVO"
+    INATIVO = "INATIVO"
 
 class Turma(db.Model):
     __tablename__ = 'turmas'
@@ -8,6 +13,8 @@ class Turma(db.Model):
     codigo = db.Column(db.String(8), nullable=False, unique=True, index=True)
     semestre = db.Column(db.String(6), nullable=False)
     turno = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.Enum(StatusTurmaEnum, native_enum='ATIVO'), nullable=False)
+
 
     alunos_matriculados = db.relationship('AlunoTurma', back_populates='turma', cascade='all, delete-orphan')
     professores_materias = db.relationship('ProfessorTurmaMateria', back_populates='turma', cascade='all, delete-orphan')
@@ -24,5 +31,6 @@ class Turma(db.Model):
             'id': str(self.id),
             'codigo': self.codigo,
             'semestre': self.semestre,
-            'turno': self.turno
+            'turno': self.turno,
+            'status': self.status.name
         }
