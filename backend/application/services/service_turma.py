@@ -1,5 +1,6 @@
 import uuid
-from application.models import Turma
+from application.models.model_turma import Turma, StatusTurmaEnum
+from application.config.database import db
 
 def buscar_turma_por_id(turma_id: uuid.UUID = None) -> dict | None:
     """
@@ -36,3 +37,40 @@ def buscar_codigo_turma_por_id(id_turma: uuid.UUID) -> str | None:
     """
     turma = Turma.query.filter_by(id=id_turma).first()
     return turma.codigo if turma else None
+
+
+def getAllTurmas(codigo: str, semestre: str, turno: str, status: str):
+
+    query = Turma.query
+
+
+    if codigo:
+        query = query.filter(Turma.codigo.ilike(f"%{codigo}%"))
+    
+    if semestre:
+        query = query.filter(Turma.semestre.ilike(f"%{semestre}%"))
+    
+    if turno:
+        query = query.filter(Turma.turno.ilike(f"%{turno}%"))
+    
+    if status:
+        query = query.filter(Turma.status.ilike(f"%{status}%"))
+    
+    return query.order_by(Turma.codigo.asc())
+
+
+def createTurma(codigo: str, semestre: str, turno: str):
+
+    turma = Turma(
+        codigo=codigo,
+        semestre=semestre,
+        turno=turno,
+        status=StatusTurmaEnum.ATIVO
+    )
+
+    db.session.add(turma)
+
+    db.session.flush()
+
+    db.session.commit()
+    return turma.to_dict()
