@@ -15,7 +15,7 @@ from application.libs.email_sender import enviar_email_convite
 from flask import make_response
 from application.auth.jwt_handler import gerar_token
 from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
-from application.services.service_materia import getAllSubjects, createSubject
+from application.services.service_materia import getAllSubjects, createSubject, updateSubject, deleteSubject, buscar_materia_por_id
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -432,3 +432,56 @@ def gerar_materia():
 
 
     return jsonify(materia_dict), 201
+
+
+@admin_bp.route('/materia/<uuid:id>', methods=['PUT'])
+@token_obrigatorio
+@apenas_admins
+def atualizar_materia(id):
+    nome = request.json.get('nome')
+    codigo = request.json.get('codigo')
+    status = request.json.get('status')
+
+
+    if not codigo or not nome:
+        return jsonify({"error": "Parâmetros 'nome', 'codigo' e 'status' são obrigatórios"}), 400
+
+    
+    if status not in ["ATIVO", "INATIVO"]:
+        return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
+
+    materia_existente = buscar_materia_por_id(id)
+
+    if not materia_existente:
+        return jsonify({"Error": "Materia não econtrada"}), 404
+    
+    materia_nova = updateSubject(id,nome,codigo,status)
+
+    return jsonify(materia_nova), 200
+
+
+@admin_bp.route('/materia/<uuid:id>', methods=['DELETE'])
+@token_obrigatorio
+@apenas_admins
+def deletar_materias(id):
+
+    materia, erro = deleteSubject(id)
+
+    if erro:
+        if 'materia_nao_encontrada' in erro:
+            return jsonify({"error": "Materia não encontrada"}), 404
+
+        if 'materia_vinculada_turma_ativa' in erro:
+            return jsonify({
+                "error": "Matéria vinculada a turma ativa"
+            }), 409
+
+        if 'materia_nao_pode_ser_desativada' in erro:
+            return jsonify({
+                "error": "Matéria não pode ser desativada"
+            }), 409
+
+    return jsonify({
+        "data_desativacao": datetime.now(),
+        "mensagem": "Desativado com sucesso"
+    }), 200
