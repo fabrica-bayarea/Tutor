@@ -49,6 +49,7 @@ export interface InterfaceMateria {
     id: string;
     codigo: string;
     nome: string;
+    status?: string;
 }
 
 export interface InterfaceAlunoTurma {
