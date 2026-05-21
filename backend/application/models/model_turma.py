@@ -6,6 +6,11 @@ class StatusTurmaEnum(Enum):
     ATIVO = "ATIVO"
     INATIVO = "INATIVO"
 
+class TurnoEnum(Enum):
+    MATUTINO = "Matutino",
+    VESPERTINO = "Vespertino",
+    NOTURNO = "Noturno"
+
 class Turma(db.Model):
     __tablename__ = 'turmas'
 

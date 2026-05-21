@@ -3,9 +3,10 @@ Rotas para lidar com turmas.
 """
 from flask import Blueprint, jsonify, current_app, request
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
-from application.services.service_turma import buscar_turma_por_id, getAllTurmas, createTurma, updateTurma
-from application.models.model_turma import Turma
+from application.services.service_turma import buscar_turma_por_id, getAllTurmas, createTurma, updateTurma, deleteTurma
+from application.models.model_turma import Turma, TurnoEnum
 import uuid
+from datetime import datetime
 
 turmas_bp = Blueprint('turmas', __name__)
 
@@ -83,8 +84,8 @@ def gerar_turmas():
     if not codigo or not semestre or not turno:
         return jsonify({"Error": "Parâmetros 'codigo', 'semestre' e 'turno' são obrigatórios"}), 400
     
-    if turno not in ["Noturno", "Matutino"]: 
-        return jsonify({"Error": "Turno deve ser ou Matutino ou Noturno"}), 400
+    if turno not in ["Matutino", "Vespertino", "Noturno"]: 
+        return jsonify({"Error": "Turno deve ser ou Matutino ou Vespertino ou Noturno"}), 400
 
     existente = Turma.query.filter(
         (Turma.codigo == codigo)
@@ -100,7 +101,7 @@ def gerar_turmas():
 
 
 
-@turmas_bp.route('/admin/turma/<uuid:id>', methods=['PATCH'])
+@turmas_bp.route('/admin/turma/<uuid:id>', methods=['PUT'])
 @token_obrigatorio
 @apenas_admins
 def atualizar_turmas(id):
@@ -113,8 +114,8 @@ def atualizar_turmas(id):
     if not codigo or not semestre or not turno:
         return jsonify({"Error": "Parâmetros 'codigo', 'semestre' e 'turno' são obrigatórios"}), 400
     
-    if turno not in ["Noturno", "Matutino"]: 
-        return jsonify({"Error": "Turno deve ser ou Matutino ou Noturno"}), 400
+    if turno not in ["Matutino", "Vespertino", "Noturno"]: 
+        return jsonify({"Error": "Turno deve ser ou Matutino ou Vespertino ou Noturno"}), 400
 
     
     if status not in ["ATIVO", "INATIVO"]:
@@ -128,3 +129,32 @@ def atualizar_turmas(id):
     turma_nova = updateTurma(id,codigo,semestre,turno,status)
 
     return jsonify(turma_nova), 200
+
+
+
+@turmas_bp.route('/admin/turma/<uuid:id>', methods=['DELETE'])
+@token_obrigatorio
+@apenas_admins
+def deletar_turma(id):
+    
+    turma, erro = deleteTurma(id)
+
+    if erro:
+        if 'turma_nao_encontrada' in erro:
+            return jsonify({"error": "Turma não encontrada"}), 404
+
+        if 'turma_vinculada_a_uma_materia' in erro:
+            return jsonify({
+                "error": "Turma vinculada a Matéria"
+            }), 409
+
+        if 'turma_vinculada_a_um_aluno' in erro:
+            return jsonify({
+                "error": "Turma vinculada um aluno"
+            }), 409
+
+    return jsonify({
+        "turma": turma.codigo,
+        "data_desativacao": datetime.now(),
+        "mensagem": "Desativado com sucesso"
+    }), 200
