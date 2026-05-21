@@ -29,7 +29,7 @@
 
 ### Regras de Negócio
 
-- O aluno só pode acessar o chat das matérias em que está matriculado.
+- O aluno só pode acessar o chat das matérias ofertadas nas turmas em que está matriculado (ver EP-03, US-13/US-14).
 - Ao acessar o chat de uma matéria, inicia-se uma sessão de conversa.
 - O aluno pode ter sessões de conversa em matérias diferentes, mas cada matéria tem seu próprio histórico.
 - A IA utiliza apenas os materiais indexados da matéria selecionada para responder.
@@ -37,13 +37,13 @@
 ### Regras de Validação
 
 - Caso a matéria não possua nenhum material indexado, o aluno pode abrir o chat, mas a IA informará que ainda não há conteúdo disponível: _"Ainda não há materiais disponíveis para esta matéria. Quando o professor enviar o conteúdo, você poderá fazer suas perguntas aqui."_
-- Aluno não matriculado em nenhuma matéria visualiza uma tela informando: _"Você ainda não está matriculado em nenhuma matéria. Entre em contato com a coordenação."_
+- Aluno sem matrícula em qualquer turma com matérias ofertadas visualiza uma tela informando: _"Você ainda não está matriculado em nenhuma turma com matérias disponíveis. Entre em contato com a coordenação."_
 
 ### Regras de Interface
 
 - Após o login, o aluno é direcionado diretamente para a interface de chat — **não há tela intermediária de seleção de matéria**.
 - A seleção de matéria é feita por um **combobox/dropdown** posicionado na barra superior da tela, pré-preenchido automaticamente com a primeira matéria da lista do aluno em ordem alfabética.
-- O dropdown exibe apenas as matérias em que o aluno está matriculado; selecionar uma matéria altera o contexto do chat.
+- O dropdown exibe apenas as matérias ofertadas nas turmas em que o aluno está matriculado; selecionar uma matéria altera o contexto do chat.
 - Na tela de boas-vindas (quando não há conversa ativa), exibir quatro cartões informativos de sugestões de uso. Os cartões **não têm ação ao clicar** — servem apenas como orientação sobre o que o aluno pode perguntar. Os cartões são:
   - **Tirar dúvidas** — _"Explique um conceito da matéria"_
   - **Resumir material** — _"Peça um resumo de um tema do conteúdo"_
@@ -60,16 +60,16 @@
 ### Pré-requisitos
 
 - O aluno deve estar autenticado.
-- O aluno deve estar vinculado a ao menos uma matéria.
+- O aluno deve estar matriculado em ao menos uma turma com matérias ofertadas (EP-03, US-13/US-14).
 
 ### Critérios de Aceitação
 
 - [ ] Após o login, o aluno é direcionado diretamente para a interface de chat, sem tela intermediária.
-- [ ] O combobox de matéria exibe apenas as matérias em que o aluno está matriculado e vem pré-preenchido com a primeira da lista.
+- [ ] O combobox de matéria exibe apenas as matérias ofertadas nas turmas em que o aluno está matriculado e vem pré-preenchido com a primeira da lista.
 - [ ] A tela de boas-vindas exibe os quatro cartões de ação rápida.
 - [ ] A lista de chats recentes na sidebar exibe título da conversa e nome da matéria.
 - [ ] Chat de matérias sem material indexado exibe aviso adequado.
-- [ ] Aluno sem matrícula em nenhuma matéria recebe orientação.
+- [ ] Aluno sem matrícula em qualquer turma com matérias ofertadas recebe orientação.
 
 ---
 

@@ -4,12 +4,13 @@
 | Versão | Data | Descrição | Autor |
 |--------|-----------|---------------|-----------|
 | 1.3 Sprint 3 | 10/05/2026 | Cadastro, edição e desativação de matéria US-10 e US-10b, Cadastro de turma US-11, Associação de matéria a turma US-12, Vinculação de professor a turma e matéria US-13 e Matrícula de aluno em turma US-14 | Patricia Pereira Martins |
+| 1.4 Sprint 3 | 19/05/2026 | Refatoração do modelo de associação para alinhar com o diagrama: US-12 passa a vincular professor↔matéria (entidade MateriaProfessor) e US-13 oferta a dupla (Professor+Matéria) a uma turma (entidade MateriaProfessorTurma). Ajustes terminológicos em US-14. | Patricia Pereira Martins |
 
 ---
 
 # EP-03 — Gestão de Matérias e Turmas
 
-**Descrição:** Permite ao administrador organizar a estrutura acadêmica da plataforma. Matérias e turmas são cadastradas de forma independente e depois associadas. O professor vinculado a matéria e depois a turma — ou seja, leciona uma matéria específica para uma turma ou várias turmas. O aluno é matriculado na turma e automaticamente tem acesso a todas as matérias daquela turma (turma fechada).
+**Descrição:** Permite ao administrador organizar a estrutura acadêmica da plataforma. Matérias e turmas são cadastradas de forma independente. O professor é primeiro vinculado às matérias que está habilitado a lecionar (MateriaProfessor, US-12); essas duplas (Professor + Matéria) são então ofertadas em turmas específicas (MateriaProfessorTurma, US-13) — a mesma dupla pode ser ofertada em várias turmas. O aluno é matriculado em uma ou várias turmas (US-14) e tem acesso automaticamente ao chat de todas as ofertas (Professor + Matéria) daquelas turmas (turma fechada — sem seleção individual de matérias pelo aluno).
 
 **Personas:** Administrador
 
@@ -71,13 +72,13 @@
 - É permitido editar o nome da matéria. O código não pode ser alterado após o cadastro — é o identificador permanente.
 - A desativação suspende o acesso ao chat e ao gerenciamento de materiais daquela disciplina, mas **preserva todo o histórico** — conversas, materiais e vínculos existentes.
 - Uma matéria desativada pode ser reativada a qualquer momento, retomando o funcionamento normal.
-- Não é possível desativar uma matéria que esteja associada a turmas ativas com alunos matriculados. O administrador deve primeiro encerrar essas turmas.
+- Não é possível desativar uma matéria que possua vínculos ativos com professores (US-12) ou ofertas ativas em turmas (US-13). O administrador deve primeiro encerrar essas ofertas e remover os vínculos.
 
 ### Regras de Validação
 
 - O nome editado deve ser preenchido e não pode estar em branco.
 - O código é exibido no formulário de edição mas está bloqueado para alteração.
-- Ao tentar desativar uma matéria com turmas ativas, exibir: _"Esta matéria está associada a turmas ativas. Encerre essas turmas antes de desativar a matéria."_
+- Ao tentar desativar uma matéria com vínculos professor↔matéria (US-12) ou ofertas em turmas (US-13) ativas, exibir: _"Esta matéria possui vínculos com professores ou ofertas em turmas ativas. Encerre essas ofertas e remova os vínculos antes de desativar a matéria."_
 
 ### Regras de Interface
 
@@ -98,8 +99,8 @@
 
 - [ ] Administrador consegue editar o nome de uma matéria.
 - [ ] Código da matéria não pode ser alterado — campo bloqueado no formulário.
-- [ ] Administrador consegue desativar uma matéria sem turmas ativas.
-- [ ] Tentativa de desativar matéria com turmas ativas é bloqueada com mensagem explicativa.
+- [ ] Administrador consegue desativar uma matéria sem vínculos com professores (US-12) nem ofertas ativas em turmas (US-13).
+- [ ] Tentativa de desativar matéria com vínculos ou ofertas ativas é bloqueada com mensagem explicativa.
 - [ ] Matéria desativada fica inacessível imediatamente para alunos e professores.
 - [ ] Matéria desativada pode ser reativada e volta a funcionar normalmente.
 - [ ] Histórico de conversas e materiais é preservado após desativação.
@@ -117,7 +118,7 @@
 - Apenas o administrador pode cadastrar turmas.
 - A turma existe de forma independente da matéria — as associações são feitas em seguida.
 - Cada turma possui um código único, semestre e turno.
-- A turma é **fechada**: ao matricular um aluno em uma turma, ele automaticamente tem acesso a todas as matérias associadas àquela turma — não há escolha individual de matérias pelo aluno.
+- A turma é **fechada**: ao matricular um aluno em uma turma, ele automaticamente tem acesso a todas as matérias ofertadas naquela turma (US-13) — não há escolha individual de matérias pelo aluno.
 
 ### Regras de Validação
 
@@ -147,88 +148,91 @@
 
 ---
 
-## US-12 — Associação de matéria a turma
+## US-12 — Vinculação de professor a matéria
 
 **Como** administrador,
-**quero** associar matérias a uma turma,
-**para que** os alunos matriculados naquela turma tenham acesso ao chat dessas disciplinas.
+**quero** vincular um professor a uma matéria,
+**para que** fique registrado que aquele professor está habilitado a lecionar essa disciplina e a combinação possa ser ofertada em turmas (US-13).
 
 ### Regras de Negócio
 
-- Apenas o administrador pode associar ou remover matérias de uma turma.
-- Uma turma pode ter várias matérias associadas.
-- Uma mesma matéria pode estar associada a várias turmas (em semestres ou contextos diferentes).
-- Ao associar uma matéria a uma turma, todos os alunos já matriculados nessa turma passam a ter acesso ao chat daquela matéria automaticamente.
-- Ao remover uma matéria de uma turma, os alunos perdem o acesso ao chat daquela disciplina. O histórico de conversas é preservado.
-- A associação de uma matéria à turma é o pré-requisito para vincular um professor ao par turma+matéria.
+- Apenas o administrador pode criar ou remover vínculos professor-matéria.
+- Cada vínculo representa "Professor X leciona Matéria Y" e corresponde à entidade **MateriaProfessor** no diagrama.
+- Um professor pode estar vinculado a várias matérias.
+- Uma matéria pode estar vinculada a vários professores.
+- O vínculo (Professor + Matéria) é **pré-requisito** para a oferta dessa combinação em uma turma (US-13).
+- Ao desvincular, ofertas ativas dessa combinação em turmas devem ter sido previamente removidas (US-13). O histórico é preservado.
 
 ### Regras de Validação
 
-- Não é possível associar a mesma matéria à mesma turma mais de uma vez. Caso se tente, exibir: _"Esta matéria já está associada a esta turma."_
-- A remoção de uma matéria da turma deve solicitar confirmação.
+- Não é possível criar o mesmo vínculo (professor, matéria) duas vezes. Caso se tente, exibir: _"Este professor já está vinculado a esta matéria."_
+- Não é possível remover o vínculo se existirem ofertas ativas em turmas (US-13). Exibir: _"Existem ofertas ativas para este vínculo. Encerre as ofertas antes de remover."_
+- A remoção deve solicitar confirmação.
 
 ### Regras de Interface
 
-- Na tela de gerenciamento de uma turma, deve haver uma seção "Matérias" com a lista das associadas e opção de adicionar ou remover.
-- Ao adicionar, o administrador pesquisa a matéria por código ou nome.
+- Na tela de gerenciamento de professores (ou de matérias), uma seção "Vínculos" lista os pares ativos.
+- Ao adicionar, o administrador pesquisa o professor por nome/matrícula e a matéria por código/nome.
 
 ### Pré-requisitos
 
-- A turma deve estar cadastrada e ativa.
-- A matéria deve estar cadastrada e ativa.
-- O administrador deve estar autenticado.
+- Professor cadastrado e ativo.
+- Matéria cadastrada e ativa.
+- Administrador autenticado.
 
 ### Critérios de Aceitação
 
-- [ ] Administrador consegue associar uma matéria ativa a uma turma ativa.
-- [ ] Associação duplicada é rejeitada com mensagem explicativa.
-- [ ] Alunos já matriculados na turma passam a ter acesso ao chat da matéria associada.
-- [ ] Ao remover a matéria da turma, alunos perdem o acesso ao chat. Histórico é preservado.
+- [ ] Administrador consegue vincular um professor ativo a uma matéria ativa.
+- [ ] Vínculo duplicado (mesmo par professor+matéria) é rejeitado com mensagem explicativa.
+- [ ] Um professor pode estar vinculado a várias matérias.
+- [ ] Uma matéria pode estar vinculada a vários professores.
+- [ ] O vínculo fica disponível como opção ao ofertar em turma (US-13).
+- [ ] Tentativa de remover vínculo com ofertas ativas é bloqueada com mensagem explicativa.
 
 ---
 
-## US-13 — Vinculação de professor a turma e matéria
+## US-13 — Oferta de matéria-professor a turma
 
 **Como** administrador,
-**quero** vincular um professor a uma matéria e depois e a uma ou várias turmas,
-**para que** fique registrado que aquele professor leciona aquela disciplina a uma turma, e que ele possa gerenciar os materiais e receber perguntas escalonadas dos alunos.
+**quero** ofertar uma dupla (Professor + Matéria) em uma turma específica,
+**para que** os alunos matriculados nessa turma tenham acesso ao chat dessa disciplina sob responsabilidade daquele professor, e o professor possa gerenciar os materiais e receber as perguntas escalonadas dos alunos.
 
 ### Regras de Negócio
 
-- Apenas o administrador pode realizar esse vínculo.
-- O vínculo é duplo **professor + matéria** - significa "Professor X leciona Matéria Y".
-- Depois o vínculo é triplo: **professor + turma + matéria** — significa "Professor X leciona Matéria Y para a Turma Z".
-- Um professor pode lecionar a mesma matéria para turmas diferentes.
-- Um professor pode lecionar matérias diferentes para a mesma turma.
-- Mais de um professor pode lecionar a mesma matéria para a mesma turma.
-- A matéria deve estar previamente associada à turma (ver US-12) para que o vínculo com o professor seja possível.
-- Ao ser desvinculado, o professor perde o acesso aos materiais e às perguntas escalonadas daquele par turma+matéria. Os materiais enviados por ele permanecem disponíveis.
+- Apenas o administrador pode criar ou remover ofertas.
+- Cada oferta representa "Professor X leciona Matéria Y na Turma Z" e corresponde à entidade **MateriaProfessorTurma** no diagrama.
+- O vínculo (Professor + Matéria) precisa existir previamente (US-12) — a oferta apenas seleciona um vínculo já criado e o associa a uma turma.
+- A mesma dupla (Professor + Matéria) pode ser ofertada em várias turmas.
+- Uma turma pode receber várias ofertas distintas (com matérias e/ou professores diferentes).
+- Mais de uma oferta na mesma turma pode envolver a mesma matéria com professores diferentes.
+- Ao criar a oferta, todos os alunos matriculados na turma passam automaticamente a ter acesso ao chat dessa matéria com aquele professor.
+- Ao remover a oferta, os alunos perdem o acesso ao chat daquela matéria naquela turma. O histórico de conversas e os materiais enviados pelo professor permanecem preservados.
 
 ### Regras de Validação
 
-- O mesmo professor não pode ter o mesmo vínculo turma+matéria registrado mais de uma vez. Caso se tente, exibir: _"Este professor já está vinculado a esta matéria nesta turma."_
+- Não é possível ofertar a mesma dupla (Professor + Matéria) duas vezes na mesma turma. Caso se tente, exibir: _"Esta dupla já está ofertada nesta turma."_
+- A remoção da oferta deve solicitar confirmação.
 
 ### Regras de Interface
 
-- Na tela de gerenciamento de uma turma, dentro de cada matéria associada, deve haver uma seção "Professores" com a lista dos vinculados e opção de adicionar ou remover.
-- Ao adicionar, o administrador pesquisa o professor por nome ou matrícula.
+- Na tela de gerenciamento de uma turma, uma seção "Ofertas" lista as duplas (Professor + Matéria) ativas, com opção de adicionar ou remover.
+- Ao adicionar, o administrador escolhe entre os vínculos MateriaProfessor já existentes (US-12), com filtro por professor ou por matéria.
 - A remoção deve solicitar confirmação.
 
 ### Pré-requisitos
 
-- A turma deve estar cadastrada e ativa.
-- A matéria deve estar associada à turma (US-12).
-- O professor deve estar cadastrado e ativo.
-- O administrador deve estar autenticado.
+- Turma cadastrada e ativa.
+- Vínculo (Professor + Matéria) existente (US-12).
+- Administrador autenticado.
 
 ### Critérios de Aceitação
 
-- [ ] Administrador consegue vincular um professor a um par turma+matéria.
-- [ ] Vínculo duplicado é rejeitado com mensagem explicativa.
-- [ ] Professor vinculado visualiza a turma e matéria no seu painel.
-- [ ] Professor desvinculado perde o acesso àquele par turma+matéria.
-- [ ] Materiais enviados pelo professor desvinculado permanecem disponíveis na turma+matéria.
-- [ ] Mais de um professor pode ser vinculado ao mesmo par turma+matéria.
+- [ ] Administrador consegue ofertar uma dupla (Professor + Matéria) em uma turma ativa.
+- [ ] Oferta duplicada na mesma turma é rejeitada com mensagem explicativa.
+- [ ] Alunos matriculados na turma passam a visualizar a matéria ofertada no seu painel.
+- [ ] A mesma dupla pode ser ofertada em várias turmas distintas.
+- [ ] Uma turma pode receber várias ofertas distintas.
+- [ ] Remoção da oferta retira o acesso dos alunos àquela matéria naquela turma e preserva histórico e materiais.
 
 ---
 
@@ -236,14 +240,14 @@
 
 **Como** administrador,
 **quero** matricular alunos em turmas,
-**para que** eles tenham acesso ao chat de todas as matérias daquela turma automaticamente.
+**para que** eles tenham acesso ao chat de todas as matérias ofertadas naquela turma (US-13) automaticamente.
 
 ### Regras de Negócio
 
 - Apenas o administrador pode matricular ou desmatricular alunos de turmas.
-- Ao ser matriculado em uma turma, o aluno automaticamente tem acesso ao chat de **todas as matérias** associadas àquela turma — não há seleção individual de matérias.
-- Um aluno pode estar matriculado em mais de uma turma simultaneamente.
-- Ao ser desmatriculado, o aluno perde o acesso ao chat de todas as matérias daquela turma. O histórico de conversas é preservado.
+- Ao ser matriculado em uma turma, o aluno automaticamente tem acesso ao chat de **todas as matérias ofertadas** naquela turma (US-13) — não há seleção individual de matérias.
+- Um aluno pode estar matriculado em mais de uma turma simultaneamente — terá acesso às ofertas de cada turma.
+- Ao ser desmatriculado, o aluno perde o acesso ao chat de todas as matérias ofertadas naquela turma. O histórico de conversas é preservado.
 - Somente alunos com cadastro ativo podem ser matriculados.
 
 ### Regras de Validação
@@ -255,7 +259,7 @@
 
 - Na tela de gerenciamento de uma turma, deve haver uma seção "Alunos" com a lista dos matriculados e opção de adicionar ou remover.
 - Ao adicionar, o administrador pesquisa o aluno por nome ou matrícula.
-- A remoção deve exibir confirmação com aviso: _"O aluno perderá o acesso ao chat de todas as matérias desta turma."_
+- A remoção deve exibir confirmação com aviso: _"O aluno perderá o acesso ao chat de todas as matérias ofertadas nesta turma."_
 
 ### Pré-requisitos
 
@@ -266,8 +270,8 @@
 ### Critérios de Aceitação
 
 - [ ] Administrador consegue matricular um aluno ativo em uma turma.
-- [ ] Aluno matriculado passa a visualizar todas as matérias daquela turma no seu painel.
+- [ ] Aluno matriculado passa a visualizar todas as matérias ofertadas naquela turma (US-13) no seu painel.
 - [ ] Matrícula duplicada é rejeitada com mensagem explicativa.
-- [ ] Aluno desmatriculado perde o acesso ao chat de todas as matérias da turma.
+- [ ] Aluno desmatriculado perde o acesso ao chat de todas as matérias ofertadas naquela turma.
 - [ ] Histórico de conversas do aluno é preservado após desmatrícula.
 

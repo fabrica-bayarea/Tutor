@@ -51,52 +51,74 @@
     <text x="76" y="326" class="entity-attr" font-style="italic" fill="#64748b">US-10 / US-10b</text>
   </g>
 
-  <!-- Turma (center) -->
+  <!-- Material (abaixo da Matéria) -->
+  <g>
+    <rect x="60" y="540" width="200" height="100" rx="8" class="entity-box"/>
+    <rect x="60" y="540" width="200" height="26" rx="8" class="entity-header"/>
+    <rect x="60" y="560" width="200" height="6" class="entity-header"/>
+    <text x="160" y="559" text-anchor="middle" class="entity-title">Material</text>
+    <text x="76" y="586" class="entity-attr">• codigo  (PK)</text>
+    <text x="76" y="604" class="entity-attr">• nome</text>
+    <text x="76" y="628" class="entity-attr" font-style="italic" fill="#64748b">cadastro: EP-04 / US-14</text>
+  </g>
+
+  <!-- Professor (center) -->
   <g>
     <rect x="500" y="220" width="200" height="120" rx="8" class="entity-box"/>
     <rect x="500" y="220" width="200" height="26" rx="8" class="entity-header"/>
     <rect x="500" y="240" width="200" height="6" class="entity-header"/>
-    <text x="600" y="239" text-anchor="middle" class="entity-title">Turma</text>
-    <text x="516" y="266" class="entity-attr">• codigo  (PK, único)</text>
-    <text x="516" y="284" class="entity-attr">• semestre  (ex: 2026.1)</text>
-    <text x="516" y="302" class="entity-attr">• turno  (Manhã/Tarde/Noite)</text>
-    <text x="516" y="320" class="entity-attr">• status: ativa | encerrada</text>
-    <text x="516" y="336" class="entity-attr" font-style="italic" fill="#64748b">US-11 — turma fechada</text>
+    <text x="600" y="239" text-anchor="middle" class="entity-title">Professor</text>
+    <text x="516" y="266" class="entity-attr">• matricula  (PK)</text>
+    <text x="516" y="284" class="entity-attr">• nome</text>
+    <text x="516" y="302" class="entity-attr">• status</text>
+    <text x="516" y="326" class="entity-attr" font-style="italic" fill="#64748b">cadastro: EP-02</text>
   </g>
 
-  <!-- Professor (right) -->
+  <!-- Turma (right) -->
   <g>
     <rect x="940" y="220" width="200" height="120" rx="8" class="entity-box"/>
     <rect x="940" y="220" width="200" height="26" rx="8" class="entity-header"/>
     <rect x="940" y="240" width="200" height="6" class="entity-header"/>
-    <text x="1040" y="239" text-anchor="middle" class="entity-title">Professor</text>
-    <text x="956" y="266" class="entity-attr">• matricula  (PK)</text>
-    <text x="956" y="284" class="entity-attr">• nome</text>
-    <text x="956" y="302" class="entity-attr">• status</text>
-    <text x="956" y="326" class="entity-attr" font-style="italic" fill="#64748b">cadastro: EP-02</text>
+    <text x="1040" y="239" text-anchor="middle" class="entity-title">Turma</text>
+    <text x="956" y="266" class="entity-attr">• codigo  (PK, único)</text>
+    <text x="956" y="284" class="entity-attr">• semestre  (ex: 2026.1)</text>
+    <text x="956" y="302" class="entity-attr">• turno  (Manhã/Tarde/Noite)</text>
+    <text x="956" y="320" class="entity-attr">• status: ativa | encerrada</text>
+    <text x="956" y="336" class="entity-attr" font-style="italic" fill="#64748b">US-11 — turma fechada</text>
   </g>
 
-  <!-- TurmaMateria (association, between Materia & Turma) -->
+  <!-- MateriaProfessor (association, between Materia & Professor) -->
   <g>
     <rect x="280" y="420" width="200" height="84" rx="8" class="assoc-box"/>
     <rect x="280" y="420" width="200" height="24" rx="8" class="assoc-header"/>
     <rect x="280" y="438" width="200" height="6" class="assoc-header"/>
-    <text x="380" y="437" text-anchor="middle" class="assoc-title">TurmaMateria  «US-12»</text>
-    <text x="296" y="464" class="assoc-attr">• turma_codigo (FK)</text>
+    <text x="380" y="437" text-anchor="middle" class="assoc-title">MateriaProfessor  «US-12»</text>
+    <text x="296" y="464" class="assoc-attr">• professor_matricula (FK)</text>
     <text x="296" y="481" class="assoc-attr">• materia_codigo (FK)</text>
-    <text x="296" y="498" class="assoc-attr" font-style="italic" fill="#78350f">único (turma, matéria)</text>
+    <text x="296" y="498" class="assoc-attr" font-style="italic" fill="#78350f">único (professor, matéria)</text>
   </g>
 
-  <!-- VinculoProfessor (association, between TurmaMateria & Professor) -->
+  <!-- MaterialUso (association, between Material & MateriaProfessor) -->
   <g>
-    <rect x="740" y="420" width="220" height="100" rx="8" class="assoc-box"/>
-    <rect x="740" y="420" width="220" height="24" rx="8" class="assoc-header"/>
-    <rect x="740" y="438" width="220" height="6" class="assoc-header"/>
-    <text x="850" y="437" text-anchor="middle" class="assoc-title">VinculoProfessor  «US-13»</text>
-    <text x="756" y="464" class="assoc-attr">• professor_matricula (FK)</text>
-    <text x="756" y="481" class="assoc-attr">• turma_codigo (FK)</text>
-    <text x="756" y="498" class="assoc-attr">• materia_codigo (FK)</text>
-    <text x="756" y="514" class="assoc-attr" font-style="italic" fill="#78350f">ternário · depende de TurmaMateria</text>
+    <rect x="280" y="560" width="200" height="84" rx="8" class="assoc-box"/>
+    <rect x="280" y="560" width="200" height="24" rx="8" class="assoc-header"/>
+    <rect x="280" y="578" width="200" height="6" class="assoc-header"/>
+    <text x="380" y="577" text-anchor="middle" class="assoc-title">MaterialUso  «EP-04/US-14»</text>
+    <text x="296" y="604" class="assoc-attr">• material_codigo (FK)</text>
+    <text x="296" y="621" class="assoc-attr">• professor_matricula (FK)</text>
+    <text x="296" y="638" class="assoc-attr">• materia_codigo (FK)</text>
+  </g>
+
+  <!-- MateriaProfessorTurma (association, between MateriaProfessor & Turma) -->
+  <g>
+    <rect x="560" y="420" width="220" height="100" rx="8" class="assoc-box"/>
+    <rect x="560" y="420" width="220" height="24" rx="8" class="assoc-header"/>
+    <rect x="560" y="438" width="220" height="6" class="assoc-header"/>
+    <text x="670" y="437" text-anchor="middle" class="assoc-title">MateriaProfessorTurma «US-13»</text>
+    <text x="576" y="464" class="assoc-attr">• professor_matricula (FK)</text>
+    <text x="576" y="481" class="assoc-attr">• materia_codigo (FK)</text>
+    <text x="576" y="498" class="assoc-attr">• turma_codigo (FK)</text>
+    <text x="576" y="514" class="assoc-attr" font-style="italic" fill="#78350f">depende de MateriaProfessor</text>
   </g>
 
   <!-- Aluno (bottom right) -->
@@ -113,62 +135,74 @@
 
   <!-- Matricula (association, between Turma & Aluno) -->
   <g>
-    <rect x="500" y="640" width="200" height="84" rx="8" class="assoc-box"/>
-    <rect x="500" y="640" width="200" height="24" rx="8" class="assoc-header"/>
-    <rect x="500" y="658" width="200" height="6" class="assoc-header"/>
-    <text x="600" y="657" text-anchor="middle" class="assoc-title">Matricula  «US-14»</text>
-    <text x="516" y="684" class="assoc-attr">• aluno_matricula (FK)</text>
-    <text x="516" y="701" class="assoc-attr">• turma_codigo (FK)</text>
-    <text x="516" y="718" class="assoc-attr" font-style="italic" fill="#78350f">único (aluno, turma)</text>
+    <rect x="940" y="460" width="200" height="84" rx="8" class="assoc-box"/>
+    <rect x="940" y="460" width="200" height="24" rx="8" class="assoc-header"/>
+    <rect x="940" y="478" width="200" height="6" class="assoc-header"/>
+    <text x="1040" y="477" text-anchor="middle" class="assoc-title">Matricula  «US-14»</text>
+    <text x="956" y="504" class="assoc-attr">• aluno_matricula (FK)</text>
+    <text x="956" y="521" class="assoc-attr">• turma_codigo (FK)</text>
+    <text x="956" y="538" class="assoc-attr" font-style="italic" fill="#78350f">único (aluno, turma)</text>
   </g>
 
   <!-- ============== LINKS ============== -->
 
-  <!-- Materia -> TurmaMateria -->
+  <!-- Materia -> MateriaProfessor -->
   <path d="M 200 340 L 320 420" class="link"/>
   <text x="230" y="392" class="card">1</text>
   <text x="305" y="408" class="card">0..*</text>
 
-  <!-- Turma -> TurmaMateria -->
+  <!-- Material -> MaterialUso -->
+  <path d="M 260 602 L 280 602" class="link"/>
+  <text x="240" y="596" class="card">1</text>
+  <text x="285" y="596" class="card">0..*</text>
+
+  <!-- MaterialUso -> MateriaProfessor -->
+  <path d="M 380 560 L 380 504" class="link"/>
+  <text x="388" y="518" class="card">1</text>
+  <text x="388" y="554" class="card">0..*</text>
+
+  <!-- Professor -> MateriaProfessor -->
   <path d="M 560 340 L 440 420" class="link"/>
-  <text x="540" y="392" class="card">1</text>
+  <text x="545" y="392" class="card">1</text>
   <text x="455" y="408" class="card">0..*</text>
 
-  <!-- TurmaMateria -> VinculoProfessor -->
-  <path d="M 480 462 L 740 462" class="link"/>
-  <text x="500" y="456" class="card">1</text>
-  <text x="720" y="456" class="card">0..*</text>
-  <text x="610" y="478" text-anchor="middle" class="card" fill="#78350f" font-style="italic">pré-requisito</text>
+  <!-- MateriaProfessor -> MateriaProfessorTurma -->
+  <path d="M 480 470 L 560 470" class="link"/>
+  <text x="488" y="464" class="card">1</text>
+  <text x="540" y="464" class="card">0..*</text>
+  <text x="520" y="490" text-anchor="middle" class="card" fill="#78350f" font-style="italic">pré-requisito</text>
 
-  <!-- Professor -> VinculoProfessor -->
-  <path d="M 1010 340 L 880 420" class="link"/>
-  <text x="1000" y="392" class="card">1</text>
-  <text x="870" y="408" class="card">0..*</text>
+  <!-- Turma -> MateriaProfessorTurma -->
+  <path d="M 980 340 L 760 420" class="link"/>
+  <text x="970" y="360" class="card">1</text>
+  <text x="745" y="412" class="card">0..*</text>
 
   <!-- Turma -> Matricula -->
-  <path d="M 600 340 L 600 640" class="link"/>
-  <text x="610" y="420" class="card">1</text>
-  <text x="610" y="630" class="card">0..*</text>
+  <path d="M 1040 340 L 1040 460" class="link"/>
+  <text x="1050" y="370" class="card">1</text>
+  <text x="1050" y="455" class="card">0..*</text>
 
   <!-- Aluno -> Matricula -->
-  <path d="M 940 686 L 700 682" class="link"/>
-  <text x="920" y="676" class="card">1</text>
-  <text x="715" y="676" class="card">0..*</text>
+  <path d="M 1040 630 L 1040 544" class="link"/>
+  <text x="1050" y="620" class="card">1</text>
+  <text x="1050" y="560" class="card">0..*</text>
 
   <!-- Administrador -> all (dashed green) -->
   <path d="M 520 136 Q 280 170 200 220" class="link-admin"/>
   <path d="M 600 136 L 600 220" class="link-admin"/>
   <path d="M 680 136 Q 920 170 1010 220" class="link-admin"/>
   <path d="M 540 136 Q 350 280 320 420" class="link-admin"/>
-  <path d="M 660 136 Q 900 280 850 420" class="link-admin"/>
-  <path d="M 600 136 Q 480 380 540 640" class="link-admin"/>
+  <path d="M 680 136 Q 800 280 670 420" class="link-admin"/>
+  <path d="M 660 136 Q 900 280 1040 460" class="link-admin"/>
+  <path d="M 700 136 L 1170 136 L 1170 600 L 1040 630" class="link-admin"/>
   <text x="345" y="178" class="card-admin">cadastra/edita/(des)ativa</text>
-  <text x="610" y="178" class="card-admin">cadastra</text>
-  <text x="820" y="178" class="card-admin">(EP-02)</text>
+  <text x="610" y="178" class="card-admin">(EP-02)</text>
+  <text x="820" y="178" class="card-admin">cadastra</text>
+  <text x="1015" y="624" class="card-admin">(EP-02)</text>
 
   <!-- ============== LEGEND ============== -->
-  <g transform="translate(60, 620)">
-    <rect x="0" y="0" width="380" height="170" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <g transform="translate(410, 670)">
+    <rect x="0" y="0" width="380" height="150" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
     <text x="14" y="22" class="legend-title">Legenda</text>
 
     <rect x="14" y="34" width="22" height="14" class="entity-box"/>
@@ -184,13 +218,9 @@
     <text x="46" y="90" class="legend-text">Ator (Administrador)</text>
 
     <line x1="14" y1="108" x2="36" y2="108" class="link"/>
-    <text x="46" y="112" class="legend-text">Associação com cardinalidade (1 / 0..*)</text>
+    <text x="46" y="112" class="legend-text">Associação com cardinalidade (ex.: 1 / 0..*)</text>
 
     <line x1="14" y1="128" x2="36" y2="128" class="link-admin"/>
     <text x="46" y="132" class="legend-text">Ação operacional do administrador</text>
-
-    <text x="14" y="156" class="legend-text" font-style="italic" fill="#475569">
-      Aluno ↔ Matéria NÃO é direto — derivado de Matricula + TurmaMateria (turma fechada).
-    </text>
   </g>
 </svg>
