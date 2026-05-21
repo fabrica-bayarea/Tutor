@@ -414,7 +414,6 @@ def gerar_materia():
 
     codigo = dados.get('codigo')
     nome = dados.get('nome')
-    status = dados.get('status')
 
 
     if not codigo or not nome:
