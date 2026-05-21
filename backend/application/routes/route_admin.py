@@ -2,9 +2,10 @@
 Rotas para lidar com admin.
 """
 from flask import Blueprint, jsonify, current_app, request
-from application.auth.auth_decorators import token_obrigatorio
+from application.auth.auth_decorators import token_obrigatorio, apenas_admins
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
+from application.models.model_materia import Materia
 from application.models.model_turma import Turma
 from application.services.service_usuario import (criar_usuario, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro)
 import secrets
@@ -14,6 +15,7 @@ from application.libs.email_sender import enviar_email_convite
 from flask import make_response
 from application.auth.jwt_handler import gerar_token
 from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
+from application.services.service_materia import getAllSubjects, createSubject
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -361,3 +363,72 @@ def recriar_senha():
     )
 
     return response
+
+"""
+
+MATERIA
+
+"""
+@admin_bp.route('/materia', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
+def lista_materias():
+    
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+
+    materia = getAllSubjects(nome = request.args.get('nome'), codigo = request.args.get('codigo'))
+
+    if limit:
+        pagination = materia.paginate(page=page, per_page=limit, error_out=False)
+
+        return jsonify({
+            "success": True,
+            "Materias": [m.to_dict() for m in pagination.items],
+            "pagination": {
+                "page": pagination.page,
+                "pages": pagination.pages,
+                "total": pagination.total
+                }
+        }), 200
+    
+    materia = materia.all()
+
+    if not materia:
+        return jsonify({"Error": "Materia não encontrada"}), 404
+
+    return jsonify({
+        "success": True,
+        "Materias": [m.to_dict() for m in materia],
+        "total": len(materia)
+        }), 200
+
+
+
+@admin_bp.route('/materia', methods=['POST'])
+@token_obrigatorio
+@apenas_admins
+def gerar_materia():
+
+    dados = request.get_json(silent=True) or {}
+
+    codigo = dados.get('codigo')
+    nome = dados.get('nome')
+    status = dados.get('status')
+
+
+    if not codigo or not nome:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
+
+
+    existente = Materia.query.filter(
+        (Materia.codigo == codigo)
+    ).first()
+
+    if existente:
+        return jsonify({"Error": "Já existe uma matéria com este código."}), 409
+
+    materia_dict = createSubject(nome=nome, codigo=codigo)
+
+
+    return jsonify(materia_dict), 201

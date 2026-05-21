@@ -1,5 +1,7 @@
 import uuid
 from application.models import Materia
+from application.models.model_materia import StatusMateriaEnum
+from application.config.database import db
 
 def buscar_materia_por_id(materia_id: uuid.UUID = None) -> dict | None:
     """
@@ -52,3 +54,35 @@ def buscar_llm_materia_por_id(id_materia: uuid.UUID) -> str | None:
             return materia.llm.nome  
         
         return None
+
+
+def getAllSubjects(nome: str = None, codigo: str = None):
+     
+    query = Materia.query
+
+    if nome: 
+          query = query.filter(
+               Materia.nome.ilike(f"%{nome}%")
+          )
+
+    if codigo:
+         query = query.filter(
+              Materia.codigo.ilike(f"%{codigo}%")
+         )
+
+    return query.order_by(Materia.nome.asc())
+
+
+def createSubject(nome: str = None, codigo: str = None):
+     
+    materia = Materia(
+         nome=nome,
+         codigo=codigo,
+         status=StatusMateriaEnum.ATIVO
+    )
+
+    db.session.add(materia)
+    db.session.flush()
+
+    db.session.commit()
+    return materia.to_dict()
