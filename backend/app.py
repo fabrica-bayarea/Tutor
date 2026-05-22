@@ -18,7 +18,8 @@ from application.routes import (
     mensagens_bp,
     vinculos_bp,
     data_bp,
-    admin_bp
+    admin_bp,
+    llm_bp
 )
 
 app = Flask(__name__)
@@ -57,6 +58,7 @@ app.register_blueprint(vinculos_bp, url_prefix="/vinculos")
 app.register_blueprint(data_bp, url_prefix="/data")
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(llm_bp)
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
