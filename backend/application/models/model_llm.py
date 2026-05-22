@@ -1,4 +1,5 @@
 from application.config.database import db
+from enum import Enum
 
 class StatusLLMEnum(Enum):
     ATIVO = "ATIVO"
