@@ -2,7 +2,8 @@ import asyncio
 import traceback
 
 from flask_socketio import emit
-from application.services.service_materia import buscar_llm_materia_por_id, buscar_materia_por_id
+from application.services.service_materia import buscar_materia_por_id
+from application.services.service_llm import getActiveModel
 from application.socket.Impl.gerar_resposta import consultar_ollama
 from flask import request, current_app
 
@@ -89,8 +90,8 @@ async def _processar_mensagem_async(data, sid):
     )
     
     # BUSCA PELO MODELO REGISTRADO NA MATÉRIA
-    model = buscar_llm_materia_por_id(materia_id)
-    if model == None: model = "llama3"
+    model = getActiveModel()
+    if model is None: model = "llama3"
 
     # BUSCA PELO NOME DA MATÉRIA
     materia_registro = buscar_materia_por_id(materia_id)
