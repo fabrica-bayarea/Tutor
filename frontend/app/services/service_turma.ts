@@ -12,3 +12,14 @@ export async function obterTurma(turma_id: string) {
         throw error;
     }
 }
+
+export async function listarTurmas(): Promise<InterfaceTurma[]> {
+    try {
+        const response = await api.get(`${turmas_url}/admin/turma`);
+        return response.data?.turmas ?? response.data?.Turmas ?? [];
+    } catch (error: any) {
+        if (error?.response?.status === 404) return [];
+        console.error("Erro ao listar turmas:", error);
+        return [];
+    }
+}
