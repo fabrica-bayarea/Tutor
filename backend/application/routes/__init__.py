@@ -7,3 +7,4 @@ from .route_chats import chats_bp
 from .route_mensagens import mensagens_bp
 from .route_data import data_bp
 from .route_admin import admin_bp
+from .route_llm import llm_bp
