@@ -14,6 +14,8 @@ import {
     desativarMateria,
     reativarMateria,
 } from "../../../../services/service_materia";
+import { listarTurmas } from "../../../../services/service_turma";
+import { obterVinculosTurmaMateria } from "../../../../services/service_vinculos";
 import { useToast } from "@/contexts/ToastContext";
 
 type MateriaStatus = "Ativa" | "Desativada";
@@ -23,6 +25,7 @@ type Materia = {
     codigo: string;
     nome: string;
     status: MateriaStatus;
+    turmasVinculadas: number;
 };
 
 const ROW_HEIGHT = 49;
@@ -43,14 +46,33 @@ export default function Materias() {
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            const lista = await listarMaterias();
+            const [lista, turmas] = await Promise.all([
+                listarMaterias(),
+                listarTurmas(),
+            ]);
             if (cancelled) return;
+
+            const turmasAtivas = turmas.filter((t) => t.status === "ATIVO");
+            const vinculosPorTurma = await Promise.all(
+                turmasAtivas.map((t) =>
+                    obterVinculosTurmaMateria(t.id).catch(() => [])
+                )
+            );
+            if (cancelled) return;
+
+            const contagemPorMateria: Record<string, number> = {};
+            vinculosPorTurma.flat().forEach((v) => {
+                contagemPorMateria[v.materia_id] =
+                    (contagemPorMateria[v.materia_id] ?? 0) + 1;
+            });
+
             setMaterias(
                 lista.map((m) => ({
                     id: m.id,
                     codigo: m.codigo,
                     nome: m.nome,
                     status: m.status === "ATIVO" ? "Ativa" : "Desativada",
+                    turmasVinculadas: contagemPorMateria[m.id] ?? 0,
                 }))
             );
         })();
@@ -117,6 +139,10 @@ export default function Materias() {
 
     async function confirmarDesativacao() {
         if (!materiaParaDesativar) return;
+        if (materiaParaDesativar.turmasVinculadas > 0) {
+            setMateriaParaDesativar(null);
+            return;
+        }
         const resultado = await desativarMateria(materiaParaDesativar.id);
         if (resultado.ok) {
             setMaterias((prev) =>
@@ -151,6 +177,11 @@ export default function Materias() {
     const columns: TableColumn<Materia>[] = [
         { key: "codigo", title: "Código", mobileVariant: "stacked" },
         { key: "nome", title: "Nome" },
+        {
+            key: "turmasVinculadas",
+            title: "Turmas vinculadas",
+            render: (row) => <span>{row.turmasVinculadas}</span>,
+        },
         {
             key: "status",
             title: "Status",
@@ -248,32 +279,63 @@ export default function Materias() {
             <Modal
                 open={materiaParaDesativar !== null}
                 onClose={() => setMateriaParaDesativar(null)}
-                title="Desativar matéria"
+                title={
+                    materiaParaDesativar && materiaParaDesativar.turmasVinculadas > 0
+                        ? "Não é possível desativar"
+                        : "Desativar matéria"
+                }
                 icon={<AlertTriangle size={20} color="#d02b29" />}
                 accentColor="#d02b29"
                 footer={
-                    <>
-                        <Button
-                            style="ghost"
-                            label="Cancelar"
-                            onClick={() => setMateriaParaDesativar(null)}
-                        />
+                    materiaParaDesativar && materiaParaDesativar.turmasVinculadas > 0 ? (
                         <Button
                             style="filled"
-                            action="danger"
-                            label="Desativar matéria"
-                            onClick={confirmarDesativacao}
+                            action="primary"
+                            label="Entendi"
+                            onClick={() => setMateriaParaDesativar(null)}
                         />
-                    </>
+                    ) : (
+                        <>
+                            <Button
+                                style="ghost"
+                                label="Cancelar"
+                                onClick={() => setMateriaParaDesativar(null)}
+                            />
+                            <Button
+                                style="filled"
+                                action="danger"
+                                label="Desativar matéria"
+                                onClick={confirmarDesativacao}
+                            />
+                        </>
+                    )
                 }
             >
-                <p className={styles.modalText}>
-                    Tem certeza que deseja desativar a matéria{" "}
-                    <strong>{materiaParaDesativar?.nome}</strong>?
-                </p>
-                <div className={styles.modalNote}>
-                    A matéria fica inacessível para chat e gerenciamento de materiais. Todo o histórico é preservado e pode ser restaurado ao reativar
-                </div>
+                {materiaParaDesativar && materiaParaDesativar.turmasVinculadas > 0 ? (
+                    <>
+                        <p className={styles.modalText}>
+                            A matéria <strong>{materiaParaDesativar.nome}</strong> não pode ser desativada porque está vinculada a{" "}
+                            <strong>
+                                {materiaParaDesativar.turmasVinculadas}{" "}
+                                {materiaParaDesativar.turmasVinculadas === 1 ? "turma" : "turmas"}
+                            </strong>
+                            .
+                        </p>
+                        <div className={styles.modalNote}>
+                            Remova o vínculo da matéria com as turmas antes de desativá-la.
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <p className={styles.modalText}>
+                            Tem certeza que deseja desativar a matéria{" "}
+                            <strong>{materiaParaDesativar?.nome}</strong>?
+                        </p>
+                        <div className={styles.modalNote}>
+                            A matéria fica inacessível para chat e gerenciamento de materiais. Todo o histórico é preservado e pode ser restaurado ao reativar
+                        </div>
+                    </>
+                )}
             </Modal>
         </div>
     );
