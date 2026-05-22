@@ -6,6 +6,7 @@ class StatusTurmaEnum(Enum):
     ATIVO = "ATIVO"
     INATIVO = "INATIVO"
 
+
 class Turma(db.Model):
     __tablename__ = 'turmas'
 
