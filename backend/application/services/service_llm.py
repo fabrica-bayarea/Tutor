@@ -13,7 +13,7 @@ def ativar_modelo(model_id: str) -> dict | None:
 
     Retorna o modelo ativado se ele existir, e None caso contrário.
     """
-    modelo = LLM.query.filter_by(model_id=model_id).first()
+    modelo = LLM.query.filter_by(id=model_id).first()
     if not modelo:
         return None
 
@@ -33,7 +33,7 @@ def desativar_modelo(model_id: str) -> dict | None:
 
     Retorna o modelo desativado se ele existir, e None caso contrário.
     """
-    modelo = LLM.query.filter_by(model_id=model_id).first()
+    modelo = LLM.query.filter_by(id=model_id).first()
     if not modelo:
         return None
 
@@ -51,3 +51,15 @@ def buscar_modelo_ativo() -> dict | None:
     """
     modelo = LLM.query.filter_by(status='ativada').first()
     return modelo.to_dict() if modelo else None
+
+def getActiveModel() -> str:
+    """
+    Retorna apenas o nome do modelo ativo.
+
+    Utilizado pelo fluxo de chat e por outros serviços que precisam
+    saber qual modelo está em uso sem precisar do objeto completo.
+
+    Retorna o nome do modelo ativo, ou None se não houver nenhum.
+    """
+    modelo = LLM.query.filter_by(status='ativada').first()
+    return modelo.nome if modelo else None
