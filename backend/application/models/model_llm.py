@@ -5,7 +5,6 @@ class LLM(db.Model):
 
     id = db.Column(db.String, primary_key=True)
     nome = db.Column(db.String(64), nullable=False)
-    
     status = db.Column(
         db.Enum('ativada', 'desativada', name='llmstatusenum', native_enum=False),
         nullable=False,
