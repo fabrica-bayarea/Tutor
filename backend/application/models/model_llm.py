@@ -4,7 +4,13 @@ class LLM(db.Model):
     __tablename__ = "llm"
 
     id = db.Column(db.String, primary_key=True)
-    nome = db.Column(db.String(64), nullable=False)
+    nome = db.Column(db.String(64), nullable=False)    
+    status = db.Column(
+        db.Enum('ativada', 'desativada', name='llmstatusenum', native_enum=False),
+        nullable=False,
+        default='desativada',
+        server_default='desativada',
+    )
 
     def to_dict(self):
         """
@@ -15,4 +21,5 @@ class LLM(db.Model):
         return {
             'id': str(self.id),
             'nome': self.nome,
+            'status': self.status,
         }

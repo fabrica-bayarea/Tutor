@@ -83,3 +83,30 @@
 - [ ] Todas as requisições de geração de texto passam a usar o modelo ativo imediatamente após a troca.
 - [ ] A troca de modelo não reprocessa materiais já indexados.
 - [ ] Sessões de chat em andamento no momento da troca concluem normalmente com o modelo anterior.
+
+## US-38.1 — Migration para adicionar coluna de status na tabela LLM
+
+**Como** desenvolvedor,
+**quero** criar uma migration que adicione uma coluna status do tipo ENUM(ativada, desativada) na tabela llm,
+**para que** o sistema possa registrar e persistir o estado de ativação de cada modelo de IA.
+
+### Schema da Tabela llm
+
+- ColunaTipoRestriçõesmodel_idVARCHARPRIMARY KEYstatusENUM('ativada','desativada')NOT NULL, DEFAULT 'desativada'
+- Arquivos Criados/Alterados
+- ArquivoDescriçãomigrations/versions/add_status_column_to_llm.pyMigration que adiciona a coluna status na tabela llmapplication/models/llm.pyModel atualizado com a coluna statusapplication/services/service_llm.pyService criado com a lógica de ativação/desativaçãotests/test_llm.pyTestes do service
+
+### Regras de Negócio
+
+A coluna status é obrigatória (NOT NULL).
+Valor padrão: desativada.
+Apenas um modelo pode estar com status = 'ativada' simultaneamente — garantido em nível de aplicação no service_llm.py.
+O valor da coluna é persistido no banco de dados e mantido após reinicialização do servidor.
+
+### Critérios de Aceitação
+
+- [v] Migration criada e aplicada com sucesso no banco de dados.
+- [v] Coluna status aparece na tabela llm com valores possíveis ativada e desativada.
+- [v] Valor padrão desativada aplicado corretamente em novos registros.
+- [v] Testes confirmam que apenas um modelo pode estar com status = 'ativada'.
+- [v] Documentação do schema atualizada.
