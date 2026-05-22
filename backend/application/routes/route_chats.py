@@ -7,6 +7,7 @@ Para as demais operações CRUD, usamos endpoints REST.
 from flask import Blueprint, request, jsonify, g
 from application.auth.auth_decorators import token_obrigatorio
 from application.services.service_chat import buscar_chats, buscar_chat, atualizar_chat, deletar_chat
+from application.services.service_chat import obter_materia_id_por_chat
 
 chats_bp = Blueprint('chats', __name__)
 
@@ -58,3 +59,12 @@ def delete_chat(chat_id: str):
         return jsonify(deletado)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@chats_bp.route('/chat/<uuid:chat_id>/materia', methods=['GET'])
+@token_obrigatorio
+def get_materia_id(chat_id):
+    materia_id = obter_materia_id_por_chat(chat_id)
+    if not materia_id:
+        return jsonify({'error': 'Chat não encontrado'}), 404
+    
+    return jsonify({'materia_id': materia_id})

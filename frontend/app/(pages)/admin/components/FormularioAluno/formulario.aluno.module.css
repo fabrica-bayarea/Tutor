@@ -1,0 +1,108 @@
+.cadastro {
+    margin: 32px;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    padding: 24px;
+    background-color: #ffffff;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 20px;
+}
+
+.field:first-child {
+    margin-top: 0;
+}
+
+.field > span {
+    font-size: 13px;
+    font-weight: 400;
+    color: #737373;
+    line-height: 1;
+}
+
+.cadastro input {
+    font-size: 14px;
+    font-weight: 400;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+}
+
+.cadastro input:disabled {
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    cursor: not-allowed;
+    color: #a3a3a3;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.botaoCancelar {
+    min-width: 120px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    background: #ffffff;
+    color: #0d9488;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.botaoSalvar {
+    min-width: 120px;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #0d9488;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.botaoCancelar:hover {
+    background-color: #f5f5f5;
+}
+
+.botaoSalvar:hover {
+    background-color: #0f766e;
+}
+
+.botaoCancelar:disabled,
+.botaoSalvar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cadastro input[aria-invalid="true"] {
+    border-color: #fca5a5;
+    outline-color: #fca5a5;
+}
+
+.errorMsg {
+    color: #d02b29;
+    font-size: 12px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.errorGeral {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 6px;
+    font-size: 13px;
+}

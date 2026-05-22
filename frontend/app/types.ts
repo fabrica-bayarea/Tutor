@@ -4,6 +4,7 @@ export interface InterfaceUsuario {
     nome: string;
     email: string;
     role: string;
+    status?: string;
     token?: string;
 }
 
@@ -32,6 +33,7 @@ export interface InterfaceMensagem {
     chat_id: string;
     sessao_id?: string;
     sender_id: string;
+    sender_type: string;
     conteudo: string;
     data_envio: Date;
 }

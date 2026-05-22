@@ -1,0 +1,66 @@
+.card {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.accent {
+    height: 4px;
+    background-color: #e5e5e5;
+    margin: -1px -1px 0;
+}
+
+.title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+    padding: 15px 15px 4px;
+    margin: 0;
+}
+
+.content {
+    padding: 8px 15px 15px;
+}
+
+.title + .content {
+    padding-top: 4px;
+}
+
+/* brand */
+.brand {
+    background-color: #f0fdfa;
+    border-color: #14b8a6;
+}
+.brand .accent {
+    background-color: #0d9488;
+}
+
+/* warning */
+.warning {
+    background-color: #fff7ed;
+    border-color: #fde68a;
+}
+.warning .accent {
+    background-color: #f59e0b;
+}
+
+/* danger */
+.danger {
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+}
+.danger .accent {
+    background-color: #dc2626;
+}
+
+/* success */
+.success {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+}
+.success .accent {
+    background-color: #16a34a;
+}

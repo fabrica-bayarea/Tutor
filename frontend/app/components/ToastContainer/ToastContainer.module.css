@@ -1,0 +1,18 @@
+.container {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+    pointer-events: none;
+    align-items: center;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+}
+
+.container > * {
+    pointer-events: all;
+}

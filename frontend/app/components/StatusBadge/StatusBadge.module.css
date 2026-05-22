@@ -1,0 +1,52 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 13px;
+    border: 1px solid;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* success */
+.ativa,
+.respondida {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+    color: #16a34a;
+}
+
+/* danger */
+.desativada,
+.erro {
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* warning */
+.processando,
+.pendente,
+.aguardando {
+    background-color: #fff7ed;
+    border-color: #fde68a;
+    color: #ea580c;
+}
+
+/* brand */
+.disponivel {
+    background-color: #f0fdfa;
+    border-color: #14b8a6;
+    color: #0f766e;
+}
+
+/* neutral */
+.na-fila,
+.inativa {
+    background-color: #f5f5f5;
+    border-color: #e5e5e5;
+    color: #737373;
+}

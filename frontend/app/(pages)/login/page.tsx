@@ -7,7 +7,8 @@ import { useAuth } from '@/utils/auth';
 
 import styles from './page.module.css';
 import { loginAluno, loginAlunoGoogle, LoginErrorCode } from '@/app/services/service_aluno';
-import { BookMarked } from 'lucide-react';
+import TutorLogoIcon from '@/app/components/TutorLogoIcon';
+import { homeForRole } from '@/utils/roles';
 import { FcGoogle } from 'react-icons/fc';
 import Input from '@/app/components/Input/Input';
 import Button from '@/app/components/Button/Button';
@@ -22,11 +23,12 @@ declare global {
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { refreshUser, isStudent, isProfessor, isAdmin } = useAuth();
+    const { refreshUser } = useAuth();
     const [matricula, setMatricula] = useState<string>('');
     const [senha, setSenha] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [inputsInvalid, setInputsInvalid] = useState<boolean>(false);
     const [showSessionExpiredToast, setShowSessionExpiredToast] = useState<boolean>(false);
     const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -47,33 +49,34 @@ function LoginContent() {
         }
     };
 
-    const redirectAfterLogin = () => {
-        let destino = "";
-        if (isAdmin) destino = "/admin";
-        else if (isProfessor) destino = "/professor";
-        else if (isStudent) destino = "/chat";
-
+    const redirectAfterLogin = (role: string | undefined) => {
+        const returnTo = searchParams?.get('returnTo');
+        let destino = homeForRole(role);
+        if (returnTo && returnTo.startsWith('/')) destino = returnTo;
         router.push(destino);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
+        setInputsInvalid(false);
         setLoading(true);
 
         try {
             const result = await loginAluno(matricula, senha);
 
             if (!result.ok) {
+                setInputsInvalid(true);
                 setErrorMessage(messageForError(result.error));
                 return;
             }
 
-            await refreshUser();
-            redirectAfterLogin();
+            redirectAfterLogin(result.aluno.role);
+            refreshUser();
 
         } catch (error) {
             console.error('Erro no login:', error);
+            setInputsInvalid(true);
             setErrorMessage("Erro ao realizar login");
         } finally {
             setLoading(false);
@@ -88,15 +91,17 @@ function LoginContent() {
             const result = await loginAlunoGoogle(googleToken);
 
             if (!result.ok) {
+                setInputsInvalid(true);
                 setErrorMessage(messageForError(result.error));
                 return;
             }
 
-            await refreshUser();
-            redirectAfterLogin();
+            redirectAfterLogin(result.aluno.role);
+            refreshUser();
 
         } catch (error) {
             console.error("Erro no login Google:", error);
+            setInputsInvalid(true);
             setErrorMessage("Erro ao tentar login com Google");
         } finally {
             setLoading(false);
@@ -109,8 +114,8 @@ function LoginContent() {
         <div className={styles.contentContainer}>
 
             <div className={styles.brandHeader}>
-                <div className={styles.asideLogo}>
-                    <BookMarked size={22} strokeWidth={2.4} />
+                <div className={styles.cardLogo}>
+                    <TutorLogoIcon size={22} />
                 </div>
                 <span className={styles.asideBrandName}>Tutor</span>
             </div>
@@ -126,10 +131,11 @@ function LoginContent() {
                     label="Matrícula"
                     type="text"
                     required
+                    maxLength={20}
                     value={matricula}
-                    onChange={(e) => setMatricula(e.target.value)}
+                    onChange={(e) => { setMatricula(e.target.value); setInputsInvalid(false); }}
                     disabled={loading}
-                    invalid={!!errorMessage}
+                    invalid={inputsInvalid}
                 />
 
                 <Input
@@ -138,13 +144,14 @@ function LoginContent() {
                     label="Senha"
                     type="password"
                     required
+                    maxLength={30}
                     value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
+                    onChange={(e) => { setSenha(e.target.value); setInputsInvalid(false); }}
                     disabled={loading}
-                    invalid={!!errorMessage}
+                    invalid={inputsInvalid}
                 />
 
-                <a className={styles.forgotPasswordLink} href="#">
+                <a className={styles.forgotPasswordLink} href="/esqueci-senha">
                     Esqueci minha senha
                 </a>
 
@@ -152,6 +159,7 @@ function LoginContent() {
                     type="submit"
                     style="filled"
                     action="primary"
+                    size="lg"
                     fullWidth
                     label={loading ? "Entrando..." : "Entrar"}
                     isDisabled={isDisabled}
@@ -166,8 +174,8 @@ function LoginContent() {
                 <div className={styles.googleBtnWrapper}>
                     <Button
                         type="button"
-                        style="filled"
-                        action="secondary"
+                        style="ghost"
+                        size="lg"
                         fullWidth
                         icon={<FcGoogle size={20} />}
                         label="Continuar com Google"

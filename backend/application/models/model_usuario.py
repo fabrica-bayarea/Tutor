@@ -16,7 +16,7 @@ class Usuario(db.Model):
     matricula = db.Column(db.String(10), nullable=False, unique=True, index=True)
     nome = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), nullable=False, unique=True, index=True)
-    senha = db.Column(db.String(128), nullable=False)
+    senha = db.Column(db.String(256), nullable=False)
     role = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
     status = db.Column(db.Enum(RoleEnum, native_enum=False), nullable=False)
 
@@ -35,6 +35,6 @@ class Usuario(db.Model):
             'matricula': self.matricula,
             'nome': self.nome,
             'email': self.email,
-            'role': str(self.role),
-            'status': str(self.status)
+            'role': self.role.name,
+            'status': self.status.name
         }

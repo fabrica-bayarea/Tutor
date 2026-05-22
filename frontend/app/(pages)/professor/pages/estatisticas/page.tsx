@@ -5,7 +5,7 @@ import styles from './page.module.css';
 import { ChartNoAxesCombined, ChartNoAxesColumnIncreasing, Shapes, Funnel, Car} from 'lucide-react';
 import { InterfaceUsuario } from '../../../../types';
 import BarraDeProgresso from '../../components/BarraDeProgresso/BarraDeProgresso';
-import Select from 'react-select';
+import Select from '@/app/components/Select/Select';
 import CardPequeno from '../../components/CardPequeno/CardPequeno';
 import CardMedio from '../../components/CardMedio/CardMedio';
 
@@ -32,18 +32,18 @@ export default function Home() {
                 <div className={styles.filterButtons}>
                     <Funnel/>
                     <Select
-                        instanceId="materia-select"
+                        instanceId="materia-select-materias"
                         isMulti
+                        options={[]}
+                        onChange={() => {}}
                         placeholder="Todas as matérias"
-                        //options={options}
-                        //onChange={handleVinculosChange}
                     />
                     <Select
-                        instanceId="materia-select"
+                        instanceId="materia-select-turmas"
                         isMulti
+                        options={[]}
+                        onChange={() => {}}
                         placeholder="Todas as Turmas"
-                        //options={options}
-                        //onChange={handleVinculosChange}
                     />
                 </div>
             </div>

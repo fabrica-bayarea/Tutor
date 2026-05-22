@@ -1,0 +1,62 @@
+.NoMessageConteiner{
+  display: flex;
+  flex: 1;
+}
+
+.NoMessageSection{
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: auto;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.NoMessageSection > article{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.titleIcon{
+  size: 56px;
+  color: #0D9488;
+}
+
+.titleText{
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.subTitleText{
+  font: 14px;
+  font-weight: 400;
+  color: rgba(115, 115, 115, 1);
+}
+
+@media(width >= 768px){
+  .NoMessageSection > article{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 1rem;  
+  }
+  
+  .titleIcon{
+    size: 56px;
+    border-radius: 12px;
+    padding: 10px;
+    color: rgba(234, 88, 12, 1);
+    background-color: rgba(240, 253, 250, 1);
+  }
+  
+  .titleText{
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .subTitleText{
+    font: 16px;
+    font-weight: 400;
+    color: rgba(115, 115, 115, 1);
+  }
+}

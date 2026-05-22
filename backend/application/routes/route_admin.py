@@ -2,14 +2,20 @@
 Rotas para lidar com admin.
 """
 from flask import Blueprint, jsonify, current_app, request
-from application.auth.auth_decorators import token_obrigatorio
+from application.auth.auth_decorators import token_obrigatorio, apenas_admins
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
+from application.models.model_materia import Materia
 from application.models.model_turma import Turma
-from application.services.service_usuario import criar_aluno, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro
+from application.services.service_usuario import (criar_usuario, buscar_aluno, desativar_aluno, alterar_aluno_por_id, reativar_aluno, buscar_alunos_por_filtro)
 import secrets
 from application.config.database import db
 from datetime import datetime
+from application.libs.email_sender import enviar_email_convite
+from flask import make_response
+from application.auth.jwt_handler import gerar_token
+from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
+from application.services.service_materia import getAllSubjects, createSubject, updateSubject, deleteSubject, buscar_materia_por_id
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -78,57 +84,58 @@ def listar_todos_usuarios():
 
 
     
-@admin_bp.route('usuarios/criar', methods=['POST'])
+@admin_bp.route('/usuarios/criar', methods=['POST'])
 def gerar_aluno():
     """
-    Endpoint para criar um aluno.
+    Endpoint para criar um usuário e disparar e-mail de convite.
 
     Espera receber:
-    - `matricula`: str - o número de matrícula do aluno
-    - `nome`: str - o nome do aluno
-    - `email`: str - o email do aluno
-    - `senha`: str - a senha do aluno
-    
-    Retorna um dicionário contendo as informações do aluno criado.
-    ```json
+    - `matricula`: str - o número de matrícula do usuário
+    - `nome`: str - o nome do usuário
+    - `email`: str - o e-mail institucional do usuário
+    - `via_google`: bool (opcional) - se True, ignora o fluxo de convite por e-mail
+
+    Retorna um dicionário contendo as informações do usuário criado.
+```json
     {
         "id": "id",
         "matricula": "matricula",
         "nome": "nome",
         "email": "email",
-        "role": "role do usuario"
+        "role": "role do usuario",
+        "status": "status do usuario"
     }
-    ```
+```
     """
-    # Verifica se os dados necessários estão presentes
-    matricula = request.json.get('matricula')
-    nome = request.json.get('nome')
-    email = request.json.get('email')
+    dados = request.get_json(silent=True) or {}
+
+    matricula = dados.get('matricula')
+    nome = dados.get('nome')
+    email = dados.get('email')
+    via_google = dados.get('via_google', False)
+
+    if not matricula or not nome or not email:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
-    
-    if not matricula or not nome or not email:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome', 'email' e 'senha' são obrigatórios"}), 400
-    
+
     existente = Usuario.query.filter(
         (Usuario.matricula == matricula) | (Usuario.email == email)
     ).first()
 
     if existente:
         return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
-    
-    senha = secrets.token_hex(4)
 
-    # Verifica se já existe um aluno com alguns dados que devem ser únicos
-    aluno_existe = buscar_aluno(matricula=matricula, email=email)
-    if aluno_existe:
-        print('ca')
-        return jsonify({"error": "Aluno com essa matrícula ou email já existe"}), 409
-    
-    # Cria o aluno
-    aluno = criar_aluno(matricula, nome, email, senha)
-    return jsonify(aluno), 201
+    usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
+
+    if not via_google and token:
+        try:
+            enviar_email_convite(email, nome, token)
+        except Exception as e:
+            current_app.logger.error(f"Erro ao enviar e-mail de convite para {email}: {e}")
+
+    return jsonify(usuario_dict), 201
 
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
@@ -274,3 +281,206 @@ def reativar_usuario(id):
         "mensagem": "Ativado com sucesso"
     }), 200
 
+@admin_bp.route('/usuarios/recriar_senha', methods=['POST'])
+def recriar_senha():
+    """
+    Endpoint para definir a senha no primeiro acesso via token de convite.
+
+    Espera receber no body:
+    - `token`: str - token UUID recebido por e-mail
+    - `password`: str - nova senha escolhida pelo usuário
+    - `passwordConfirmation`: str - confirmação da nova senha
+
+    Regras:
+    - Token deve existir e estar marcado como used: false.
+    - password e passwordConfirmation devem ser idênticos.
+    - Senha deve ter no mínimo 8 caracteres, uma maiúscula, uma minúscula e um número.
+    - Após uso bem-sucedido, o token é marcado como used: true e não pode ser reutilizado.
+
+    Retorna:
+    - `200 OK` com cookie JWT de sessão e dados do usuário.
+    - `400 Bad Request` se as senhas não coincidirem ou não atenderem aos critérios.
+    - `410 Gone` se o token for inválido ou já utilizado.
+
+```json
+    // 200 OK
+    {
+        "usuario": {
+            "id": "id",
+            "matricula": "matricula",
+            "nome": "nome",
+            "email": "email",
+            "role": "role do usuario",
+            "status": "status do usuario"
+        },
+        "redirect": "/painel/aluno"
+    }
+```
+    """
+    dados = request.get_json(silent=True) or {}
+
+    token = dados.get('token')
+    password = dados.get('password')
+    password_confirmation = dados.get('passwordConfirmation')
+
+    if not token or not password or not password_confirmation:
+        return jsonify({
+            "error": "Parâmetros 'token', 'password' e 'passwordConfirmation' são obrigatórios."
+        }), 400
+
+    if password != password_confirmation:
+        return jsonify({"error": "As senhas não coincidem."}), 400
+
+    erro_forca = _validar_forca_senha(password)
+    if erro_forca:
+        return jsonify({"error": erro_forca}), 400
+
+    usuario_dict = definir_senha_primeiro_acesso(token, password)
+
+    if not usuario_dict:
+        return jsonify({
+            "error": "Este link já foi utilizado ou é inválido.",
+            "orientacao": "Utilize a opção 'Esqueci minha senha' para redefinir seu acesso."
+        }), 410
+
+    token_jwt = gerar_token(usuario_dict['id'], usuario_dict['role'])
+
+    role_slug = usuario_dict['role'].split('.')[-1].lower()  # ex: "RoleEnum.ALUNO" → "aluno"
+
+    response = make_response(jsonify({
+        "usuario": usuario_dict,
+        "redirect": f"/painel/{role_slug}"
+    }), 200)
+
+    response.set_cookie(
+        "token",
+        token_jwt,
+        httponly=True,
+        secure=False,
+        samesite="Lax",
+        max_age=60 * 60,
+        path="/"
+    )
+
+    return response
+
+"""
+
+MATERIA
+
+"""
+@admin_bp.route('/materia', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
+def lista_materias():
+    
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+
+    materia = getAllSubjects(nome = request.args.get('nome'), codigo = request.args.get('codigo'))
+
+    if limit:
+        pagination = materia.paginate(page=page, per_page=limit, error_out=False)
+
+        return jsonify({
+            "success": True,
+            "Materias": [m.to_dict() for m in pagination.items],
+            "pagination": {
+                "page": pagination.page,
+                "pages": pagination.pages,
+                "total": pagination.total
+                }
+        }), 200
+    
+    materia = materia.all()
+
+    if not materia:
+        return jsonify({"Error": "Materia não encontrada"}), 404
+
+    return jsonify({
+        "success": True,
+        "Materias": [m.to_dict() for m in materia],
+        "total": len(materia)
+        }), 200
+
+
+
+@admin_bp.route('/materia', methods=['POST'])
+@token_obrigatorio
+@apenas_admins
+def gerar_materia():
+
+    dados = request.get_json(silent=True) or {}
+
+    codigo = dados.get('codigo')
+    nome = dados.get('nome')
+
+
+    if not codigo or not nome:
+        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
+
+
+    existente = Materia.query.filter(
+        (Materia.codigo == codigo)
+    ).first()
+
+    if existente:
+        return jsonify({"Error": "Já existe uma matéria com este código."}), 409
+
+    materia_dict = createSubject(nome=nome, codigo=codigo)
+
+
+    return jsonify(materia_dict), 201
+
+
+@admin_bp.route('/materia/<uuid:id>', methods=['PUT'])
+@token_obrigatorio
+@apenas_admins
+def atualizar_materia(id):
+    nome = request.json.get('nome')
+    codigo = request.json.get('codigo')
+    status = request.json.get('status')
+
+
+    if not codigo or not nome:
+        return jsonify({"error": "Parâmetros 'nome', 'codigo' e 'status' são obrigatórios"}), 400
+
+    
+    if status not in ["ATIVO", "INATIVO"]:
+        return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
+
+    materia_existente = buscar_materia_por_id(id)
+
+    if not materia_existente:
+        return jsonify({"Error": "Materia não econtrada"}), 404
+    
+    materia_nova = updateSubject(id,nome,codigo,status)
+
+    return jsonify(materia_nova), 200
+
+
+@admin_bp.route('/materia/<uuid:id>', methods=['DELETE'])
+@token_obrigatorio
+@apenas_admins
+def deletar_materias(id):
+
+    materia, erro = deleteSubject(id)
+
+    if erro:
+        if 'materia_nao_encontrada' in erro:
+            return jsonify({"error": "Materia não encontrada"}), 404
+
+        if 'materia_vinculada_turma_ativa' in erro:
+            return jsonify({
+                "error": "Matéria vinculada a turma ativa"
+            }), 409
+
+        if 'materia_nao_pode_ser_desativada' in erro:
+            return jsonify({
+                "error": "Matéria não pode ser desativada"
+            }), 409
+
+    return jsonify({
+        "data_desativacao": datetime.now(),
+        "mensagem": "Desativado com sucesso"
+    }), 200

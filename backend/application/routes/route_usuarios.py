@@ -7,8 +7,8 @@ from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token
-from application.auth.auth_decorators import token_obrigatorio
-from application.services.service_usuario import buscar_aluno, logar_aluno
+from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token, apenas_admins
+from application.services.service_usuario import buscar_aluno, logar_aluno, buscar_professor
 from application.models import Usuario
 
 from pathlib import Path
@@ -122,7 +122,10 @@ def login_google():
                 "error": "Usuário não cadastrado. Entre em contato com a instituição."
             }), 404
 
-        token_jwt = gerar_token(aluno.id, aluno.role.value)
+        if aluno.status.name != 'ATIVO':
+            return jsonify({"error": "Conta desativada. Entre em contato com a instituição."}), 403
+
+        token_jwt = gerar_token(aluno.id, aluno.role.name)
 
         response = make_response(jsonify({
             "aluno": aluno.to_dict()
@@ -134,7 +137,7 @@ def login_google():
             httponly=True,
             secure=False,
             samesite="Lax",
-            max_age=60,
+            max_age=60 * 60,
             path="/"
         )
 
@@ -182,6 +185,9 @@ def login_aluno():
     if not aluno:
         return jsonify({"error": "Matrícula ou senha inválidos"}), 401
 
+    if aluno.get('status') != 'ATIVO':
+        return jsonify({"error": "Conta desativada. Entre em contato com a instituição."}), 403
+
     token = gerar_token(aluno['id'], aluno['role'])
 
     response = make_response(jsonify({
@@ -194,7 +200,7 @@ def login_aluno():
         httponly=True,
         secure=False,
         samesite="Lax",
-        max_age=60,
+        max_age=60 * 60,
         path="/"
     )
 
@@ -226,3 +232,56 @@ def me():
         return jsonify({"error": "Usuário não encontrado"}), 404
 
     return jsonify(usuario)
+
+
+@usuarios_bp.route('/encerrar-sessao', methods=['POST'])
+@token_obrigatorio
+def encerrarr_sessao():
+
+    token = extrair_token()
+
+    invalidar_token(token)
+
+    response = jsonify({
+        "mensagem": "Sessão encerrada com sucesso"
+    })
+
+    response.delete_cookie("token")
+
+    return response, 200
+
+
+@usuarios_bp.route('/professors', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
+def buscarProfessores():
+
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', type=int)
+    
+    professor = buscar_professor(nome = request.args.get('nome'), matricula = request.args.get('matricula'),)
+    
+    if limit:
+            pagination = professor.paginate(page=page, per_page=limit, error_out=False)
+
+            return jsonify({
+                "success": True,
+                "Professores": [p.to_dict() for p in pagination.items],
+                "pagination": {
+                    "page": pagination.page,
+                    "pages": pagination.pages,
+                    "total": pagination.total
+                    }
+            }), 200
+    
+
+    professor = professor.all()
+
+    if not professor:
+        return jsonify({"Error": "Professor não encontrado"}), 404
+    
+    return jsonify({
+        "success": True,
+        "Professores": [p.to_dict() for p in professor],
+        "total": len(professor)
+        }), 200

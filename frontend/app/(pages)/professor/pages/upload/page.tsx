@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, KeyboardEventHandler, CSSProperties } from 'react';
 import styles from './page.module.css';
-import Select from 'react-select';
+import Select from '@/app/components/Select/Select';
 import { InterfaceUsuario, InterfaceTurma, InterfaceMateria, InterfaceTurmaMateria, InterfaceProfessorTurmaMateria } from '@/app/types';
 import { postLinks } from '@/app/services/service_link';
 import { uploadArquivos, uploadLinks, uploadTextos } from '@/app/services/service_arquivo';
@@ -10,7 +10,6 @@ import SourceUpload from '../../components/SourceUpload/SourceUpload';
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
-import UserButton from '../../../../components/UserButton/userButton';
 
 function ExtratorWindow() {
     const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
@@ -189,38 +188,6 @@ function ExtratorWindow() {
 
     // Função para obter o ícone do arquivo com base no tipo
 
-    // Só é possível customizar o componente Select do React com estilos inline.
-    // CSS Modules não funcionam.
-    const customDropDownStyles = {
-        control: (base: any, state: any) => ({
-            ...base,
-            borderRadius: "8px",
-            boxShadow: "none",
-            border: state.isFocused ? "1px solid #D92F35" : state.isHovered ? "1px solid rgba(0, 0, 0, 0.15)" : "1px solid transparent",
-            outline: "1px solid transparent",
-            '&:not(:focus):hover': {
-                border: "1px solid rgba(0, 0, 0, 0.15)",
-            },
-            transition: "border ease-out 0.15s",
-            backgroundColor:"#CDCDCD"
-        }),
-        menu: (base: any) => ({
-            ...base,
-        }),
-        option: (base: any, state: any) => ({
-            ...base,
-            backgroundColor: state.isFocused ? "rgba(217, 47, 53, 0.05)" : "transparent",
-            color:"#666666",
-            '&:hover': {
-                backgroundColor: "rgba(217, 47, 53, 0.05)",
-            },
-        }),
-        placeholder: (base: any) => ({
-            ...base,
-            color: "#000000ff",
-        }),
-    }
-
     return (
         <div className={styles.midColumn}>
             {/* Container principal */}
@@ -234,12 +201,11 @@ function ExtratorWindow() {
                 </div>
                 <Select
                     instanceId="materia-select"
-                    styles={customDropDownStyles}
                     isMulti
                     placeholder="Selecione a Matéria"
                     options={options}
                     onChange={handleVinculosChange}
-                    getOptionValue={(option) => `${option.value.turma_id}_${option.value.materia_id}`}
+                    getOptionValue={(option) => `${(option.value as any).turma_id}_${(option.value as any).materia_id}`}
                 />
             </div>
             <div className={styles.extratorContainer}>

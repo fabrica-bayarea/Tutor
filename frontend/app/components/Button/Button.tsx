@@ -2,7 +2,8 @@ import { ButtonHTMLAttributes } from 'react';
 import styles from './Button.module.css';
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
-    style?: 'filled' | 'text';
+    style?: 'filled' | 'text' | 'ghost';
+    size?: 'lg' | 'md' | 'sm';
     icon?: React.ReactNode;
     label: string;
     isDisabled?: boolean;
@@ -12,6 +13,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> & {
 
 export default function Button({
     style = 'text',
+    size = 'md',
     icon,
     label,
     onClick,
@@ -25,10 +27,11 @@ export default function Button({
 }: ButtonProps) {
     const buttonClass = [
         styles.buttonContainer,
-        style === 'filled' ? styles.filled : styles.text,
+        style === 'filled' ? styles.filled : style === 'ghost' ? styles.ghost : styles.text,
         action === 'danger' ? styles.danger : '',
         action === 'primary' ? styles.primary : '',
         action === 'secondary' ? styles.secondary : '',
+        size === 'lg' ? styles.sizeLg : size === 'sm' ? styles.sizeSm : '',
         fullWidth ? styles.fullWidth : '',
         className ?? '',
     ]

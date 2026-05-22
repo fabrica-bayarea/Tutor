@@ -1,0 +1,53 @@
+.tabList {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid #e5e5e5;
+    gap: 0;
+}
+
+.tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #737373;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+    color: #262626;
+}
+
+.tab.active {
+    font-weight: 600;
+    color: #0f766e;
+    border-bottom-color: #0d9488;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 20px;
+    padding: 0 4px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: #f5f5f5;
+    color: #737373;
+}
+
+.badgeActive {
+    background-color: #0d9488;
+    color: #ffffff;
+}

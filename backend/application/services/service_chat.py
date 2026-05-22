@@ -95,3 +95,12 @@ def deletar_chat(chat_id: uuid.UUID) -> bool:
     db.session.commit()
 
     return True
+
+def obter_materia_id_por_chat(chat_id):
+    """
+    Service responsável por buscar o materia_id de um chat.
+    """
+    chat = Chat.query.get(chat_id)
+    if not chat:
+        return None
+    return str(chat.materia_id)

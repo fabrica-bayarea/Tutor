@@ -37,6 +37,10 @@
     background-color: white;
 }
 
+.breadcrumbWrapper {
+    display: none;
+}
+
 .headerSectionUserMobileMenu{
     display: flex;
     flex-direction: row;
@@ -47,6 +51,12 @@
 }
 
 @media(width >= 768px){
+    .breadcrumbWrapper {
+        display: flex;
+        align-items: stretch;
+        align-self: stretch;
+    }
+
     .headerSectionUser > p{
         display: flex;
         color: #0F766E;

@@ -1,0 +1,156 @@
+/* Mesmos tokens visuais da página de login */
+
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem auto;
+    width: 26rem;
+    max-width: 100%;
+    height: fit-content;
+    padding: 2.5rem 2rem;
+    gap: 0.5rem;
+    border-radius: 16px;
+    align-items: center;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.brandHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.brandName {
+    font-size: 20px;
+    font-weight: 700;
+    color: #262626;
+}
+
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background-color: rgba(77, 155, 141, 0.1);
+    margin-bottom: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.pageIcon {
+    color: #4d9b8d;
+}
+
+.welcomeTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    text-align: center;
+}
+
+.welcomeSubtitle {
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.55);
+    margin: 0 0 1rem 0;
+    text-align: center;
+}
+
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.875rem;
+    color: #1a1a1a;
+}
+
+/* Wrapper para o input + botão de toggle de visibilidade */
+.inputPasswordWrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.inputPasswordWrapper > *:first-child {
+    flex: 1;
+}
+
+.toggleSenha {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.4);
+    transition: color 0.2s;
+    z-index: 1;
+}
+
+.toggleSenha:hover {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+/* Indicadores de regras de senha */
+.regrasContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.regra {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+}
+
+.regraValida {
+    color: #4d9b8d;
+    font-weight: 500;
+}
+
+.regraInvalida {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+.regraIcone {
+    font-size: 0.75rem;
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.helperText {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.55);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.forgotPasswordLink {
+    font-size: 0.875rem;
+    color: #4d9b8d;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.forgotPasswordLink:hover {
+    text-decoration: underline;
+    color: #3d7d72;
+}

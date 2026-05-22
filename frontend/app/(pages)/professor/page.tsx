@@ -5,7 +5,6 @@ import styles from './page.module.css';
 import { ChartNoAxesCombined } from 'lucide-react';
 import { InterfaceUsuario } from '../../types';
 import CardPequeno from './components/CardPequeno/CardPequeno';
-import UserButton from '../../components/UserButton/userButton';
 
 export default function Home() {
     const [professor, setProfessor] = useState<InterfaceUsuario>({
