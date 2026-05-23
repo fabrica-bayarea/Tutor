@@ -43,6 +43,7 @@ export interface InterfaceTurma {
     codigo: string;
     semestre: string;
     turno: string;
+    status?: string;
 }
 
 export interface InterfaceMateria {
