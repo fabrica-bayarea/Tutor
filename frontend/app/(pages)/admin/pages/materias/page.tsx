@@ -46,7 +46,7 @@ export default function Materias() {
     useEffect(() => {
         let cancelled = false;
         (async () => {
-            const [lista, turmas] = await Promise.all([
+            const [lista,{ turmas}] = await Promise.all([
                 listarMaterias(),
                 listarTurmas(),
             ]);

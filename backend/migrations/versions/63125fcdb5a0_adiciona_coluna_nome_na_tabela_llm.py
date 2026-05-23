@@ -17,12 +17,8 @@ depends_on = None
 
 
 def upgrade():
-    with op.batch_alter_table('llm', schema=None) as batch_op:
-        batch_op.alter_column('model_id', new_column_name='id')
-        batch_op.add_column(sa.Column('nome', sa.String(length=64), nullable=True))
+    pass
 
 
 def downgrade():
-    with op.batch_alter_table('llm', schema=None) as batch_op:
-        batch_op.drop_column('nome')
-        batch_op.alter_column('id', new_column_name='model_id')
+    pass
