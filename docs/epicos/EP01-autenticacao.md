@@ -1,8 +1,10 @@
 > **Documento de Requisitos**
 > **Projeto Tutor**
-> **Responsável:** Patricia Pereira Martins – Time de Requisitos e Testes
-> **Data:** Abril/2026
-> **Versão:** 1.2 - Sprint 2
+
+| Versão | Data | Descrição | Autor |
+|--------|-----------|---------------|-----------|
+| 1.2 Sprint 2 | 19/04/2026 | Login US-01 e US-02, Criação de senha via link de convite US-03 e Encerramento de sessão US-05 | Patricia Pereira Martins |
+| 1.3 Sprint 3 | 10/05/2026 | Inclusão do histórico de revisão | Patricia Pereira Martins |
 
 ---
 
