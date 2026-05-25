@@ -1,101 +1,82 @@
 # Tutor
 
-Guia de configuração para os ambientes de desenvolvimento e produção do projeto.
+Guia de configuração para o ambiente de desenvolvimento do projeto.
 
 ## Stack de Tecnologias
 
-- **Frontend:** JavaScript com [Next.js](https://nextjs.org/) e React.
-- **Backend:** Python com [Flask](https://flask.palletsprojects.com/) e [Uvicorn](https://uvicorn.dev/) para produção.
-- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/).
+- **Frontend:** TypeScript com [Next.js](https://nextjs.org/), React e [Lucide](https://lucide.dev/).
+- **Backend:** Python com [Flask](https://flask.palletsprojects.com/), [Selenium](https://www.selenium.dev/) e [Docling](https://github.com/DS4SD/docling).
+- **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/) e [ChromaDB](https://www.trychroma.com/).
 - **LLM:** Integração com modelos de linguagem via [Ollama](https://ollama.com/).
 - **Ambiente:** Totalmente containerizado com [Docker](https://www.docker.com/).
-- **Orquestração:** Deploy em [Kubernetes](https://kubernetes.io/) para simulação de produção.
 
-### Fluxo de instalação
+---
 
-1. **Download do Docker Desktop**  
-   Instale o Docker Desktop no seu sistema.
+## Pré-requisitos
 
-2. **Clonar o repositório**
+- **Git**
+- **Docker Desktop**
+
+---
+
+## Arquivos de Ambiente
+
+Antes de subir os containers, preencha os arquivos `.env` com base nos arquivos `.env.example` disponíveis em cada diretório:
+
+| Arquivo | Localização |
+|---|---|
+| `.env` | Raiz do projeto `./` |
+| `.env` | Backend `./backend/` |
+| `.env` | Frontend `./frontend/` |
+
+---
+
+## Inicialização
+
+1. **Clone o repositório**
    ```bash
    git clone https://github.com/fabrica-bayarea/Tutor.git
    cd Tutor
    ```
 
-3. **Subir os containers**
+2. **Preencha os arquivos de ambiente** conforme descrito na seção acima.
+
+3. **Suba os containers**
    ```bash
    docker compose up -d
    ```
 
-4. **Instalar o modelo Ollama**
-   - Entre no console do container do Ollama (substitua `ollama-container` pelo nome/ID real do container):
-     ```bash
-     docker exec -it <ollama-container> /bin/sh
-     ```
-   - Dentro do container execute:
-     ```bash
-     ollama pull ollama3
-     ```
-   - Saia do container.
-
-5. **Pronto para uso**  
-   Após o pull do modelo Ollama a aplicação estará pronta para uso.
+4. **Acesse o sistema** em [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## Pré requisitos
+## Configuração de Uso
 
-- **Git**  
-- **Docker Desktop** (recomendado com Kubernetes ativado se for usar a parte de orquestração)
+Após inicializar o sistema, siga os passos abaixo para configurá-lo:
 
----
+### 1. Criar usuário administrador
 
-## Arquivos de ambiente
+Acesse o banco de dados por meio de um gerenciador (ex.: DBeaver, pgAdmin) e crie manualmente um usuário admin na tabela de usuários.
 
-Crie os arquivos de ambiente conforme necessário:
+### 2. Configurar LLM
 
-- **Backend** `backend/.env` (exemplo)
-  ```
-  SECRET_KEY=gere_uma_chave_secreta_aqui
-  POSTGRES_PASSWORD=sua_senha_segura_aqui
-  DATABASE_URL=postgresql://postgres:sua_senha_segura_aqui@postgres-service:5432/tutor
-  DB_HOST=postgres-service
-  FLASK_DEBUG=1
-  GOOGLE_CLIENT_ID=id_do_cliente_google
-  ```
+- Faça login no sistema e acesse a **página de Admin**.
+- Vá até **LLM**, adicione um modelo de sua escolha e aguarde o download.
+- Ative o modelo no sistema.
 
-- **Frontend** `frontend/.env.local` (exemplo)
-  ```
-  NEXT_PUBLIC_API_URL_RUNTIME=http://tutor.local/api
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID=id_do_cliente_google
-  ```
+### 3. Cadastrar turmas, matérias, professores e alunos
 
-- **Raiz** `./.env` (exemplo)
-  ```
-  SECRET_KEY=gere_uma_chave_secreta_aqui
-  POSTGRES_PASSWORD=sua_senha_segura_aqui
-  ```
+Na **página de Admin**, utilize as seções correspondentes para adicionar:
 
----
+- **Turmas**
+- **Matérias**
+- **Professores**
+- **Alunos**
 
-## Passos rápidos de build e deploy local
+### 4. Realizar associações
 
-1. Build e subida via Docker Compose
-   ```bash
-   docker compose up -d --build
-   ```
+As associações entre entidades devem ser feitas manualmente via gerenciador de banco de dados:
 
-2. Verificar logs e status
-   ```bash
-   docker compose ps
-   docker compose logs -f
-   ```
-
-3. Entrar no container Ollama e puxar o modelo
-   ```bash
-   docker exec -it <ollama-container> /bin/sh
-   ollama pull ollama3
-   ```
-
-4. Acessar o frontend local
-   - Vá até o link localhost:3000/
+- Turma → Aluno
+- Matéria → Professor → Turma
+- Matéria → Turma
