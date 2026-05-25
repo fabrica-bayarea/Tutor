@@ -21,13 +21,45 @@ Guia de configuração para o ambiente de desenvolvimento do projeto.
 
 ## Arquivos de Ambiente
 
-Antes de subir os containers, preencha os arquivos `.env` com base nos arquivos `.env.example` disponíveis em cada diretório:
+Todas as variáveis de ambiente do projeto estão centralizadas em um único arquivo `.env` na raiz. Copie o `.env.example` e preencha os valores:
 
-| Arquivo | Localização |
-|---|---|
-| `.env` | Raiz do projeto `./` |
-| `.env` | Backend `./backend/` |
-| `.env` | Frontend `./frontend/` |
+```bash
+cp .env.example .env
+```
+
+### Descrição das variáveis
+
+```env
+# Segurança
+SECRET_KEY=your_secret_key_here          # Chave secreta do Flask (gere uma string aleatória segura)
+
+# Banco de dados
+POSTGRES_PASSWORD=change_your_password   # Senha do PostgreSQL
+DATABASE_URL=postgresql://postgres:change_your_password@postgres-service:5432/tutor  # Mantenha o formato, troque apenas a senha
+DB_HOST=postgres-service                 # Não alterar (nome do container)
+
+# Flask
+FLASK_DEBUG=1                            # 1 para desenvolvimento, 0 para produção
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id          # Client ID do Google Cloud Console
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id  # Mesmo valor acima (exposto ao frontend)
+
+# SMTP (envio de e-mails)
+SMTP_HOST=smtp.gmail.com                 # Servidor SMTP
+SMTP_PORT=587                            # Porta SMTP (não alterar para Gmail)
+SMTP_USER=your_email@gmail.com           # E-mail remetente
+SMTP_PASSWORD=your_smtp_app_password     # Senha de app do Gmail (não a senha da conta)
+SMTP_FROM=your_email@gmail.com           # E-mail exibido como remetente
+
+# URLs
+FRONTEND_URL=http://localhost:3000       # URL do frontend (não alterar para dev local)
+NEXT_PUBLIC_API_URL_RUNTIME=http://localhost:5000  # URL do backend (não alterar para dev local)
+OLLAMA_URL=http://ollama-service:11434   # Não alterar (nome do container)
+
+# Domínio institucional
+EMAIL_DOMINIO=@iesb.edu.br               # Domínio aceito para login via Google
+```
 
 ---
 
@@ -39,7 +71,7 @@ Antes de subir os containers, preencha os arquivos `.env` com base nos arquivos 
    cd Tutor
    ```
 
-2. **Preencha os arquivos de ambiente** conforme descrito na seção acima.
+2. **Preencha o arquivo de ambiente** conforme descrito na seção acima.
 
 3. **Suba os containers**
    ```bash
