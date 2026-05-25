@@ -3,9 +3,10 @@ services:
     image: postgres:16-alpine
     container_name: tutor_db_dev
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: tutor
     ports:
       - "5432:5432"
@@ -34,13 +35,11 @@ services:
     container_name: tutor_backend_dev
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - .env
     environment:
       - FLASK_APP=app:app
-      - FLASK_DEBUG=1
       - PYTHONUNBUFFERED=1
       - OLLAMA_HOST=http://ollama-service:11434
-      - DB_HOST=postgres-service
     depends_on:
       postgres-service:
         condition: service_healthy
@@ -58,7 +57,7 @@ services:
     restart: unless-stopped
     working_dir: /app
     env_file:
-      - ./frontend/.env.local
+      - .env
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
