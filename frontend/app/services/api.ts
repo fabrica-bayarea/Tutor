@@ -2,7 +2,7 @@ import axios from "axios";
 import { toastEmitter } from "./toastEmitter";
 import { loadingEmitter } from "./loadingEmitter";
 
-const API_URL = "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL_RUNTIME;
 
 const api = axios.create({
     baseURL: API_URL,
