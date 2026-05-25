@@ -1,5 +1,11 @@
 import httpx
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OLLAMA_URL = os.getenv("OLLAMA_URL")
 
 async def consultar_ollama(prompt: str, modelo: str) -> str:
     """
@@ -13,7 +19,7 @@ async def consultar_ollama(prompt: str, modelo: str) -> str:
     Returns:
         A resposta completa gerada pelo modelo.
     """
-    url = "http://ollama-service:11434/api/generate"
+    url = f"{OLLAMA_URL}/api/generate"
     payload = {
         "model": modelo,
         "prompt": prompt,
