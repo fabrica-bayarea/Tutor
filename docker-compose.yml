@@ -5,9 +5,10 @@ services:
     image: postgres:16-alpine
     container_name: tutor_db_prod
     restart: always
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: tutor
     ports:
       - "5432:5432"
@@ -30,7 +31,7 @@ services:
     container_name: tutor_backend_prod
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
     environment:
       - OLLAMA_HOST=http://ollama-service:11434
     depends_on:
@@ -49,7 +50,7 @@ services:
     container_name: tutor_frontend_prod
     restart: always
     env_file:
-      - ./frontend/.env
+      - .env
     depends_on:
       - backend
     ports:
