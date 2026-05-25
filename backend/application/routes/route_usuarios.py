@@ -15,10 +15,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import make_response
 
-dotenv_path = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(dotenv_path)
+from dotenv import load_dotenv
 
-DOMINIO_INSTITUCIONAL = "@iesb.edu.br"
+load_dotenv()
+
+DOMINIO_INSTITUCIONAL = os.getenv("EMAIL_DOMINIO")
 
 usuarios_bp = Blueprint('alunos', __name__)
 
