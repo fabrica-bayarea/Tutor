@@ -3,7 +3,7 @@ import re
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models.model_usuario import Usuario, RoleEnum
+from application.models.model_usuario import Usuario, RoleEnum, StatusEnum
 from application.models.model_aluno_turma import AlunoTurma
 from application.models.model_token_convite import TokenConvite
 from application.config.database import db
@@ -29,7 +29,7 @@ def criar_usuario(
         email=email,
         senha=senha_hash,
         role=role,
-        status=RoleEnum.ATIVO
+        status=StatusEnum.ATIVO
     )
     db.session.add(usuario)
     db.session.flush()
@@ -93,7 +93,7 @@ def desativar_aluno(aluno_id: uuid.UUID):
     if not aluno:
         return None
     
-    aluno.status = RoleEnum.INATIVO
+    aluno.status = StatusEnum.INATIVO
     db.session.commit()
     return aluno
 
@@ -114,7 +114,7 @@ def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, ema
     return aluno.to_dict()
 
 
-def reativar_aluno(id: uuid.UUID, status_novo: str = RoleEnum.ATIVO):
+def reativar_aluno(id: uuid.UUID, status_novo: str = StatusEnum.ATIVO):
     """Reativa um usuário no sistema."""
     aluno = Usuario.query.get(id)
     if not aluno:
@@ -157,7 +157,7 @@ def buscar_alunos_por_filtro(nome: str = None, matricula: str = None, turma: str
             query = query.filter(Usuario.role == role)
     if status:
         if isinstance(status, str):
-            status = RoleEnum.__members__.get(status)
+            status = StatusEnum.__members__.get(status)
         if status:
             query = query.filter(Usuario.status == status)
 
