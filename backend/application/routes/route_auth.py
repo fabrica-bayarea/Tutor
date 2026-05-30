@@ -105,7 +105,9 @@ def definir_senha():
     if not token or not senha:
         return jsonify({"error": "Parâmetros 'token' e 'senha' são obrigatórios"}), 400
 
-    if senha != confirmacao:
+    # Valida a confirmação somente quando ela é enviada — evita quebrar clientes
+    # que não mandam o campo (a força da senha continua sendo verificada adiante).
+    if confirmacao and senha != confirmacao:
         return jsonify({"error": "As senhas não conferem. Por favor, digite novamente."}), 422
 
     _, status_token = validar_token_convite(token)
