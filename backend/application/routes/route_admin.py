@@ -447,7 +447,7 @@ def gerar_materia():
 
 
     if not codigo or not nome:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
+        return jsonify({"error": "Parâmetros 'codigo' e 'nome' são obrigatórios"}), 400
 
 
     existente = Materia.query.filter(
@@ -483,8 +483,10 @@ def atualizar_materia(id):
 
     if not materia_existente:
         return jsonify({"Error": "Materia não econtrada"}), 404
-    
-    materia_nova = updateSubject(id,nome,codigo,status)
+
+    # G5: o código é imutável após o cadastro — preserva o existente, ignorando
+    # qualquer valor enviado no corpo (bloqueio já existia só no frontend).
+    materia_nova = updateSubject(id, nome, materia_existente['codigo'], status)
 
     return jsonify(materia_nova), 200
 

@@ -5,6 +5,7 @@
 |--------|-----------|---------------|-----------|
 | 1.3 Sprint 3 | 10/05/2026 | Cadastro, edição e desativação de matéria US-10 e US-10b, Cadastro de turma US-11, Associação de matéria a turma US-12, Vinculação de professor a turma e matéria US-13 e Matrícula de aluno em turma US-14 | Patricia Pereira Martins |
 | 1.4 Sprint 3 | 19/05/2026 | Refatoração do modelo de associação para alinhar com o diagrama: US-12 passa a vincular professor↔matéria (entidade MateriaProfessor) e US-13 oferta a dupla (Professor+Matéria) a uma turma (entidade MateriaProfessorTurma). Ajustes terminológicos em US-14. | Patricia Pereira Martins |
+| 1.5 Sprint 3 | 30/05/2026 | Alinhamento do texto de confirmação de desativação de matéria (US-10b-RI1) ao protótipo do Figma | Patricia Pereira Martins |
 
 ---
 
@@ -83,7 +84,7 @@
 ### Regras de Interface
 
 - Na listagem de matérias, cada linha deve ter opções de "Editar" e "Desativar" (ou "Reativar" para matérias desativadas).
-- A ação de desativar deve solicitar confirmação: _"Tem certeza que deseja desativar a matéria [nome]? O acesso ao chat e aos materiais será suspenso."_
+- A ação de desativar deve solicitar confirmação: _"Tem certeza que deseja desativar a matéria [nome]? A matéria fica inacessível para chat e gerenciamento de materiais. Todo o histórico é preservado e pode ser restaurado ao reativar."_ (conforme protótipo no Figma)
 - Matérias desativadas devem ser identificadas visualmente na listagem.
 
 ### Requisitos Não Funcionais
