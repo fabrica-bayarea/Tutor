@@ -69,10 +69,13 @@ def apenas_admins(f):
 def apenas_professores(f):
     """
     Decorador personalizado que restringe o acesso da rota apenas para usuários com papel de professor.
+
+    O claim `role` do JWT guarda o nome do papel (RoleEnum.name), por isso a
+    comparação é com 'PROFESSOR' — alinhada a `apenas_admins` (GAP-01-A).
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role not in ['1', '2']:
+        if not hasattr(g, "usuario_role") or g.usuario_role != "PROFESSOR":
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper
@@ -80,10 +83,13 @@ def apenas_professores(f):
 def apenas_alunos(f):
     """
     Decorador personalizado que restringe o acesso da rota apenas para usuários com papel de aluno.
+
+    Compara contra o nome do papel ('ALUNO'), como gravado no claim `role` do
+    JWT (GAP-01-A).
     """
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if not hasattr(g, "usuario_role") or g.usuario_role != "3":
+        if not hasattr(g, "usuario_role") or g.usuario_role != "ALUNO":
             return jsonify({"error": "Acesso negado"}), 403
         return f(*args, **kwargs)
     return wrapper

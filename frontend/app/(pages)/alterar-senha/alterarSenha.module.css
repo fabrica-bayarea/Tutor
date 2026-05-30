@@ -46,6 +46,17 @@
     color: #4d9b8d;
 }
 
+.resetTag {
+    align-self: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4d9b8d;
+    background-color: rgba(77, 155, 141, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.25rem;
+}
+
 .welcomeTitle {
     font-size: 1.5rem;
     font-weight: 700;

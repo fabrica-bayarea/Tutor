@@ -219,7 +219,8 @@ def enviar_email_convite(destinatario_email: str, destinatario_nome: str, token:
 
 
 def enviar_email_recuperacao_senha(destinatario_email: str, destinatario_nome: str, token: str) -> None:
-    link = f"{FRONTEND_URL}/alterar-senha?token={token}"
+    # reset=1 sinaliza à tela que é redefinição de senha (exibe a tag "Redefinir senha").
+    link = f"{FRONTEND_URL}/alterar-senha?token={token}&reset=1"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Redefinição de senha — Tutor"

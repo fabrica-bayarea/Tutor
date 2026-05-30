@@ -9,6 +9,8 @@ import Button from '@/app/components/Button/Button';
 import Toast from '@/app/components/Toast/Toast';
 import TutorLogoIcon from '@/app/components/TutorLogoIcon';
 import { criarSenha } from '@/app/services/service_auth';
+import { useAuth } from '@/utils/auth';
+import { homeForRole } from '@/utils/roles';
 
 interface RegrasSenha {
     minCaracteres: boolean;
@@ -40,6 +42,10 @@ function IndicadorRegra({ valida, texto }: { valida: boolean; texto: string }) {
 function AlterarSenha() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { refreshUser } = useAuth();
+
+    // Fluxo de redefinição (recuperação de senha) — o e-mail de reset inclui &reset=1.
+    const isReset = searchParams?.get('reset') === '1';
 
     const [token, setToken] = useState<string>('');
     const [novaSenha, setNovaSenha] = useState<string>('');
@@ -92,7 +98,9 @@ const [loading, setLoading] = useState<boolean>(false);
                 return;
             }
 
-            router.push('/login?senhaCriada=1');
+            // US-03-RN3: a sessão já foi iniciada (cookie); vai direto à home do perfil.
+            await refreshUser();
+            router.push(homeForRole(result.usuario?.role));
         } catch {
             setErrorMessage('Erro ao criar a senha. Tente novamente em instantes.');
         } finally {
@@ -109,6 +117,8 @@ const [loading, setLoading] = useState<boolean>(false);
                 <TutorLogoIcon size={28} color="#f97316" />
                 <span className={styles.brandName}>Tutor</span>
             </div>
+
+            {isReset && <span className={styles.resetTag}>Redefinir senha</span>}
 
             <h2 className={styles.welcomeTitle}>Defina sua senha</h2>
             <p className={styles.welcomeSubtitle}>

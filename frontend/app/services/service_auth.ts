@@ -18,7 +18,7 @@ export type ValidarTokenResultado =
     | { ok: false; status: number; message: string };
 
 export type CriarSenhaResultado =
-    | { ok: true }
+    | { ok: true; usuario: Usuario }
     | { ok: false; status: number; message: string };
     
 export async function solicitarRecuperacaoSenha(email: string): Promise<{ ok: boolean }> {
@@ -89,7 +89,7 @@ export async function criarSenha(
     confirmacao: string
 ): Promise<CriarSenhaResultado> {
     try {
-        await api.post(
+        const response = await api.post(
             "/auth/invite/set-password",
             { token, senha, confirmacao },
             {
@@ -97,7 +97,7 @@ export async function criarSenha(
                 withCredentials: true,
             }
         );
-        return { ok: true };
+        return { ok: true, usuario: response.data?.usuario };
     } catch (error: any) {
         const status = error?.response?.status ?? 0;
         const message =
