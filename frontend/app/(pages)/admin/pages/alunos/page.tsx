@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2, RotateCw, Plus, AlertTriangle } from "lucide-react";
 import styles from "./page.module.css";
@@ -9,7 +9,7 @@ import Button from "../../../../components/Button/Button";
 import SearchInput from "../../../../components/SearchInput/SearchInput";
 import Pagination from "../../../../components/Pagination/Pagination";
 import Modal from "../../../../components/Modal/Modal";
-import { listarAlunos, desativarAluno, reativarAluno } from "../../../../services/service_aluno";
+import { listarAlunosPaginado, desativarAluno, reativarAluno } from "../../../../services/service_aluno";
 import { Status } from "@/utils/roles";
 import { useToast } from "@/contexts/ToastContext";
 
@@ -32,30 +32,42 @@ export default function Alunos() {
     const { addToast } = useToast();
     const [alunos, setAlunos] = useState<Aluno[]>([]);
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(8);
+    const [totalPages, setTotalPages] = useState(1);
     const [alunoParaDesativar, setAlunoParaDesativar] = useState<Aluno | null>(null);
     const tableAreaRef = useRef<HTMLDivElement>(null);
 
+    // Debounce da busca: evita uma requisição por tecla e volta para a 1ª página.
     useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            const usuarios = await listarAlunos();
-            if (cancelled) return;
-            setAlunos(
-                usuarios.map((u) => ({
-                    id: u.id,
-                    nome: u.nome,
-                    matricula: u.matricula,
-                    email: u.email,
-                    status: u.status === Status.ATIVO ? "Ativo" : "Desativado",
-                }))
-            );
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+        const t = setTimeout(() => {
+            setDebouncedSearch(search);
+            setPage(1);
+        }, 300);
+        return () => clearTimeout(t);
+    }, [search]);
+
+    // Busca a página atual no servidor (paginação + filtro server-side — GAP-02-D).
+    const carregar = useCallback(async () => {
+        if (pageSize < 1) return;
+        const r = await listarAlunosPaginado(page, pageSize, debouncedSearch);
+        setAlunos(
+            r.usuarios.map((u) => ({
+                id: u.id,
+                nome: u.nome,
+                matricula: u.matricula,
+                email: u.email,
+                status: u.status === Status.ATIVO ? "Ativo" : "Desativado",
+            }))
+        );
+        setTotalPages(Math.max(1, r.pages));
+        if (r.pages >= 1 && page > r.pages) setPage(r.pages);
+    }, [page, pageSize, debouncedSearch]);
+
+    useEffect(() => {
+        carregar();
+    }, [carregar]);
 
     useLayoutEffect(() => {
         const el = tableAreaRef.current;
@@ -73,31 +85,8 @@ export default function Alunos() {
         return () => ro.disconnect();
     }, []);
 
-    const filteredAlunos = useMemo(() => {
-        const term = search.trim().toLowerCase();
-        if (!term) return alunos;
-        return alunos.filter(
-            (a) =>
-                a.nome.toLowerCase().includes(term) ||
-                a.matricula.toLowerCase().includes(term) ||
-                a.email.toLowerCase().includes(term)
-        );
-    }, [alunos, search]);
-
-    const totalPages = Math.max(1, Math.ceil(filteredAlunos.length / pageSize));
-    const currentPage = Math.min(page, totalPages);
-    const pagedAlunos = filteredAlunos.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize
-    );
-
-    useEffect(() => {
-        if (page > totalPages) setPage(totalPages);
-    }, [page, totalPages]);
-
     function handleSearchChange(value: string) {
         setSearch(value);
-        setPage(1);
     }
 
     function handleEdit(aluno: Aluno) {
@@ -118,12 +107,8 @@ export default function Alunos() {
         if (!alunoParaDesativar) return;
         const resultado = await desativarAluno(alunoParaDesativar.id);
         if (resultado.ok) {
-            setAlunos((prev) =>
-                prev.map((a) =>
-                    a.id === alunoParaDesativar.id ? { ...a, status: "Desativado" } : a
-                )
-            );
             addToast("Aluno desativado.", "success");
+            carregar();
         }
         setAlunoParaDesativar(null);
     }
@@ -131,10 +116,8 @@ export default function Alunos() {
     async function handleReactivate(aluno: Aluno) {
         const resultado = await reativarAluno(aluno.id);
         if (resultado.ok) {
-            setAlunos((prev) =>
-                prev.map((a) => (a.id === aluno.id ? { ...a, status: "Ativo" } : a))
-            );
             addToast("Aluno reativado.", "success");
+            carregar();
         }
     }
 
@@ -219,7 +202,7 @@ export default function Alunos() {
             <div ref={tableAreaRef} className={styles.tableArea}>
                 <Table
                     columns={columns}
-                    data={pagedAlunos}
+                    data={alunos}
                     rowKey={(row) => row.id}
                     emptyMessage="Nenhum aluno encontrado."
                 />
@@ -227,7 +210,7 @@ export default function Alunos() {
 
             <div className={styles.paginationRow}>
                 <Pagination
-                    currentPage={currentPage}
+                    currentPage={page}
                     totalPages={totalPages}
                     onPageChange={setPage}
                 />

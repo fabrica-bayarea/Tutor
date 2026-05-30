@@ -17,6 +17,45 @@ export async function listarAlunos(): Promise<AlunoBackend[]> {
     }
 }
 
+export interface AlunosPaginados {
+    usuarios: AlunoBackend[];
+    page: number;
+    pages: number;
+    total: number;
+}
+
+/**
+ * Listagem de alunos paginada e filtrada no servidor (US-08-RNF1/RNF2 / GAP-02-D):
+ * a página é buscada sob demanda e a busca por nome/matrícula/e-mail é executada
+ * na base de dados.
+ */
+export async function listarAlunosPaginado(
+    page: number,
+    limit: number,
+    busca?: string
+): Promise<AlunosPaginados> {
+    try {
+        const response = await api.get(`admin/usuarios/all`, {
+            params: {
+                page,
+                limit,
+                role: Role.ALUNO,
+                ...(busca && busca.trim() ? { busca: busca.trim() } : {}),
+            },
+        });
+        const d = response.data ?? {};
+        return {
+            usuarios: d.usuarios ?? [],
+            page: d.pagination?.page ?? page,
+            pages: d.pagination?.pages ?? 1,
+            total: d.pagination?.total ?? 0,
+        };
+    } catch (error) {
+        console.error("Erro ao listar alunos:", error);
+        return { usuarios: [], page: 1, pages: 1, total: 0 };
+    }
+}
+
 export type CriarAlunoResultado =
     | { ok: true; aluno: InterfaceUsuario }
     | { ok: false; status: number; message: string };

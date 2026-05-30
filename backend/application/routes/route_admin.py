@@ -55,7 +55,8 @@ def listar_todos_usuarios():
             matricula = request.args.get('matricula'),
             role = request.args.get('role'),
             status = request.args.get('status'),
-            turma =request.args.get('turma')
+            turma =request.args.get('turma'),
+            busca = request.args.get('busca')
         )
 
         if limit:

@@ -125,22 +125,42 @@ def reativar_aluno(id: uuid.UUID, status_novo: str = RoleEnum.ATIVO):
     return aluno.to_dict()
 
 
-def buscar_alunos_por_filtro(nome: str, matricula: str, turma: str, role: str, status: str):
-    """Busca avançada de alunos com suporte a joins de turma."""
+def buscar_alunos_por_filtro(nome: str = None, matricula: str = None, turma: str = None,
+                             role: str = None, status: str = None, busca: str = None):
+    """
+    Busca avançada de usuários com suporte a join de turma e a uma busca única
+    (`busca`) que casa por nome, matrícula OU e-mail (US-08-RNF2). `role`/`status`
+    aceitam string (nome do RoleEnum) e são convertidos com segurança.
+    """
     query = Usuario.query
 
     if turma:
         query = query.join(AlunoTurma).filter(AlunoTurma.turma.ilike(f"%{turma}%"))
 
+    if busca:
+        termo = f"%{busca}%"
+        query = query.filter(db.or_(
+            Usuario.nome.ilike(termo),
+            Usuario.matricula.ilike(termo),
+            Usuario.email.ilike(termo),
+        ))
+
     if nome:
         query = query.filter(Usuario.nome.ilike(f"%{nome}%"))
     if matricula:
         query = query.filter(Usuario.matricula.ilike(f"%{matricula}%"))
+
     if role:
-        query = query.filter(Usuario.role == role)
+        if isinstance(role, str):
+            role = RoleEnum.__members__.get(role)
+        if role:
+            query = query.filter(Usuario.role == role)
     if status:
-        query = query.filter(Usuario.status == status)
-    
+        if isinstance(status, str):
+            status = RoleEnum.__members__.get(status)
+        if status:
+            query = query.filter(Usuario.status == status)
+
     return query.order_by(Usuario.nome.asc())
 
 
