@@ -1,8 +1,9 @@
 """
 Rotas para lidar com admin.
 """
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app, request, g
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
+from application.auth.token_denylist import bloquear_usuario, desbloquear_usuario
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_materia import Materia
@@ -118,6 +119,12 @@ def gerar_aluno():
     email = dados.get('email')
     via_google = dados.get('via_google', False)
 
+    # Papel atribuído de forma atômica na criação (GAP-02-I). Default: ALUNO.
+    role_str = (dados.get('role') or 'ALUNO').upper()
+    if role_str not in ('ADMIN', 'PROFESSOR', 'ALUNO'):
+        role_str = 'ALUNO'
+    role_enum = RoleEnum[role_str]
+
     if not matricula or not nome or not email:
         return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
 
@@ -135,7 +142,7 @@ def gerar_aluno():
     if erros:
         return jsonify({"error": " ".join(erros.values()), "campos": erros}), 409
 
-    usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
+    usuario_dict, token = criar_usuario(matricula, nome, email, via_google, role=role_enum)
 
     if not via_google and token:
         # Envio assíncrono (não bloqueia a resposta do cadastro) com timeout e
@@ -165,10 +172,17 @@ def deletar_usuario(id):
     }
     ```
     """
+    # GAP-02-C: o admin não pode desativar a própria conta.
+    if str(g.usuario_id) == str(id):
+        return jsonify({"error": "Você não pode desativar a própria conta."}), 403
+
     aluno = desativar_aluno(id)
 
     if not aluno:
         return jsonify({"error": "Usuario não encontrado"}), 404
+
+    # GAP-02-B: encerra as sessões ativas do usuário desativado.
+    bloquear_usuario(id)
 
     return jsonify({
         "Usuario:": aluno.nome,
@@ -240,7 +254,7 @@ def atualizar_aluno_por_id(id):
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
-    
+
     if status not in ["ATIVO", "INATIVO"]:
         return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
 
@@ -248,8 +262,16 @@ def atualizar_aluno_por_id(id):
 
     if not aluno_existente:
         return jsonify({"error: Usuario não encontrado"}), 404
-    
-    aluno_novo = alterar_aluno_por_id(id, matricula, nome, email, status, role)
+
+    # GAP-02-F: e-mail já usado por OUTRO usuário → 409 (em vez de IntegrityError/500).
+    if Usuario.query.filter(Usuario.email == email, Usuario.id != id).first():
+        return jsonify({
+            "error": "Este e-mail já está em uso por outro usuário.",
+            "campos": {"email": "Este e-mail já está em uso por outro usuário."},
+        }), 409
+
+    # GAP-02-E: matrícula é imutável após o cadastro — preserva a existente.
+    aluno_novo = alterar_aluno_por_id(id, aluno_existente['matricula'], nome, email, status, role)
 
     return jsonify(aluno_novo), 200
 
@@ -288,6 +310,9 @@ def reativar_usuario(id):
         return jsonify({"error: Usuario não encontrado"}), 404
     
     aluno = reativar_aluno(id, status)
+
+    # Reabilita as sessões do usuário reativado (contrapartida do GAP-02-B).
+    desbloquear_usuario(id)
 
     return jsonify({
         "Usuario:": aluno["nome"],

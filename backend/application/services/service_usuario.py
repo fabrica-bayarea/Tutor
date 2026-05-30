@@ -12,10 +12,12 @@ def criar_usuario(
     matricula: str,
     nome: str,
     email: str,
-    via_google: bool = False
+    via_google: bool = False,
+    role: RoleEnum = RoleEnum.ALUNO
 ) -> tuple[dict, str | None]:
     """
     Cria um novo usuário no banco com senha aleatória.
+    O papel é atribuído de forma atômica na criação (GAP-02-I) — por padrão ALUNO.
     Gera um token de convite se não for via Google.
     """
     senha_aleatoria = secrets.token_hex(16)
@@ -26,8 +28,8 @@ def criar_usuario(
         nome=nome,
         email=email,
         senha=senha_hash,
-        role=RoleEnum.ALUNO,      
-        status=RoleEnum.ATIVO     
+        role=role,
+        status=RoleEnum.ATIVO
     )
     db.session.add(usuario)
     db.session.flush()

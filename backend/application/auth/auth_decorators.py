@@ -2,7 +2,7 @@ from functools import wraps
 from flask import request, jsonify, g
 from .jwt_handler import validar_token, gerar_token
 # Denylist persistente (Redis com fallback em memória) — ver token_denylist.py.
-from .token_denylist import invalidar_token, token_invalido
+from .token_denylist import invalidar_token, token_invalido, usuario_bloqueado
 
 
 def extrair_token():
@@ -45,6 +45,11 @@ def token_obrigatorio(f):
 
         g.usuario_id = payload.get("user_id")
         g.usuario_role = payload.get("role")
+
+        # GAP-02-B: usuário desativado tem a sessão encerrada na próxima requisição.
+        if usuario_bloqueado(g.usuario_id):
+            return jsonify({"error": "Sessão encerrada. Conta desativada."}), 401
+
         g.refresh_token = gerar_token(g.usuario_id, g.usuario_role)
         return f(*args, **kwargs)
     return wrapper

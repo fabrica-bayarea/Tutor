@@ -31,8 +31,8 @@ function gerarSenhaTemporaria(): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function emailValido(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function emailInstitucionalValido(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.endsWith("@iesb.edu.br");
 }
 
 export default function FormularioAluno({
@@ -58,7 +58,8 @@ export default function FormularioAluno({
         if (!nome.trim()) e.nome = "Informe o nome completo.";
         if (!matricula.trim()) e.matricula = "Informe a matrícula.";
         if (!email.trim()) e.email = "Informe o e-mail.";
-        else if (!emailValido(email)) e.email = "E-mail inválido.";
+        else if (!emailInstitucionalValido(email.trim()))
+            e.email = "Informe um e-mail institucional válido (@iesb.edu.br).";
         return e;
     }
 
@@ -88,7 +89,7 @@ export default function FormularioAluno({
                 return;
             }
             if (resultado.status === 409) {
-                setErros({ email: "E-mail já cadastrado." });
+                setErros({ email: "Este e-mail já está em uso por outro usuário." });
                 return;
             }
             setErros({ geral: resultado.message });
