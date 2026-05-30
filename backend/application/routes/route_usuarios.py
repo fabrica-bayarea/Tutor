@@ -278,9 +278,6 @@ def buscarProfessores():
 
     professor = professor.all()
 
-    if not professor:
-        return jsonify({"Error": "Professor não encontrado"}), 404
-    
     return jsonify({
         "success": True,
         "Professores": [p.to_dict() for p in professor],

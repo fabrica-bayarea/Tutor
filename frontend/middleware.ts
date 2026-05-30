@@ -18,6 +18,14 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
     const { pathname } = request.nextUrl;
 
+    if (pathname === '/') {
+        if (token) {
+            const role = getRoleFromToken(token);
+            return NextResponse.redirect(new URL(homeForRole(role), request.url));
+        }
+        return NextResponse.redirect(new URL("/login", request.url));
+    }
+
     const isPublicRoute = PUBLIC_ROUTES.some(r => pathname.startsWith(r));
 
     if (isPublicRoute) {

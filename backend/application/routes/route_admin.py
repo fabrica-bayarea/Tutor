@@ -394,9 +394,6 @@ def lista_materias():
     
     materia = materia.all()
 
-    if not materia:
-        return jsonify({"Error": "Materia não encontrada"}), 404
-
     return jsonify({
         "success": True,
         "Materias": [m.to_dict() for m in materia],
