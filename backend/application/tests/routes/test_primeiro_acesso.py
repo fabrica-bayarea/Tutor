@@ -17,6 +17,7 @@ sys.modules["application.socket.socket_instance"] = MagicMock()
 sys.modules["application.socket.event_handler"] = MagicMock()
 
 from app import app
+from application.auth.jwt_handler import gerar_token
 
 
 # ---------------------------------------------------------------------------
@@ -28,6 +29,14 @@ def client():
     app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
+
+
+@pytest.fixture
+def admin_headers():
+    """JWT de ADMIN — as rotas /usuarios/* passaram a exigir admin autenticado (GAP-02-A)."""
+    with app.app_context():
+        token = gerar_token("00000000-0000-0000-0000-0000000000ad", "ADMIN")
+    return {"Authorization": f"Bearer {token}"}
 
 
 PAYLOAD_CRIAR = {
@@ -57,24 +66,24 @@ class TestCriarUsuario:
     @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
-    def test_retorna_201_em_caso_de_sucesso(self, mock_usuario, mock_criar, mock_email, client):
+    def test_retorna_201_em_caso_de_sucesso(self, mock_usuario, mock_criar, mock_email, client, admin_headers):
         """Retorna 201 Created ao criar usuário com dados válidos."""
         mock_usuario.query.filter.return_value.first.return_value = None
         mock_criar.return_value = (USUARIO_DICT, TOKEN_FAKE)
 
-        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
+        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR, headers=admin_headers)
 
         assert response.status_code == 201
 
     @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
-    def test_dispara_email_com_dados_e_token_corretos(self, mock_usuario, mock_criar, mock_email, client):
+    def test_dispara_email_com_dados_e_token_corretos(self, mock_usuario, mock_criar, mock_email, client, admin_headers):
         """Dispara o e-mail de convite com e-mail, nome e token corretos."""
         mock_usuario.query.filter.return_value.first.return_value = None
         mock_criar.return_value = (USUARIO_DICT, TOKEN_FAKE)
 
-        client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
+        client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR, headers=admin_headers)
 
         mock_email.assert_called_once_with(
             PAYLOAD_CRIAR["email"],
@@ -85,32 +94,47 @@ class TestCriarUsuario:
     @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
-    def test_nao_dispara_email_para_usuario_via_google(self, mock_usuario, mock_criar, mock_email, client):
+    def test_nao_dispara_email_para_usuario_via_google(self, mock_usuario, mock_criar, mock_email, client, admin_headers):
         """Não dispara e-mail de convite quando via_google=True."""
         mock_usuario.query.filter.return_value.first.return_value = None
         mock_criar.return_value = (USUARIO_DICT, None)
 
-        client.post("/admin/usuarios/criar", json={**PAYLOAD_CRIAR, "via_google": True})
+        client.post("/admin/usuarios/criar", json={**PAYLOAD_CRIAR, "via_google": True}, headers=admin_headers)
 
         mock_email.assert_not_called()
 
     @patch("application.routes.route_admin.Usuario")
-    def test_email_fora_do_dominio_retorna_400(self, mock_usuario, client):
+    def test_email_fora_do_dominio_retorna_400(self, mock_usuario, client, admin_headers):
         """Rejeita e-mail fora do domínio @iesb.edu.br com 400."""
         payload = {**PAYLOAD_CRIAR, "email": "aluno@gmail.com"}
 
-        response = client.post("/admin/usuarios/criar", json=payload)
+        response = client.post("/admin/usuarios/criar", json=payload, headers=admin_headers)
 
         assert response.status_code == 400
 
     @patch("application.routes.route_admin.Usuario")
-    def test_usuario_duplicado_retorna_409(self, mock_usuario, client):
+    def test_usuario_duplicado_retorna_409(self, mock_usuario, client, admin_headers):
         """Retorna 409 quando matrícula ou e-mail já existem no banco."""
         mock_usuario.query.filter.return_value.first.return_value = MagicMock()
 
-        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
+        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR, headers=admin_headers)
 
         assert response.status_code == 409
+
+    def test_sem_token_retorna_401(self, client):
+        """Sem autenticação a criação é bloqueada no backend (GAP-02-A)."""
+        response = client.post("/admin/usuarios/criar", json=PAYLOAD_CRIAR)
+        assert response.status_code == 401
+
+    def test_perfil_nao_admin_retorna_403(self, client):
+        """Usuário autenticado que não é admin não pode criar (GAP-02-A)."""
+        with app.app_context():
+            token = gerar_token("11111111-1111-1111-1111-111111111111", "PROFESSOR")
+        response = client.post(
+            "/admin/usuarios/criar", json=PAYLOAD_CRIAR,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 403
 
 
 # ---------------------------------------------------------------------------

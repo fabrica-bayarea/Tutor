@@ -20,6 +20,8 @@ from application.services.service_materia import getAllSubjects, createSubject, 
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/usuarios/all', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
 def listar_todos_usuarios():
     """
     Endpoint para listar usuarios
@@ -85,6 +87,8 @@ def listar_todos_usuarios():
 
     
 @admin_bp.route('/usuarios/criar', methods=['POST'])
+@token_obrigatorio
+@apenas_admins
 def gerar_aluno():
     """
     Endpoint para criar um usuário e disparar e-mail de convite.
@@ -120,12 +124,16 @@ def gerar_aluno():
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
 
-    existente = Usuario.query.filter(
-        (Usuario.matricula == matricula) | (Usuario.email == email)
-    ).first()
+    # Checagem separada por campo, com as mensagens específicas do épico/Figma
+    # (US-07-RV2/US-08-RV2). `campos` permite ao front marcar o campo certo.
+    erros = {}
+    if Usuario.query.filter(Usuario.matricula == matricula).first():
+        erros["matricula"] = "Esta matrícula já está em uso por outro usuário."
+    if Usuario.query.filter(Usuario.email == email).first():
+        erros["email"] = "Este e-mail já está em uso por outro usuário."
 
-    if existente:
-        return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
+    if erros:
+        return jsonify({"error": " ".join(erros.values()), "campos": erros}), 409
 
     usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
 
@@ -138,6 +146,8 @@ def gerar_aluno():
 
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
+@token_obrigatorio
+@apenas_admins
 def deletar_usuario(id):
     """
     Endpoint para deletar(Inativar) usuario por id
@@ -170,6 +180,8 @@ def deletar_usuario(id):
 
 
 @admin_bp.route("/usuarios/<uuid:id>", methods=['GET'])
+@token_obrigatorio
+@apenas_admins
 def buscar_alunos_por_id(id):
     """
     Endpoint para buscar usuario por id
@@ -195,6 +207,8 @@ def buscar_alunos_por_id(id):
 
 
 @admin_bp.route("/usuarios/<uuid:id>", methods=['PUT'])
+@token_obrigatorio
+@apenas_admins
 def atualizar_aluno_por_id(id):
     """
     Endpoint para atualizar usuario por id
@@ -242,6 +256,8 @@ def atualizar_aluno_por_id(id):
 
 
 @admin_bp.route("/usuarios/<uuid:id>/reativar", methods=['PATCH'])
+@token_obrigatorio
+@apenas_admins
 def reativar_usuario(id):
     """
     Endpoint para reativar usuario por id

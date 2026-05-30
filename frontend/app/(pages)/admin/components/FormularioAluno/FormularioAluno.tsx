@@ -105,7 +105,7 @@ export default function FormularioAluno({
         setSubmitting(false);
 
         if (resultado.ok) {
-            addToast("Aluno cadastrado com sucesso.", "success");
+            addToast("Aluno cadastrado! Um link de convite foi enviado para o e-mail informado.", "success");
             router.push("/admin/pages/alunos");
             return;
         }
@@ -114,14 +114,14 @@ export default function FormularioAluno({
             const msg = resultado.message.toLowerCase();
             const next: CampoErros = {};
             if (msg.includes("matrícula") || msg.includes("matricula")) {
-                next.matricula = "Matrícula já cadastrada.";
+                next.matricula = "Esta matrícula já está em uso por outro usuário.";
             }
             if (msg.includes("email") || msg.includes("e-mail")) {
-                next.email = "E-mail já cadastrado.";
+                next.email = "Este e-mail já está em uso por outro usuário.";
             }
             if (!next.matricula && !next.email) {
-                next.matricula = "Matrícula já cadastrada.";
-                next.email = "E-mail já cadastrado.";
+                next.matricula = "Esta matrícula já está em uso por outro usuário.";
+                next.email = "Este e-mail já está em uso por outro usuário.";
             }
             setErros(next);
             return;

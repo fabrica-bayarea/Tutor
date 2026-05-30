@@ -5,6 +5,7 @@
 |--------|-----------|---------------|-----------|
 | 1.2 Sprint 2 | 19/04/2026 | Criação das histórias de usuário US-08 e US-09 | Patricia Pereira Martins |
 | 1.3 Sprint 3 | 08/05/2026 | Criação das histórias de usuário US-07 | Patricia Pereira Martins |
+| 1.4 Sprint 3 | 30/05/2026 | Alinhamento das regras de interface de cadastro (US-07-RI2/US-08-RI2) ao protótipo do Figma: confirmação via toast ao retornar à listagem, sem ação "cadastrar outro" | Patricia Pereira Martins |
 
 ---
 
@@ -47,7 +48,7 @@
 ### Regras de Interface
 
 - O formulário de cadastro de professor deve conter os campos: Nome completo, Matrícula, E-mail.
-- Ao concluir o cadastro, exibir confirmação e opção de cadastrar outro professor ou voltar à listagem.
+- Ao concluir o cadastro, retornar à listagem de professores exibindo uma confirmação (toast): _"Professor cadastrado! Um link de convite foi enviado para o e-mail informado."_ (conforme protótipo no Figma — não há ação de "cadastrar outro").
 
 ### Requisitos Não Funcionais
 
@@ -91,7 +92,7 @@
 
 - O formulário de cadastro de aluno deve conter os campos: Nome completo, Matrícula, E-mail.
 - O sistema envia automaticamente um link de convite para o e-mail do aluno ao concluir o cadastro.
-- Ao concluir o cadastro, exibir confirmação e opção de cadastrar outro aluno ou voltar à listagem.
+- Ao concluir o cadastro, retornar à listagem de alunos exibindo uma confirmação (toast): _"Aluno cadastrado! Um link de convite foi enviado para o e-mail informado."_ (conforme protótipo no Figma — não há ação de "cadastrar outro").
 - A listagem de alunos exibe uma caixa de pesquisa (acima da tabela) e paginação navegável (abaixo da tabela), com botões "Anterior", números de página e "Próximo".
 
 ### Requisitos Não Funcionais
