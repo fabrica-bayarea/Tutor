@@ -54,7 +54,7 @@ TOKEN_FAKE = "token-uuid-fake"
 
 class TestCriarUsuario:
 
-    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
     def test_retorna_201_em_caso_de_sucesso(self, mock_usuario, mock_criar, mock_email, client):
@@ -66,7 +66,7 @@ class TestCriarUsuario:
 
         assert response.status_code == 201
 
-    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
     def test_dispara_email_com_dados_e_token_corretos(self, mock_usuario, mock_criar, mock_email, client):
@@ -82,7 +82,7 @@ class TestCriarUsuario:
             TOKEN_FAKE,
         )
 
-    @patch("application.routes.route_admin.enviar_email_convite")
+    @patch("application.routes.route_admin.enviar_email_convite_async")
     @patch("application.routes.route_admin.criar_usuario")
     @patch("application.routes.route_admin.Usuario")
     def test_nao_dispara_email_para_usuario_via_google(self, mock_usuario, mock_criar, mock_email, client):

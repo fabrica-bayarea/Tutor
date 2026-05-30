@@ -60,18 +60,20 @@ def definir_senha():
     Espera receber (JSON):
     - `token`: str — token UUID do convite
     - `senha`: str — nova senha escolhida pelo usuário
- 
+    - `confirmacao`: str — repetição da nova senha para confirmação
+
     Regras:
     - Token precisa existir e não ter sido utilizado (campo `used=False`).
+    - `senha` e `confirmacao` devem ser idênticas.
     - Senha validada pelo `_validar_forca_senha` do próprio service:
       8+ chars, maiúscula, minúscula e número.
     - Após salvar o hash da senha, `TokenConvite.used` é marcado como True.
- 
+
     Retorna:
     - `200 OK` com dados básicos do usuário após sucesso.
     - `400 Bad Request` se parâmetros ausentes.
     - `410 Gone` se token inválido ou já utilizado.
-    - `422 Unprocessable Entity` se a senha não atende aos requisitos.
+    - `422 Unprocessable Entity` se as senhas não conferem ou não atendem aos requisitos.
  
 ```json
     // 200 OK
@@ -96,10 +98,14 @@ def definir_senha():
     data = request.get_json(silent=True) or {}
     token = data.get('token', '').strip()
     senha = data.get('senha', '')
- 
+    confirmacao = data.get('confirmacao', '')
+
     if not token or not senha:
         return jsonify({"error": "Parâmetros 'token' e 'senha' são obrigatórios"}), 400
- 
+
+    if senha != confirmacao:
+        return jsonify({"error": "As senhas não conferem. Por favor, digite novamente."}), 422
+
     _, status_token = validar_token_convite(token)
     if status_token == 'utilizado_ou_inexistente':
         return jsonify({

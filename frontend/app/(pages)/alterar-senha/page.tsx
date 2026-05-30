@@ -65,15 +65,20 @@ const [loading, setLoading] = useState<boolean>(false);
         e.preventDefault();
         setErrorMessage(null);
 
+        if (novaSenha !== confirmacaoSenha) {
+            setErrorMessage('As senhas não conferem. Por favor, digite novamente.');
+            return;
+        }
+
         if (!senhaValida) {
-            setErrorMessage('A senha não atende todos os requisitos.');
+            setErrorMessage('A senha não atende aos requisitos mínimos.');
             return;
         }
 
         setLoading(true);
 
         try {
-            const result = await criarSenha(token, novaSenha);
+            const result = await criarSenha(token, novaSenha, confirmacaoSenha);
 
             if (!result.ok) {
                 if (result.status === 410) {
@@ -82,7 +87,7 @@ const [loading, setLoading] = useState<boolean>(false);
                         'Este link já foi utilizado ou é inválido. Utilize a opção "Esqueci minha senha" para redefinir seu acesso.'
                     );
                 } else {
-                    setErrorMessage('Erro ao criar a senha. Tente novamente em instantes.');
+                    setErrorMessage(result.message || 'Erro ao criar a senha. Tente novamente em instantes.');
                 }
                 return;
             }

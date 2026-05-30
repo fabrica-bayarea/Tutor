@@ -46,6 +46,19 @@
     color: #1a1a1a;
 }
 
+.formError {
+    width: 100%;
+    margin: 0.75rem 0 0 0;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #b91c1c;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    text-align: center;
+}
+
 .inputContainer {
     display: flex;
     flex-direction: row;

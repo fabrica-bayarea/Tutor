@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, g
 from flask_migrate import Migrate
 from flask_cors import CORS
 
 from application.config.config import Config
 from application.config.database import init_db, db
+from application.auth.jwt_handler import definir_cookie_sessao
 from application.socket.socket_instance import socketio
 from application.routes.route_auth import auth_bp
 
@@ -42,6 +43,19 @@ def add_security_headers(response):
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
 
+    return response
+
+
+@app.after_request
+def renovar_sessao(response):
+    """
+    Renova o cookie de sessão (sliding expiration) sempre que uma requisição
+    autenticada definir `g.refresh_token` no `token_obrigatorio`. Rotas como o
+    logout limpam `g.refresh_token` para não reabrir a sessão.
+    """
+    novo_token = getattr(g, "refresh_token", None)
+    if novo_token:
+        definir_cookie_sessao(response, novo_token)
     return response
 
 init_db(app)

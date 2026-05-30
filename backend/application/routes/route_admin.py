@@ -11,9 +11,9 @@ from application.services.service_usuario import (criar_usuario, buscar_aluno, d
 import secrets
 from application.config.database import db
 from datetime import datetime
-from application.libs.email_sender import enviar_email_convite
+from application.libs.email_sender import enviar_email_convite_async
 from flask import make_response
-from application.auth.jwt_handler import gerar_token
+from application.auth.jwt_handler import gerar_token, definir_cookie_sessao
 from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
 from application.services.service_materia import getAllSubjects, createSubject, updateSubject, deleteSubject, buscar_materia_por_id
 
@@ -130,10 +130,9 @@ def gerar_aluno():
     usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
 
     if not via_google and token:
-        try:
-            enviar_email_convite(email, nome, token)
-        except Exception as e:
-            current_app.logger.error(f"Erro ao enviar e-mail de convite para {email}: {e}")
+        # Envio assíncrono (não bloqueia a resposta do cadastro) com timeout e
+        # novas tentativas dentro da janela de 2 minutos exigida (US-03-RNF1).
+        enviar_email_convite_async(email, nome, token)
 
     return jsonify(usuario_dict), 201
 
@@ -352,15 +351,7 @@ def recriar_senha():
         "redirect": f"/painel/{role_slug}"
     }), 200)
 
-    response.set_cookie(
-        "token",
-        token_jwt,
-        httponly=True,
-        secure=False,
-        samesite="Lax",
-        max_age=60 * 60,
-        path="/"
-    )
+    definir_cookie_sessao(response, token_jwt)
 
     return response
 

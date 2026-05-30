@@ -6,7 +6,7 @@ from application.config.database import db
 from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
-from application.auth.jwt_handler import gerar_token
+from application.auth.jwt_handler import gerar_token, definir_cookie_sessao
 from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token, apenas_admins
 from application.services.service_usuario import buscar_aluno, logar_aluno, buscar_professor
 from application.models import Usuario
@@ -120,7 +120,7 @@ def login_google():
 
         if not aluno:
             return jsonify({
-                "error": "Usuário não cadastrado. Entre em contato com a instituição."
+                "error": "Sua conta Google não está vinculada a nenhum usuário nesta plataforma. Entre em contato com o administrador."
             }), 404
 
         if aluno.status.name != 'ATIVO':
@@ -132,15 +132,7 @@ def login_google():
             "aluno": aluno.to_dict()
         }))
 
-        response.set_cookie(
-            "token",
-            token_jwt,
-            httponly=True,
-            secure=False,
-            samesite="Lax",
-            max_age=60 * 60,
-            path="/"
-        )
+        definir_cookie_sessao(response, token_jwt)
 
         return response
 
@@ -195,15 +187,7 @@ def login_aluno():
         "aluno": aluno
     }))
 
-    response.set_cookie(
-        "token",
-        token,
-        httponly=True,
-        secure=False,
-        samesite="Lax",
-        max_age=60 * 60,
-        path="/"
-    )
+    definir_cookie_sessao(response, token)
 
     return response
 
@@ -243,6 +227,9 @@ def encerrarr_sessao():
 
     invalidar_token(token)
 
+    # Impede que o after_request reabra a sessão com um token renovado.
+    g.refresh_token = None
+
     response = jsonify({
         "mensagem": "Sessão encerrada com sucesso"
     })
@@ -250,6 +237,18 @@ def encerrarr_sessao():
     response.delete_cookie("token")
 
     return response, 200
+
+
+@usuarios_bp.route('/sessao/touch', methods=['POST'])
+@token_obrigatorio
+def touch_sessao():
+    """
+    Renova a sessão por atividade (sliding expiration). Não retorna dados; a
+    renovação do cookie é feita pelo `after_request` via `g.refresh_token`.
+    Usado pelo chat para que o envio de mensagens (via socket) também mantenha
+    a sessão HTTP viva — já que um WebSocket aberto não pode reescrever o cookie.
+    """
+    return jsonify({"ok": True}), 200
 
 
 @usuarios_bp.route('/professors', methods=['GET'])

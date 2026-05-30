@@ -4,7 +4,6 @@ import styles from "./Header.module.css"
 import { User, Bell, Menu } from "lucide-react";
 import { useAuth } from "@/utils/auth";
 import { useData } from "@/utils/data";
-import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { LayoutContext } from "@/contexts/LayoutContext";
 import HeaderUserIcon from "@/app/components/HeaderUserIcon/HeaderUserIcon";
@@ -19,7 +18,6 @@ interface HeaderInterface {
 export default function Header({ isSelectInactive, materiaName, onMateriaChange }: HeaderInterface) {
     const { user } = useAuth();
     const { materias } = useData();
-    const router = useRouter();
     const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -31,11 +29,14 @@ export default function Header({ isSelectInactive, materiaName, onMateriaChange 
     };
 
     
-    const handleSair = () => {
-        logout();
-        router.push("/login")
+    const handleSair = async () => {
+        await logout();
+        // Redireciona com replace (recarrega e limpa o histórico) somente após o
+        // cookie de sessão ser removido, evitando que o middleware reenvie o
+        // usuário de volta à área autenticada (US-05-RN1).
+        window.location.replace("/login");
     }
-    
+
 
     return (
         <section className={styles.headerConteiner}>

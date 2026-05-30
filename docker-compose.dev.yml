@@ -28,6 +28,15 @@ services:
       - ollama_data_dev:/root/.ollama
     profiles: ["llm"]
 
+  redis-service:
+    image: redis:7-alpine
+    container_name: tutor_redis_dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+
   backend:
     build:
       context: ./backend
@@ -40,9 +49,12 @@ services:
       - FLASK_APP=app:app
       - PYTHONUNBUFFERED=1
       - OLLAMA_HOST=http://ollama-service:11434
+      - REDIS_URL=redis://redis-service:6379/0
     depends_on:
       postgres-service:
         condition: service_healthy
+      redis-service:
+        condition: service_started
     ports:
       - "5000:5000"
     volumes:
@@ -76,6 +88,7 @@ services:
 volumes:
   postgres_data_dev:
   ollama_data_dev:
+  redis_data_dev:
   backend_pycache:
   frontend_node_modules:
   frontend_next_cache:

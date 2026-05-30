@@ -44,6 +44,10 @@ function LoginContent() {
                 return "Sua conta está desativada. Entre em contato com o administrador da sua instituição para reativá-la.";
             case "invalid_credentials":
                 return "Matrícula ou senha incorretos. Verifique e tente novamente.";
+            case "google_not_linked":
+                return "Sua conta Google não está vinculada a nenhum usuário nesta plataforma. Entre em contato com o administrador.";
+            case "google_failure":
+                return "Não foi possível autenticar com o Google. Tente novamente ou use sua matrícula e senha.";
             default:
                 return "Erro ao realizar login. Tente novamente em instantes.";
         }
@@ -102,7 +106,7 @@ function LoginContent() {
         } catch (error) {
             console.error("Erro no login Google:", error);
             setInputsInvalid(true);
-            setErrorMessage("Erro ao tentar login com Google");
+            setErrorMessage(messageForError("google_failure"));
         } finally {
             setLoading(false);
         }
@@ -190,6 +194,12 @@ function LoginContent() {
 
             </form>
 
+            {errorMessage && (
+                <p className={styles.formError} role="alert">
+                    {errorMessage}
+                </p>
+            )}
+
             <Script
                 src="https://accounts.google.com/gsi/client"
                 strategy="lazyOnload"
@@ -215,14 +225,6 @@ function LoginContent() {
                     );
                 }}
             />
-
-            {errorMessage && (
-                <Toast
-                    message={errorMessage}
-                    type="error"
-                    onClose={() => setErrorMessage(null)}
-                />
-            )}
 
             {showSessionExpiredToast && !errorMessage && (
                 <Toast

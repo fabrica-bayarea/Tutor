@@ -93,7 +93,12 @@ export async function reativarAluno(id: string): Promise<{ ok: boolean; message?
     }
 }
 
-export type LoginErrorCode = "invalid_credentials" | "deactivated" | "unknown";
+export type LoginErrorCode =
+    | "invalid_credentials"
+    | "deactivated"
+    | "google_not_linked"
+    | "google_failure"
+    | "unknown";
 
 export type LoginResultado =
     | { ok: true; aluno: InterfaceUsuario }
@@ -124,9 +129,9 @@ export async function loginAlunoGoogle(googleToken: string): Promise<LoginResult
         return { ok: true, aluno: response.data.aluno };
     } catch (error: any) {
         const status = error?.response?.status ?? 0;
-        if (status === 401) return { ok: false, error: "invalid_credentials" };
         if (status === 403) return { ok: false, error: "deactivated" };
+        if (status === 404) return { ok: false, error: "google_not_linked" };
         console.error("Erro login Google:", error);
-        return { ok: false, error: "unknown" };
+        return { ok: false, error: "google_failure" };
     }
 }

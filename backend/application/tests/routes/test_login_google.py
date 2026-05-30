@@ -67,7 +67,8 @@ def test_login_google_usuario_nao_cadastrado(client):
 
         assert response.status_code == 404
         data = response.get_json()
-        assert "não cadastrado" in data["error"].lower()
+        # Mensagem alinhada ao épico/Figma (US-02-RV1).
+        assert "não está vinculada" in data["error"].lower()
 
 
 def test_login_google_sucesso(client):
@@ -84,6 +85,7 @@ def test_login_google_sucesso(client):
         aluno_mock = MagicMock()
         aluno_mock.id = "uuid-fake-123"
         aluno_mock.role.value = "3"
+        aluno_mock.status.name = "ATIVO"  # usuário ativo: necessário p/ passar na checagem de status
         aluno_mock.to_dict.return_value = {
             "id": "uuid-fake-123",
             "matricula": "20260001",

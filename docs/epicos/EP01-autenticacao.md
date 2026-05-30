@@ -5,6 +5,7 @@
 |--------|-----------|---------------|-----------|
 | 1.2 Sprint 2 | 19/04/2026 | Login US-01 e US-02, Criação de senha via link de convite US-03 e Encerramento de sessão US-05 | Patricia Pereira Martins |
 | 1.3 Sprint 3 | 10/05/2026 | Inclusão do histórico de revisão | Patricia Pereira Martins |
+| 1.4 Sprint 3 | 30/05/2026 | Alinhamento dos textos de interface ao protótipo do Figma (US-01-RI1: rótulo "Matrícula"; US-03-RI1: título "Defina sua senha" / subtítulo "Escolha uma senha segura para acessar a plataforma.") e ajuste da regra de expiração de sessão (US-05-RN2: período "configurável", sem exigir ajuste pelo administrador) | Patricia Pereira Martins |
 
 ---
 
@@ -47,7 +48,7 @@
 ### Regras de Interface
 
 - A tela de login deve ser a primeira página exibida para usuários não autenticados.
-- Deve haver um campo de matrícula institucional com texto de orientação: _"Matrícula institucional"_.
+- Deve haver um campo para a matrícula institucional com o rótulo: _"Matrícula"_ (conforme protótipo no Figma).
 - O botão de entrar deve estar desabilitado enquanto os campos obrigatórios estiverem em branco.
 - A tela deve exibir o link "Esqueci minha senha" abaixo do formulário.
 - A tela deve exibir a opção de login com Google (ver US-02).
@@ -144,7 +145,7 @@
 ### Regras de Interface
 
 - O e-mail de convite deve conter o nome do usuário, o nome da plataforma e um botão ou link com o texto "Criar minha senha".
-- A tela de criação de senha deve deixar claro o contexto: _"Bem-vindo! Crie uma senha para acessar a plataforma."_
+- A tela de criação de senha deve deixar claro o contexto, com o título _"Defina sua senha"_ e o subtítulo _"Escolha uma senha segura para acessar a plataforma."_ (conforme protótipo no Figma — a mesma tela é usada no primeiro acesso e na recuperação de senha).
 - Devem existir dois campos: "Nova senha" e "Confirmar nova senha", ambos com opção de visualizar o conteúdo.
 - O botão de confirmar deve estar desabilitado até que os requisitos mínimos sejam atendidos.
 
@@ -179,7 +180,7 @@
 ### Regras de Negócio
 
 - O usuário pode encerrar sua sessão voluntariamente a qualquer momento clicando em "Sair".
-- A sessão expira automaticamente após um período configurável de inatividade (definido pelo administrador da plataforma).
+- A sessão expira automaticamente após um período configurável de inatividade (valor de configuração da plataforma; não precisa ser ajustável pelo administrador).
 - Após o encerramento ou expiração, o usuário é redirecionado para a tela de login.
 - Sessões expiradas não permitem continuar usando a plataforma sem novo login.
 

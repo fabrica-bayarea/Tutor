@@ -1,5 +1,8 @@
 import os
+import time
+import logging
 import smtplib
+import threading
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -7,12 +10,69 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+# Tempo máximo (em segundos) de espera por cada operação SMTP, evitando que um
+# servidor lento estoure o limite de 2 minutos para o envio (US-03-RNF1).
+SMTP_TIMEOUT = int(os.getenv("SMTP_TIMEOUT", 30))
+# Número de tentativas de envio antes de desistir.
+SMTP_TENTATIVAS = int(os.getenv("SMTP_TENTATIVAS", 3))
+
+
+def _enviar_mensagem(msg: MIMEMultipart, destinatario: str) -> None:
+    """
+    Envia uma mensagem MIME via SMTP com timeout e novas tentativas.
+
+    Reenvia em caso de falha transitória (até `SMTP_TENTATIVAS`), aplicando um
+    pequeno intervalo entre as tentativas. Levanta a última exceção caso todas
+    as tentativas falhem.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, SMTP_TENTATIVAS + 1):
+        try:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=SMTP_TIMEOUT) as server:
+                server.ehlo()
+                server.starttls()
+                server.ehlo()
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(SMTP_USER, destinatario, msg.as_string())
+            return
+        except Exception as e:
+            ultimo_erro = e
+            logger.warning(
+                "Falha ao enviar e-mail para %s (tentativa %d/%d): %s",
+                destinatario, tentativa, SMTP_TENTATIVAS, e,
+            )
+            if tentativa < SMTP_TENTATIVAS:
+                time.sleep(2 * tentativa)
+
+    raise ultimo_erro
+
+
+def enviar_email_convite_async(destinatario_email: str, destinatario_nome: str, token: str) -> None:
+    """
+    Dispara o e-mail de convite em uma thread separada.
+
+    Garante que o cadastro do usuário responda imediatamente, enquanto o envio
+    (com timeout e novas tentativas) ocorre em segundo plano dentro da janela de
+    2 minutos exigida pelo requisito (US-03-RNF1). Falhas definitivas são
+    registradas em log.
+    """
+    def _run():
+        try:
+            enviar_email_convite(destinatario_email, destinatario_nome, token)
+        except Exception as e:
+            logger.error("Erro ao enviar e-mail de convite para %s: %s", destinatario_email, e)
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 def enviar_email_convite(destinatario_email: str, destinatario_nome: str, token: str) -> None:
@@ -155,12 +215,7 @@ def enviar_email_convite(destinatario_email: str, destinatario_nome: str, token:
 
     msg.attach(MIMEText(corpo_html, "html"))
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.sendmail(SMTP_USER, destinatario_email, msg.as_string())
+    _enviar_mensagem(msg, destinatario_email)
 
 
 def enviar_email_recuperacao_senha(destinatario_email: str, destinatario_nome: str, token: str) -> None:
@@ -266,9 +321,4 @@ def enviar_email_recuperacao_senha(destinatario_email: str, destinatario_nome: s
 
     msg.attach(MIMEText(corpo_html, "html"))
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        server.sendmail(SMTP_USER, destinatario_email, msg.as_string())
+    _enviar_mensagem(msg, destinatario_email)
