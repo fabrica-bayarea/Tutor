@@ -61,7 +61,9 @@ services:
       - ./backend:/app
       - backend_pycache:/app/__pycache__
     entrypoint: ["/app/entrypoint.sh"]
-    command: ["flask", "run", "--host=0.0.0.0", "--port=5000", "--debug"]
+    # Worker com suporte a WebSocket (igual à produção) — o `flask run` do Werkzeug
+    # não faz upgrade de WebSocket. `--reload` mantém o hot-reload do dev.
+    command: ["gunicorn", "-k", "geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "-w", "1", "app:app", "--bind", "0.0.0.0:5000", "--reload", "--log-level", "info"]
 
   frontend:
     image: node:20-alpine
