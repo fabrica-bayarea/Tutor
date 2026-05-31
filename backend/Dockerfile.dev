@@ -9,12 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         libpq-dev \
         netcat-openbsd \
-        libxcb1 \
-        libgl1 \
-        libglib2.0-0 \
-        libsm6 \
-        libxext6 \
-        libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -25,6 +19,18 @@ RUN pip install --no-cache-dir \
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Bibliotecas de sistema exigidas em runtime pelo Docling para processar PDFs
+# (libxcb.so.1, libGL.so.1, etc). Ficam após o pip para não invalidar o cache
+# das camadas pesadas (torch/requirements) quando esta lista mudar.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libxcb1 \
+        libgl1 \
+        libglib2.0-0 \
+        libsm6 \
+        libxext6 \
+        libxrender1 \
+    && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 5000
 
