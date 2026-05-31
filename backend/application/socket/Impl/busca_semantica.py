@@ -54,6 +54,6 @@ async def busca_semantica(materia_id:str,query:str) -> List[str]:
 
     if not arquivos_ids: return ""
 
-    chunks = await asyncio.to_thread(buscar_no_vector_db(query,arquivos_ids))
+    chunks = await asyncio.to_thread(buscar_no_vector_db, query, arquivos_ids)
 
     return formatar_para_rag(chunks)
