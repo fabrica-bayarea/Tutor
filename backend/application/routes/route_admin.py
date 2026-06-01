@@ -1,7 +1,7 @@
 """
 Rotas para lidar com admin.
 """
-from flask import Blueprint, jsonify, current_app, request, g
+from flask import Blueprint, jsonify, request, g
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
 from application.auth.token_denylist import bloquear_usuario, desbloquear_usuario
 import uuid

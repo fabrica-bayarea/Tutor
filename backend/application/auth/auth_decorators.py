@@ -2,7 +2,7 @@ from functools import wraps
 from flask import request, jsonify, g
 from .jwt_handler import validar_token, gerar_token
 # Denylist persistente (Redis com fallback em memória) — ver token_denylist.py.
-from .token_denylist import invalidar_token, token_invalido, usuario_bloqueado
+from .token_denylist import token_invalido, usuario_bloqueado
 
 
 def extrair_token():

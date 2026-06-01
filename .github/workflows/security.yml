@@ -463,7 +463,7 @@ jobs:
             -Dsonar.coverage.exclusions=frontend/**,**/tests/**,**/test_*.py,**/*_test.py,**/__init__.py,**/migrations/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-            -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.python.coverage.reportPaths=backend/application/coverage.xml
             -Dsonar.qualitygate.wait=true
 
       # =====================================================

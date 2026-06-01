@@ -54,7 +54,14 @@ def _enviar_mensagem(msg: MIMEMultipart, destinatario: str) -> None:
             if tentativa < SMTP_TENTATIVAS:
                 time.sleep(2 * tentativa)
 
-    raise ultimo_erro
+    # `ultimo_erro` só é None se o laço nunca executou (SMTP_TENTATIVAS <= 0);
+    # nesse caso levantamos um erro explícito em vez de `raise None` (TypeError).
+    if ultimo_erro is not None:
+        raise ultimo_erro
+    raise RuntimeError(
+        f"Falha ao enviar e-mail para {destinatario}: nenhuma tentativa foi executada "
+        f"(SMTP_TENTATIVAS={SMTP_TENTATIVAS})."
+    )
 
 
 def enviar_email_convite_async(destinatario_email: str, destinatario_nome: str, token: str) -> None:

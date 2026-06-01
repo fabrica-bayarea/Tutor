@@ -4,7 +4,7 @@ Rotas de autenticação — primeiro acesso e redefinição de senha.
 import uuid
 from flask import Blueprint, jsonify, request, current_app, make_response
 from application.config.database import db
-from application.models.model_usuario import Usuario, RoleEnum, StatusEnum
+from application.models.model_usuario import Usuario, StatusEnum
 from application.models.model_token_convite import TokenConvite
 from application.services.service_usuario import (validar_token_convite, definir_senha_primeiro_acesso)
 from application.libs.email_sender import enviar_email_recuperacao_senha
