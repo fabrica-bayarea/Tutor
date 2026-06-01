@@ -7,7 +7,8 @@ from flask import Blueprint, request, jsonify, g
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from application.auth.jwt_handler import gerar_token, definir_cookie_sessao
-from application.auth.auth_decorators import token_obrigatorio, extrair_token, invalidar_token, apenas_admins
+from application.auth.auth_decorators import token_obrigatorio, extrair_token, apenas_admins
+from application.auth.token_denylist import invalidar_token
 from application.services.service_usuario import buscar_aluno, logar_aluno, buscar_professor
 from application.models import Usuario
 
