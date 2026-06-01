@@ -201,16 +201,21 @@ jobs:
         continue-on-error: true
         working-directory: ./backend
         run: |
-          pip install pytest pytest-cov
-          # Rodamos a partir de ./backend para que `--cov=application` resolva o
-          # pacote no início da medição (de dentro de ./backend/application o
+          pip install pytest pytest-cov coverage
+          # Rodamos a partir de ./backend para que `--source=application` resolva
+          # o pacote no início da medição (de dentro de ./backend/application o
           # coverage não encontra `application` e mede 0). O relatório fica em
           # backend/coverage.xml, que é o caminho lido pelo SonarCloud.
-          pytest application/tests/ \
-            --cov=application \
-            --cov-report=xml:coverage.xml \
-            --cov-report=term \
-            -q || true
+          #
+          # Usamos `coverage run` + `coverage xml` (em vez de pytest-cov) para que
+          # o relatório seja gravado mesmo quando o pytest sai com código != 0:
+          # parte dos testes depende de um Postgres que este job não sobe, e há um
+          # teste legado que erra na coleta (--continue-on-collection-errors evita
+          # que ele aborte a suíte inteira).
+          coverage run --source=application -m pytest application/tests/ \
+            --continue-on-collection-errors -p no:cacheprovider -q || true
+          coverage xml -o coverage.xml || true
+          coverage report || true
           echo "--- coverage.xml gerado: ---"
           ls -l coverage.xml || echo "coverage.xml NAO foi gerado"
 
