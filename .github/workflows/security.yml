@@ -199,13 +199,20 @@ jobs:
 
       - name: Run backend tests
         continue-on-error: true
-        working-directory: ./backend/application
+        working-directory: ./backend
         run: |
           pip install pytest pytest-cov
-          pytest tests/ \
+          # Rodamos a partir de ./backend para que `--cov=application` resolva o
+          # pacote no início da medição (de dentro de ./backend/application o
+          # coverage não encontra `application` e mede 0). O relatório fica em
+          # backend/coverage.xml, que é o caminho lido pelo SonarCloud.
+          pytest application/tests/ \
             --cov=application \
             --cov-report=xml:coverage.xml \
+            --cov-report=term \
             -q || true
+          echo "--- coverage.xml gerado: ---"
+          ls -l coverage.xml || echo "coverage.xml NAO foi gerado"
 
       # =====================================================
       # SCA — npm audit (frontend)
@@ -463,7 +470,7 @@ jobs:
             -Dsonar.coverage.exclusions=frontend/**,**/tests/**,**/test_*.py,**/*_test.py,**/__init__.py,**/migrations/**
             -Dsonar.python.version=3.11
             -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-            -Dsonar.python.coverage.reportPaths=backend/application/coverage.xml
+            -Dsonar.python.coverage.reportPaths=backend/coverage.xml
             -Dsonar.qualitygate.wait=true
 
       # =====================================================
