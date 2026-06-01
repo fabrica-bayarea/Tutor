@@ -212,8 +212,12 @@ jobs:
           # parte dos testes depende de um Postgres que este job não sobe, e há um
           # teste legado que erra na coleta (--continue-on-collection-errors evita
           # que ele aborte a suíte inteira).
+          #
+          # `-s` (sem captura) evita um crash de teardown da captura do pytest
+          # (gevent/socket.io fecha descritores ao final), que abortava a sessão
+          # antes de os testes rodarem; a cobertura é salva pelo coverage de qualquer forma.
           coverage run --source=application -m pytest application/tests/ \
-            --continue-on-collection-errors -p no:cacheprovider -q || true
+            --continue-on-collection-errors -p no:cacheprovider -s -q || true
           coverage xml -o coverage.xml || true
           coverage report || true
           echo "--- coverage.xml gerado: ---"
