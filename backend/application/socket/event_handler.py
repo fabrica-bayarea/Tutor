@@ -9,6 +9,9 @@ from flask import request, current_app
 
 from application.socket.socket_instance import socketio
 
+from application.auth.jwt_handler import validar_token
+from application.auth.auth_decorators import extrair_token, token_invalido
+
 from application.socket.Impl.registrar_chat import registrar_chat
 from application.socket.Impl.registrar_mensagem import registrar_mensagem
 from application.socket.Impl.validacao_emit import validacao_emit
@@ -16,13 +19,51 @@ from application.socket.Impl.disparar_emit import disparar_emit
 from application.socket.Impl.busca_semantica import busca_semantica
 from application.socket.Impl.prompt_builder import build_prompt
 
+# Identidade autenticada por conexão (sid -> usuario_id), definida no handshake.
+SOCKET_USUARIOS = {}
+
+
+def _autenticar_handshake():
+    """Valida o JWT do cookie do handshake. Retorna o usuario_id ou None."""
+    token = extrair_token()
+    if not token or token_invalido(token):
+        return None
+    payload = validar_token(token)
+    if not payload:
+        return None
+    return str(payload.get("user_id"))
+
+
 @socketio.on("connect")
 def handle_connect():
+    # Autentica pelo cookie enviado no handshake; rejeita conexões sem sessão
+    # válida (fecha GAP-06-F: o socket deixa de confiar no id vindo do cliente).
+    usuario_id = _autenticar_handshake()
+    if not usuario_id:
+        return False
+    SOCKET_USUARIOS[request.sid] = usuario_id
     emit("connection-confirmation", {"data": "Conexão estabelecida"})
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    SOCKET_USUARIOS.pop(request.sid, None)
+
 
 @socketio.on('mensagem_inicial')
 def maestro(data):
     sid = request.sid
+
+    usuario_id = SOCKET_USUARIOS.get(sid)
+    if not usuario_id:
+        return disparar_emit(
+            socketio, "sessao_expirada",
+            {"erro": "Sessão não autenticada. Faça login novamente."}, room=sid
+        )
+
+    # Usa a identidade autenticada no handshake, ignorando o id_usuario do payload.
+    data = {**data, "id_usuario": usuario_id}
+
     socketio.start_background_task(
         processar_mensagem,
         data,

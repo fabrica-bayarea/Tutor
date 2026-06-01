@@ -20,3 +20,4 @@ httpx
 gunicorn
 gevent
 gevent-websocket
+redis

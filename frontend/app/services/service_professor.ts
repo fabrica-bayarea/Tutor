@@ -24,32 +24,18 @@ export async function criarProfessor(
     nome: string,
     email: string
 ): Promise<CriarProfessorResultado> {
-    let criado: InterfaceUsuario;
+    // Criação atômica: o papel PROFESSOR é definido na própria criação (GAP-02-I),
+    // sem o antigo POST+PUT (que deixava o usuário como ALUNO se o PUT falhasse).
     try {
         const response = await api.post(
             `admin/usuarios/criar`,
-            { matricula, nome, email },
-            { headers: { "Content-Type": "application/json" }, withCredentials: true }
-        );
-        criado = response.data;
-    } catch (error: any) {
-        const status = error?.response?.status ?? 0;
-        const message = error?.response?.data?.error ?? "Erro ao criar o professor.";
-        return { ok: false, status, message };
-    }
-
-    try {
-        const response = await api.put(
-            `admin/usuarios/${criado.id}`,
-            { matricula, nome, email, role: Role.PROFESSOR, status: "ATIVO" },
+            { matricula, nome, email, role: Role.PROFESSOR },
             { headers: { "Content-Type": "application/json" }, withCredentials: true }
         );
         return { ok: true, professor: response.data };
     } catch (error: any) {
         const status = error?.response?.status ?? 0;
-        const message =
-            error?.response?.data?.error ??
-            "Usuário criado, mas não foi possível defini-lo como professor.";
+        const message = error?.response?.data?.error ?? "Erro ao criar o professor.";
         return { ok: false, status, message };
     }
 }

@@ -2,12 +2,13 @@
 Rotas de autenticação — primeiro acesso e redefinição de senha.
 """
 import uuid
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, make_response
 from application.config.database import db
-from application.models.model_usuario import Usuario, RoleEnum
+from application.models.model_usuario import Usuario, StatusEnum
 from application.models.model_token_convite import TokenConvite
 from application.services.service_usuario import (validar_token_convite, definir_senha_primeiro_acesso)
 from application.libs.email_sender import enviar_email_recuperacao_senha
+from application.auth.jwt_handler import gerar_token, definir_cookie_sessao
 import re
 
 REGEX_SENHA = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$')
@@ -60,22 +61,25 @@ def definir_senha():
     Espera receber (JSON):
     - `token`: str — token UUID do convite
     - `senha`: str — nova senha escolhida pelo usuário
- 
+    - `confirmacao`: str — repetição da nova senha para confirmação
+
     Regras:
     - Token precisa existir e não ter sido utilizado (campo `used=False`).
+    - `senha` e `confirmacao` devem ser idênticas.
     - Senha validada pelo `_validar_forca_senha` do próprio service:
       8+ chars, maiúscula, minúscula e número.
     - Após salvar o hash da senha, `TokenConvite.used` é marcado como True.
- 
+
     Retorna:
-    - `200 OK` com dados básicos do usuário após sucesso.
+    - `200 OK` com os dados do usuário e cookie de sessão (JWT) — o usuário já fica
+      autenticado e o front redireciona à home do perfil (US-03-RN3).
     - `400 Bad Request` se parâmetros ausentes.
     - `410 Gone` se token inválido ou já utilizado.
-    - `422 Unprocessable Entity` se a senha não atende aos requisitos.
+    - `422 Unprocessable Entity` se as senhas não conferem ou não atendem aos requisitos.
  
 ```json
-    // 200 OK
-    { "mensagem": "Senha criada com sucesso." }
+    // 200 OK  (+ Set-Cookie: token=<jwt>)
+    { "mensagem": "Senha criada com sucesso.", "usuario": { "id": "...", "role": "ALUNO" } }
  
     // 400 Bad Request
     { "error": "Parâmetros 'token' e 'senha' são obrigatórios" }
@@ -96,10 +100,16 @@ def definir_senha():
     data = request.get_json(silent=True) or {}
     token = data.get('token', '').strip()
     senha = data.get('senha', '')
- 
+    confirmacao = data.get('confirmacao', '')
+
     if not token or not senha:
         return jsonify({"error": "Parâmetros 'token' e 'senha' são obrigatórios"}), 400
- 
+
+    # Valida a confirmação somente quando ela é enviada — evita quebrar clientes
+    # que não mandam o campo (a força da senha continua sendo verificada adiante).
+    if confirmacao and senha != confirmacao:
+        return jsonify({"error": "As senhas não conferem. Por favor, digite novamente."}), 422
+
     _, status_token = validar_token_convite(token)
     if status_token == 'utilizado_ou_inexistente':
         return jsonify({
@@ -108,14 +118,22 @@ def definir_senha():
         }), 410
  
     usuario = definir_senha_primeiro_acesso(token, senha)
- 
+
     if usuario is None:
         return jsonify({
             "error": "A senha não atende aos requisitos mínimos.",
             "requisitos": "Mínimo 8 caracteres, uma letra maiúscula, uma minúscula e um número."
         }), 422
- 
-    return jsonify({"mensagem": "Senha criada com sucesso."}), 200
+
+    # US-03-RN3: token já foi invalidado no service; inicia a sessão (emite JWT)
+    # e devolve o usuário para o front redirecionar à home do perfil.
+    token_jwt = gerar_token(usuario['id'], usuario['role'])
+    response = make_response(jsonify({
+        "mensagem": "Senha criada com sucesso.",
+        "usuario": usuario,
+    }), 200)
+    definir_cookie_sessao(response, token_jwt)
+    return response
 
 
 @auth_bp.route('/forgot-password', methods=['POST'])
@@ -128,7 +146,7 @@ def recuperar_senha():
 
     usuario = Usuario.query.filter_by(email=email).first()
 
-    if usuario and usuario.status == RoleEnum.ATIVO:
+    if usuario and usuario.status == StatusEnum.ATIVO:
         TokenConvite.query.filter_by(usuario_id=usuario.id, used=False).update({'used': True})
         db.session.commit()
 

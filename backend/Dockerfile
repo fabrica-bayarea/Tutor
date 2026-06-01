@@ -31,6 +31,14 @@ COPY --from=build /app .
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
+# Executa como usuário não-root (mitiga risco de rodar como root no container).
+# Cria /data (volume do ChromaDB) e dá posse de /app e /data ao usuário, pois o
+# app executa os.makedirs("/data/chroma") no boot e o entrypoint precisa rodar.
+RUN useradd --create-home --uid 1000 appuser \
+    && mkdir -p /data/chroma \
+    && chown -R appuser:appuser /app /data
+USER appuser
+
 # Use o caminho relativo direto ou absoluto
 ENTRYPOINT ["/app/entrypoint.sh"]
 # Comando padrão para rodar a aplicação

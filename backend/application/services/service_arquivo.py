@@ -80,6 +80,7 @@ def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: u
     collection.add(
         ids=[str(documento_id)],
         metadatas=[{
+            "arquivo_id": str(documento_id),
             "titulo": titulo,
             "professor_id": str(professor_id),
             "vinculos": formatted_vinculos,

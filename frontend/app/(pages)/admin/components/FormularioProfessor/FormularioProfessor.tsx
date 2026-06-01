@@ -61,14 +61,14 @@ export default function FormularioProfessor({
         const msg = message.toLowerCase();
         const next: CampoErros = {};
         if (msg.includes("matrícula") || msg.includes("matricula")) {
-            next.matricula = "Matrícula já cadastrada.";
+            next.matricula = "Esta matrícula já está em uso por outro usuário.";
         }
         if (msg.includes("email") || msg.includes("e-mail")) {
-            next.email = "E-mail já cadastrado.";
+            next.email = "Este e-mail já está em uso por outro usuário.";
         }
         if (!next.matricula && !next.email) {
-            next.matricula = "Matrícula já cadastrada.";
-            next.email = "E-mail já cadastrado.";
+            next.matricula = "Esta matrícula já está em uso por outro usuário.";
+            next.email = "Este e-mail já está em uso por outro usuário.";
         }
         return next;
     }

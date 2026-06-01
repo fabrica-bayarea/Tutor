@@ -31,8 +31,8 @@ function gerarSenhaTemporaria(): string {
     return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function emailValido(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function emailInstitucionalValido(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.endsWith("@iesb.edu.br");
 }
 
 export default function FormularioAluno({
@@ -58,7 +58,8 @@ export default function FormularioAluno({
         if (!nome.trim()) e.nome = "Informe o nome completo.";
         if (!matricula.trim()) e.matricula = "Informe a matrícula.";
         if (!email.trim()) e.email = "Informe o e-mail.";
-        else if (!emailValido(email)) e.email = "E-mail inválido.";
+        else if (!emailInstitucionalValido(email.trim()))
+            e.email = "Informe um e-mail institucional válido (@iesb.edu.br).";
         return e;
     }
 
@@ -88,7 +89,7 @@ export default function FormularioAluno({
                 return;
             }
             if (resultado.status === 409) {
-                setErros({ email: "E-mail já cadastrado." });
+                setErros({ email: "Este e-mail já está em uso por outro usuário." });
                 return;
             }
             setErros({ geral: resultado.message });
@@ -105,7 +106,7 @@ export default function FormularioAluno({
         setSubmitting(false);
 
         if (resultado.ok) {
-            addToast("Aluno cadastrado com sucesso.", "success");
+            addToast("Aluno cadastrado! Um link de convite foi enviado para o e-mail informado.", "success");
             router.push("/admin/pages/alunos");
             return;
         }
@@ -114,14 +115,14 @@ export default function FormularioAluno({
             const msg = resultado.message.toLowerCase();
             const next: CampoErros = {};
             if (msg.includes("matrícula") || msg.includes("matricula")) {
-                next.matricula = "Matrícula já cadastrada.";
+                next.matricula = "Esta matrícula já está em uso por outro usuário.";
             }
             if (msg.includes("email") || msg.includes("e-mail")) {
-                next.email = "E-mail já cadastrado.";
+                next.email = "Este e-mail já está em uso por outro usuário.";
             }
             if (!next.matricula && !next.email) {
-                next.matricula = "Matrícula já cadastrada.";
-                next.email = "E-mail já cadastrado.";
+                next.matricula = "Esta matrícula já está em uso por outro usuário.";
+                next.email = "Este e-mail já está em uso por outro usuário.";
             }
             setErros(next);
             return;

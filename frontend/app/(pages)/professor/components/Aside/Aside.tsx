@@ -4,11 +4,18 @@ import { usePathname, useRouter } from 'next/navigation';
 import { House, Book, GraduationCap, FolderPlus, ChartColumn, MessageCircleMore, BookOpen, Settings, LogOut } from 'lucide-react';
 import AsideMainButton from '../../../../components/AsideMainButton/AsideMainButton';
 import Button from '../../../../components/Button/Button';
+import { logout } from '@/app/services/service_auth';
 import styles from './Aside.module.css';
 
 export default function Aside() {
     const pathname = usePathname();
     const router = useRouter();
+
+    const handleSair = async () => {
+        await logout();
+        // Redireciona após remover o cookie de sessão (US-05-RN1/RI1).
+        window.location.replace('/login');
+    };
 
     const getSelected = () => {
         if (pathname?.endsWith('/professor')) return 'home';
@@ -79,6 +86,7 @@ export default function Aside() {
                     icon={<LogOut size={16} />}
                     label="Sair"
                     fullWidth
+                    onClick={handleSair}
                 />
             </div>
         </div>

@@ -17,6 +17,45 @@ export async function listarAlunos(): Promise<AlunoBackend[]> {
     }
 }
 
+export interface AlunosPaginados {
+    usuarios: AlunoBackend[];
+    page: number;
+    pages: number;
+    total: number;
+}
+
+/**
+ * Listagem de alunos paginada e filtrada no servidor (US-08-RNF1/RNF2 / GAP-02-D):
+ * a página é buscada sob demanda e a busca por nome/matrícula/e-mail é executada
+ * na base de dados.
+ */
+export async function listarAlunosPaginado(
+    page: number,
+    limit: number,
+    busca?: string
+): Promise<AlunosPaginados> {
+    try {
+        const response = await api.get(`admin/usuarios/all`, {
+            params: {
+                page,
+                limit,
+                role: Role.ALUNO,
+                ...(busca && busca.trim() ? { busca: busca.trim() } : {}),
+            },
+        });
+        const d = response.data ?? {};
+        return {
+            usuarios: d.usuarios ?? [],
+            page: d.pagination?.page ?? page,
+            pages: d.pagination?.pages ?? 1,
+            total: d.pagination?.total ?? 0,
+        };
+    } catch (error) {
+        console.error("Erro ao listar alunos:", error);
+        return { usuarios: [], page: 1, pages: 1, total: 0 };
+    }
+}
+
 export type CriarAlunoResultado =
     | { ok: true; aluno: InterfaceUsuario }
     | { ok: false; status: number; message: string };
@@ -93,7 +132,12 @@ export async function reativarAluno(id: string): Promise<{ ok: boolean; message?
     }
 }
 
-export type LoginErrorCode = "invalid_credentials" | "deactivated" | "unknown";
+export type LoginErrorCode =
+    | "invalid_credentials"
+    | "deactivated"
+    | "google_not_linked"
+    | "google_failure"
+    | "unknown";
 
 export type LoginResultado =
     | { ok: true; aluno: InterfaceUsuario }
@@ -124,9 +168,9 @@ export async function loginAlunoGoogle(googleToken: string): Promise<LoginResult
         return { ok: true, aluno: response.data.aluno };
     } catch (error: any) {
         const status = error?.response?.status ?? 0;
-        if (status === 401) return { ok: false, error: "invalid_credentials" };
         if (status === 403) return { ok: false, error: "deactivated" };
+        if (status === 404) return { ok: false, error: "google_not_linked" };
         console.error("Erro login Google:", error);
-        return { ok: false, error: "unknown" };
+        return { ok: false, error: "google_failure" };
     }
 }

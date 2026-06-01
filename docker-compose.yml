@@ -24,6 +24,13 @@ services:
     volumes:
       - ollama_data:/root/.ollama
 
+  redis-service:
+    image: redis:7-alpine
+    container_name: tutor_redis_prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+
   backend:
     build:
       context: ./backend
@@ -34,9 +41,11 @@ services:
       - .env
     environment:
       - OLLAMA_HOST=http://ollama-service:11434
+      - REDIS_URL=redis://redis-service:6379/0
     depends_on:
       - postgres-service
       - ollama-service
+      - redis-service
     ports:
       - "5000:5000"
 
@@ -59,3 +68,4 @@ services:
 volumes:
   postgres_data_prod:
   ollama_data:
+  redis_data_prod:

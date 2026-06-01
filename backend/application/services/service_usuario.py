@@ -3,7 +3,7 @@ import re
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from application.models.model_usuario import Usuario, RoleEnum
+from application.models.model_usuario import Usuario, RoleEnum, StatusEnum
 from application.models.model_aluno_turma import AlunoTurma
 from application.models.model_token_convite import TokenConvite
 from application.config.database import db
@@ -12,10 +12,12 @@ def criar_usuario(
     matricula: str,
     nome: str,
     email: str,
-    via_google: bool = False
+    via_google: bool = False,
+    role: RoleEnum = RoleEnum.ALUNO
 ) -> tuple[dict, str | None]:
     """
     Cria um novo usuário no banco com senha aleatória.
+    O papel é atribuído de forma atômica na criação (GAP-02-I) — por padrão ALUNO.
     Gera um token de convite se não for via Google.
     """
     senha_aleatoria = secrets.token_hex(16)
@@ -26,8 +28,8 @@ def criar_usuario(
         nome=nome,
         email=email,
         senha=senha_hash,
-        role=RoleEnum.ALUNO,      
-        status=RoleEnum.ATIVO     
+        role=role,
+        status=StatusEnum.ATIVO
     )
     db.session.add(usuario)
     db.session.flush()
@@ -91,7 +93,7 @@ def desativar_aluno(aluno_id: uuid.UUID):
     if not aluno:
         return None
     
-    aluno.status = RoleEnum.INATIVO
+    aluno.status = StatusEnum.INATIVO
     db.session.commit()
     return aluno
 
@@ -112,7 +114,7 @@ def alterar_aluno_por_id(id: uuid.UUID, matricula_nova: str, nome_novo: str, ema
     return aluno.to_dict()
 
 
-def reativar_aluno(id: uuid.UUID, status_novo: str = RoleEnum.ATIVO):
+def reativar_aluno(id: uuid.UUID, status_novo: str = StatusEnum.ATIVO):
     """Reativa um usuário no sistema."""
     aluno = Usuario.query.get(id)
     if not aluno:
@@ -123,22 +125,42 @@ def reativar_aluno(id: uuid.UUID, status_novo: str = RoleEnum.ATIVO):
     return aluno.to_dict()
 
 
-def buscar_alunos_por_filtro(nome: str, matricula: str, turma: str, role: str, status: str):
-    """Busca avançada de alunos com suporte a joins de turma."""
+def buscar_alunos_por_filtro(nome: str = None, matricula: str = None, turma: str = None,
+                             role: str = None, status: str = None, busca: str = None):
+    """
+    Busca avançada de usuários com suporte a join de turma e a uma busca única
+    (`busca`) que casa por nome, matrícula OU e-mail (US-08-RNF2). `role`/`status`
+    aceitam string (nome do RoleEnum) e são convertidos com segurança.
+    """
     query = Usuario.query
 
     if turma:
         query = query.join(AlunoTurma).filter(AlunoTurma.turma.ilike(f"%{turma}%"))
 
+    if busca:
+        termo = f"%{busca}%"
+        query = query.filter(db.or_(
+            Usuario.nome.ilike(termo),
+            Usuario.matricula.ilike(termo),
+            Usuario.email.ilike(termo),
+        ))
+
     if nome:
         query = query.filter(Usuario.nome.ilike(f"%{nome}%"))
     if matricula:
         query = query.filter(Usuario.matricula.ilike(f"%{matricula}%"))
+
     if role:
-        query = query.filter(Usuario.role == role)
+        if isinstance(role, str):
+            role = RoleEnum.__members__.get(role)
+        if role:
+            query = query.filter(Usuario.role == role)
     if status:
-        query = query.filter(Usuario.status == status)
-    
+        if isinstance(status, str):
+            status = StatusEnum.__members__.get(status)
+        if status:
+            query = query.filter(Usuario.status == status)
+
     return query.order_by(Usuario.nome.asc())
 
 

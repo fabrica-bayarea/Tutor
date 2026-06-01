@@ -4,7 +4,6 @@ import styles from "./Header.module.css"
 import { Bell, Menu, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from '@/utils/auth';
 import { LayoutContext } from '@/contexts/LayoutContext';
 import { Role } from '@/utils/roles';
@@ -28,7 +27,6 @@ const roleLabel: Record<string, string> = {
 export default function Header(){
     const { user } = useAuth();
     const pathname = usePathname();
-    const router = useRouter();
     const { setIsMenuAbertoMobile } = useContext(LayoutContext)!;
     const [caminho, setCaminho] = useState("");
 
@@ -48,9 +46,12 @@ export default function Header(){
         setCaminho(segments.at(-1) ? slugToLabel(segments.at(-1)!) : '');
     }, [pathname]);
 
-    const handleSair = () => {
-        router.push("/login");
-        logout();
+    const handleSair = async () => {
+        await logout();
+        // Redireciona com replace (recarrega e limpa o histórico) somente após o
+        // cookie de sessão ser removido, evitando que o middleware reenvie o
+        // usuário de volta à área autenticada (US-05-RN1).
+        window.location.replace("/login");
     };
 
     return(

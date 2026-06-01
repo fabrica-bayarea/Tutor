@@ -12,6 +12,7 @@ import { useData } from "@/utils/data";
 import { useAuth } from "@/utils/auth";
 import styles from "./page.module.css"
 import socket from "../../../libs/socket";
+import { touchSessao } from "@/app/services/service_auth";
 
 type SocketEvento =
     | "processando"
@@ -96,6 +97,15 @@ export default function Chat() {
             console.error("[Socket erro]", data.erro);
         });
 
+        // Sessão inválida/expirada no socket → volta para o login.
+        const redirecionarParaLogin = () => {
+            window.location.href = "/login?returnTo=/chat";
+        };
+        socket.on("sessao_expirada", redirecionarParaLogin);
+        socket.on("connect_error", () => {
+            console.error("[Socket] falha ao conectar (sessão inválida?)");
+        });
+
         return () => {
             socket.off("processando");
             socket.off("buscando_arquivos");
@@ -104,6 +114,8 @@ export default function Chat() {
             socket.off("resposta_finalizada");
             socket.off("processo_completo");
             socket.off("erro");
+            socket.off("sessao_expirada", redirecionarParaLogin);
+            socket.off("connect_error");
             socket.disconnect();
         };
     }, []);
@@ -134,6 +146,10 @@ export default function Chat() {
         setText("");
         setPodeEnviarMensagem(false);
         llmBolhaCriada.current = false;
+
+        // Atividade real → renova a sessão HTTP (sliding), já que o socket não
+        // pode reescrever o cookie httponly.
+        touchSessao();
 
         socket.emit("mensagem_inicial", payload);
     };

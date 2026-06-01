@@ -1,8 +1,9 @@
 """
 Rotas para lidar com admin.
 """
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, request, g
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
+from application.auth.token_denylist import bloquear_usuario, desbloquear_usuario
 import uuid
 from application.models.model_usuario import RoleEnum, Usuario
 from application.models.model_materia import Materia
@@ -11,15 +12,17 @@ from application.services.service_usuario import (criar_usuario, buscar_aluno, d
 import secrets
 from application.config.database import db
 from datetime import datetime
-from application.libs.email_sender import enviar_email_convite
+from application.libs.email_sender import enviar_email_convite_async
 from flask import make_response
-from application.auth.jwt_handler import gerar_token
+from application.auth.jwt_handler import gerar_token, definir_cookie_sessao
 from application.services.service_usuario import definir_senha_primeiro_acesso, _validar_forca_senha
 from application.services.service_materia import getAllSubjects, createSubject, updateSubject, deleteSubject, buscar_materia_por_id
 
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.route('/usuarios/all', methods=['GET'])
+@token_obrigatorio
+@apenas_admins
 def listar_todos_usuarios():
     """
     Endpoint para listar usuarios
@@ -52,7 +55,8 @@ def listar_todos_usuarios():
             matricula = request.args.get('matricula'),
             role = request.args.get('role'),
             status = request.args.get('status'),
-            turma =request.args.get('turma')
+            turma =request.args.get('turma'),
+            busca = request.args.get('busca')
         )
 
         if limit:
@@ -85,6 +89,8 @@ def listar_todos_usuarios():
 
     
 @admin_bp.route('/usuarios/criar', methods=['POST'])
+@token_obrigatorio
+@apenas_admins
 def gerar_aluno():
     """
     Endpoint para criar um usuário e disparar e-mail de convite.
@@ -114,31 +120,42 @@ def gerar_aluno():
     email = dados.get('email')
     via_google = dados.get('via_google', False)
 
+    # Papel atribuído de forma atômica na criação (GAP-02-I). Default: ALUNO.
+    role_str = (dados.get('role') or 'ALUNO').upper()
+    if role_str not in ('ADMIN', 'PROFESSOR', 'ALUNO'):
+        role_str = 'ALUNO'
+    role_enum = RoleEnum[role_str]
+
     if not matricula or not nome or not email:
         return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
 
-    existente = Usuario.query.filter(
-        (Usuario.matricula == matricula) | (Usuario.email == email)
-    ).first()
+    # Checagem separada por campo, com as mensagens específicas do épico/Figma
+    # (US-07-RV2/US-08-RV2). `campos` permite ao front marcar o campo certo.
+    erros = {}
+    if Usuario.query.filter(Usuario.matricula == matricula).first():
+        erros["matricula"] = "Esta matrícula já está em uso por outro usuário."
+    if Usuario.query.filter(Usuario.email == email).first():
+        erros["email"] = "Este e-mail já está em uso por outro usuário."
 
-    if existente:
-        return jsonify({"error": "Email ou matrícula já cadastrados."}), 409
+    if erros:
+        return jsonify({"error": " ".join(erros.values()), "campos": erros}), 409
 
-    usuario_dict, token = criar_usuario(matricula, nome, email, via_google)
+    usuario_dict, token = criar_usuario(matricula, nome, email, via_google, role=role_enum)
 
     if not via_google and token:
-        try:
-            enviar_email_convite(email, nome, token)
-        except Exception as e:
-            current_app.logger.error(f"Erro ao enviar e-mail de convite para {email}: {e}")
+        # Envio assíncrono (não bloqueia a resposta do cadastro) com timeout e
+        # novas tentativas dentro da janela de 2 minutos exigida (US-03-RNF1).
+        enviar_email_convite_async(email, nome, token)
 
     return jsonify(usuario_dict), 201
 
 
 @admin_bp.route("/usuarios/delete/<uuid:id>", methods=['DELETE'])
+@token_obrigatorio
+@apenas_admins
 def deletar_usuario(id):
     """
     Endpoint para deletar(Inativar) usuario por id
@@ -156,10 +173,17 @@ def deletar_usuario(id):
     }
     ```
     """
+    # GAP-02-C: o admin não pode desativar a própria conta.
+    if str(g.usuario_id) == str(id):
+        return jsonify({"error": "Você não pode desativar a própria conta."}), 403
+
     aluno = desativar_aluno(id)
 
     if not aluno:
         return jsonify({"error": "Usuario não encontrado"}), 404
+
+    # GAP-02-B: encerra as sessões ativas do usuário desativado.
+    bloquear_usuario(id)
 
     return jsonify({
         "Usuario:": aluno.nome,
@@ -171,6 +195,8 @@ def deletar_usuario(id):
 
 
 @admin_bp.route("/usuarios/<uuid:id>", methods=['GET'])
+@token_obrigatorio
+@apenas_admins
 def buscar_alunos_por_id(id):
     """
     Endpoint para buscar usuario por id
@@ -196,6 +222,8 @@ def buscar_alunos_por_id(id):
 
 
 @admin_bp.route("/usuarios/<uuid:id>", methods=['PUT'])
+@token_obrigatorio
+@apenas_admins
 def atualizar_aluno_por_id(id):
     """
     Endpoint para atualizar usuario por id
@@ -227,7 +255,7 @@ def atualizar_aluno_por_id(id):
 
     if not email.endswith("@iesb.edu.br"):
         return jsonify({"error": "Email deve ser institucional (@iesb.edu.br)"}), 400
-    
+
     if status not in ["ATIVO", "INATIVO"]:
         return jsonify({"error": "Status deve ser ATIVO ou INATIVO"}), 400
 
@@ -235,14 +263,24 @@ def atualizar_aluno_por_id(id):
 
     if not aluno_existente:
         return jsonify({"error: Usuario não encontrado"}), 404
-    
-    aluno_novo = alterar_aluno_por_id(id, matricula, nome, email, status, role)
+
+    # GAP-02-F: e-mail já usado por OUTRO usuário → 409 (em vez de IntegrityError/500).
+    if Usuario.query.filter(Usuario.email == email, Usuario.id != id).first():
+        return jsonify({
+            "error": "Este e-mail já está em uso por outro usuário.",
+            "campos": {"email": "Este e-mail já está em uso por outro usuário."},
+        }), 409
+
+    # GAP-02-E: matrícula é imutável após o cadastro — preserva a existente.
+    aluno_novo = alterar_aluno_por_id(id, aluno_existente['matricula'], nome, email, status, role)
 
     return jsonify(aluno_novo), 200
 
 
 
 @admin_bp.route("/usuarios/<uuid:id>/reativar", methods=['PATCH'])
+@token_obrigatorio
+@apenas_admins
 def reativar_usuario(id):
     """
     Endpoint para reativar usuario por id
@@ -273,6 +311,9 @@ def reativar_usuario(id):
         return jsonify({"error: Usuario não encontrado"}), 404
     
     aluno = reativar_aluno(id, status)
+
+    # Reabilita as sessões do usuário reativado (contrapartida do GAP-02-B).
+    desbloquear_usuario(id)
 
     return jsonify({
         "Usuario:": aluno["nome"],
@@ -352,15 +393,7 @@ def recriar_senha():
         "redirect": f"/painel/{role_slug}"
     }), 200)
 
-    response.set_cookie(
-        "token",
-        token_jwt,
-        httponly=True,
-        secure=False,
-        samesite="Lax",
-        max_age=60 * 60,
-        path="/"
-    )
+    definir_cookie_sessao(response, token_jwt)
 
     return response
 
@@ -394,9 +427,6 @@ def lista_materias():
     
     materia = materia.all()
 
-    if not materia:
-        return jsonify({"Error": "Materia não encontrada"}), 404
-
     return jsonify({
         "success": True,
         "Materias": [m.to_dict() for m in materia],
@@ -417,7 +447,7 @@ def gerar_materia():
 
 
     if not codigo or not nome:
-        return jsonify({"error": "Parâmetros 'matricula', 'nome' e 'email' são obrigatórios"}), 400
+        return jsonify({"error": "Parâmetros 'codigo' e 'nome' são obrigatórios"}), 400
 
 
     existente = Materia.query.filter(
@@ -453,8 +483,10 @@ def atualizar_materia(id):
 
     if not materia_existente:
         return jsonify({"Error": "Materia não econtrada"}), 404
-    
-    materia_nova = updateSubject(id,nome,codigo,status)
+
+    # G5: o código é imutável após o cadastro — preserva o existente, ignorando
+    # qualquer valor enviado no corpo (bloqueio já existia só no frontend).
+    materia_nova = updateSubject(id, nome, materia_existente['codigo'], status)
 
     return jsonify(materia_nova), 200
 

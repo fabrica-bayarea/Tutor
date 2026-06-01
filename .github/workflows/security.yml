@@ -199,13 +199,29 @@ jobs:
 
       - name: Run backend tests
         continue-on-error: true
-        working-directory: ./backend/application
+        working-directory: ./backend
         run: |
-          pip install pytest pytest-cov
-          pytest tests/ \
-            --cov=application \
-            --cov-report=xml:coverage.xml \
-            -q || true
+          pip install pytest pytest-cov coverage
+          # Rodamos a partir de ./backend para que `--source=application` resolva
+          # o pacote no início da medição (de dentro de ./backend/application o
+          # coverage não encontra `application` e mede 0). O relatório fica em
+          # backend/coverage.xml, que é o caminho lido pelo SonarCloud.
+          #
+          # Usamos `coverage run` + `coverage xml` (em vez de pytest-cov) para que
+          # o relatório seja gravado mesmo quando o pytest sai com código != 0:
+          # parte dos testes depende de um Postgres que este job não sobe, e há um
+          # teste legado que erra na coleta (--continue-on-collection-errors evita
+          # que ele aborte a suíte inteira).
+          #
+          # `-s` (sem captura) evita um crash de teardown da captura do pytest
+          # (gevent/socket.io fecha descritores ao final), que abortava a sessão
+          # antes de os testes rodarem; a cobertura é salva pelo coverage de qualquer forma.
+          coverage run --source=application -m pytest application/tests/ \
+            --continue-on-collection-errors -p no:cacheprovider -s -q || true
+          coverage xml -o coverage.xml || true
+          coverage report || true
+          echo "--- coverage.xml gerado: ---"
+          ls -l coverage.xml || echo "coverage.xml NAO foi gerado"
 
       # =====================================================
       # SCA — npm audit (frontend)

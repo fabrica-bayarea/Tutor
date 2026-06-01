@@ -18,7 +18,7 @@ export type ValidarTokenResultado =
     | { ok: false; status: number; message: string };
 
 export type CriarSenhaResultado =
-    | { ok: true }
+    | { ok: true; usuario: Usuario }
     | { ok: false; status: number; message: string };
     
 export async function solicitarRecuperacaoSenha(email: string): Promise<{ ok: boolean }> {
@@ -49,6 +49,27 @@ export async function logout(): Promise<void> {
     }
 }
 
+/**
+ * Renova a sessão por atividade (sliding expiration). Usado pelo chat a cada
+ * envio de mensagem — como o WebSocket não pode reescrever o cookie httponly,
+ * esta chamada HTTP mantém a sessão viva enquanto o aluno conversa.
+ *
+ * Usa fetch direto (sem o interceptor/spinner global do axios) e é best-effort:
+ * a expiração efetiva é tratada pelo socket ("sessao_expirada") e pelo 401 das
+ * demais chamadas.
+ */
+export async function touchSessao(): Promise<void> {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL_RUNTIME ?? "";
+    try {
+        await fetch(`${baseUrl}/alunos/sessao/touch`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } catch {
+        // silencioso — renovação é best-effort
+    }
+}
+
 export async function validarToken(token: string): Promise<ValidarTokenResultado> {
     try {
         const response = await api.get(`/auth/invite/validate/${encodeURIComponent(token)}`);
@@ -64,18 +85,19 @@ export async function validarToken(token: string): Promise<ValidarTokenResultado
 
 export async function criarSenha(
     token: string,
-    senha: string
+    senha: string,
+    confirmacao: string
 ): Promise<CriarSenhaResultado> {
     try {
-        await api.post(
+        const response = await api.post(
             "/auth/invite/set-password",
-            { token, senha },
+            { token, senha, confirmacao },
             {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true,
             }
         );
-        return { ok: true };
+        return { ok: true, usuario: response.data?.usuario };
     } catch (error: any) {
         const status = error?.response?.status ?? 0;
         const message =
