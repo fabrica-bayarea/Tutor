@@ -74,5 +74,8 @@ app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(llm_bp)
 
+from application.startup import sincronizar_modelos_no_boot
+sincronizar_modelos_no_boot(app)
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000)
