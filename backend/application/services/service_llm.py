@@ -38,6 +38,14 @@ class AddModelErro(Enum):
     OLLAMA_INDISPONIVEL = "ollama_indisponivel"
 
 
+# Status terminais de um `pull`, gravados no progress store e usados como contrato
+# entre o service e quem observa o resultado (rota de polling e boot da aplicação).
+# Centralizados aqui para evitar strings mágicas espalhadas.
+STATUS_CONCLUIDO = "concluido"
+STATUS_ERRO = "erro"
+STATUS_MODELO_NAO_ENCONTRADO = "modelo_nao_encontrado"
+
+
 # --------------------------------------------------------------------------- #
 # Leitura
 # --------------------------------------------------------------------------- #
@@ -240,7 +248,7 @@ def _percentual_do_evento(evento: dict, percent_atual: int) -> int:
     return int((evento.get("completed") or 0) / total * 100)
 
 
-def pullModel(nome: str, model_id: str) -> None:
+def pullModel(nome: str, model_id: str) -> str:
     """
     Executa o `pull` de um modelo no Ollama e atualiza o progresso (0–100%).
 
@@ -248,9 +256,10 @@ def pullModel(nome: str, model_id: str) -> None:
     - `nome`: str - o nome do modelo no Ollama.
     - `model_id`: str - o ID do registro, usado como chave no progress store.
 
-    Não retorna valor: o resultado é observado via `getPullProgress(model_id)`.
-    O estágio final fica como "concluido" (100%) em sucesso, ou "erro" se o
-    download falhar.
+    Nunca levanta exceção (é seguro chamar numa thread de fundo). Retorna o status
+    terminal: `STATUS_CONCLUIDO` em sucesso, ou `STATUS_ERRO` /
+    `STATUS_MODELO_NAO_ENCONTRADO` em falha. O progresso também fica observável via
+    `getPullProgress(model_id)`.
     """
     percent_atual = 0
     try:
@@ -261,28 +270,44 @@ def pullModel(nome: str, model_id: str) -> None:
             )
 
         # O stream terminou sem erro: o download está completo.
-        llm_progress_store.set_progress(model_id, 100, "concluido")
+        llm_progress_store.set_progress(model_id, 100, STATUS_CONCLUIDO)
+        return STATUS_CONCLUIDO
     except OllamaModelNotFoundError:
-        llm_progress_store.set_progress(model_id, percent_atual, "modelo_nao_encontrado")
+        llm_progress_store.set_progress(model_id, percent_atual, STATUS_MODELO_NAO_ENCONTRADO)
+        return STATUS_MODELO_NAO_ENCONTRADO
     except OllamaIndisponivelError:
-        llm_progress_store.set_progress(model_id, percent_atual, "erro")
+        llm_progress_store.set_progress(model_id, percent_atual, STATUS_ERRO)
+        return STATUS_ERRO
 
 
 def pullAllModels() -> dict:
     """
     Sincroniza todos os modelos cadastrados com o Ollama, executando o `pull`
-    de cada um sequencialmente (uso administrativo/seed).
+    de cada um sequencialmente (uso no boot da aplicação e administrativo).
 
     Diferente de `addModel`, roda de forma síncrona — a intenção é garantir que
     todas as imagens estejam presentes antes de prosseguir.
 
-    Retorna um resumo: {"total": int, "modelos": [nomes processados]}.
+    Retorna um agregado para o chamador decidir o que fazer (ex.: bloquear o boot
+    se houver falhas):
+        {
+            "total": int,
+            "sucessos": [nome, ...],
+            "falhas": [{"nome": str, "status": str}, ...],
+        }
     """
     modelos = getAllModels()
-    for modelo in modelos:
-        pullModel(modelo["nome"], modelo["id"])
+    sucessos: list[str] = []
+    falhas: list[dict] = []
 
-    return {"total": len(modelos), "modelos": [m["nome"] for m in modelos]}
+    for modelo in modelos:
+        status = pullModel(modelo["nome"], modelo["id"])
+        if status == STATUS_CONCLUIDO:
+            sucessos.append(modelo["nome"])
+        else:
+            falhas.append({"nome": modelo["nome"], "status": status})
+
+    return {"total": len(modelos), "sucessos": sucessos, "falhas": falhas}
 
 
 def getPullProgress(model_id: str) -> dict | None:
@@ -304,7 +329,7 @@ def getPullProgress(model_id: str) -> dict | None:
 
     # Sem progresso em memória: distingue "modelo já baixado" de "id inexistente".
     if getModelById(model_id) is not None:
-        return {"percent": 100, "status": "concluido"}
+        return {"percent": 100, "status": STATUS_CONCLUIDO}
 
     return None
 
