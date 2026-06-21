@@ -31,6 +31,21 @@ def test_no_op_quando_flag_desligada(monkeypatch):
     mock_pull.assert_not_called()
 
 
+def test_no_op_durante_migracao_mesmo_com_flag_ligada(monkeypatch):
+    """
+    Mesmo com a flag ligada, comandos `flask db ...` (ex.: o `flask db upgrade` do
+    entrypoint) NÃO devem disparar o pull — a tabela `llm` ainda não existe nesse
+    momento (problema ovo-e-galinha).
+    """
+    monkeypatch.setenv(startup.FLAG_PULL_NO_BOOT, "true")
+    monkeypatch.setattr(startup.sys, "argv", ["flask", "db", "upgrade"])
+
+    with patch.object(startup, "pullAllModels") as mock_pull:
+        startup.sincronizar_modelos_no_boot(_app_falso())
+
+    mock_pull.assert_not_called()
+
+
 def test_chama_pull_all_models_quando_flag_ligada(monkeypatch):
     """Com a flag ligada, o boot deve sincronizar via pullAllModels."""
     monkeypatch.setenv(startup.FLAG_PULL_NO_BOOT, "true")

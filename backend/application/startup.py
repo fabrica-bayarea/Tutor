@@ -11,6 +11,7 @@ este código sem um Ollama disponível. Em produção, o docker-compose liga a f
 """
 import logging
 import os
+import sys
 
 from application.services.service_llm import pullAllModels
 
@@ -25,6 +26,10 @@ _VALORES_VERDADEIROS = {"1", "true", "yes", "on"}
 
 def _pull_no_boot_habilitado() -> bool:
     """Indica se o pull de modelos no boot está habilitado pela variável de ambiente."""
+    # Comandos de migração (`flask db ...`) importam o app antes de a tabela `llm`
+    # existir; nesse caso o pull não pode rodar — evita o problema ovo-e-galinha.
+    if len(sys.argv) > 1 and sys.argv[1] == "db":
+        return False
     return os.getenv(FLAG_PULL_NO_BOOT, "").strip().lower() in _VALORES_VERDADEIROS
 
 
