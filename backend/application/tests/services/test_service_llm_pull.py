@@ -173,9 +173,31 @@ def test_pull_all_models_sincroniza_todos(ctx):
         resumo = service_llm.pullAllModels()
 
     assert resumo["total"] == 2
-    assert set(resumo["modelos"]) == {"llama3", "mistral"}
+    assert set(resumo["sucessos"]) == {"llama3", "mistral"}
+    assert resumo["falhas"] == []
     assert llm_progress_store.get_progress(id_a)["percent"] == 100
     assert llm_progress_store.get_progress(id_b)["percent"] == 100
+
+
+def test_pull_all_models_reporta_falhas(ctx):
+    """Modelos que falham no pull devem aparecer em 'falhas', não em 'sucessos'."""
+    _criar_llm("llama3")
+    _criar_llm("nao-existe")
+
+    def _pull_por_modelo(nome):
+        if nome == "nao-existe":
+            raise OllamaModelNotFoundError("not found")
+        return _fake_pull_eventos()
+
+    with patch.object(
+        service_llm.repository_ollama, "pull_model", side_effect=_pull_por_modelo
+    ):
+        resumo = service_llm.pullAllModels()
+
+    assert resumo["sucessos"] == ["llama3"]
+    assert resumo["falhas"] == [
+        {"nome": "nao-existe", "status": service_llm.STATUS_MODELO_NAO_ENCONTRADO}
+    ]
 
 
 # --------------------------------------------------------------------------- #

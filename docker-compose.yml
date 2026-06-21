@@ -42,6 +42,9 @@ services:
     environment:
       - OLLAMA_HOST=http://ollama-service:11434
       - REDIS_URL=redis://redis-service:6379/0
+      # Sincroniza os modelos de IA com o Ollama no boot (US-38.4). Bloqueia a
+      # inicialização se algum pull falhar.
+      - PULL_MODELS_ON_STARTUP=true
     depends_on:
       - postgres-service
       - ollama-service
