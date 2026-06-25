@@ -81,3 +81,19 @@ export interface Sessao {
     inicio: Date;
     fim: Date;
 }
+
+export type LLMStatus = 'ativada' | 'desativada';
+
+export interface InterfaceLLM {
+    id: string;
+    nome: string;
+    status: LLMStatus;
+}
+
+// Progresso efêmero do download (pull) de um modelo, consultado por polling em
+// `/llm/pull-status/:id`. O `status` é um rótulo textual do backend
+// (ex.: "iniciando", "baixando", "concluido", "erro", "modelo_nao_encontrado").
+export interface PullProgress {
+    percent: number;
+    status: string;
+}
