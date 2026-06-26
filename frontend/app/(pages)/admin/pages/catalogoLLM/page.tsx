@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Power, Settings, Zap, Download, CircleCheck, AlertTriangle } from "lucide-react";
+import { Plus, Info, Settings, Zap, Download, CircleCheck, AlertTriangle } from "lucide-react";
 import Button from "@/app/components/Button/Button";
 import Modal from "@/app/components/Modal/Modal";
 import ProgressBar from "@/app/components/ProgressBar/ProgressBar";
@@ -135,6 +135,21 @@ export default function CatalogoLLM() {
         return linha.id ? progresso[linha.id]?.fase : undefined;
     }
 
+    function renderDescricao(linha: LinhaModelo) {
+        const fase = faseDe(linha);
+        if (linha.cadastrado && fase === "baixando") {
+            const percent = (linha.id ? progresso[linha.id]?.progresso.percent : 0) ?? 0;
+            return (
+                <div className={styles.descDownload}>
+                    <span>{linha.descricao}</span>
+                    <ProgressBar value={percent} color="#ea580c" />
+                    <span className={styles.percent}>Baixando... {percent}%</span>
+                </div>
+            );
+        }
+        return linha.descricao;
+    }
+
     function renderStatus(linha: LinhaModelo) {
         if (linha.ativo) {
             return <span className={`${styles.badge} ${styles.badgeAtivo}`}>Ativo</span>;
@@ -159,15 +174,10 @@ export default function CatalogoLLM() {
         }
 
         const fase = faseDe(linha);
-        const percent = (linha.id ? progresso[linha.id]?.progresso.percent : 0) ?? 0;
 
         if (linha.cadastrado && fase === "baixando") {
-            return (
-                <div className={styles.progressoArea}>
-                    <ProgressBar value={percent} color="#ea580c" />
-                    <span className={styles.percent}>Baixando... {percent}%</span>
-                </div>
-            );
+            // Durante o download, o progresso é exibido na coluna "Descrição".
+            return null;
         }
 
         if (linha.cadastrado && fase === "concluido") {
@@ -249,7 +259,7 @@ export default function CatalogoLLM() {
                                         </div>
                                     </td>
                                     <td data-label="Descrição" className={styles.celDescricao}>
-                                        {linha.descricao}
+                                        {renderDescricao(linha)}
                                     </td>
                                     <td data-label="Tamanho" className={styles.celTamanho}>
                                         {linha.tamanho}
@@ -277,7 +287,7 @@ export default function CatalogoLLM() {
                     if (!ativando) setModeloParaAtivar(null);
                 }}
                 title={modeloParaAtivar ? `Ativar o modelo ${modeloParaAtivar.nome}?` : ""}
-                icon={<Power size={20} color="#0d9488" />}
+                icon={<Info size={20} color="#2563eb" />}
                 accentColor="#0d9488"
                 showCloseButton
                 closeOnBackdrop={!ativando}

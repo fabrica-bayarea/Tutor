@@ -190,16 +190,11 @@
     color: #ffffff !important;
 }
 
-.progressoArea {
+.descDownload {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: flex-end;
-    min-width: 180px;
-}
-
-.progressoArea > div {
-    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 280px;
 }
 
 .percent {
@@ -308,9 +303,7 @@
         justify-content: center;
     }
 
-    .progressoArea {
-        width: 100%;
-        justify-content: flex-start;
-        min-width: 0;
+    .descDownload {
+        max-width: none;
     }
 }
