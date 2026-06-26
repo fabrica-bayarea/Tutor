@@ -6,17 +6,18 @@ const llm_url = "/llm";
 /**
  * Lista todos os modelos de IA cadastrados.
  *
- * Retorna uma lista (vazia se não houver modelos ou em caso de falha). Erros
- * graves (5xx) ainda disparam o toast global do interceptor.
+ * Retorna a lista (vazia se não houver modelos), ou `null` em caso de falha de
+ * carregamento — a UI usa isso para exibir a mensagem do protótipo. Suprime o
+ * toast global do interceptor (o chamador trata a mensagem).
  */
-export async function listarModelos(): Promise<InterfaceLLM[]> {
+export async function listarModelos(): Promise<InterfaceLLM[] | null> {
     try {
-        const response = await api.get(llm_url);
+        const response = await api.get(llm_url, { skipGlobalErrorToast: true });
         return response.data?.modelos ?? [];
     } catch (error: any) {
         if (error?.response?.status === 404) return [];
         console.error("Erro ao listar modelos de IA:", error);
-        return [];
+        return null;
     }
 }
 

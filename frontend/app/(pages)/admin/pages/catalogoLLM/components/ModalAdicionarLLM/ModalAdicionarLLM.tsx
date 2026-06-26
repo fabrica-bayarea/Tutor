@@ -8,6 +8,7 @@ import Input from "@/app/components/Input/Input";
 import { useToast } from "@/contexts/ToastContext";
 import { adicionarModelo } from "@/app/services/service_llm";
 import { InterfaceLLM } from "@/app/types";
+import { MSG } from "../../constants";
 import styles from "./ModalAdicionarLLM.module.css";
 
 type ModalAdicionarLLMProps = {
@@ -48,19 +49,21 @@ export default function ModalAdicionarLLM({
         setEnviando(false);
 
         if (resultado.ok) {
-            addToast(
-                `Modelo ${resultado.modelo.nome} adicionado. O download foi iniciado.`,
-                "success"
-            );
+            addToast(MSG.downloadIniciado(resultado.modelo.nome), "success");
             setNome("");
             onAdicionado(resultado.modelo);
             onClose();
             return;
         }
 
-        // O backend já devolve mensagens claras (404 = inexistente no Ollama,
-        // 409 = duplicado, 503 = Ollama fora). Exibimos no próprio modal.
-        setErro(resultado.message || "Não foi possível adicionar o modelo.");
+        // Mensagens com os textos do protótipo (US-38.5), por status do backend.
+        if (resultado.status === 503) {
+            setErro(MSG.ollamaIndisponivel);
+        } else if (resultado.status === 409) {
+            setErro(resultado.message || "Já existe um modelo com esse nome.");
+        } else {
+            setErro(MSG.falhaAdicionar(valor));
+        }
     }
 
     return (
@@ -83,10 +86,10 @@ export default function ModalAdicionarLLM({
                     />
                     <Button
                         style="filled"
-                        action="primary"
                         label={enviando ? "Adicionando..." : "Adicionar"}
                         onClick={handleSubmit}
                         isDisabled={enviando}
+                        className={styles.btnConfirmar}
                     />
                 </>
             }

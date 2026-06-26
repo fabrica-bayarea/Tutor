@@ -4,3 +4,17 @@
     color: #4b5563;
     line-height: 1.5;
 }
+
+/* Botão de confirmação do modal: laranja (CTA), como no Figma */
+.btnConfirmar {
+    background-color: #ea580c !important;
+}
+
+.btnConfirmar:hover {
+    background-color: #c2410c !important;
+}
+
+.btnConfirmar span,
+.btnConfirmar svg {
+    color: #ffffff !important;
+}
