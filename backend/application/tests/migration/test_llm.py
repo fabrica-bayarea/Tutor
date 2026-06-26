@@ -21,7 +21,8 @@ def client():
 def test_activate_model_apenas_um_ativo_por_vez(client):
     """Ao ativar um modelo, todos os outros devem ser desativados antes."""
     with patch("application.services.service_llm.LLM") as mock_llm, \
-         patch("application.services.service_llm.db") as mock_db:
+         patch("application.services.service_llm.db") as mock_db, \
+         patch("application.services.service_llm.repository_ollama.model_installed", return_value=True):
 
         modelo_mock = MagicMock()
         modelo_mock.to_dict.return_value = {"model_id": "modelo-1", "status": "ativada"}

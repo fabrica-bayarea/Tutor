@@ -14,6 +14,7 @@ from flask import Blueprint, jsonify, request
 from application.auth.auth_decorators import token_obrigatorio, apenas_admins
 from application.services.service_llm import (
     AddModelErro,
+    ModeloNaoInstaladoError,
     getActiveModel,
     getAllModels,
     getModelById,
@@ -23,6 +24,7 @@ from application.services.service_llm import (
     activateModel,
     getPullProgress,
 )
+from application.repositories.repository_ollama import OllamaIndisponivelError
 
 llm_bp = Blueprint('llm', __name__)
 
@@ -179,9 +181,18 @@ def ativar_modelo_por_id(model_id: str):
     Espera receber:
     - `model_id`: str - o ID do modelo a ativar (na URL).
 
-    Retorna HTTP 200 com o modelo ativado, ou 404 se ele não existir.
+    Respostas:
+    - 200: modelo ativado.
+    - 404: modelo não encontrado.
+    - 409: modelo ainda não instalado (precisa ser baixado antes).
+    - 503: servidor Ollama indisponível.
     """
-    modelo = activateModel(model_id)
+    try:
+        modelo = activateModel(model_id)
+    except ModeloNaoInstaladoError:
+        return jsonify({"error": "O modelo precisa ser baixado antes de ser ativado."}), 409
+    except OllamaIndisponivelError:
+        return jsonify({"error": "Servidor Ollama indisponível"}), 503
 
     if modelo is None:
         return jsonify({"error": "Modelo não encontrado"}), 404
