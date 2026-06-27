@@ -5,18 +5,19 @@
 |--------|-----------|---------------|-----------|
 | 1.2 Sprint 2 | 19/04/2026 | Login US-01 e US-02, Criação de senha via link de convite US-03 e Encerramento de sessão US-05 | Patricia Pereira Martins |
 | 1.3 Sprint 3 | 10/05/2026 | Inclusão do histórico de revisão | Patricia Pereira Martins |
+| 1.4 Sprint 3 | 26/06/2026 | Inclusão de tela para cadastro de LLM | Patricia Pereira Martins |
 
 ---
 
 # EP-09 — Gestão do Modelo de IA
 
-**Descrição:** Permite ao administrador selecionar e ativar o modelo de linguagem que será utilizado pela plataforma. Os modelos disponíveis são obtidos dinamicamente da biblioteca oficial do Ollama via scraping. O sistema consulta a API local do Ollama para identificar quais modelos já estão instalados, realiza o download dos ausentes e persiste o modelo ativo em banco de dados. Todas as requisições de geração de texto utilizam o modelo ativo configurado.
+**Descrição:** Permite ao administrador cadastrar, selecionar e ativar o modelo de linguagem que será utilizado pela plataforma. Os modelos disponíveis são obtidos dinamicamente da biblioteca oficial do Ollama. O sistema consulta a API local do Ollama para identificar quais modelos já estão instalados, realiza o download do modelo cadastrado e persiste o modelo ativo em banco de dados. Todas as requisições de geração de texto utilizam o modelo ativo configurado.
 
 **Personas:** Administrador
 
-**Protótipo:** [Design System](https://www.figma.com/design/5MClPpSqI9R42MPCwTcDzH/Tutor----Sprint-2?node-id=258-2&p=f&t=ukWioTEjrb08WqKU-0)
+**Protótipo:** [Design System](https://www.figma.com/design/zmoOcbWpUlzlRtJMoqwjPC/Tutor----Design-System-e-UX?node-id=258-2&p=f&t=Q11nVlXzz5seLxew-0)
 
-**Protótipo Sprint 2 — Gestão de Modelo de IA:** [Catálogo de LLM](https://www.figma.com/design/5MClPpSqI9R42MPCwTcDzH/Tutor----Sprint-2?node-id=239-8&p=f&t=cBk9R5p5mLL2xpWV-0)
+**Protótipo Sprint 2 — Gestão de Modelo de IA:** [Catálogo de LLM](https://www.figma.com/design/zmoOcbWpUlzlRtJMoqwjPC/Tutor----Design-System-e-UX?node-id=239-8&p=f&t=Q11nVlXzz5seLxew-0)
 
 
 ---
@@ -24,14 +25,14 @@
 ## US-38 — Seleção e ativação de modelo de IA via Ollama
 
 **Como** administrador,
-**quero** selecionar qual modelo de linguagem será utilizado pela plataforma a partir de uma lista atualizada da biblioteca do Ollama,
+**quero** cadastrar qual modelo de linguagem será utilizado pela plataforma a partir de uma lista atualizada da biblioteca do Ollama,
 **para que** eu possa controlar qual IA processa as perguntas dos alunos e garantir que o modelo esteja disponível localmente antes de ser ativado.
 
 ### Regras de Negócio
 
-- A lista de modelos disponíveis é obtida por scraping da página oficial da biblioteca do Ollama — sempre atualizada dinamicamente.
+- A lista de modelos disponíveis é obtida por cadastro do usuário no sistema (nome exato do modelo) e buscado pelo sistema da página oficial da biblioteca do Ollama — sempre atualizada dinamicamente.
 - O sistema consulta a API local do Ollama para identificar quais modelos já estão instalados.
-- A lista exibe visualmente dois estados: **Instalado** (pronto para ativar) e **Disponível para download**.
+- A lista exibe visualmente dois estados: **Instalado** (pronto para ativar) e **Fazer download**.
 - Ao selecionar um modelo não instalado, o sistema realiza o pull via API do Ollama antes de ativá-lo.
 - Durante o download, o sistema exibe o progresso em tempo real (percentual ou barra de progresso).
 - Ao clicar em **"Ativar"** de um modelo já instalado, o sistema exibe um modal de confirmação antes de efetuar a troca, evitando ativações acidentais.
@@ -42,14 +43,14 @@
 
 ### Regras de Validação
 
-- Se a lista de modelos não puder ser obtida (scraping falha), exibir: _"Não foi possível carregar a lista de modelos. Verifique a conexão e tente novamente."_
+- Se a lista de modelos não puder ser obtida (busca falha), exibir: _"Não foi possível carregar a lista de modelos. Verifique a conexão e tente novamente."_
 - Se a API local do Ollama não estiver acessível, exibir: _"Serviço Ollama não encontrado. Verifique se o Ollama está em execução."_
 - Se o download falhar, exibir: _"Falha ao baixar o modelo [nome]. Verifique a conexão e tente novamente."_ O modelo anterior permanece ativo.
 - Não é permitido ativar um modelo que não está instalado sem concluir o download.
 
 ### Regras de Interface
 
-- A tela exibe a lista de modelos com: nome, tamanho estimado e estado (Instalado / Disponível para download).
+- A tela exibe a lista de modelos com: nome, descrição, tamanho estimado, status (Instalado / Fazer download / Ativo) e estado.
 - Modelos instalados possuem botão **"Ativar"**. Modelos não instalados possuem botão **"Fazer Download"**.
 - O modelo atualmente ativo é destacado visualmente (badge ou indicador "Ativo").
 - Ao clicar em **"Ativar"** de um modelo instalado, o sistema exibe um modal de confirmação com:
