@@ -1,19 +1,11 @@
-export interface InterfaceAluno {
+export interface InterfaceUsuario {
     id: string;
     matricula: string;
     nome: string;
     email: string;
-    cpf: string;
-    data_nascimento?: Date;
-}
-
-export interface InterfaceProfessor {
-    id: string;
-    matricula: string;
-    nome: string;
-    email: string;
-    cpf: string;
-    data_nascimento?: Date;
+    role: string;
+    status?: string;
+    token?: string;
 }
 
 export interface InterfaceArquivo {
@@ -21,6 +13,12 @@ export interface InterfaceArquivo {
     professor_id: string;
     titulo: string;
     data_upload: Date | string;
+}
+
+export interface GooglePayload {
+  email: string;
+  name: string;
+  sub: string; 
 }
 
 export interface InterfaceChat {
@@ -33,7 +31,9 @@ export interface InterfaceChat {
 export interface InterfaceMensagem {
     id: string;
     chat_id: string;
+    sessao_id?: string;
     sender_id: string;
+    sender_type: string;
     conteudo: string;
     data_envio: Date;
 }
@@ -43,12 +43,14 @@ export interface InterfaceTurma {
     codigo: string;
     semestre: string;
     turno: string;
+    status?: string;
 }
 
 export interface InterfaceMateria {
     id: string;
     codigo: string;
     nome: string;
+    status?: string;
 }
 
 export interface InterfaceAlunoTurma {
@@ -71,4 +73,27 @@ export interface InterfaceArquivoTurmaMateria {
     arquivo_id: string;
     turma_id: string;
     materia_id: string;
+}
+
+export interface Sessao {
+    id: string;
+    dono_id: string;
+    inicio: Date;
+    fim: Date;
+}
+
+export type LLMStatus = 'ativada' | 'desativada';
+
+export interface InterfaceLLM {
+    id: string;
+    nome: string;
+    status: LLMStatus;
+}
+
+// Progresso efêmero do download (pull) de um modelo, consultado por polling em
+// `/llm/pull-status/:id`. O `status` é um rótulo textual do backend
+// (ex.: "iniciando", "baixando", "concluido", "erro", "modelo_nao_encontrado").
+export interface PullProgress {
+    percent: number;
+    status: string;
 }

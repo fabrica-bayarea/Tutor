@@ -1,24 +1,25 @@
 #!/bin/sh
 
-# O script irá parar imediatamente se um comando falhar
+# O script irÃ¡ parar imediatamente se um comando falhar
 set -e
 
-# Exporta a variável de ambiente para que o Flask a reconheça
-export DATABASE_URL=${DATABASE_URL}
+# O Host e a URL vÃªm do seu arquivo .env (via Docker Compose)
+# No seu .env: DB_HOST=postgres-service
+echo "Aguardando o banco de dados em $DB_HOST:5432..."
 
-# Espera o banco de dados (serviço 'db') estar pronto para aceitar conexões
-# Usamos as variáveis de ambiente que o Flask utiliza para saber onde conectar
-echo "Aguardando o banco de dados..."
-while ! nc -z $DB_HOST 5432; do
-  sleep 1
+# Loop de espera usando o Netcat
+while ! nc -z "$DB_HOST" 5432; do
+  echo "Banco de dados ($DB_HOST) ainda nÃ£o disponÃ­vel. Aguardando..."
+  sleep 2
 done
-echo "Banco de dados conectado!"
 
-# Aplica as migrações do banco de dados
-echo "Aplicando as migrações do banco de dados..."
+echo "Banco de dados conectado com sucesso!"
+
+# Aplica as migraÃ§Ãµes do Flask-Migrate
+echo "Aplicando as migraÃ§Ãµes do banco de dados..."
 flask db upgrade
-echo "Migrações aplicadas com sucesso."
+echo "MigraÃ§Ãµes aplicadas com sucesso."
 
-# Executa o comando principal do container (o que vem depois do ENTRYPOINT no Dockerfile)
-# O "$@" pega o comando definido no CMD do Dockerfile
+# Executa o comando definido no CMD do Dockerfile (Gunicorn)
+echo "Iniciando o servidor..."
 exec "$@"

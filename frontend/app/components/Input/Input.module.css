@@ -1,0 +1,115 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    width: 100%;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #737373;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    min-height: 40px;
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.field:hover {
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+.field:focus-within {
+    border-color: #0d9488;
+}
+
+.fieldError {
+    border-color: #dc2626 !important;
+}
+
+.fieldDisabled {
+    background-color: #f2f2f2;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.fieldDisabled:hover {
+    border-color: #e5e5e5;
+}
+
+.input,
+.input:hover,
+.input:focus,
+.input:focus-within,
+.input:focus-visible {
+    flex: 1;
+    min-width: 0;
+    border: none !important;
+    outline: none !important;
+    background: transparent;
+    padding: 0 0.75rem;
+    font-size: 14px;
+    color: #262626;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 0;
+    overflow: visible;
+    height: 38px;
+}
+
+.input:disabled {
+    cursor: not-allowed;
+    color: #737373;
+}
+
+.input::placeholder {
+    color: #999999;
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+    -webkit-text-fill-color: #262626;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.toggleBtn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem 0 0;
+    color: #737373;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.toggleBtn:hover:not(:disabled) {
+    color: #262626;
+}
+
+.toggleBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.helperText {
+    font-size: 12px;
+    color: #737373;
+}
+
+.errorText {
+    font-size: 12px;
+    color: #dc2626;
+}

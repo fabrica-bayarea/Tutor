@@ -1,0 +1,65 @@
+.nav {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    gap: 0;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 100%;
+    padding: 0 20px 0 28px;
+    clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 0% 100%, 12px 50%);
+    /* sem sobreposição → 12px notch cria a separação visual natural */
+    margin-left: 0;
+}
+
+.item:first-child {
+    padding-left: 16px;
+    clip-path: polygon(0% 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 0% 100%);
+    margin-left: 0;
+}
+
+.previous {
+    background-color: #e8f5f3;
+}
+
+.active {
+    background-color: #0d9488;
+}
+
+.link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.previous .link {
+    font-weight: 500;
+    color: #0f766e;
+}
+
+.active .link {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* globals.css aplica color: #1a1a1a em todo span — força herança para preservar as cores do módulo */
+.link span,
+.link svg {
+    color: inherit;
+}
+
+.previous .link:hover {
+    text-decoration: underline;
+}
+
+.itemIcon {
+    display: inline-flex;
+    align-items: center;
+}

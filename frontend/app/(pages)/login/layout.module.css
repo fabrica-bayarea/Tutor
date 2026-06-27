@@ -1,0 +1,206 @@
+.pageContainer {
+    display: flex;
+    min-height: 100vh;
+    background-color: #ffffff;
+    position: relative;
+}
+
+.contentWrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    position: relative;
+    z-index: 1;
+    background-color: #fafafa;
+}
+
+.aside {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    width: 560px;
+    height: 100vh;
+    max-height: 100vh;
+    background-color: #0d9488;
+    color: #ffffff;
+    padding: 3rem 3rem 4rem;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.asideContent {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 460px;
+}
+
+.asideBrand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.asideLogo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #e07a3b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aside h1,
+.aside span,
+.aside li,
+.aside svg {
+    color: #ffffff;
+}
+
+.asideLogo svg {
+    color: #f97316;
+}
+
+.asideBrandName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.asideTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.asideFeatures {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.asideFeatures li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.asideFeatures svg {
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.asideCircleTop,
+.asideCircleBottom {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.asideCircleTop {
+    width: 220px;
+    height: 220px;
+    top: 80px;
+    right: -90px;
+}
+
+.asideCircleBottom {
+    width: 280px;
+    height: 280px;
+    bottom: -120px;
+    left: 60px;
+}
+
+/* Mobile/tablet header — hidden on desktop */
+.mobileHeader {
+    display: none;
+    color: #ffffff;
+}
+
+.mobileBrand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mobileTagline {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+    color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+    .pageContainer {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .aside {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        padding: 0;
+        z-index: 0;
+    }
+
+    .asideContent {
+        display: none;
+    }
+
+    .mobileHeader {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        padding: 2rem 1.5rem 1rem;
+        box-sizing: border-box;
+    }
+
+    .contentWrapper {
+        width: 100%;
+        position: relative;
+        z-index: 1;
+        padding: 1rem 1rem 2.5rem;
+        box-sizing: border-box;
+        background-color: transparent;
+    }
+}
+
+@media (max-width: 600px) {
+    .mobileTagline {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .mobileTagline {
+        font-size: 1.1rem;
+    }
+    .mobileHeader {
+        padding: 1.5rem 1rem 0.75rem;
+    }
+}

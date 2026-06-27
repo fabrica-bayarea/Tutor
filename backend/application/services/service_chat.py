@@ -18,7 +18,7 @@ def criar_chat(aluno_id: uuid.UUID, nome: str = None) -> dict:
     if nome is None:
         nome = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    chat = Chat(aluno_id=aluno_id, nome=nome)
+    chat = Chat(aluno_id=aluno_id, nome=nome, materia_id="95493dc7-a0b6-49aa-a3ca-5bec12ea11df")
     db.session.add(chat)
     db.session.commit()
 
@@ -95,3 +95,12 @@ def deletar_chat(chat_id: uuid.UUID) -> bool:
     db.session.commit()
 
     return True
+
+def obter_materia_id_por_chat(chat_id):
+    """
+    Service responsável por buscar o materia_id de um chat.
+    """
+    chat = Chat.query.get(chat_id)
+    if not chat:
+        return None
+    return str(chat.materia_id)

@@ -1,49 +1,74 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  # Serviço do Banco de Dados PostgreSQL
-  db:
+  postgres-service:
     image: postgres:16-alpine
-    container_name: tutor_db
+    container_name: tutor_db_prod
     restart: always
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: tutor
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-
-  # Serviço do Backend
-  backend:
-    build: ./backend
-    network_mode: "host"
     volumes:
-      - ./backend:/app
-    env_file:
-      - ./backend/.env # Variáveis de ambiente do backend
-    environment:
-      - OLLAMA_ANALYTICS_DISABLED=true
-    depends_on:
-      - db # Espera o banco de dados estar pronto
+      - postgres_data_prod:/var/lib/postgresql/data
 
-  # Serviço do Frontend
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: tutor_ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  redis-service:
+    image: redis:7-alpine
+    container_name: tutor_redis_prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tutor_backend_prod
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_HOST=http://ollama-service:11434
+      - REDIS_URL=redis://redis-service:6379/0
+      # Sincroniza os modelos de IA com o Ollama no boot (US-38.4). Bloqueia a
+      # inicialização se algum pull falhar.
+      - PULL_MODELS_ON_STARTUP=true
+    depends_on:
+      - postgres-service
+      - ollama-service
+      - redis-service
+    ports:
+      - "5000:5000"
+
   frontend:
     build:
       context: ./frontend
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+        NEXT_PUBLIC_API_URL_RUNTIME: ${NEXT_PUBLIC_API_URL_RUNTIME}
       dockerfile: Dockerfile
-    image: tutor-frontend:flexible
+    container_name: tutor_frontend_prod
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - backend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules # Evita sobrescrever node_modules
-      - /app/.next # Evita sobrescrever a build do Next.js
-    environment:
-      - NEXT_PUBLIC_API_URL_RUNTIME=http://localhost:5000
-    depends_on:
-      - backend # Espera o backend estar pronto
 
 volumes:
-  postgres_data:
+  postgres_data_prod:
+  ollama_data:
+  redis_data_prod:

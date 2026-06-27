@@ -1,0 +1,63 @@
+.headerFixo {
+    display: flex;
+    flex: 0 0 4rem;
+}
+
+.footerFixo {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+.conteinerMensagens {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden; 
+}
+
+.materiaBackground {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: 24px;
+    font-weight: 600;
+    color: rgba(120, 120, 120, 0.15);
+
+    z-index: 0;
+    pointer-events: none;
+
+    user-select: none;
+    white-space: nowrap;
+}
+
+.noMateriaSection{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.noMateriaSection > section{
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(242, 240, 252, 1);
+    border: 1px solid rgba(191, 178, 235, 1);
+    border-radius: 14px;
+    width: 70%;
+    height: fit-content;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.noMateriaSection > section > p{
+    color: rgba(191, 178, 235, 1);
+    font-size: 15px;
+    font-weight: 400;
+}

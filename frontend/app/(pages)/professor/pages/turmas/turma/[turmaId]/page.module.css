@@ -1,0 +1,98 @@
+.midColumnDiv{
+    overflow: auto;
+    height: 100vh;
+}
+
+.midColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 5rem 10rem;
+    gap: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: fit-content;
+    align-items: flex-start;
+    color: #1a1a1a;
+}
+.header h1 {
+    color: #1a1a1a;
+}
+
+.turmaInfo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: fit-content;
+    gap: 0.5rem;
+}
+.turmaInfo * {
+    color: #666666;
+}
+
+.itensTelaPrincipal{
+    display: flex;
+    width: 100%;
+    margin-top: 3vh;
+    flex-direction: column;
+}
+
+.bolderText{
+    font-size: 23px;
+    font-weight: bolder;
+}
+
+.itensEstatisticosTelaPrincipal{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 20px;
+}
+
+.estatisticasRanking{
+    margin-top: 2vh;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.itemDireito{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.buttonEst{
+    margin-bottom: 1vh;
+    background-color: #CDCDCD;
+    border-radius: 11px;
+    height: 40px;
+    width: 95%;
+    font-weight: normal;
+    align-self: center;
+}
+
+.buttonEst:hover{
+    background-color: #9c9c9c;
+}
+
+.buttonA{
+    width: 100%;
+    align-self: center;
+}
+
+.itemA{
+    display: flex;
+    flex-direction: column;
+    width: 105%;
+    height: fit-content;
+}

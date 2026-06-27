@@ -16,7 +16,11 @@ const nextConfig: NextConfig = {
         // Aplica cache agressivo a arquivos estáticos (JS, CSS, imagens com hash no nome)
         source: '/_next/static/:path*',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: "Cache-Control", value: "no-store, no-cache, max-age=0, must-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
+          { key: 'Cross-Origin-Opener-Policy',value: 'same-origin-allow-popups' },
+          //{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
     ]

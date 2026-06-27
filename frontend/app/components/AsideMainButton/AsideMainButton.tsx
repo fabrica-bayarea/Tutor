@@ -1,7 +1,7 @@
 import styles from './AsideMainButton.module.css';
 
 export default function AsideMainButton({
-    icon,
+    icon = null,
     label,
     isCollapsed,
     isSelected,
@@ -9,7 +9,7 @@ export default function AsideMainButton({
 }: {
     icon: React.ReactNode;
     label: string;
-    isCollapsed: boolean;
+    isCollapsed?: boolean;
     isSelected?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
     return (

@@ -1,0 +1,32 @@
+.midColumn {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 5rem 10rem;
+    gap: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+
+.header {
+    display: flex;
+    flex-direction: column;
+    width: 85%;
+    align-items: flex-start;
+    color: #1a1a1a;
+}
+
+.header h1{
+    margin-bottom: 1rem;
+}
+
+.listTurmas {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 1rem;
+}

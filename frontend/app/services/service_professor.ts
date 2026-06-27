@@ -1,21 +1,97 @@
 import api from "./api";
-import { InterfaceProfessor } from "../types";
+import { Role } from "@/utils/roles";
+import { InterfaceUsuario } from "../types";
 
-const professores_url = "professores";
+export type ProfessorBackend = InterfaceUsuario;
 
-export async function loginProfessor(matricula: string, senha: string){
+export async function listarProfessores(): Promise<ProfessorBackend[]> {
     try {
-        const response: { data: { token: string, professor: InterfaceProfessor }} = await api.post(`${professores_url}/login`, { matricula, senha });
+        const response = await api.get(`alunos/professors`);
+        return response.data?.Professores ?? [];
+    } catch (error: any) {
+        if (error?.response?.status === 404) return [];
+        console.error("Erro ao listar professores:", error);
+        return [];
+    }
+}
 
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-        
-        const professor = response.data.professor;
-        localStorage.setItem("professor", JSON.stringify(professor));
-        
-        return professor;
-    } catch (error) {
-        console.error("Erro ao autenticar o professor:", error);
-        throw error;
+export type CriarProfessorResultado =
+    | { ok: true; professor: InterfaceUsuario }
+    | { ok: false; status: number; message: string };
+
+export async function criarProfessor(
+    matricula: string,
+    nome: string,
+    email: string
+): Promise<CriarProfessorResultado> {
+    // Criação atômica: o papel PROFESSOR é definido na própria criação (GAP-02-I),
+    // sem o antigo POST+PUT (que deixava o usuário como ALUNO se o PUT falhasse).
+    try {
+        const response = await api.post(
+            `admin/usuarios/criar`,
+            { matricula, nome, email, role: Role.PROFESSOR },
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        );
+        return { ok: true, professor: response.data };
+    } catch (error: any) {
+        const status = error?.response?.status ?? 0;
+        const message = error?.response?.data?.error ?? "Erro ao criar o professor.";
+        return { ok: false, status, message };
+    }
+}
+
+export type AtualizarProfessorResultado =
+    | { ok: true; professor: InterfaceUsuario }
+    | { ok: false; status: number; message: string };
+
+export async function atualizarProfessor(
+    id: string,
+    matricula: string,
+    nome: string,
+    email: string,
+    status: string = "ATIVO"
+): Promise<AtualizarProfessorResultado> {
+    try {
+        const response = await api.put(
+            `admin/usuarios/${id}`,
+            { matricula, nome, email, role: Role.PROFESSOR, status },
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        );
+        return { ok: true, professor: response.data };
+    } catch (error: any) {
+        const httpStatus = error?.response?.status ?? 0;
+        const message =
+            error?.response?.data?.error ?? "Erro ao atualizar o professor.";
+        return { ok: false, status: httpStatus, message };
+    }
+}
+
+export async function desativarProfessor(
+    id: string
+): Promise<{ ok: boolean; message?: string }> {
+    try {
+        await api.delete(`admin/usuarios/delete/${id}`, { withCredentials: true });
+        return { ok: true };
+    } catch (error: any) {
+        const message =
+            error?.response?.data?.error ?? "Erro ao desativar o professor.";
+        return { ok: false, message };
+    }
+}
+
+export async function reativarProfessor(
+    id: string
+): Promise<{ ok: boolean; message?: string }> {
+    try {
+        await api.patch(
+            `admin/usuarios/${id}/reativar`,
+            { status: "ATIVO" },
+            { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        );
+        return { ok: true };
+    } catch (error: any) {
+        const message =
+            error?.response?.data?.error ?? "Erro ao reativar o professor.";
+        return { ok: false, message };
     }
 }

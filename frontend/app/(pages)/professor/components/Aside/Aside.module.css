@@ -1,49 +1,40 @@
 .asideContainer {
     display: flex;
+    justify-content: space-between;
     flex-direction: column;
-    width: 25rem;
+    width: 240px;
+    min-width: 200px;
     height: 100%;
-    padding: 1rem;
-    background-color: #ededed;
-}
-.expanded {
-    width: 320px;
-
-    transition: width ease-out 0.15s;
-}
-.collapsed {
-    width: fit-content;
-    
-    transition: width ease-out 0.15s;
+    padding: 1rem 0.75rem;
+    background-color: #fafafa;
+    border-right: 1px solid #e5e5e5;
+    box-sizing: border-box;
 }
 
-/* .asideContainer > div {
+.sectionTitle {
     display: flex;
-    width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-} */
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0 0.5rem 0.5rem;
+}
 
-.widthButton {
-    display: flex;
-    width: 100%;
-    padding: 1rem 0;
-    justify-content: flex-end;
-    color: gray;
+.sectionTitle h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
 }
 
 .asideMainButtons {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    gap: 0.25rem;
-    padding: 1rem 0;
+    gap: 2px;
 }
 
-/* .chatList {
+.asideFooter {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
-    gap: 1rem;
-    padding: 1rem 0 0 0;
-} */
+    gap: 2px;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e5e5;
+}

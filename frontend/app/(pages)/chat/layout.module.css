@@ -1,0 +1,33 @@
+.mainSection{
+    display: flex;
+    flex: 1;
+    height: 100vh;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.pageMediaSection{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100vh;
+}
+
+.pageMediaSection >section{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100vh;
+}
+
+@media(width >= 768px){
+    .mainSection{
+        flex-direction: row;
+    }
+
+    .pageMediaSection{
+        flex-direction: column;
+    }
+}
