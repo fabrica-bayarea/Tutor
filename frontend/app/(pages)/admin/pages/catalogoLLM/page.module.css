@@ -1,0 +1,309 @@
+.pagina {
+    margin: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+.topo {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ===================== Tabela (desktop / tablet) ===================== */
+.tabelaWrapper {
+    width: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.tabela thead tr {
+    background-color: #0d9488;
+}
+
+.tabela th {
+    font-weight: 600;
+    font-size: 13px;
+    color: #ffffff;
+    text-align: left;
+    padding: 14px 20px;
+    white-space: nowrap;
+}
+
+.thAcoes {
+    text-align: right;
+}
+
+.tabela tbody tr {
+    border-top: 1px solid #e5e5e5;
+    transition: background-color 0.15s ease;
+}
+
+.tabela tbody tr:hover {
+    background-color: #f0fdfa;
+}
+
+.linhaAtiva,
+.linhaAtiva:hover {
+    background-color: #f0fdfa;
+}
+
+.tabela td {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.celModelo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.engrenagem {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: #f3f4f6;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.engrenagemAtiva {
+    background-color: #0d9488;
+    color: #ffffff;
+}
+
+.nomeModelo {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.celDescricao,
+.celTamanho {
+    color: #6b7280;
+}
+
+.celTamanho {
+    white-space: nowrap;
+}
+
+/* ===================== Badges de status ===================== */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.badgeInstalado {
+    color: #ea580c;
+    border-color: #fb923c;
+    background-color: #ffffff;
+}
+
+.badgeAtivo {
+    color: #0f766e;
+    border-color: #14b8a6;
+    background-color: #ffffff;
+}
+
+.badgeErro {
+    color: #dc2626;
+    border-color: #fca5a5;
+    background-color: #fef2f2;
+}
+
+.badgeDisponivel {
+    color: #6b7280;
+    border-color: #e5e7eb;
+    background-color: #f3f4f6;
+}
+
+/* ===================== Coluna de ações ===================== */
+.celAcao {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.modeloAtivo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0f766e;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.erroAcao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #dc2626;
+    font-size: 13px;
+}
+
+/* "Baixar": transforma o ghost (borda cinza) em outline teal */
+.btnBaixar {
+    border-color: #0d9488 !important;
+}
+
+.btnBaixar span,
+.btnBaixar svg {
+    color: #0f766e !important;
+}
+
+/* "Ativar": laranja (combina com o badge "Instalado"), tabela e modal */
+.btnAtivar {
+    background-color: #ea580c !important;
+}
+
+.btnAtivar:hover {
+    background-color: #c2410c !important;
+}
+
+.btnAtivar span,
+.btnAtivar svg {
+    color: #ffffff !important;
+}
+
+.descDownload {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 280px;
+}
+
+.percent {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ea580c;
+    white-space: nowrap;
+}
+
+.estado {
+    text-align: center;
+    color: #6b7280;
+    padding: 32px 16px;
+    font-size: 14px;
+}
+
+/* ===================== Modal de ativação ===================== */
+.modalTexto {
+    margin: 0;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.modalTexto strong {
+    color: #111827;
+}
+
+/* ===================== Mobile: tabela vira cards (Figma) ===================== */
+@media (max-width: 640px) {
+    .pagina {
+        margin: 16px;
+    }
+
+    .tabelaWrapper {
+        border: none;
+        background-color: transparent;
+        overflow: visible;
+    }
+
+    .tabela,
+    .tabela tbody {
+        display: block;
+    }
+
+    .tabela thead {
+        display: none;
+    }
+
+    .tabela tbody tr {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        background-color: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+    }
+
+    .tabela tbody tr:hover {
+        background-color: #ffffff;
+    }
+
+    .linhaAtiva,
+    .linhaAtiva:hover {
+        border-color: #14b8a6;
+        background-color: #f0fdfa;
+    }
+
+    .tabela td {
+        display: block;
+        padding: 0;
+    }
+
+    .celDescricao,
+    .celTamanho {
+        font-size: 13px;
+    }
+
+    /* engrenagem + nome com espaço reservado para o badge no canto */
+    .celModelo {
+        padding-right: 120px;
+    }
+
+    /* Badge de status no canto superior direito do card */
+    .celStatus {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+    }
+
+    /* Ação ocupa a largura toda, embaixo */
+    .celAcao {
+        justify-content: stretch;
+        margin-top: 4px;
+    }
+
+    .celAcao button {
+        width: 100%;
+    }
+
+    .celAcao button > div {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .descDownload {
+        max-width: none;
+    }
+}

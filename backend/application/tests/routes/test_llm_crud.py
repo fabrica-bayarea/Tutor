@@ -185,6 +185,16 @@ def test_ativar_modelo_404(client):
     assert resp.status_code == 404
 
 
+def test_ativar_modelo_nao_instalado_409(client):
+    from application.services.service_llm import ModeloNaoInstaladoError
+    with patch(
+        "application.routes.route_llm.activateModel",
+        side_effect=ModeloNaoInstaladoError("fantasma"),
+    ):
+        resp = client.post("/llm/activate/1")
+    assert resp.status_code == 409
+
+
 # --------------------------------------------------------------------------- #
 # GET /llm/pull-status/<id> (polling)
 # --------------------------------------------------------------------------- #

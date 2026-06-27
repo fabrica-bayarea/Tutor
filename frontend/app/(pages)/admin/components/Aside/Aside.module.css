@@ -1,19 +1,54 @@
+/* Backdrop do drawer (apenas mobile) */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background-color: rgba(15, 23, 42, 0.45);
+}
+
+/* Mobile: drawer em overlay, controlado por isMenuMobileAberto */
 .navAside {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 84%;
+    max-width: 300px;
+    height: 100vh;
+    display: flex;
     flex-direction: column;
-    width: 240px;
-    min-width: 200px;
     background-color: #fafafa;
     border-right: 1px solid #e5e5e5;
     padding: 1.5rem 0.75rem;
     gap: 1rem;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
-@media (width >= 768px) {
-    .navAside {
-        display: flex;
-    }
+.navAsideHidden {
+    display: none;
+}
+
+.sectionTopo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+}
+
+.botaoFechar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.botaoFechar:hover {
+    background-color: #f0f0f0;
 }
 
 .sectionTitle {
@@ -21,7 +56,6 @@
     flex-direction: row;
     gap: 0.5rem;
     align-items: center;
-    padding: 0 0.5rem;
 }
 
 .sectionTitle h1 {
@@ -45,4 +79,33 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+
+/* Desktop: sidebar fixa de sempre — o estado do drawer não interfere */
+@media (width >= 768px) {
+    .backdrop {
+        display: none;
+    }
+
+    .navAside,
+    .navAsideHidden {
+        position: relative;
+        z-index: auto;
+        display: flex;
+        flex-direction: column;
+        width: 240px;
+        min-width: 200px;
+        max-width: none;
+        height: auto;
+        background-color: #fafafa;
+        border-right: 1px solid #e5e5e5;
+        padding: 1.5rem 0.75rem;
+        gap: 1rem;
+        box-sizing: border-box;
+        overflow-y: visible;
+    }
+
+    .botaoFechar {
+        display: none;
+    }
 }

@@ -207,7 +207,8 @@ def test_activate_model_garante_apenas_um_ativo(ctx):
     id_ativo = _criar_llm("llama3", status="ativada")
     id_novo = _criar_llm("mistral", status="desativada")
 
-    resultado = service_llm.activateModel(id_novo)
+    with patch.object(service_llm.repository_ollama, "model_installed", return_value=True):
+        resultado = service_llm.activateModel(id_novo)
 
     assert resultado["status"] == "ativada"
     # O antigo ativo deve ter sido desativado.
@@ -218,6 +219,19 @@ def test_activate_model_garante_apenas_um_ativo(ctx):
 
 def test_activate_model_inexistente_retorna_none(ctx):
     assert service_llm.activateModel(str(uuid.uuid4())) is None
+
+
+def test_activate_model_nao_instalado_levanta_erro(ctx):
+    """Ativar um modelo não instalado no Ollama falha e não altera o banco."""
+    id_modelo = _criar_llm("fantasma", status="desativada")
+
+    with patch.object(
+        service_llm.repository_ollama, "model_installed", return_value=False
+    ):
+        with pytest.raises(service_llm.ModeloNaoInstaladoError):
+            service_llm.activateModel(id_modelo)
+
+    assert LLM.query.filter_by(id=id_modelo).first().status == "desativada"
 
 
 # --------------------------------------------------------------------------- #

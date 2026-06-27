@@ -91,14 +91,14 @@ Por fim, retornamos para a rota um dicionário contendo o **ID do documento** e 
 Este serviço concentra a **gestão dos modelos de IA (LLM)**: o CRUD dos registros, a regra de ativação exclusiva e a orquestração do *pull* (download) de modelos no Ollama, incluindo o progresso consultado por *polling*.
 
 ### Dependências externas
-- **`repositories/repository_ollama.py`** — wrapper HTTP do Ollama (via `httpx` + `OLLAMA_URL`). Isola toda a conversa com o servidor de modelos, mantendo o service focado em regra de negócio e fácil de mockar nos testes. Expõe `model_exists(nome)` e `pull_model(nome)` (gerador de eventos de progresso).
+- **`repositories/repository_ollama.py`** — wrapper HTTP do Ollama (via `httpx` + `OLLAMA_URL`). Isola toda a conversa com o servidor de modelos, mantendo o service focado em regra de negócio e fácil de mockar nos testes. Expõe `model_exists(nome)`, `model_installed(nome)` (checa instalação local via `/api/show`) e `pull_model(nome)` (gerador de eventos de progresso).
 - **`services/llm_progress_store.py`** — armazenamento **em memória, thread-safe**, do progresso de cada *pull* (`id_modelo -> {percent, status}`). O progresso é efêmero, então não vai ao banco; numa implantação multi-worker, este é o único ponto a trocar por um cache compartilhado (ex.: Redis).
 
 ### Principais funções
 - `getAllModels()` / `getModelById(id)` — leitura.
 - `addModel(data)` — cria o registro, valida a existência no Ollama e **dispara o download em segundo plano**. Se o modelo não existir, **desfaz o registro** e sinaliza erro (a rota traduz para HTTP 404). Retorna `(modelo, erro)`.
 - `updateModel(id, data)` / `deleteModel(id)` — atualização (apenas `nome`) e remoção (também limpa o progresso).
-- `activateModel(id)` — ativa um modelo e **desativa todos os demais** (apenas um ativo por vez).
+- `activateModel(id)` — ativa um modelo e **desativa todos os demais** (apenas um ativo por vez). Só ativa modelos **instalados no Ollama** — caso contrário levanta `ModeloNaoInstaladoError` (a rota traduz para HTTP 409), impedindo ativar registros órfãos cujo download falhou.
 - `pullModel(nome, id)` — *worker* que itera o stream do Ollama e atualiza o progresso (0→100%).
 - `pullAllModels()` — sincroniza, de forma síncrona, todos os modelos cadastrados com o Ollama.
 - `getPullProgress(id)` — usado pela rota de *polling* `/llm/pull-status/<id>`.

@@ -46,6 +46,16 @@ STATUS_ERRO = "erro"
 STATUS_MODELO_NAO_ENCONTRADO = "modelo_nao_encontrado"
 
 
+class ModeloNaoInstaladoError(Exception):
+    """
+    Levantada ao tentar ativar um modelo que não está instalado no Ollama.
+
+    Garante a regra da US-38: só é possível ativar um modelo cujo download foi
+    concluído — impede ativar registros órfãos ou cujo pull falhou.
+    """
+    pass
+
+
 # --------------------------------------------------------------------------- #
 # Leitura
 # --------------------------------------------------------------------------- #
@@ -129,13 +139,24 @@ def activateModel(model_id: str) -> dict | None:
     Espera receber:
     - `model_id`: str - o ID do modelo a ser ativado.
 
-    Desativa qualquer modelo atualmente ativo antes de ativar o novo.
+    Só ativa um modelo de fato instalado no Ollama (US-38): isso impede ativar
+    registros cujo download falhou ou que nunca existiram. Desativa qualquer
+    modelo atualmente ativo antes de ativar o novo.
 
-    Retorna o modelo ativado se ele existir, e None caso contrário.
+    Retorna o modelo ativado, ou None se o id não existir.
+
+    Levanta:
+    - ModeloNaoInstaladoError: se o modelo não estiver instalado no Ollama.
+    - OllamaIndisponivelError: se o servidor Ollama estiver inacessível.
     """
     modelo = LLM.query.filter_by(id=str(model_id)).first()
     if not modelo:
         return None
+
+    # Confirma que o modelo está realmente instalado antes de ativar — sem isso,
+    # registros órfãos (pull que falhou) poderiam virar o modelo ativo.
+    if not repository_ollama.model_installed(modelo.nome):
+        raise ModeloNaoInstaladoError(modelo.nome)
 
     # Desativa todos os ativos antes de ativar o alvo: é o que garante a regra
     # "apenas um modelo ativo por vez".

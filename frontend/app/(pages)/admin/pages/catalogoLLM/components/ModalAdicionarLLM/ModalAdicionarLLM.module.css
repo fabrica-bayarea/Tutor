@@ -1,0 +1,20 @@
+.descricao {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+/* Botão de confirmação do modal: laranja (CTA), como no Figma */
+.btnConfirmar {
+    background-color: #ea580c !important;
+}
+
+.btnConfirmar:hover {
+    background-color: #c2410c !important;
+}
+
+.btnConfirmar span,
+.btnConfirmar svg {
+    color: #ffffff !important;
+}

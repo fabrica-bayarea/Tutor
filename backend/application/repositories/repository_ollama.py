@@ -7,6 +7,7 @@ focado em regra de negócio e torna os testes simples: basta mockar este módulo
 
 Endpoints do Ollama usados:
 - POST /api/pull  -> baixa um modelo e transmite o progresso em stream (JSON por linha).
+- POST /api/show  -> verifica se um modelo está instalado localmente.
 
 Variável de ambiente:
 - OLLAMA_URL: URL base do servidor Ollama (ex.: http://ollama-service:11434).
@@ -157,3 +158,31 @@ def model_exists(nome: str) -> bool:
         # Fecha o gerador (e a conexão HTTP subjacente) imediatamente, evitando
         # baixar o modelo inteiro só para checar a existência.
         eventos.close()
+
+
+def model_installed(nome: str) -> bool:
+    """
+    Verifica se um modelo já está instalado localmente no Ollama.
+
+    Usa `POST /api/show`, que responde 200 quando o modelo está presente
+    localmente e 404 quando não está. Diferente de `model_exists` (que sonda o
+    registro remoto via pull), aqui confirmamos a presença local — é o que
+    importa antes de ativar um modelo.
+
+    Espera receber:
+    - `nome`: str - o nome do modelo a verificar.
+
+    Retorna:
+    - True se o modelo estiver instalado localmente, False caso contrário.
+
+    Levanta:
+    - OllamaIndisponivelError: se o servidor Ollama estiver inacessível.
+    """
+    url = f"{OLLAMA_URL}/api/show"
+    try:
+        with httpx.Client(timeout=httpx.Timeout(10.0)) as client:
+            resposta = client.post(url, json={"model": nome})
+    except httpx.RequestError as exc:
+        raise OllamaIndisponivelError(str(exc)) from exc
+
+    return resposta.status_code == 200
