@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tutor-frontend
+  namespace: tutor-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tutor-frontend
+  template:
+    metadata:
+      labels:
+        app: tutor-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ivinvaz/tutor-frontend:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: tutor-config
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tutor-frontend
+  namespace: tutor-app
+spec:
+  selector:
+    app: tutor-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

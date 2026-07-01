@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tutor-config
+  namespace: tutor-app
+data:
+  POSTGRES_USER: "postgres"
+  POSTGRES_DB: "tutor"
+  DB_HOST: "postgres-service"
+
+  REDIS_URL: "redis://redis-service:6379/0"
+
+  OLLAMA_URL: "http://ollama-service:11434"
+  OLLAMA_HOST: "http://ollama-service:11434"
+  PULL_MODELS_ON_STARTUP: "true"
+
+  SESSION_IDLE_MINUTES: "60"
+  COOKIE_SECURE: "true" 
+  COOKIE_SAMESITE: "Lax"   
+
+  FLASK_DEBUG: "0"        
+
+  SMTP_HOST: "smtp.gmail.com"
+  SMTP_PORT: "587"
+  SMTP_FROM: "seu_email@gmail.com"
+
+  FRONTEND_URL: "https://SEU-DOMINIO"
+  NEXT_PUBLIC_API_URL_RUNTIME: "https://SEU-DOMINIO/api"
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: "seu_google_client_id"
+
+  EMAIL_DOMINIO: "@iesb.edu.br"

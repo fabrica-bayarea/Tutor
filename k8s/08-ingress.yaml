@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tutor-ingress
+  namespace: tutor-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: SEU-DOMINIO.dataiesb.com
+      http:
+        paths:
+          - path: /tutor/api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tutor-backend
+                port:
+                  number: 5000
+          - path: /tutor(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tutor-frontend
+                port:
+                  number: 3000

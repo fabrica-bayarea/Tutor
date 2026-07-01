@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tutor-backend
+  namespace: tutor-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tutor-backend
+  template:
+    metadata:
+      labels:
+        app: tutor-backend
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgres-service -p 5432; do
+                echo "aguardando postgres..."; sleep 2;
+              done
+        - name: wait-for-ollama
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until wget -q -O- http://ollama-service:11434 >/dev/null 2>&1; do
+                echo "aguardando ollama..."; sleep 3;
+              done
+      containers:
+        - name: backend
+          image: ivinvaz/tutor-backend:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: tutor-config
+            - secretRef:
+                name: tutor-secrets
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            failureThreshold: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tutor-backend
+  namespace: tutor-app
+spec:
+  selector:
+    app: tutor-backend
+  ports:
+    - port: 5000
+      targetPort: 5000
