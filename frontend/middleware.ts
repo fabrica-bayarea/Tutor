@@ -14,6 +14,22 @@ function getRoleFromToken(token: string): string | null {
 
 const PUBLIC_ROUTES = ['/login', '/alunos/login/google', '/alterar-senha', '/token-validate', '/esqueci-senha'];
 
+/**
+ * Helper para criar redirect respeitando o basePath.
+ * Usa request.nextUrl.clone() para que o basePath seja preservado.
+ */
+function redirectTo(path: string, request: NextRequest, params?: Record<string, string>) {
+    const url = request.nextUrl.clone();
+    url.pathname = path;
+    url.search = '';
+    if (params) {
+        for (const [key, value] of Object.entries(params)) {
+            url.searchParams.set(key, value);
+        }
+    }
+    return NextResponse.redirect(url);
+}
+
 export function middleware(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
     const { pathname } = request.nextUrl;
@@ -21,9 +37,9 @@ export function middleware(request: NextRequest) {
     if (pathname === '/') {
         if (token) {
             const role = getRoleFromToken(token);
-            return NextResponse.redirect(new URL(homeForRole(role), request.url));
+            return redirectTo(homeForRole(role), request);
         }
-        return NextResponse.redirect(new URL("/login", request.url));
+        return redirectTo("/login", request);
     }
 
     const isPublicRoute = PUBLIC_ROUTES.some(r => pathname.startsWith(r));
@@ -31,22 +47,20 @@ export function middleware(request: NextRequest) {
     if (isPublicRoute) {
         if (token) {
             const role = getRoleFromToken(token);
-            return NextResponse.redirect(new URL(homeForRole(role), request.url));
+            return redirectTo(homeForRole(role), request);
         }
         return NextResponse.next();
     }
 
     if (!token) {
-        const loginUrl = new URL("/login", request.url);
-        loginUrl.searchParams.set("returnTo", pathname);
-        return NextResponse.redirect(loginUrl);
+        return redirectTo("/login", request, { returnTo: pathname });
     }
 
     const role = getRoleFromToken(token);
 
-    if (pathname.startsWith('/admin')     && role !== Role.ADMIN)     return NextResponse.redirect(new URL(homeForRole(role), request.url));
-    if (pathname.startsWith('/professor') && role !== Role.PROFESSOR) return NextResponse.redirect(new URL(homeForRole(role), request.url));
-    if (pathname.startsWith('/chat')      && role !== Role.ALUNO)     return NextResponse.redirect(new URL(homeForRole(role), request.url));
+    if (pathname.startsWith('/admin')     && role !== Role.ADMIN)     return redirectTo(homeForRole(role), request);
+    if (pathname.startsWith('/professor') && role !== Role.PROFESSOR) return redirectTo(homeForRole(role), request);
+    if (pathname.startsWith('/chat')      && role !== Role.ALUNO)     return redirectTo(homeForRole(role), request);
 
     return NextResponse.next();
 }
