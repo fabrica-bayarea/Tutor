@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 from flask import Flask, g
 from flask_migrate import Migrate
 from flask_cors import CORS
