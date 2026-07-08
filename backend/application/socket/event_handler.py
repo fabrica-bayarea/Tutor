@@ -4,7 +4,7 @@ import traceback
 from flask_socketio import emit
 from application.services.service_materia import buscar_materia_por_id
 from application.services.service_llm import getActiveModel
-from application.socket.Impl.gerar_resposta import consultar_ollama
+from application.socket.Impl.gerar_resposta import consultar_llm
 from flask import request, current_app
 
 from application.socket.socket_instance import socketio
@@ -145,7 +145,7 @@ async def _processar_mensagem_async(data, sid):
     disparar_emit(socketio, 'gerando_resposta', {}, room=sid)
     resposta_completa = ""
     try:
-        async for chunk in consultar_ollama(prompt, model):
+        async for chunk in consultar_llm(prompt, model):
             resposta_completa += chunk
             disparar_emit(socketio, 'chunk_resposta', {"chunk": chunk}, room=sid)
 

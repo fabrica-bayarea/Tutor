@@ -5,12 +5,13 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-SocketIO
 PyJWT
-chromadb
+pgvector
+sentence-transformers
 docling
 openai-whisper
 selenium
 webdriver-manager
-ollama
+boto3
 google-auth
 google-auth-oauthlib
 google-auth-httplib2

@@ -1,0 +1,98 @@
+name: CI/CD Prod
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'k8s/**'
+      - '.github/workflows/ci-cd.yml'
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  changes:
+    name: "Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  # ─── DOCKER BUILD & DEPLOY BACKEND ──────────────────
+  docker-backend:
+    name: "Build & Deploy Backend"
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.BAYAREA_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+      - id: meta
+        run: echo "tag=${{ steps.ecr-login.outputs.registry }}/bayarea-tutor-backend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.tag }}
+            ${{ steps.ecr-login.outputs.registry }}/bayarea-tutor-backend:latest
+      - name: Deploy to EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+          kubectl set image deployment/bayarea-tutor-backend \
+            backend=${{ steps.meta.outputs.tag }} -n bayarea-web
+          kubectl rollout status deployment/bayarea-tutor-backend -n bayarea-web --timeout=300s
+
+  # ─── DOCKER BUILD & DEPLOY FRONTEND ─────────────────
+  docker-frontend:
+    name: "Build & Deploy Frontend"
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.BAYAREA_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+      - id: meta
+        run: echo "tag=${{ steps.ecr-login.outputs.registry }}/bayarea-tutor-frontend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.TUTOR_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_API_URL_RUNTIME=https://bayarea.dataiesb.com/tutor/api
+          tags: |
+            ${{ steps.meta.outputs.tag }}
+            ${{ steps.ecr-login.outputs.registry }}/bayarea-tutor-frontend:latest
+      - name: Deploy to EKS
+        run: |
+          aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+          kubectl set image deployment/bayarea-tutor-frontend \
+            frontend=${{ steps.meta.outputs.tag }} -n bayarea-web
+          kubectl rollout status deployment/bayarea-tutor-frontend -n bayarea-web --timeout=300s

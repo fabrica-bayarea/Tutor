@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bayarea-tutor-frontend
+  namespace: bayarea-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bayarea-tutor-frontend
+  template:
+    metadata:
+      labels:
+        app: bayarea-tutor-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: 248189947068.dkr.ecr.us-east-1.amazonaws.com/bayarea-tutor-frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL_RUNTIME
+              value: "https://bayarea.dataiesb.com/tutor/api"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bayarea-tutor-frontend
+  namespace: bayarea-web
+spec:
+  selector:
+    app: bayarea-tutor-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

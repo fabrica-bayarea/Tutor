@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bayarea-tutor-backend
+  namespace: bayarea-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bayarea-tutor-backend
+  template:
+    metadata:
+      labels:
+        app: bayarea-tutor-backend
+    spec:
+      serviceAccountName: tutor-backend
+      containers:
+        - name: backend
+          image: 248189947068.dkr.ecr.us-east-1.amazonaws.com/bayarea-tutor-backend:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - secretRef:
+                name: tutor-secrets
+          env:
+            - name: FLASK_DEBUG
+              value: "0"
+            - name: PULL_MODELS_ON_STARTUP
+              value: "false"
+            - name: FRONTEND_URL
+              value: "https://bayarea.dataiesb.com/tutor"
+            - name: NEXT_PUBLIC_API_URL_RUNTIME
+              value: "https://bayarea.dataiesb.com/tutor/api"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bayarea-tutor-backend
+  namespace: bayarea-web
+spec:
+  selector:
+    app: bayarea-tutor-backend
+  ports:
+    - port: 5000
+      targetPort: 5000

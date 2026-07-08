@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  basePath: '/tutor',
   poweredByHeader: false,
   async headers() {
     return [

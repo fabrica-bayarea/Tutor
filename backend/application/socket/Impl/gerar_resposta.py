@@ -1,42 +1,67 @@
-import httpx
+"""
+Geração de respostas via AWS Bedrock (substituindo Ollama).
+
+Usa o modelo configurado na variável BEDROCK_MODEL_ID (padrão: Claude 3 Haiku).
+O streaming é feito via invoke_model_with_response_stream do Bedrock Runtime.
+"""
 import json
 import os
+
+import boto3
 from dotenv import load_dotenv
 
 load_dotenv()
 
-OLLAMA_URL = os.getenv("OLLAMA_URL")
+BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-haiku-20240307-v1:0")
+AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 
-async def consultar_ollama(prompt: str, modelo: str) -> str:
+_client = None
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        _client = boto3.client("bedrock-runtime", region_name=AWS_REGION)
+    return _client
+
+
+async def consultar_llm(prompt: str, modelo: str = None) -> str:
     """
-    Faz uma requisição ao servidor Ollama em modo stream,
+    Faz uma requisição ao AWS Bedrock em modo stream,
     emite chunk a chunk e retorna a resposta completa ao final.
 
     Args:
         prompt: O prompt a ser enviado ao modelo.
-        modelo: O nome do modelo LLM a ser utilizado.
+        modelo: Ignorado (mantido por compatibilidade). Usa BEDROCK_MODEL_ID.
 
-    Returns:
-        A resposta completa gerada pelo modelo.
+    Yields:
+        Chunks de texto da resposta.
     """
-    url = f"{OLLAMA_URL}/api/generate"
-    payload = {
-        "model": modelo,
-        "prompt": prompt,
-        "stream": True
-    }
+    client = _get_client()
+    model_id = modelo if modelo and modelo.startswith("anthropic.") else BEDROCK_MODEL_ID
 
-    resposta_completa = ""
+    body = json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 4096,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+    })
 
-    async with httpx.AsyncClient(timeout=None) as client:
-        async with client.stream("POST", url, json=payload) as response:
-            response.raise_for_status()
-            async for linha in response.aiter_lines():
-                if linha:
-                    dado = json.loads(linha)
-                    chunk = dado.get("response", "")
-                    resposta_completa += chunk
-                    yield chunk  
+    response = client.invoke_model_with_response_stream(
+        modelId=model_id,
+        contentType="application/json",
+        accept="application/json",
+        body=body,
+    )
 
-                    if dado.get("done", False):
-                        break
+    for event in response["body"]:
+        chunk_data = json.loads(event["chunk"]["bytes"])
+
+        if chunk_data.get("type") == "content_block_delta":
+            texto = chunk_data.get("delta", {}).get("text", "")
+            if texto:
+                yield texto
+
+        elif chunk_data.get("type") == "message_stop":
+            break

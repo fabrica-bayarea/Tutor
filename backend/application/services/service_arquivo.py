@@ -3,7 +3,8 @@ import uuid
 import glob
 from datetime import datetime
 from application.config.database import db
-from application.config.vector_database import collection
+from application.config.vector_database import DocumentoVetor
+from application.utils.embeddings import gerar_embedding
 from application.models import Arquivo, ArquivoTurmaMateria
 from application.libs.docling_handler import extrair_texto_markdown
 from application.libs.scraping_handler import data_extraction
@@ -67,28 +68,30 @@ def salvar_arquivo(arquivo, documento_id: uuid.UUID, professor_id: uuid.UUID) ->
 
 def salvar_documento_vetor(documento_id: uuid.UUID, titulo: str, professor_id: uuid.UUID, formatted_vinculos: str, data_upload: datetime, texto: str) -> None:
     """
-    Função atômica, responsável por salvar dados do arquivo no ChromaDB.
+    Função atômica, responsável por salvar dados do arquivo no pgvector.
 
     Espera receber:
     - `documento_id`: uuid.UUID - o ID do documento (gerado na 1ª etapa do processamento)
     - `titulo`: str - o nome do arquivo
     - `professor_id`: uuid.UUID - o ID do professor
-    - `vinculos`: str - os vínculos entre turmas e matérias, no formato 'turma1_materia1,turma2_materia1,turma3_materia2'
+    - `formatted_vinculos`: str - os vínculos entre turmas e matérias
     - `data_upload`: datetime - a data de upload
     - `texto`: str - o texto extraído do arquivo
     """
-    collection.add(
-        ids=[str(documento_id)],
-        metadatas=[{
-            "arquivo_id": str(documento_id),
-            "titulo": titulo,
-            "professor_id": str(professor_id),
-            "vinculos": formatted_vinculos,
-            "tipo": "pdf",
-            "data_upload": data_upload.isoformat(),
-        }],
-        documents=[texto]
+    embedding = gerar_embedding(texto)
+    doc = DocumentoVetor(
+        id=str(documento_id),
+        arquivo_id=str(documento_id),
+        titulo=titulo,
+        professor_id=str(professor_id),
+        vinculos=formatted_vinculos,
+        tipo="pdf",
+        data_upload=data_upload,
+        conteudo=texto,
+        embedding=embedding,
     )
+    db.session.add(doc)
+    db.session.commit()
 
 def processar_arquivo(arquivo, professor_id: uuid.UUID, vinculos: list[dict[str, uuid.UUID]]) -> dict:
     """
@@ -397,34 +400,29 @@ def atualizar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID, novo_
 
 def atualizar_arquivo_vetor(documento_id: uuid.UUID, novo_titulo: str = None, novos_vinculos: str = None):
     """
-    Função atômica, responsável por atualizar um documento no ChromaDB, a partir do seu ID.
+    Função atômica, responsável por atualizar um documento no pgvector.
 
     Espera receber:
     - `documento_id`: uuid.UUID - o ID do documento
     - `novo_titulo`: str - o novo título do documento (opcional)
-    - `novos_vinculos`: str - os novos vínculos entre turmas e matérias, no formato 'turma1_materia1,turma2_materia1,turma3_materia2'
+    - `novos_vinculos`: str - os novos vínculos (opcional)
 
-    Retorna True se o documento for atualizado com sucesso, e False se o documento não existir.
-    """ # REVISAR OS RETORNOS
+    Retorna True se o documento for atualizado com sucesso.
+    """
     if not any([novo_titulo, novos_vinculos]):
         raise ValueError("É obrigatório fornecer ao menos um título ou um conjunto de vínculos.")
-    
-    new_metadatas = {}
-    
+
+    doc = DocumentoVetor.query.filter_by(id=str(documento_id)).first()
+    if not doc:
+        raise ValueError(f"Documento {documento_id} não encontrado no banco vetorial.")
+
     if novo_titulo:
-        new_metadatas['titulo'] = novo_titulo
+        doc.titulo = novo_titulo
     if novos_vinculos:
-        new_metadatas['vinculos'] = novos_vinculos
-    
-    try:
-        collection.update(
-            ids=[str(documento_id)],
-            metadatas=[new_metadatas]
-        )
-        return True
-    except Exception as e:
-        print(f"Erro ao atualizar documento no ChromaDB: {str(e)}")
-        raise
+        doc.vinculos = novos_vinculos
+
+    db.session.commit()
+    return True
 
 def deletar_metadados_arquivo(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
     """
@@ -476,23 +474,22 @@ def deletar_arquivo_real(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool
 
 def deletar_arquivo_vetor(professor_id: uuid.UUID, arquivo_id: uuid.UUID) -> bool:
     """
-    Função atômica, responsável por deletar um arquivo real, salvo no sistema de arquivos, a partir do seu ID.
+    Função atômica, responsável por deletar um documento vetorial do pgvector.
 
     Espera receber:
     - `professor_id`: uuid.UUID - o ID do professor
     - `arquivo_id`: uuid.UUID - o ID do arquivo
 
-    Retorna True se o arquivo for deletado com sucesso, e False se o arquivo não existir.
+    Retorna True se o arquivo for deletado com sucesso.
     """
-    try:
-        collection.delete(
-            ids=[str(arquivo_id)],
-            where={"professor_id": str(professor_id)}
-        )
-    except Exception as e:
-        print(f"Erro ao deletar documento no ChromaDB: {str(e)}")
-        raise
-    
+    doc = DocumentoVetor.query.filter_by(
+        id=str(arquivo_id), professor_id=str(professor_id)
+    ).first()
+    if not doc:
+        return False
+
+    db.session.delete(doc)
+    db.session.commit()
     return True
 
 def buscar_arquivos_por_materia(materia_id: uuid.UUID) -> list[dict]:
@@ -514,36 +511,7 @@ def buscar_arquivos_por_materia(materia_id: uuid.UUID) -> list[dict]:
 
 def migrar_arquivo_id_vetor() -> dict:
     """
-    Função atômica, responsável por migrar os documentos existentes no ChromaDB,
-    adicionando o campo 'arquivo_id' nos metadados de cada documento.
-
-    Retorna um dicionário com o resultado da migração.
+    Migração legada (ChromaDB → pgvector). Não faz mais nada pois o campo
+    arquivo_id é obrigatório na nova tabela.
     """
-    resultados = collection.get()
-    ids = resultados.get("ids", [])
-    metadatas = resultados.get("metadatas", [])
-
-    if not ids:
-        return {"message": "Nenhum documento encontrado no ChromaDB.", "migrados": 0}
-
-    migrados = 0
-    erros = []
-
-    for doc_id, metadata in zip(ids, metadatas):
-        if metadata.get("arquivo_id"):
-            continue  # já migrado, pula
-
-        try:
-            collection.update(
-                ids=[doc_id],
-                metadatas=[{**metadata, "arquivo_id": doc_id}]
-            )
-            migrados += 1
-        except Exception as e:
-            erros.append({"id": doc_id, "erro": str(e)})
-
-    return {
-        "message": "Migração concluída.",
-        "migrados": migrados,
-        "erros": erros
-    }
+    return {"message": "Migração não necessária (pgvector).", "migrados": 0}
