@@ -99,7 +99,7 @@ export default function Chat() {
 
         // Sessão inválida/expirada no socket → volta para o login.
         const redirecionarParaLogin = () => {
-            window.location.href = "/login?returnTo=/chat";
+            window.location.href = "/tutor/login?returnTo=/chat";
         };
         socket.on("sessao_expirada", redirecionarParaLogin);
         socket.on("connect_error", () => {

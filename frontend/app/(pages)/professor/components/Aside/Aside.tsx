@@ -14,7 +14,7 @@ export default function Aside() {
     const handleSair = async () => {
         await logout();
         // Redireciona após remover o cookie de sessão (US-05-RN1/RI1).
-        window.location.replace('/login');
+        window.location.replace('/tutor/login');
     };
 
     const getSelected = () => {

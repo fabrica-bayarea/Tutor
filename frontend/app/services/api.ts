@@ -25,6 +25,9 @@ const api = axios.create({
 
 const PUBLIC_PATHS = ['/login', '/alterar-senha', '/token-validate', '/esqueci-senha'];
 
+// basePath do Next.js — deve corresponder ao next.config.ts
+const BASE_PATH = '/tutor';
+
 // Códigos tratados localmente pelos formulários — não emitir toast global
 const LOCAL_ERROR_CODES = new Set([400, 409, 410, 422]);
 
@@ -43,12 +46,12 @@ api.interceptors.response.use(
         const status: number = error.response?.status ?? 0;
         const skipGlobalToast = error.config?.skipGlobalErrorToast === true;
         const currentPath = window.location.pathname;
-        const isPublic = PUBLIC_PATHS.some(p => currentPath.startsWith(p));
+        const isPublic = PUBLIC_PATHS.some(p => currentPath.startsWith(`${BASE_PATH}${p}`));
 
         if (status === 401) {
             if (!isPublic) {
                 const returnTo = encodeURIComponent(currentPath);
-                window.location.href = `/login?returnTo=${returnTo}`;
+                window.location.href = `${BASE_PATH}/login?returnTo=${returnTo}`;
             }
         } else if (!skipGlobalToast && !LOCAL_ERROR_CODES.has(status) && status > 0) {
             if (status === 403) {

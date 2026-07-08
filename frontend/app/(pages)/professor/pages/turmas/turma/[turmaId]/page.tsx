@@ -135,7 +135,7 @@ export default function Turma() {
                                 ]}
                             />
                             <div className={styles.itemA}>
-                                <a href="/professor/estatisticas" className={styles.buttonA}>
+                                <a href="/tutor/professor/estatisticas" className={styles.buttonA}>
                                     <button className={styles.buttonEst}>Ver Estatísticas Completas</button>
                                 </a>
                             </div>

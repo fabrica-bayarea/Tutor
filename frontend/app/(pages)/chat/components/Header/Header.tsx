@@ -34,7 +34,7 @@ export default function Header({ isSelectInactive, materiaName, onMateriaChange 
         // Redireciona com replace (recarrega e limpa o histórico) somente após o
         // cookie de sessão ser removido, evitando que o middleware reenvie o
         // usuário de volta à área autenticada (US-05-RN1).
-        window.location.replace("/login");
+        window.location.replace("/tutor/login");
     }
 
 

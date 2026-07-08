@@ -55,19 +55,19 @@ export default function Home() {
                 <div className={styles.itensAcoesRapidasTelaPrincipal}>
                     <div className={styles.itemAcoesRapidasTelaPrincipal}>
                         <p className={styles.bolderText}>Ações rápidas</p>
-                        <a href="/professor/estatisticas">
+                        <a href="/tutor/professor/estatisticas">
                             <button className={styles.buttonAcoesRapidas}>Ver Estatísticas Completas</button>
                         </a>
-                        <a href="/professor/upload">
+                        <a href="/tutor/professor/upload">
                             <button className={styles.buttonAcoesRapidas}>Adicionar Conteúdo</button>
                         </a>
-                        <a href="/professor/config">
+                        <a href="/tutor/professor/config">
                             <button className={styles.buttonConfig}>Configurações</button>
                         </a>
                     </div>
                     <div className={styles.itemAcoesRapidasTelaPrincipal}>
                         <p className={styles.bolderText}>Tutor AI</p>
-                        <a href="/professor/chat" >
+                        <a href="/tutor/professor/chat" >
                             <button className={styles.buttonAcoesRapidas}>Abrir chat Tutor</button>
                         </a>
                     </div>

@@ -154,7 +154,7 @@ export default function Materia() {
             <div className={styles.fontesAdicionadas}>
                 <div className={styles.fontesAdicionadasHeader}>
                     <h2>Fontes adicionadas</h2>
-                    <a href="/professor/upload">
+                    <a href="/tutor/professor/upload">
                     <Button
                         style="filled"
                         icon={<Plus size={24} />}

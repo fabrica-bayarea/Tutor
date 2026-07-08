@@ -177,7 +177,7 @@ const [loading, setLoading] = useState<boolean>(false);
 
             {tokenInvalido && (
                 <p className={styles.helperText}>
-                    <a className={styles.forgotPasswordLink} href="/esqueci-senha">
+                    <a className={styles.forgotPasswordLink} href="/tutor/esqueci-senha">
                         Ir para &quot;Esqueci minha senha&quot;
                     </a>
                 </p>
