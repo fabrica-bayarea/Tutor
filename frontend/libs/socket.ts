@@ -2,30 +2,39 @@ import { io } from "socket.io-client";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL_RUNTIME ?? "http://localhost:5000";
 
-// Derive the Socket.IO path from the API URL.
-// - Production (https://bayarea.dataiesb.com/tutor/api) → path: /tutor/socket.io/
-// - Development (http://localhost:5000) → path: /socket.io/
-function getSocketPath(apiUrl: string): string {
+/**
+ * Derives the Socket.IO connection origin and path from the API URL.
+ *
+ * - Dev:  http://localhost:5000        → origin: http://localhost:5000,  path: /socket.io/
+ * - Prod: https://bayarea.dataiesb.com/tutor/api → origin: https://bayarea.dataiesb.com, path: /tutor/socket.io/
+ */
+function getSocketConfig(apiUrl: string): { origin: string; path: string } {
     try {
         const url = new URL(apiUrl);
-        // Remove trailing segments like "/api" to get the base prefix
+        const origin = url.origin;
+
+        // Remove trailing slashes and split path segments
         const segments = url.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
-        // Remove the last segment if it looks like an API suffix (e.g. "api")
+        // Remove the last segment if it's "api" (it's the REST prefix, not relevant for socket)
         if (segments.length > 0 && segments[segments.length - 1].toLowerCase() === "api") {
             segments.pop();
         }
         const prefix = segments.length > 0 ? `/${segments.join("/")}` : "";
-        return `${prefix}/socket.io/`;
+        const path = `${prefix}/socket.io/`;
+
+        return { origin, path };
     } catch {
-        return "/socket.io/";
+        return { origin: "http://localhost:5000", path: "/socket.io/" };
     }
 }
 
-const socket = io(API_URL, {
+const { origin, path } = getSocketConfig(API_URL);
+
+const socket = io(origin, {
     autoConnect: false,
     transports: ["polling"],
     upgrade: false,
-    path: getSocketPath(API_URL),
+    path,
     withCredentials: true,
 });
 
