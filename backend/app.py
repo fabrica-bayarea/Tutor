@@ -32,7 +32,7 @@ app.config["SECRET_KEY"] = Config.SECRET_KEY
 socketio.init_app(app)
 
 CORS(app, 
-     resources={r"/*": {"origins": ["http://localhost:3000", "https://bayarea.dataiesb.com"]}},
+     resources={r"/(?!socket\.io).*": {"origins": ["https://bayarea.dataiesb.com", "http://localhost:3000"]}},
      supports_credentials=True,
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])

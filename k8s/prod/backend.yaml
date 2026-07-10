@@ -31,6 +31,8 @@ spec:
               value: "https://bayarea.dataiesb.com/tutor"
             - name: NEXT_PUBLIC_API_URL_RUNTIME
               value: "https://bayarea.dataiesb.com/tutor/api"
+            - name: REDIS_URL
+              value: "redis://redis.bayarea-web.svc.cluster.local:6379/0"
 ---
 apiVersion: v1
 kind: Service

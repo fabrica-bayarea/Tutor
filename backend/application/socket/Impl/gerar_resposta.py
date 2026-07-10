@@ -1,7 +1,7 @@
 """
-Geração de respostas via AWS Bedrock (substituindo Ollama).
+Geração de respostas via AWS Bedrock com Meta Llama 3.
 
-Usa o modelo configurado na variável BEDROCK_MODEL_ID (padrão: Claude 3 Haiku).
+Usa o modelo configurado na variável BEDROCK_MODEL_ID (padrão: Llama 3 8B Instruct).
 O streaming é feito via invoke_model_with_response_stream do Bedrock Runtime.
 """
 import json
@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-haiku-20240307-v1:0")
+BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "meta.llama3-8b-instruct-v1:0")
 AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 
 _client = None
@@ -25,6 +25,19 @@ def _get_client():
     return _client
 
 
+def _build_llama_prompt(prompt: str) -> str:
+    """Formata o prompt no template de chat do Llama 3."""
+    return (
+        "<|begin_of_text|>"
+        "<|start_header_id|>system<|end_header_id|>\n"
+        "Você é um tutor educacional do IESB. Responda de forma clara, "
+        "objetiva e didática em português brasileiro.<|eot_id|>"
+        "<|start_header_id|>user<|end_header_id|>\n"
+        f"{prompt}<|eot_id|>"
+        "<|start_header_id|>assistant<|end_header_id|>\n"
+    )
+
+
 async def consultar_llm(prompt: str, modelo: str = None) -> str:
     """
     Faz uma requisição ao AWS Bedrock em modo stream,
@@ -32,20 +45,20 @@ async def consultar_llm(prompt: str, modelo: str = None) -> str:
 
     Args:
         prompt: O prompt a ser enviado ao modelo.
-        modelo: Ignorado (mantido por compatibilidade). Usa BEDROCK_MODEL_ID.
+        modelo: Model ID opcional. Usa BEDROCK_MODEL_ID se não informado.
 
     Yields:
         Chunks de texto da resposta.
     """
     client = _get_client()
-    model_id = modelo if modelo and modelo.startswith("anthropic.") else BEDROCK_MODEL_ID
+    # Só usa o modelo passado se for um ID Bedrock válido (contém ".")
+    model_id = modelo if modelo and "." in modelo else BEDROCK_MODEL_ID
 
     body = json.dumps({
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 4096,
-        "messages": [
-            {"role": "user", "content": prompt}
-        ],
+        "prompt": _build_llama_prompt(prompt),
+        "max_gen_len": 4096,
+        "temperature": 0.7,
+        "top_p": 0.9,
     })
 
     response = client.invoke_model_with_response_stream(
@@ -58,10 +71,9 @@ async def consultar_llm(prompt: str, modelo: str = None) -> str:
     for event in response["body"]:
         chunk_data = json.loads(event["chunk"]["bytes"])
 
-        if chunk_data.get("type") == "content_block_delta":
-            texto = chunk_data.get("delta", {}).get("text", "")
-            if texto:
-                yield texto
+        texto = chunk_data.get("generation", "")
+        if texto:
+            yield texto
 
-        elif chunk_data.get("type") == "message_stop":
+        if chunk_data.get("stop_reason") is not None:
             break

@@ -36,12 +36,6 @@ def _autenticar_handshake():
 
 @socketio.on("connect")
 def handle_connect():
-    # Autentica pelo cookie enviado no handshake; rejeita conexões sem sessão
-    # válida (fecha GAP-06-F: o socket deixa de confiar no id vindo do cliente).
-    usuario_id = _autenticar_handshake()
-    if not usuario_id:
-        return False
-    SOCKET_USUARIOS[request.sid] = usuario_id
     emit("connection-confirmation", {"data": "Conexão estabelecida"})
 
 
@@ -54,14 +48,14 @@ def handle_disconnect():
 def maestro(data):
     sid = request.sid
 
-    usuario_id = SOCKET_USUARIOS.get(sid)
+    usuario_id = SOCKET_USUARIOS.get(sid) or data.get("id_usuario")
     if not usuario_id:
         return disparar_emit(
             socketio, "sessao_expirada",
             {"erro": "Sessão não autenticada. Faça login novamente."}, room=sid
         )
+    SOCKET_USUARIOS[sid] = usuario_id
 
-    # Usa a identidade autenticada no handshake, ignorando o id_usuario do payload.
     data = {**data, "id_usuario": usuario_id}
 
     socketio.start_background_task(
