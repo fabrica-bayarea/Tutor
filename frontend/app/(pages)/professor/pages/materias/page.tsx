@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 
@@ -9,25 +10,21 @@ import { InterfaceUsuario, InterfaceMateria, InterfaceTurma, InterfaceTurmaMater
 import { obterVinculosProfessorTurmaMateria } from '@/app/services/service_vinculos';
 import { obterTurma } from '@/app/services/service_turma';
 import { obterMateria } from '@/app/services/service_materia';
+import { useAuth } from '@/utils/auth';
 
 export default function MinhasMaterias() {
+    const { user } = useAuth();
     const [professor, setProfessor] = useState<InterfaceUsuario | null>(null);
     const [turmas, setTurmas] = useState<InterfaceTurma[]>([]);
     const [materias, setMaterias] = useState<InterfaceMateria[]>([]);
     const [turmasMaterias, setTurmasMaterias] = useState<InterfaceTurmaMateria[]>([]);
 
     useEffect(() => {
-        const professorData = localStorage.getItem("professor");
-        if (professorData) {
-            try {
-                const parsedProfessor: InterfaceUsuario = JSON.parse(professorData);
-                setProfessor(parsedProfessor);
-                handleGetMaterias(parsedProfessor.id);
-            } catch (error) {
-                console.error("Erro ao fazer parse dos dados do professor:", error);
-            }
+        if (user && user.id) {
+            setProfessor(user as unknown as InterfaceUsuario);
+            handleGetMaterias(user.id);
         }
-    }, []);
+    }, [user]);
 
     const handleGetMaterias = async (professor_id: string) => {
         try {
@@ -82,7 +79,7 @@ export default function MinhasMaterias() {
             <div className={styles.listMaterias}>
                 {turmasMaterias.length > 0 ? (
                     turmasMaterias.map((turmaMateria) => (
-                        <a
+                        <Link
                             href={`/professor/materias/materia/${turmaMateria.turma_id}_${turmaMateria.materia_id}`}
                             key={`${turmaMateria.turma_id}_${turmaMateria.materia_id}`}
                         >
@@ -90,10 +87,10 @@ export default function MinhasMaterias() {
                                 materia={materias.find((materia) => materia.id === turmaMateria.materia_id)!}
                                 turma={turmas.find((turma) => turma.id === turmaMateria.turma_id)!}
                             />
-                        </a>
+                        </Link>
                     ))
                 ) : (
-                    <a
+                    <Link
                             href={`/professor/materias/materia/${1}_${2}`}
                             key={`${1}_${2}`}
                     >
@@ -101,7 +98,7 @@ export default function MinhasMaterias() {
                         materia={{ id: 'dummy', nome: 'Matéria Exemplo',codigo: 'MAT123' }}
                         turma={{ id: 'dummy', codigo: 'MAT123', semestre: '1', turno:'Matutino'  }}
                     />
-                    </a>
+                    </Link>
                 )}
             </div>
 
